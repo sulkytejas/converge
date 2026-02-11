@@ -38,7 +38,7 @@ Converge is a B2B Partner Portal designed to streamline the recruitment partner 
 ### 1. Clone the repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/sulkytejas/converge.git
 cd converge
 ```
 
