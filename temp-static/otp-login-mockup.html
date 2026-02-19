@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Collegepond — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', sans-serif; background: #0f1117; color: #1D2939;
+    min-height: 100vh; display: flex; justify-content: center; align-items: center;
+  }
+
+  /* ── LAYOUT ── */
+  .login-container {
+    display: flex; width: 960px; min-height: 580px;
+    border-radius: 16px; overflow: hidden;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+  }
+
+  /* ── LEFT PANEL ── */
+  .left-panel {
+    width: 45%; background: linear-gradient(160deg, #1570EF 0%, #0b4ea2 50%, #083b7a 100%);
+    padding: 40px; display: flex; flex-direction: column; justify-content: space-between;
+    position: relative; overflow: hidden; flex-shrink: 0;
+  }
+  .left-panel::before {
+    content: ''; position: absolute; top: -80px; right: -80px;
+    width: 300px; height: 300px; border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+  }
+  .left-panel::after {
+    content: ''; position: absolute; bottom: -60px; left: -40px;
+    width: 200px; height: 200px; border-radius: 50%;
+    background: rgba(255,255,255,0.03);
+  }
+  .logo {
+    display: flex; align-items: center; gap: 10px; color: #fff;
+    font-size: 18px; font-weight: 700; position: relative; z-index: 1;
+  }
+  .logo-icon {
+    width: 32px; height: 32px; background: rgba(255,255,255,0.2);
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  }
+  .logo-icon svg { width: 20px; height: 20px; }
+  .left-content { position: relative; z-index: 1; }
+  .left-content h1 { font-size: 30px; font-weight: 800; color: #fff; line-height: 1.2; margin-bottom: 14px; }
+  .left-content p { font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.6; max-width: 320px; }
+  .left-bottom { position: relative; z-index: 1; }
+  .student-avatars { display: flex; margin-bottom: 10px; }
+  .avatar {
+    width: 34px; height: 34px; border-radius: 50%; border: 2px solid #1570EF;
+    background: rgba(255,255,255,0.2); display: flex; align-items: center;
+    justify-content: center; font-size: 13px; color: #fff; margin-left: -8px;
+  }
+  .avatar:first-child { margin-left: 0; }
+  .left-bottom-text { font-size: 12px; color: rgba(255,255,255,0.55); }
+  .left-bottom-text strong { color: rgba(255,255,255,0.85); }
+
+  /* ── RIGHT PANEL ── */
+  .right-panel {
+    flex: 1; background: #fff; padding: 44px;
+    display: flex; flex-direction: column; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+
+  /* ── SCREENS (inside right panel) ── */
+  .right-screen { display: none; }
+  .right-screen.active { display: block; animation: fadeSlide 0.3s ease-out; }
+
+  /* ── FORM ELEMENTS ── */
+  .right-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    margin-bottom: 28px;
+  }
+  .right-header h2 { font-size: 22px; font-weight: 700; color: #101828; line-height: 1.3; }
+  .right-header h2 span { color: #1570EF; display: block; }
+  .right-header .alt-link { text-align: right; flex-shrink: 0; }
+  .right-header .alt-link small { font-size: 12px; color: #667085; display: block; }
+  .right-header .alt-link a { font-size: 13px; color: #1570EF; text-decoration: none; font-weight: 600; }
+  .right-header .alt-link a:hover { text-decoration: underline; }
+
+  .form-group { margin-bottom: 18px; }
+  .form-label { display: block; font-size: 13px; font-weight: 500; color: #344054; margin-bottom: 5px; }
+  .form-input {
+    width: 100%; height: 42px; padding: 0 12px;
+    border: 1px solid #D0D5DD; border-radius: 8px;
+    font-size: 14px; color: #101828; outline: none;
+    font-family: 'Inter', sans-serif; transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .form-input::placeholder { color: #98A2B3; }
+  .form-input:focus { border-color: #1570EF; box-shadow: 0 0 0 3px rgba(21,112,239,0.12); }
+  .form-input.error { border-color: #F04438; box-shadow: 0 0 0 3px rgba(240,68,56,0.12); }
+  .error-msg { font-size: 12px; color: #F04438; margin-top: 5px; display: flex; align-items: center; gap: 4px; }
+  .error-msg svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+  .btn-primary {
+    width: 100%; height: 42px; border: none; border-radius: 8px;
+    background: #1570EF; color: #fff; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: all 0.2s; margin-top: 4px; font-family: 'Inter', sans-serif;
+  }
+  .btn-primary:hover { background: #1260d4; }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-primary.loading { position: relative; color: transparent; pointer-events: none; }
+  .btn-primary.loading::after {
+    content: ''; position: absolute; top: 50%; left: 50%;
+    width: 18px; height: 18px; margin: -9px 0 0 -9px;
+    border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff;
+    border-radius: 50%; animation: spin 0.6s linear infinite;
+  }
+
+  /* ── BACK LINK ── */
+  .back-link {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 13px; color: #667085; text-decoration: none;
+    margin-bottom: 20px; font-weight: 500; cursor: pointer;
+    background: none; border: none; font-family: 'Inter', sans-serif;
+  }
+  .back-link:hover { color: #1570EF; }
+  .back-link svg { width: 15px; height: 15px; }
+
+  /* ── OTP ── */
+  .otp-title { font-size: 22px; font-weight: 700; color: #101828; margin-bottom: 6px; }
+  .otp-subtitle { font-size: 14px; color: #667085; margin-bottom: 20px; line-height: 1.5; }
+  .otp-email { font-weight: 600; color: #344054; }
+  .otp-boxes { display: flex; gap: 10px; margin-bottom: 8px; }
+  .otp-box {
+    width: 52px; height: 54px; border: 1.5px solid #D0D5DD; border-radius: 10px;
+    text-align: center; font-size: 22px; font-weight: 600; color: #101828;
+    outline: none; transition: all 0.2s; caret-color: #1570EF;
+    font-family: 'Inter', sans-serif;
+  }
+  .otp-box:focus { border-color: #1570EF; box-shadow: 0 0 0 3px rgba(21,112,239,0.12); }
+  .otp-box.filled { border-color: #1570EF; background: #F0F7FF; }
+  .otp-box.error { border-color: #F04438; background: #FEF3F2; }
+  .resend-section { margin: 6px 0 20px; font-size: 13px; color: #667085; }
+  .resend-timer { color: #98A2B3; font-variant-numeric: tabular-nums; }
+  .resend-link {
+    color: #1570EF; text-decoration: none; font-weight: 600; cursor: pointer;
+    background: none; border: none; font-size: 13px; font-family: 'Inter', sans-serif;
+  }
+  .resend-link:hover { text-decoration: underline; }
+
+  /* ── SUCCESS SCREEN (full-page overlay) ── */
+  .success-overlay {
+    display: none; position: fixed; inset: 0; background: #0f1117;
+    justify-content: center; align-items: center; z-index: 999;
+  }
+  .success-overlay.active { display: flex; }
+  .success-container {
+    width: 460px; padding: 64px 44px; text-align: center;
+    background: #fff; border-radius: 16px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+  }
+  .success-check {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: #ECFDF3; margin: 0 auto 20px;
+    display: flex; align-items: center; justify-content: center;
+    animation: scaleIn 0.4s ease-out;
+  }
+  .success-check svg { width: 36px; height: 36px; }
+  .success-container h2 { font-size: 22px; font-weight: 700; color: #101828; margin-bottom: 6px; }
+  .success-container p { font-size: 14px; color: #667085; margin-bottom: 20px; }
+  .progress-bar { width: 180px; height: 4px; background: #E4E7EC; border-radius: 4px; margin: 0 auto; overflow: hidden; }
+  .progress-bar-fill { height: 100%; width: 0; background: #1570EF; border-radius: 4px; }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes scaleIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  @keyframes progressFill { from { width: 0; } to { width: 100%; } }
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════ SINGLE LOGIN CONTAINER ═══════ -->
+<div class="login-container">
+
+  <!-- LEFT PANEL (always visible) -->
+  <div class="left-panel">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      Collegepond
+    </div>
+    <div class="left-content">
+      <h1>Welcome Back —<br>Continue Shaping<br>Your Future</h1>
+      <p>Sign in to access expert support, tailored resources, and opportunities designed to help you succeed.</p>
+    </div>
+    <div class="left-bottom">
+      <div class="student-avatars">
+        <div class="avatar">S</div>
+        <div class="avatar">A</div>
+        <div class="avatar">R</div>
+        <div class="avatar">P</div>
+        <div class="avatar" style="background:rgba(255,255,255,0.35); font-size:11px;">+2k</div>
+      </div>
+      <div class="left-bottom-text">Trusted by <strong>2,000+ counselors</strong> worldwide</div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL (screens swap here) -->
+  <div class="right-panel">
+
+    <!-- ═══ SCREEN 1: EMAIL + MOBILE ═══ -->
+    <div id="screen-email" class="right-screen active">
+      <div class="right-header">
+        <h2>Login to<span>Collegepond</span></h2>
+        <div class="alt-link">
+          <small>No account yet?</small>
+          <a href="signup-flow-mockup.html">Sign Up here</a>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email Address *</label>
+        <input type="email" class="form-input" id="loginEmail" placeholder="you@company.com">
+        <div class="error-msg" id="emailError" style="display:none;">
+          <svg viewBox="0 0 16 16" fill="#F04438"><circle cx="8" cy="8" r="7"/><path d="M8 4v4M8 10.5v.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span id="emailErrorText">Please enter a valid email address</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Mobile Number *</label>
+        <div style="display:flex; gap:8px;">
+          <select class="form-input" id="loginCountryCode" style="width:80px; flex-shrink:0; padding:0 8px; background:#F9FAFB;">
+            <option value="+91">+91</option>
+            <option value="+1">+1</option>
+            <option value="+44">+44</option>
+            <option value="+971">+971</option>
+            <option value="+61">+61</option>
+            <option value="+65">+65</option>
+          </select>
+          <input type="tel" class="form-input" id="loginPhone" placeholder="98765 43210">
+        </div>
+        <div class="error-msg" id="phoneError" style="display:none;">
+          <svg viewBox="0 0 16 16" fill="#F04438"><circle cx="8" cy="8" r="7"/><path d="M8 4v4M8 10.5v.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+          <span id="phoneErrorText">Please enter a valid mobile number</span>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="sendOtpBtn" onclick="handleSendOTP()">Send OTP</button>
+    </div>
+
+    <!-- ═══ SCREEN 2: OTP VERIFICATION ═══ -->
+    <div id="screen-otp" class="right-screen">
+      <button class="back-link" onclick="showScreen('email')">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 12L6 8l4-4"/></svg>
+        Back
+      </button>
+
+      <div class="otp-title">Verify Your Identity</div>
+      <div class="otp-subtitle">
+        Code sent to <span class="otp-email" id="maskedEmail">su***@gmail.com</span> and <span class="otp-email" id="maskedPhone">+91 ****43210</span>
+      </div>
+
+      <label class="form-label">Enter 5-digit OTP *</label>
+      <div class="otp-boxes" id="otpBoxes">
+        <input type="text" maxlength="1" class="otp-box" inputmode="numeric">
+        <input type="text" maxlength="1" class="otp-box" inputmode="numeric">
+        <input type="text" maxlength="1" class="otp-box" inputmode="numeric">
+        <input type="text" maxlength="1" class="otp-box" inputmode="numeric">
+        <input type="text" maxlength="1" class="otp-box" inputmode="numeric">
+      </div>
+      <div class="error-msg" id="otpError" style="display:none;">
+        <svg viewBox="0 0 16 16" fill="#F04438"><circle cx="8" cy="8" r="7"/><path d="M8 4v4M8 10.5v.5" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span id="otpErrorText">Invalid code. Please try again.</span>
+      </div>
+
+      <div class="resend-section">
+        Didn't receive the code? &nbsp;
+        <span id="resendArea">
+          <span class="resend-timer" id="resendTimer">Resend OTP in 0:30</span>
+        </span>
+      </div>
+
+      <button class="btn-primary" id="verifyOtpBtn" onclick="handleVerifyOTP()" disabled>Verify & Login</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ SUCCESS OVERLAY ═══ -->
+<div id="screen-success" class="success-overlay">
+  <div class="success-container">
+    <div class="success-check">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#12B76A" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 6L9 17l-5-5"/>
+      </svg>
+    </div>
+    <h2>Welcome back, Suraj!</h2>
+    <p>Redirecting to your dashboard...</p>
+    <div class="progress-bar">
+      <div class="progress-bar-fill" id="redirectProgress"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── SCREEN MANAGEMENT ──
+function showScreen(id) {
+  // Handle success overlay separately
+  document.getElementById('screen-success').classList.remove('active');
+
+  if (id === 'success') {
+    document.getElementById('screen-success').classList.add('active');
+    const bar = document.getElementById('redirectProgress');
+    bar.style.animation = 'none';
+    bar.offsetHeight;
+    bar.style.animation = 'progressFill 2s ease-in-out forwards';
+    setTimeout(() => { window.location.href = 'dashboard-mockup.html'; }, 2200);
+    return;
+  }
+
+  // Swap right-panel screens
+  document.querySelectorAll('.right-screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+
+  if (id === 'otp') {
+    startResendTimer();
+    setTimeout(() => {
+      const boxes = document.querySelectorAll('#otpBoxes .otp-box');
+      if (boxes[0]) boxes[0].focus();
+    }, 100);
+  }
+}
+
+// ── VALIDATION ──
+const phoneDigitsByCode = {
+  '+91': 10, '+1': 10, '+44': 10, '+971': 9, '+61': 9, '+65': 8
+};
+
+function isValidEmail(email) {
+  return /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/.test(email);
+}
+
+function maskEmail(email) {
+  const [user, domain] = email.split('@');
+  return user.substring(0, 2) + '***@' + domain;
+}
+
+function maskPhone(phone, code) {
+  const digits = phone.replace(/\s/g, '');
+  if (digits.length < 4) return code + ' ****';
+  return code + ' ****' + digits.slice(-5);
+}
+
+// ── SEND OTP ──
+function handleSendOTP() {
+  const emailInput = document.getElementById('loginEmail');
+  const phoneInput = document.getElementById('loginPhone');
+  const emailError = document.getElementById('emailError');
+  const phoneError = document.getElementById('phoneError');
+  const btn = document.getElementById('sendOtpBtn');
+  const email = emailInput.value.trim();
+  const phone = phoneInput.value.trim();
+  const code = document.getElementById('loginCountryCode').value;
+
+  emailInput.classList.remove('error');
+  phoneInput.classList.remove('error');
+  emailError.style.display = 'none';
+  phoneError.style.display = 'none';
+
+  let hasError = false;
+
+  if (!email || !isValidEmail(email)) {
+    emailInput.classList.add('error');
+    emailError.style.display = 'flex';
+    document.getElementById('emailErrorText').textContent = !email ? 'Email address is required' : 'Please enter a valid email address';
+    hasError = true;
+  }
+
+  const phoneDigits = phone.replace(/\s/g, '').replace(/[^0-9]/g, '');
+  const expectedDigits = phoneDigitsByCode[code] || 10;
+  if (!phoneDigits) {
+    phoneInput.classList.add('error');
+    phoneError.style.display = 'flex';
+    document.getElementById('phoneErrorText').textContent = 'Mobile number is required';
+    hasError = true;
+  } else if (phoneDigits.length !== expectedDigits) {
+    phoneInput.classList.add('error');
+    phoneError.style.display = 'flex';
+    document.getElementById('phoneErrorText').textContent = 'Mobile number must be ' + expectedDigits + ' digits for ' + code;
+    hasError = true;
+  }
+
+  if (hasError) return;
+
+  btn.classList.add('loading');
+  btn.textContent = 'Sending OTP...';
+
+  setTimeout(() => {
+    btn.classList.remove('loading');
+    btn.textContent = 'Send OTP';
+
+    document.getElementById('maskedEmail').textContent = maskEmail(email);
+    document.getElementById('maskedPhone').textContent = maskPhone(phone, code);
+
+    document.querySelectorAll('#otpBoxes .otp-box').forEach(box => {
+      box.value = '';
+      box.classList.remove('filled', 'error');
+    });
+    document.getElementById('otpError').style.display = 'none';
+    document.getElementById('verifyOtpBtn').disabled = true;
+
+    showScreen('otp');
+  }, 800);
+}
+
+// ── OTP BOX BEHAVIOR ──
+function setupOTPBoxes() {
+  const boxes = document.querySelectorAll('#otpBoxes .otp-box');
+  const OTP_LENGTH = 5;
+
+  boxes.forEach((box, index) => {
+    box.addEventListener('input', (e) => {
+      const val = e.target.value;
+      if (val && !/^\d$/.test(val)) { e.target.value = ''; return; }
+
+      if (val) {
+        box.classList.add('filled');
+        box.classList.remove('error');
+        if (index < OTP_LENGTH - 1) boxes[index + 1].focus();
+      } else {
+        box.classList.remove('filled');
+      }
+
+      const allFilled = Array.from(boxes).slice(0, OTP_LENGTH).every(b => b.value.length === 1);
+      document.getElementById('verifyOtpBtn').disabled = !allFilled;
+      document.getElementById('otpError').style.display = 'none';
+    });
+
+    box.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !box.value && index > 0) {
+        boxes[index - 1].focus();
+        boxes[index - 1].value = '';
+        boxes[index - 1].classList.remove('filled');
+        document.getElementById('verifyOtpBtn').disabled = true;
+      }
+    });
+
+    box.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const pasteData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, OTP_LENGTH);
+      pasteData.split('').forEach((char, i) => {
+        if (boxes[i]) { boxes[i].value = char; boxes[i].classList.add('filled'); }
+      });
+      if (pasteData.length > 0) {
+        const focusIdx = Math.min(pasteData.length, OTP_LENGTH - 1);
+        boxes[focusIdx].focus();
+      }
+      const allFilled = Array.from(boxes).slice(0, OTP_LENGTH).every(b => b.value.length === 1);
+      document.getElementById('verifyOtpBtn').disabled = !allFilled;
+    });
+  });
+}
+
+// ── VERIFY OTP ──
+function handleVerifyOTP() {
+  const btn = document.getElementById('verifyOtpBtn');
+  btn.classList.add('loading');
+  btn.textContent = 'Verifying...';
+
+  setTimeout(() => {
+    btn.classList.remove('loading');
+    btn.textContent = 'Verify & Login';
+    showScreen('success');
+  }, 1000);
+}
+
+// ── RESEND TIMER ──
+let resendInterval = null;
+function startResendTimer() {
+  let seconds = 30;
+  const area = document.getElementById('resendArea');
+  if (resendInterval) clearInterval(resendInterval);
+  area.innerHTML = '<span class="resend-timer" id="resendTimer">Resend OTP in 0:30</span>';
+
+  resendInterval = setInterval(() => {
+    seconds--;
+    const timer = document.getElementById('resendTimer');
+    if (timer) timer.textContent = 'Resend OTP in 0:' + String(seconds).padStart(2, '0');
+    if (seconds <= 0) {
+      clearInterval(resendInterval);
+      area.innerHTML = '<button class="resend-link" onclick="handleResendOTP()">Resend OTP</button>';
+    }
+  }, 1000);
+}
+
+function handleResendOTP() {
+  document.querySelectorAll('#otpBoxes .otp-box').forEach(box => {
+    box.value = ''; box.classList.remove('filled', 'error');
+  });
+  document.getElementById('verifyOtpBtn').disabled = true;
+  document.getElementById('otpError').style.display = 'none';
+  startResendTimer();
+}
+
+// ── INIT ──
+setupOTPBoxes();
+
+document.getElementById('loginEmail').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSendOTP(); });
+document.getElementById('loginPhone').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleSendOTP(); });
+
+// Numeric-only enforcement on phone input
+document.getElementById('loginPhone').addEventListener('input', function() {
+  this.value = this.value.replace(/[^0-9\s]/g, '');
+});
+
+// Clear phone error when country code changes
+document.getElementById('loginCountryCode').addEventListener('change', function() {
+  document.getElementById('loginPhone').classList.remove('error');
+  document.getElementById('phoneError').style.display = 'none';
+});
+</script>
+
+</body>
+</html>
