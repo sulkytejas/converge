@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Collegepond Admin — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    background: #F5F6FA;
+    color: #1D2939;
+  }
+
+  /* ===== LEFT BRANDING PANEL ===== */
+  .brand-panel {
+    width: 480px;
+    min-height: 100vh;
+    background: linear-gradient(160deg, #0B4A8A 0%, #1570EF 50%, #53B1FD 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 48px;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .brand-panel::before {
+    content: '';
+    position: absolute;
+    top: -120px;
+    right: -120px;
+    width: 400px;
+    height: 400px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 50%;
+  }
+  .brand-panel::after {
+    content: '';
+    position: absolute;
+    bottom: -80px;
+    left: -80px;
+    width: 300px;
+    height: 300px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 50%;
+  }
+
+  .brand-logo {
+    width: 64px;
+    height: 64px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  .brand-logo svg { width: 36px; height: 36px; }
+
+  .brand-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 6px;
+    text-align: center;
+    letter-spacing: -0.5px;
+  }
+  .brand-subtitle {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.7);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 40px;
+  }
+
+  .brand-features {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    z-index: 1;
+  }
+  .brand-features li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: rgba(255,255,255,0.9);
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .brand-features li .feat-icon {
+    width: 36px;
+    height: 36px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .brand-features li .feat-icon svg {
+    width: 18px;
+    height: 18px;
+    stroke: #fff;
+    fill: none;
+    stroke-width: 2;
+  }
+
+  .brand-version {
+    position: absolute;
+    bottom: 24px;
+    color: rgba(255,255,255,0.4);
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  /* ===== RIGHT LOGIN PANEL ===== */
+  .login-panel {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    position: relative;
+  }
+
+  .login-card {
+    width: 100%;
+    max-width: 440px;
+  }
+
+  /* Security Badge */
+  .security-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ECFDF3;
+    border: 1px solid #A6F4C5;
+    color: #027A48;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 20px;
+    margin-bottom: 28px;
+  }
+  .security-badge svg {
+    width: 14px;
+    height: 14px;
+    stroke: #027A48;
+    fill: none;
+    stroke-width: 2;
+  }
+
+  .login-heading {
+    font-size: 26px;
+    font-weight: 700;
+    color: #101828;
+    margin-bottom: 6px;
+    letter-spacing: -0.5px;
+  }
+  .login-subtext {
+    font-size: 14px;
+    color: #667085;
+    margin-bottom: 32px;
+    line-height: 1.5;
+  }
+
+  /* ===== FORM ELEMENTS ===== */
+  .form-group {
+    margin-bottom: 20px;
+  }
+  .form-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #344054;
+    margin-bottom: 6px;
+  }
+  .form-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #D0D5DD;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    color: #101828;
+    outline: none;
+    transition: all 0.15s;
+    background: #fff;
+  }
+  .form-input:focus {
+    border-color: #1570EF;
+    box-shadow: 0 0 0 3px rgba(21,112,239,0.12);
+  }
+  .form-input::placeholder { color: #98A2B3; }
+  .form-input.error {
+    border-color: #F04438;
+    box-shadow: 0 0 0 3px rgba(240,68,56,0.12);
+  }
+
+  .phone-row {
+    display: flex;
+    gap: 8px;
+  }
+  .country-select {
+    width: 90px;
+    padding: 10px 8px;
+    border: 1px solid #D0D5DD;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    color: #101828;
+    background: #F9FAFB;
+    cursor: pointer;
+    outline: none;
+    flex-shrink: 0;
+  }
+  .country-select:focus {
+    border-color: #1570EF;
+    box-shadow: 0 0 0 3px rgba(21,112,239,0.12);
+  }
+
+  .error-text {
+    font-size: 13px;
+    color: #F04438;
+    margin-top: 6px;
+    display: none;
+    align-items: center;
+    gap: 4px;
+  }
+  .error-text.visible { display: flex; }
+  .error-text svg { width: 14px; height: 14px; stroke: #F04438; fill: none; flex-shrink: 0; }
+
+  /* ===== BUTTONS ===== */
+  .btn-primary {
+    width: 100%;
+    padding: 12px 20px;
+    background: #1570EF;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .btn-primary:hover { background: #1260CC; }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary:disabled {
+    background: #B2CCFF;
+    cursor: not-allowed;
+    transform: none;
+  }
+  .btn-primary svg {
+    width: 18px;
+    height: 18px;
+    stroke: #fff;
+    fill: none;
+    stroke-width: 2;
+  }
+
+  .btn-spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    display: none;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ===== OTP INPUT ===== */
+  .otp-container {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 24px 0;
+  }
+  .otp-input {
+    width: 52px;
+    height: 56px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    border: 2px solid #D0D5DD;
+    border-radius: 10px;
+    outline: none;
+    color: #101828;
+    transition: all 0.15s;
+    background: #fff;
+  }
+  .otp-input:focus {
+    border-color: #1570EF;
+    box-shadow: 0 0 0 3px rgba(21,112,239,0.12);
+  }
+  .otp-input.filled {
+    border-color: #1570EF;
+    background: #F0F7FF;
+  }
+
+  .otp-info {
+    text-align: center;
+    font-size: 14px;
+    color: #667085;
+    line-height: 1.6;
+    margin-bottom: 8px;
+  }
+  .otp-info strong { color: #344054; font-weight: 600; }
+
+  .resend-row {
+    text-align: center;
+    margin-top: 16px;
+    font-size: 13px;
+    color: #667085;
+  }
+  .resend-link {
+    color: #1570EF;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .resend-link:hover { text-decoration: underline; }
+  .resend-link.disabled {
+    color: #98A2B3;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+  .resend-timer { color: #98A2B3; font-weight: 500; }
+
+  /* ===== ROLE SELECTION (STEP 3) ===== */
+  .verified-card {
+    text-align: center;
+    padding: 24px 0 8px;
+  }
+  .verified-icon {
+    width: 64px;
+    height: 64px;
+    background: #ECFDF3;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+  }
+  .verified-icon svg {
+    width: 32px;
+    height: 32px;
+    stroke: #12B76A;
+    fill: none;
+    stroke-width: 2;
+  }
+  .verified-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: #101828;
+    margin-bottom: 4px;
+  }
+  .verified-email {
+    font-size: 14px;
+    color: #667085;
+    margin-bottom: 20px;
+  }
+
+  .role-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: #F0F7FF;
+    border: 1px solid #B2CCFF;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1570EF;
+    margin-bottom: 16px;
+  }
+  .role-badge svg {
+    width: 16px;
+    height: 16px;
+    stroke: #1570EF;
+    fill: none;
+    stroke-width: 2;
+  }
+
+  .role-select-wrapper {
+    margin: 16px 0 20px;
+    text-align: left;
+  }
+  .role-select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #D0D5DD;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    color: #101828;
+    background: #fff;
+    cursor: pointer;
+    outline: none;
+  }
+  .role-select:focus {
+    border-color: #1570EF;
+    box-shadow: 0 0 0 3px rgba(21,112,239,0.12);
+  }
+
+  .session-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 20px 0;
+    padding: 14px 16px;
+    background: #F9FAFB;
+    border-radius: 8px;
+    border: 1px solid #E4E7EC;
+  }
+  .session-info-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+  }
+  .session-info-label { color: #667085; }
+  .session-info-value { color: #344054; font-weight: 500; }
+
+  /* ===== STEPS ===== */
+  .step { display: none; }
+  .step.active { display: block; }
+
+  /* Step indicator */
+  .step-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+  .step-dot {
+    width: 32px;
+    height: 4px;
+    background: #E4E7EC;
+    border-radius: 4px;
+    transition: all 0.3s;
+  }
+  .step-dot.active { background: #1570EF; }
+  .step-dot.done { background: #12B76A; }
+
+  /* ===== LOCKOUT ===== */
+  .lockout-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .lockout-overlay.visible { display: flex; }
+  .lockout-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 40px;
+    text-align: center;
+    max-width: 400px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  }
+  .lockout-icon {
+    width: 64px;
+    height: 64px;
+    background: #FEF3F2;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+  }
+  .lockout-icon svg {
+    width: 32px;
+    height: 32px;
+    stroke: #F04438;
+    fill: none;
+    stroke-width: 2;
+  }
+  .lockout-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #101828;
+    margin-bottom: 8px;
+  }
+  .lockout-text {
+    font-size: 14px;
+    color: #667085;
+    line-height: 1.5;
+  }
+
+  /* ===== RECOVERY OPTIONS ===== */
+  .recovery-option {
+    display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px;
+    border: 1px solid #E4E7EC; border-radius: 10px; background: #fff;
+    cursor: pointer; text-align: left; font-family: 'Inter', sans-serif;
+    transition: all 0.15s; font-size: 13px; color: #101828;
+  }
+  .recovery-option:hover { border-color: #1570EF; background: #F0F7FF; }
+  .recovery-option svg { flex-shrink: 0; margin-top: 2px; }
+
+  /* ===== FOOTER ===== */
+  .login-footer {
+    position: absolute;
+    bottom: 24px;
+    left: 0;
+    right: 0;
+    text-align: center;
+  }
+  .footer-text {
+    font-size: 12px;
+    color: #98A2B3;
+    margin-bottom: 6px;
+  }
+  .partner-link {
+    font-size: 13px;
+    color: #667085;
+  }
+  .partner-link a {
+    color: #1570EF;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .partner-link a:hover { text-decoration: underline; }
+
+  /* ===== SESSION TIMEOUT NOTICE ===== */
+  .timeout-notice {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #98A2B3;
+    margin-top: 20px;
+    justify-content: center;
+  }
+  .timeout-notice svg {
+    width: 14px;
+    height: 14px;
+    stroke: #98A2B3;
+    fill: none;
+    stroke-width: 2;
+    flex-shrink: 0;
+  }
+
+  /* ===== ATTEMPT COUNTER ===== */
+  .attempt-counter {
+    text-align: center;
+    font-size: 12px;
+    color: #F04438;
+    margin-top: 12px;
+    display: none;
+  }
+  .attempt-counter.visible { display: block; }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 900px) {
+    .brand-panel { display: none; }
+    .login-panel { padding: 24px; }
+  }
+  @media (max-width: 480px) {
+    .login-card { max-width: 100%; }
+    .otp-input { width: 44px; height: 48px; font-size: 18px; }
+    .otp-container { gap: 6px; }
+    .login-heading { font-size: 22px; }
+  }
+
+  /* ===== TOAST ===== */
+  .toast {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    background: #101828;
+    color: #fff;
+    padding: 14px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 2000;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    transform: translateX(120%);
+    transition: transform 0.3s ease;
+  }
+  .toast.show { transform: translateX(0); }
+  .toast svg { width: 18px; height: 18px; stroke: #12B76A; fill: none; stroke-width: 2; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<!-- LEFT BRANDING PANEL -->
+<div class="brand-panel">
+  <div class="brand-logo">
+    <svg viewBox="0 0 36 36" fill="none">
+      <path d="M18 3L4 10v16l14 7 14-7V10L18 3z" fill="rgba(255,255,255,0.2)" stroke="#fff" stroke-width="1.5"/>
+      <path d="M12 17l4 4 8-8" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+  <div class="brand-title">Collegepond</div>
+  <div class="brand-subtitle">Admin Portal</div>
+
+  <ul class="brand-features">
+    <li>
+      <span class="feat-icon"><svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg></span>
+      Partner & Commission Management
+    </li>
+    <li>
+      <span class="feat-icon"><svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="10"/></svg></span>
+      Student Application Tracking
+    </li>
+    <li>
+      <span class="feat-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></span>
+      Financial Reconciliation
+    </li>
+    <li>
+      <span class="feat-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
+      Role-Based Access Control
+    </li>
+  </ul>
+
+  <span class="brand-version">Collegepond Admin Portal v1.0</span>
+</div>
+
+<!-- RIGHT LOGIN PANEL -->
+<div class="login-panel">
+  <div class="login-card">
+
+    <!-- STEP INDICATOR -->
+    <div class="step-indicator">
+      <div class="step-dot active" id="dot1"></div>
+      <div class="step-dot" id="dot2"></div>
+      <div class="step-dot" id="dot3"></div>
+    </div>
+
+    <!-- ===== STEP 1: IDENTIFY ===== -->
+    <div class="step active" id="step1">
+      <div class="security-badge">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Secure Admin Access
+      </div>
+
+      <div class="login-heading">Sign in to Admin Portal</div>
+      <div class="login-subtext">Enter your Collegepond admin credentials to continue.</div>
+
+      <form id="identifyForm" onsubmit="return handleIdentify(event)">
+        <div class="form-group">
+          <label class="form-label">Email address</label>
+          <input type="email" class="form-input" id="emailInput" placeholder="you@collegepond.com" required autocomplete="email">
+          <div class="error-text" id="emailError">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+            <span id="emailErrorText">Email not found in admin directory</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Phone number</label>
+          <div class="phone-row">
+            <select class="country-select" id="countryCode">
+              <option value="+91">+91</option>
+              <option value="+1">+1</option>
+              <option value="+44">+44</option>
+              <option value="+61">+61</option>
+              <option value="+971">+971</option>
+            </select>
+            <input type="tel" class="form-input" id="phoneInput" placeholder="98765 43210" required autocomplete="tel">
+          </div>
+          <div class="error-text" id="phoneError">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+            <span id="phoneErrorText">Phone number does not match records</span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary" id="sendOtpBtn">
+          <span id="sendOtpText">Send OTP</span>
+          <div class="btn-spinner" id="sendOtpSpinner"></div>
+          <svg viewBox="0 0 24 24" id="sendOtpIcon"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </form>
+
+      <div class="attempt-counter" id="attemptCounter"></div>
+
+      <div class="timeout-notice">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Sessions expire after 8 hours of inactivity
+      </div>
+    </div>
+
+    <!-- ===== STEP 2: VERIFY OTP ===== -->
+    <div class="step" id="step2">
+      <div class="security-badge">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Secure Admin Access
+      </div>
+
+      <div class="login-heading">Verify your identity</div>
+      <div class="otp-info">
+        OTP sent to your phone and email<br>
+        <strong id="maskedPhone">****3210</strong> &nbsp;&middot;&nbsp; <strong id="maskedEmail">s***@collegepond.com</strong>
+      </div>
+
+      <div class="otp-container" id="otpContainer">
+        <input type="text" class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="0">
+        <input type="text" class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="1">
+        <input type="text" class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="2">
+        <input type="text" class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="3">
+        <input type="text" class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="4">
+        <input type="text" class="otp-input" maxlength="1" inputmode="numeric" pattern="[0-9]" data-index="5">
+      </div>
+
+      <div class="error-text" id="otpError" style="justify-content:center">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span>Invalid OTP. Please try again.</span>
+      </div>
+
+      <button class="btn-primary" id="verifyOtpBtn" onclick="handleVerifyOTP()" disabled>
+        <span id="verifyOtpText">Verify OTP</span>
+        <div class="btn-spinner" id="verifyOtpSpinner"></div>
+      </button>
+
+      <div class="resend-row">
+        Didn't receive the code?
+        <a class="resend-link disabled" id="resendLink" onclick="handleResend()">Resend OTP</a>
+        <span class="resend-timer" id="resendTimer">(30s)</span>
+      </div>
+
+      <div style="text-align:center; margin-top:16px">
+        <a href="#" onclick="goToStep(1); return false" style="font-size:13px; color:#667085; text-decoration:none; font-weight:500;">
+          &larr; Back to login
+        </a>
+      </div>
+    </div>
+
+    <!-- ===== STEP 3: ROLE SELECTION ===== -->
+    <div class="step" id="step3">
+      <div class="verified-card">
+        <div class="verified-icon">
+          <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+        </div>
+        <div class="verified-name" id="userName">Suraj Bajaj</div>
+        <div class="verified-email" id="userEmail">suraj@collegepond.com</div>
+
+        <div class="role-badge" id="roleBadge">
+          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span id="roleBadgeText">Super Admin</span>
+        </div>
+
+        <div class="role-select-wrapper" id="roleSelectWrapper" style="display:none">
+          <label class="form-label">Select a role to continue</label>
+          <select class="role-select" id="roleSelect"></select>
+        </div>
+      </div>
+
+      <div class="session-info">
+        <div class="session-info-row">
+          <span class="session-info-label">Last login</span>
+          <span class="session-info-value" id="lastLogin">First login</span>
+        </div>
+        <div class="session-info-row">
+          <span class="session-info-label">IP address</span>
+          <span class="session-info-value" id="ipAddress">192.168.1.42</span>
+        </div>
+        <div class="session-info-row">
+          <span class="session-info-label">Session timeout</span>
+          <span class="session-info-value">8 hours</span>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="handleLogin()">
+        Continue to Dashboard
+        <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="login-footer">
+    <div style="margin-bottom:8px;"><a href="javascript:void(0)" onclick="showRecoveryModal()" style="color:#1570EF;font-size:13px;font-weight:500;text-decoration:none;">Can't access your account?</a></div>
+    <div class="footer-text">Collegepond Admin Portal v1.0 &nbsp;|&nbsp; Need help? Contact IT Support</div>
+    <div class="partner-link">Are you a partner? <a href="otp-login-mockup.html">Login here</a></div>
+  </div>
+</div>
+
+<!-- ACCOUNT RECOVERY MODAL -->
+<div class="lockout-overlay" id="recoveryOverlay" style="display:none;">
+  <div class="lockout-card" style="max-width:480px;text-align:left;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3 style="font-size:18px;font-weight:700;color:#101828;margin:0;">Account Recovery</h3>
+      <div style="width:32px;height:32px;border-radius:8px;border:1px solid #E4E7EC;display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="closeRecoveryModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#667085" stroke-width="2" style="width:16px;height:16px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </div>
+    </div>
+    <div id="recoveryStep1">
+      <p style="font-size:13px;color:#667085;margin-bottom:16px;">Select the issue you're experiencing:</p>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <button class="recovery-option" onclick="showRecoveryStep('phone')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#1570EF" stroke-width="2" style="width:20px;height:20px;"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+          <div><strong>Changed my phone number</strong><br><span style="color:#667085;font-size:12px;">I no longer have access to my registered phone</span></div>
+        </button>
+        <button class="recovery-option" onclick="showRecoveryStep('email')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#1570EF" stroke-width="2" style="width:20px;height:20px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <div><strong>Can't access my email</strong><br><span style="color:#667085;font-size:12px;">My @collegepond.com email is not working</span></div>
+        </button>
+        <button class="recovery-option" onclick="showRecoveryStep('locked')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#1570EF" stroke-width="2" style="width:20px;height:20px;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          <div><strong>Account is locked</strong><br><span style="color:#667085;font-size:12px;">Too many failed attempts or account deactivated</span></div>
+        </button>
+        <button class="recovery-option" onclick="showRecoveryStep('other')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#1570EF" stroke-width="2" style="width:20px;height:20px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div><strong>Other issue</strong><br><span style="color:#667085;font-size:12px;">I need help with something else</span></div>
+        </button>
+      </div>
+    </div>
+    <div id="recoveryStep2" style="display:none;">
+      <div id="recoveryContent"></div>
+      <div style="margin-top:16px;display:flex;gap:8px;">
+        <button style="padding:8px 16px;border:1px solid #D0D5DD;border-radius:8px;background:#fff;color:#344054;font-size:13px;font-weight:600;cursor:pointer;" onclick="backToRecoveryStep1()">Back</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOCKOUT OVERLAY -->
+<div class="lockout-overlay" id="lockoutOverlay">
+  <div class="lockout-card">
+    <div class="lockout-icon">
+      <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+    </div>
+    <div class="lockout-title">Account Locked</div>
+    <div class="lockout-text">Too many failed login attempts. Your account has been temporarily locked for security.<br><br>Please contact your IT administrator to unlock your account.</div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <svg viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+  <span id="toastText">OTP sent successfully</span>
+</div>
+
+<script>
+// ===== DEMO ADMIN USERS =====
+const ADMIN_USERS = [
+  { name: 'Suraj Bajaj',      role: 'super_admin',    email: 'suraj@collegepond.com',  phone: '9876543210' },
+  { name: 'Neha Sharma',      role: 'finance_mgr',    email: 'neha@collegepond.com',   phone: '9876543211' },
+  { name: 'Amit Patel',       role: 'finance_exec',   email: 'amit@collegepond.com',   phone: '9876543212' },
+  { name: 'Priya Mehta',      role: 'ops_team_lead',  email: 'priya@collegepond.com',  phone: '9876543213' },
+  { name: 'Rahul Verma',      role: 'ops_counselor',  email: 'rahul@collegepond.com',  phone: '9876543214' },
+  { name: 'Aarav Kulkarni',   role: 'bdm',            email: 'aarav@collegepond.com',  phone: '9876543215' },
+  { name: 'Kavita Rao',       role: 'content_mgr',    email: 'kavita@collegepond.com', phone: '9876543216' }
+];
+
+const ROLE_LABELS = {
+  super_admin:    'Super Admin',
+  finance_mgr:    'Finance Manager',
+  finance_exec:   'Finance Executive',
+  ops_team_lead:  'Ops Team Lead',
+  ops_counselor:  'Ops Counselor',
+  bdm:            'Business Development Manager',
+  content_mgr:    'Content Manager'
+};
+
+let currentUser = null;
+let failedAttempts = 0;
+const MAX_ATTEMPTS = 5;
+let resendTimer = null;
+
+// ===== STEP NAVIGATION =====
+function goToStep(n) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step' + n).classList.add('active');
+
+  for (let i = 1; i <= 3; i++) {
+    const dot = document.getElementById('dot' + i);
+    dot.classList.remove('active', 'done');
+    if (i < n) dot.classList.add('done');
+    if (i === n) dot.classList.add('active');
+  }
+}
+
+// ===== STEP 1: IDENTIFY =====
+function handleIdentify(e) {
+  e.preventDefault();
+
+  if (failedAttempts >= MAX_ATTEMPTS) {
+    document.getElementById('lockoutOverlay').classList.add('visible');
+    return false;
+  }
+
+  const email = document.getElementById('emailInput').value.trim().toLowerCase();
+  const phone = document.getElementById('phoneInput').value.replace(/[\s\-\(\)]/g, '');
+
+  // Reset errors
+  document.getElementById('emailError').classList.remove('visible');
+  document.getElementById('phoneError').classList.remove('visible');
+  document.getElementById('emailInput').classList.remove('error');
+  document.getElementById('phoneInput').classList.remove('error');
+
+  // Validate email format
+  if (!email) {
+    document.getElementById('emailInput').classList.add('error');
+    document.getElementById('emailError').classList.add('visible');
+    document.getElementById('emailErrorText').textContent = 'Email address is required';
+    return false;
+  }
+  const emailRegex = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+  if (!emailRegex.test(email)) {
+    document.getElementById('emailInput').classList.add('error');
+    document.getElementById('emailError').classList.add('visible');
+    document.getElementById('emailErrorText').textContent = 'Please enter a valid email address';
+    return false;
+  }
+  if (!email.endsWith('@collegepond.com') && !email.endsWith('@convergeapp.co')) {
+    document.getElementById('emailInput').classList.add('error');
+    document.getElementById('emailError').classList.add('visible');
+    document.getElementById('emailErrorText').textContent = 'Login requires a @collegepond.com or @convergeapp.co email address';
+    return false;
+  }
+
+  // Validate phone format
+  if (!phone) {
+    document.getElementById('phoneInput').classList.add('error');
+    document.getElementById('phoneError').classList.add('visible');
+    document.getElementById('phoneErrorText').textContent = 'Phone number is required';
+    return false;
+  }
+  // Strip country code prefix for validation
+  let phoneDigits = phone.replace(/^\+91/, '').replace(/^91/, '').replace(/^0/, '');
+  if (!/^\d{10}$/.test(phoneDigits)) {
+    document.getElementById('phoneInput').classList.add('error');
+    document.getElementById('phoneError').classList.add('visible');
+    document.getElementById('phoneErrorText').textContent = 'Please enter a valid 10-digit Indian mobile number';
+    return false;
+  }
+  if (!/^[6-9]/.test(phoneDigits)) {
+    document.getElementById('phoneInput').classList.add('error');
+    document.getElementById('phoneError').classList.add('visible');
+    document.getElementById('phoneErrorText').textContent = 'Indian mobile numbers must start with 6, 7, 8, or 9';
+    return false;
+  }
+
+  // Also check localStorage for cp_users_data
+  let users = [...ADMIN_USERS];
+  try {
+    const stored = JSON.parse(localStorage.getItem('cp_users_data'));
+    if (Array.isArray(stored)) {
+      stored.forEach(u => {
+        if (!users.find(a => a.email === u.email)) users.push(u);
+      });
+    }
+  } catch(e) {}
+
+  // Find user by email
+  const user = users.find(u => u.email === email);
+  if (!user) {
+    document.getElementById('emailInput').classList.add('error');
+    document.getElementById('emailError').classList.add('visible');
+    document.getElementById('emailErrorText').textContent = 'Email not found in admin directory. Contact IT support.';
+    failedAttempts++;
+    updateAttemptCounter();
+    return false;
+  }
+
+  // Verify phone matches the registered number for this user
+  const userPhoneDigits = user.phone.replace(/[\s\-\+]/g, '').replace(/^91/, '').slice(-10);
+  if (phoneDigits.slice(-10) !== userPhoneDigits) {
+    document.getElementById('phoneInput').classList.add('error');
+    document.getElementById('emailInput').classList.add('error');
+    document.getElementById('phoneError').classList.add('visible');
+    document.getElementById('phoneErrorText').textContent = 'Email and phone number combination not found. Please check your credentials.';
+    failedAttempts++;
+    updateAttemptCounter();
+    return false;
+  }
+
+  currentUser = user;
+
+  // Show loading
+  const btn = document.getElementById('sendOtpBtn');
+  btn.disabled = true;
+  document.getElementById('sendOtpText').textContent = 'Sending...';
+  document.getElementById('sendOtpSpinner').style.display = 'block';
+  document.getElementById('sendOtpIcon').style.display = 'none';
+
+  // Simulate OTP send delay
+  setTimeout(() => {
+    btn.disabled = false;
+    document.getElementById('sendOtpText').textContent = 'Send OTP';
+    document.getElementById('sendOtpSpinner').style.display = 'none';
+    document.getElementById('sendOtpIcon').style.display = 'block';
+
+    // Mask phone & email
+    const ph = user.phone;
+    document.getElementById('maskedPhone').textContent = '****' + ph.slice(-4);
+    const em = user.email;
+    const atIdx = em.indexOf('@');
+    document.getElementById('maskedEmail').textContent = em[0] + '***' + em.substring(atIdx);
+
+    goToStep(2);
+    startResendTimer();
+    showToast('OTP sent successfully');
+
+    // Auto-focus first OTP input
+    setTimeout(() => {
+      document.querySelector('#otpContainer .otp-input').focus();
+    }, 100);
+  }, 1200);
+
+  return false;
+}
+
+function updateAttemptCounter() {
+  const el = document.getElementById('attemptCounter');
+  if (failedAttempts > 0 && failedAttempts < MAX_ATTEMPTS) {
+    el.classList.add('visible');
+    el.textContent = `${failedAttempts} of ${MAX_ATTEMPTS} attempts used`;
+  }
+  if (failedAttempts >= MAX_ATTEMPTS) {
+    document.getElementById('lockoutOverlay').classList.add('visible');
+  }
+}
+
+// ===== OTP INPUT HANDLING =====
+document.querySelectorAll('#otpContainer .otp-input').forEach((input, idx, arr) => {
+  input.addEventListener('input', (e) => {
+    const val = e.target.value.replace(/[^0-9]/g, '');
+    e.target.value = val;
+
+    if (val && idx < arr.length - 1) {
+      arr[idx + 1].focus();
+    }
+    if (val) e.target.classList.add('filled');
+    else e.target.classList.remove('filled');
+
+    // Enable verify button if all filled
+    const allFilled = Array.from(arr).every(i => i.value.length === 1);
+    document.getElementById('verifyOtpBtn').disabled = !allFilled;
+  });
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+      arr[idx - 1].focus();
+      arr[idx - 1].value = '';
+      arr[idx - 1].classList.remove('filled');
+    }
+    if (e.key === 'Enter') {
+      const allFilled = Array.from(arr).every(i => i.value.length === 1);
+      if (allFilled) handleVerifyOTP();
+    }
+  });
+
+  // Handle paste
+  input.addEventListener('paste', (e) => {
+    e.preventDefault();
+    const paste = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, '');
+    if (paste.length >= 6) {
+      arr.forEach((inp, i) => {
+        inp.value = paste[i] || '';
+        if (inp.value) inp.classList.add('filled');
+      });
+      arr[5].focus();
+      document.getElementById('verifyOtpBtn').disabled = false;
+    }
+  });
+});
+
+// ===== STEP 2: VERIFY OTP =====
+function handleVerifyOTP() {
+  const inputs = document.querySelectorAll('#otpContainer .otp-input');
+  const otp = Array.from(inputs).map(i => i.value).join('');
+
+  if (otp.length !== 6) return;
+
+  // Hide previous error
+  document.getElementById('otpError').classList.remove('visible');
+
+  const btn = document.getElementById('verifyOtpBtn');
+  btn.disabled = true;
+  document.getElementById('verifyOtpText').textContent = 'Verifying...';
+  document.getElementById('verifyOtpSpinner').style.display = 'block';
+
+  setTimeout(() => {
+    // Accept any 6-digit OTP for demo
+    document.getElementById('verifyOtpText').textContent = 'Verify OTP';
+    document.getElementById('verifyOtpSpinner').style.display = 'none';
+    btn.disabled = false;
+
+    // Populate step 3
+    document.getElementById('userName').textContent = currentUser.name;
+    document.getElementById('userEmail').textContent = currentUser.email;
+
+    const roleLabel = ROLE_LABELS[currentUser.role] || currentUser.role;
+    document.getElementById('roleBadgeText').textContent = roleLabel;
+
+    // Check for multiple roles (demo: super_admin gets role selection)
+    if (currentUser.role === 'super_admin') {
+      document.getElementById('roleSelectWrapper').style.display = 'block';
+      const sel = document.getElementById('roleSelect');
+      sel.innerHTML = '';
+      Object.entries(ROLE_LABELS).forEach(([val, label]) => {
+        const opt = document.createElement('option');
+        opt.value = val;
+        opt.textContent = label;
+        sel.appendChild(opt);
+      });
+    } else {
+      document.getElementById('roleSelectWrapper').style.display = 'none';
+    }
+
+    // Last login
+    const lastLogin = localStorage.getItem('cpa_login_time');
+    if (lastLogin) {
+      const d = new Date(lastLogin);
+      document.getElementById('lastLogin').textContent = d.toLocaleString('en-IN', {
+        day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+      });
+    }
+
+    // Mock IP
+    document.getElementById('ipAddress').textContent = '192.168.1.' + Math.floor(Math.random() * 254 + 1);
+
+    goToStep(3);
+    showToast('Identity verified successfully');
+    if (resendTimer) clearInterval(resendTimer);
+  }, 1000);
+}
+
+// ===== RESEND TIMER =====
+function startResendTimer() {
+  let seconds = 30;
+  const timerEl = document.getElementById('resendTimer');
+  const linkEl = document.getElementById('resendLink');
+
+  linkEl.classList.add('disabled');
+  timerEl.style.display = 'inline';
+  timerEl.textContent = `(${seconds}s)`;
+
+  if (resendTimer) clearInterval(resendTimer);
+  resendTimer = setInterval(() => {
+    seconds--;
+    timerEl.textContent = `(${seconds}s)`;
+    if (seconds <= 0) {
+      clearInterval(resendTimer);
+      timerEl.style.display = 'none';
+      linkEl.classList.remove('disabled');
+    }
+  }, 1000);
+}
+
+function handleResend() {
+  startResendTimer();
+  showToast('OTP resent successfully');
+  // Clear OTP inputs
+  document.querySelectorAll('#otpContainer .otp-input').forEach(i => {
+    i.value = '';
+    i.classList.remove('filled');
+  });
+  document.getElementById('verifyOtpBtn').disabled = true;
+  document.querySelector('#otpContainer .otp-input').focus();
+}
+
+// ===== STEP 3: LOGIN =====
+function handleLogin() {
+  const selectedRole = document.getElementById('roleSelectWrapper').style.display !== 'none'
+    ? document.getElementById('roleSelect').value
+    : currentUser.role;
+
+  const token = 'cpa_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+
+  localStorage.setItem('cpa_current_user', JSON.stringify({
+    name: currentUser.name,
+    email: currentUser.email,
+    phone: currentUser.phone
+  }));
+  localStorage.setItem('cpa_current_role', selectedRole);
+  localStorage.setItem('cpa_session_token', token);
+  localStorage.setItem('cpa_login_time', new Date().toISOString());
+
+  window.location.href = 'cp-dashboard.html';
+}
+
+// ===== TOAST =====
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toastText').textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// ===== ACCOUNT RECOVERY =====
+function showRecoveryModal() {
+  document.getElementById('recoveryOverlay').style.display = 'flex';
+  document.getElementById('recoveryStep1').style.display = 'block';
+  document.getElementById('recoveryStep2').style.display = 'none';
+}
+function closeRecoveryModal() {
+  document.getElementById('recoveryOverlay').style.display = 'none';
+}
+function backToRecoveryStep1() {
+  document.getElementById('recoveryStep1').style.display = 'block';
+  document.getElementById('recoveryStep2').style.display = 'none';
+}
+function showRecoveryStep(type) {
+  document.getElementById('recoveryStep1').style.display = 'none';
+  document.getElementById('recoveryStep2').style.display = 'block';
+  var content = '';
+  if (type === 'phone') {
+    content = '<div style="background:#EFF8FF;border-radius:10px;padding:16px;margin-bottom:12px;">' +
+      '<h4 style="font-size:14px;font-weight:700;color:#175CD3;margin:0 0 8px;">Changed Phone Number</h4>' +
+      '<p style="font-size:13px;color:#344054;margin:0;line-height:1.5;">To update your registered phone number:</p>' +
+      '<ol style="font-size:13px;color:#344054;margin:8px 0 0;padding-left:20px;line-height:1.8;">' +
+        '<li>Contact your <strong>Super Admin</strong> or <strong>IT Support</strong></li>' +
+        '<li>They will verify your identity using your email and employee ID</li>' +
+        '<li>Your phone number will be updated in the <strong>Users</strong> page</li>' +
+        '<li>You can then login with your new phone number</li>' +
+      '</ol></div>' +
+      '<div style="font-size:12px;color:#667085;"><strong>IT Support:</strong> it-support@collegepond.com | +91-22-XXXX-XXXX</div>';
+  } else if (type === 'email') {
+    content = '<div style="background:#FFFAEB;border-radius:10px;padding:16px;margin-bottom:12px;">' +
+      '<h4 style="font-size:14px;font-weight:700;color:#B54708;margin:0 0 8px;">Email Access Issue</h4>' +
+      '<p style="font-size:13px;color:#344054;margin:0;line-height:1.5;">If you cannot access your @collegepond.com email:</p>' +
+      '<ol style="font-size:13px;color:#344054;margin:8px 0 0;padding-left:20px;line-height:1.8;">' +
+        '<li>Contact your <strong>IT Support</strong> to reset your Google Workspace / email access</li>' +
+        '<li>Once email is restored, return here and login normally</li>' +
+        '<li>OTP will be sent to both your phone and restored email</li>' +
+      '</ol></div>' +
+      '<div style="font-size:12px;color:#667085;"><strong>IT Support:</strong> it-support@collegepond.com | +91-22-XXXX-XXXX</div>';
+  } else if (type === 'locked') {
+    content = '<div style="background:#FEF3F2;border-radius:10px;padding:16px;margin-bottom:12px;">' +
+      '<h4 style="font-size:14px;font-weight:700;color:#B42318;margin:0 0 8px;">Account Locked</h4>' +
+      '<p style="font-size:13px;color:#344054;margin:0;line-height:1.5;">Your account may be locked due to:</p>' +
+      '<ul style="font-size:13px;color:#344054;margin:8px 0;padding-left:20px;line-height:1.8;">' +
+        '<li><strong>Too many failed login attempts</strong> — Wait 30 minutes and try again</li>' +
+        '<li><strong>Account deactivated</strong> — Contact Super Admin to reactivate</li>' +
+      '</ul>' +
+      '<p style="font-size:13px;color:#344054;margin:0;line-height:1.5;">For immediate access, contact your Super Admin who can unlock your account from the <strong>Users</strong> page.</p>' +
+      '</div>' +
+      '<div style="font-size:12px;color:#667085;"><strong>Super Admin:</strong> suraj@collegepond.com | +91-98765-43210</div>';
+  } else {
+    content = '<div style="background:#F2F4F7;border-radius:10px;padding:16px;margin-bottom:12px;">' +
+      '<h4 style="font-size:14px;font-weight:700;color:#344054;margin:0 0 8px;">Need Help?</h4>' +
+      '<p style="font-size:13px;color:#344054;margin:0;line-height:1.5;">For any other login issues, please contact:</p>' +
+      '<div style="margin-top:12px;font-size:13px;color:#344054;line-height:2;">' +
+        '<strong>IT Support:</strong> it-support@collegepond.com<br>' +
+        '<strong>Phone:</strong> +91-22-XXXX-XXXX<br>' +
+        '<strong>Super Admin:</strong> suraj@collegepond.com<br>' +
+        '<strong>Hours:</strong> Mon-Fri, 9:00 AM - 6:00 PM IST' +
+      '</div></div>';
+  }
+  document.getElementById('recoveryContent').innerHTML = content;
+}
+</script>
+</body>
+</html>

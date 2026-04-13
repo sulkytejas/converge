@@ -11,7 +11,62 @@ import { isValidEmail, isValidPhone, getExpectedPhoneDigits } from "~/lib/utils/
 import { maskEmail, maskPhone } from "~/lib/utils/masking";
 import { api } from "~/trpc/react";
 
-type Screen = "email" | "otp" | "success";
+type Screen = "email" | "otp" | "recovery" | "success";
+
+type RecoveryDetailType = "phone" | "email" | "locked" | "other" | null;
+
+const recoveryOptions = [
+  { id: "phone" as const, title: "Changed my phone number", subtitle: "I can't receive OTP on my registered phone" },
+  { id: "email" as const, title: "Changed my email", subtitle: "I no longer have access to my registered email" },
+  { id: "locked" as const, title: "Account locked or deactivated", subtitle: "Too many attempts or account suspended" },
+  { id: "other" as const, title: "Other issue", subtitle: "I need help with something else" },
+];
+
+const recoveryDetails: Record<string, React.ReactNode> = {
+  phone: (
+    <div className="rounded-[10px] bg-[#EFF8FF] p-4 text-[13px] leading-relaxed text-[#344054]">
+      <h4 className="mb-2 text-sm font-bold text-[#175CD3]">Changed Phone Number</h4>
+      <p className="mb-2">To update your registered phone number:</p>
+      <ol className="list-decimal space-y-1 pl-5">
+        <li>Email <strong>support@collegepond.com</strong> from your registered email</li>
+        <li>Include your full name and reason for the change</li>
+        <li>Attach a government-issued ID for verification</li>
+        <li>Our team will update your phone number within 24 hours</li>
+      </ol>
+    </div>
+  ),
+  email: (
+    <div className="rounded-[10px] bg-[#FFFAEB] p-4 text-[13px] leading-relaxed text-[#344054]">
+      <h4 className="mb-2 text-sm font-bold text-[#B54708]">Changed Email</h4>
+      <p className="mb-2">To update your registered email:</p>
+      <ol className="list-decimal space-y-1 pl-5">
+        <li>Contact support at <strong>support@collegepond.com</strong></li>
+        <li>You may need to verify your identity via your registered phone</li>
+        <li>Updates are processed within 24-48 hours</li>
+      </ol>
+    </div>
+  ),
+  locked: (
+    <div className="rounded-[10px] bg-[#FEF3F2] p-4 text-[13px] leading-relaxed text-[#344054]">
+      <h4 className="mb-2 text-sm font-bold text-[#B42318]">Account Locked or Deactivated</h4>
+      <ul className="list-disc space-y-1 pl-5">
+        <li><strong>Too many failed attempts</strong> — Wait 30 minutes and try again</li>
+        <li><strong>Account deactivated</strong> — Contact Collegepond support for reactivation</li>
+      </ul>
+      <p className="mt-2">For immediate help, email <strong>support@collegepond.com</strong>.</p>
+    </div>
+  ),
+  other: (
+    <div className="rounded-[10px] bg-[#F2F4F7] p-4 text-[13px] leading-relaxed text-[#344054]">
+      <h4 className="mb-2 text-sm font-bold text-[#344054]">Need Help?</h4>
+      <p className="mb-2">For any other login issues, contact:</p>
+      <div className="leading-loose">
+        <strong>Email:</strong> support@collegepond.com<br />
+        <strong>Hours:</strong> Mon-Fri, 9:00 AM - 6:00 PM IST
+      </div>
+    </div>
+  ),
+};
 
 export default function LoginPage() {
   const router = useRouter();
@@ -28,6 +83,9 @@ export default function LoginPage() {
   const [emailError, setEmailError] = useState("");
   const [phoneError, setPhoneError] = useState("");
   const [otpError, setOtpError] = useState("");
+
+  // Recovery state
+  const [recoveryDetail, setRecoveryDetail] = useState<RecoveryDetailType>(null);
 
   // Timer state
   const [resendSeconds, setResendSeconds] = useState(30);
@@ -234,6 +292,73 @@ export default function LoginPage() {
                 </span>
               )}
             </button>
+            <div className="mt-3 text-center">
+              <button
+                onClick={() => {
+                  setRecoveryDetail(null);
+                  setScreen("recovery");
+                }}
+                className="cursor-pointer border-none bg-transparent text-xs font-medium text-[#1570EF] hover:underline"
+              >
+                Can&apos;t access your account?
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Screen: Account Recovery */}
+        {screen === "recovery" && (
+          <div className="animate-[fadeSlide_0.3s_ease-out]">
+            <button
+              onClick={() => setScreen("email")}
+              className="mb-5 inline-flex cursor-pointer items-center gap-1.5 border-none bg-transparent font-[family-name:var(--font-inter)] text-[13px] font-medium text-[#667085] hover:text-[#1570EF]"
+            >
+              <svg
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                className="h-[15px] w-[15px]"
+              >
+                <path d="M10 12L6 8l4-4" />
+              </svg>
+              Back to Login
+            </button>
+
+            <div className="mb-7 flex items-start justify-between">
+              <h2 className="text-[22px] font-bold leading-tight text-[#101828]">
+                Account
+                <span className="block text-[#1570EF]">Recovery</span>
+              </h2>
+            </div>
+
+            {!recoveryDetail ? (
+              <>
+                <p className="mb-4 text-[13px] text-[#667085]">Select your issue:</p>
+                <div className="flex flex-col gap-2">
+                  {recoveryOptions.map((opt) => (
+                    <button
+                      key={opt.id}
+                      onClick={() => setRecoveryDetail(opt.id)}
+                      className="cursor-pointer rounded-lg border border-[#E4E7EC] bg-white px-3.5 py-3 text-left transition-all hover:border-[#1570EF] hover:bg-[#F0F7FF]"
+                    >
+                      <strong className="block text-[13px] text-[#101828]">{opt.title}</strong>
+                      <small className="text-[11px] text-[#667085]">{opt.subtitle}</small>
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <>
+                {recoveryDetails[recoveryDetail]}
+                <button
+                  onClick={() => setRecoveryDetail(null)}
+                  className="mt-4 cursor-pointer rounded-lg border border-[#D0D5DD] bg-white px-4 py-2 text-[13px] font-semibold text-[#344054] transition-colors hover:bg-[#F9FAFB]"
+                >
+                  Back
+                </button>
+              </>
+            )}
           </div>
         )}
 

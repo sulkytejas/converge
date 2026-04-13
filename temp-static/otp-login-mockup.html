@@ -102,6 +102,10 @@
   }
   .btn-primary:hover { background: #1260d4; }
   .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .recovery-opt { padding: 12px 14px; border: 1px solid #E4E7EC; border-radius: 8px; cursor: pointer; transition: all 0.15s; }
+  .recovery-opt:hover { border-color: #1570EF; background: #F0F7FF; }
+  .recovery-opt strong { display: block; font-size: 13px; color: #101828; margin-bottom: 2px; }
+  .recovery-opt small { font-size: 11px; color: #667085; }
   .btn-primary.loading { position: relative; color: transparent; pointer-events: none; }
   .btn-primary.loading::after {
     content: ''; position: absolute; top: 50%; left: 50%;
@@ -171,6 +175,64 @@
   @keyframes fadeSlide {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── RESPONSIVE: TABLETS (768px–1024px) ── */
+  @media (max-width: 1024px) {
+    .login-container {
+      width: 92vw;
+      min-height: auto;
+    }
+    .left-panel { padding: 32px; }
+    .left-content h1 { font-size: 26px; }
+    .right-panel { padding: 36px; }
+  }
+
+  /* ── RESPONSIVE: MOBILE (max-width: 767px) ── */
+  @media (max-width: 767px) {
+    body {
+      padding: 0;
+      align-items: flex-start;
+      background: #fff;
+    }
+    .login-container {
+      flex-direction: column;
+      width: 100%;
+      min-height: 100vh;
+      border-radius: 0;
+      box-shadow: none;
+    }
+    .left-panel {
+      width: 100%;
+      padding: 28px 24px 24px;
+      min-height: auto;
+    }
+    .left-content h1 { font-size: 22px; }
+    .left-content p { font-size: 13px; max-width: none; }
+    .left-bottom { display: none; }
+    .right-panel {
+      width: 100%;
+      padding: 28px 20px 36px;
+      flex: 1;
+    }
+    .right-header { flex-direction: column; gap: 12px; margin-bottom: 24px; }
+    .right-header .alt-link { text-align: left; }
+    .right-header h2 { font-size: 20px; }
+    .form-input, .btn-primary { height: 46px; font-size: 15px; }
+    .otp-boxes { gap: 8px; }
+    .otp-box { width: 46px; height: 50px; font-size: 20px; }
+    .otp-title { font-size: 20px; }
+    .success-container { width: 90vw; padding: 40px 24px; }
+    .success-container h2 { font-size: 20px; }
+  }
+
+  /* ── RESPONSIVE: SMALL PHONES (max-width: 374px) ── */
+  @media (max-width: 374px) {
+    .left-panel { padding: 20px 16px; }
+    .left-content h1 { font-size: 20px; }
+    .right-panel { padding: 24px 16px 32px; }
+    .otp-box { width: 40px; height: 44px; font-size: 18px; }
+    .otp-boxes { gap: 6px; }
   }
 </style>
 </head>
@@ -247,6 +309,38 @@
       </div>
 
       <button class="btn-primary" id="sendOtpBtn" onclick="handleSendOTP()">Send OTP</button>
+      <div style="text-align:center;margin-top:12px;">
+        <a href="javascript:void(0)" onclick="showPartnerRecovery()" style="color:#1570EF;font-size:12px;font-weight:500;text-decoration:none;">Can't access your account?</a>
+      </div>
+    </div>
+
+    <!-- ═══ SCREEN: ACCOUNT RECOVERY ═══ -->
+    <div id="screen-recovery" class="right-screen">
+      <button class="back-link" onclick="showScreen('email')">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 12L6 8l4-4"/></svg>
+        Back to Login
+      </button>
+      <div class="right-header"><h2>Account<span>Recovery</span></h2></div>
+      <p style="font-size:13px;color:#667085;margin-bottom:16px;">Select your issue:</p>
+      <div style="display:flex;flex-direction:column;gap:8px;" id="recoveryOptions">
+        <div class="recovery-opt" onclick="showRecoveryDetail('phone')">
+          <strong>Changed my phone number</strong>
+          <small>I can't receive OTP on my registered phone</small>
+        </div>
+        <div class="recovery-opt" onclick="showRecoveryDetail('email')">
+          <strong>Changed my email</strong>
+          <small>I no longer have access to my registered email</small>
+        </div>
+        <div class="recovery-opt" onclick="showRecoveryDetail('locked')">
+          <strong>Account locked or deactivated</strong>
+          <small>Too many attempts or account suspended</small>
+        </div>
+        <div class="recovery-opt" onclick="showRecoveryDetail('other')">
+          <strong>Other issue</strong>
+          <small>I need help with something else</small>
+        </div>
+      </div>
+      <div id="recoveryDetail" style="display:none;margin-top:16px;padding:16px;background:#F0F7FF;border-radius:10px;font-size:13px;color:#344054;line-height:1.6;"></div>
     </div>
 
     <!-- ═══ SCREEN 2: OTP VERIFICATION ═══ -->
@@ -370,10 +464,15 @@ function handleSendOTP() {
 
   let hasError = false;
 
-  if (!email || !isValidEmail(email)) {
+  if (!email) {
     emailInput.classList.add('error');
     emailError.style.display = 'flex';
-    document.getElementById('emailErrorText').textContent = !email ? 'Email address is required' : 'Please enter a valid email address';
+    document.getElementById('emailErrorText').textContent = 'Email address is required';
+    hasError = true;
+  } else if (!isValidEmail(email)) {
+    emailInput.classList.add('error');
+    emailError.style.display = 'flex';
+    document.getElementById('emailErrorText').textContent = 'Please enter a valid email address';
     hasError = true;
   }
 
@@ -392,6 +491,37 @@ function handleSendOTP() {
   }
 
   if (hasError) return;
+
+  // Verify email and phone combination exists in partner database
+  var partnerFound = false;
+  try {
+    var partnerUsers = JSON.parse(localStorage.getItem('cp_partner_users') || '[]');
+    partnerFound = partnerUsers.some(function(u) {
+      var uPhone = (u.phone || '').replace(/[\s\-\+]/g, '').replace(/^91/, '').slice(-10);
+      return u.email && u.email.toLowerCase() === email.toLowerCase() && uPhone === phoneDigits.slice(-10);
+    });
+  } catch(e) {}
+  // Also check demo partners if not found in localStorage
+  if (!partnerFound) {
+    var demoPartners = [
+      {email:'suraj@convergapp.co', phone:'9876543210'},
+      {email:'info@edubridge.com', phone:'9876543220'},
+      {email:'admin@pacificstudy.com', phone:'9876543230'},
+      {email:'contact@vistasedu.com', phone:'9876543240'},
+      {email:'hello@studylink.com', phone:'9876543250'},
+      {email:'partner@globaledconsult.com', phone:'9876543260'}
+    ];
+    partnerFound = demoPartners.some(function(d) {
+      return d.email.toLowerCase() === email.toLowerCase() && d.phone === phoneDigits.slice(-10);
+    });
+  }
+  if (!partnerFound) {
+    emailInput.classList.add('error');
+    phoneInput.classList.add('error');
+    emailError.style.display = 'flex';
+    document.getElementById('emailErrorText').textContent = 'Email and phone number combination not found. Please check your credentials.';
+    return;
+  }
 
   btn.classList.add('loading');
   btn.textContent = 'Sending OTP...';
@@ -519,6 +649,50 @@ document.getElementById('loginCountryCode').addEventListener('change', function(
   document.getElementById('loginPhone').classList.remove('error');
   document.getElementById('phoneError').style.display = 'none';
 });
+
+// ===== ACCOUNT RECOVERY =====
+function showPartnerRecovery() {
+  showScreen('recovery');
+  document.getElementById('recoveryDetail').style.display = 'none';
+  document.getElementById('recoveryOptions').style.display = 'flex';
+}
+
+function showRecoveryDetail(type) {
+  document.getElementById('recoveryOptions').style.display = 'none';
+  var detail = document.getElementById('recoveryDetail');
+  detail.style.display = 'block';
+  var html = '';
+  if (type === 'phone') {
+    html = '<strong style="color:#175CD3;">Changed Phone Number</strong><br><br>' +
+      'To update your registered phone number:<br>' +
+      '1. Contact Collegepond support at <strong>support@collegepond.com</strong><br>' +
+      '2. Provide your registered email and agency name for verification<br>' +
+      '3. Your phone number will be updated within 24 hours<br>' +
+      '4. You will receive a confirmation email once updated<br><br>' +
+      '<span style="color:#667085;font-size:12px;">Support: support@collegepond.com | +91-22-XXXX-XXXX</span>';
+  } else if (type === 'email') {
+    html = '<strong style="color:#175CD3;">Changed Email Address</strong><br><br>' +
+      'To update your registered email:<br>' +
+      '1. Contact Collegepond support at <strong>support@collegepond.com</strong> from your OLD email<br>' +
+      '2. Or call support with your agency name and phone number<br>' +
+      '3. Your email will be updated after identity verification<br><br>' +
+      '<span style="color:#667085;font-size:12px;">Support: support@collegepond.com | +91-22-XXXX-XXXX</span>';
+  } else if (type === 'locked') {
+    html = '<strong style="color:#B42318;">Account Locked / Deactivated</strong><br><br>' +
+      '<strong>Locked (too many attempts):</strong> Wait 30 minutes and try again.<br><br>' +
+      '<strong>Deactivated:</strong> Your account may have been suspended. Contact Collegepond to resolve:<br>' +
+      '- Email: <strong>support@collegepond.com</strong><br>' +
+      '- Phone: <strong>+91-22-XXXX-XXXX</strong><br><br>' +
+      '<span style="color:#667085;font-size:12px;">Business hours: Mon-Fri, 9:00 AM - 6:00 PM IST</span>';
+  } else {
+    html = '<strong>Need Help?</strong><br><br>' +
+      'For any login issues, contact Collegepond support:<br><br>' +
+      'Email: <strong>support@collegepond.com</strong><br>' +
+      'Phone: <strong>+91-22-XXXX-XXXX</strong><br>' +
+      'Hours: Mon-Fri, 9:00 AM - 6:00 PM IST';
+  }
+  detail.innerHTML = html;
+}
 </script>
 
 </body>

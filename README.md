@@ -317,7 +317,55 @@ Triggered on push to `develop` (staging) and `main` (production):
 
 ---
 
-## Testing
+## Testing the UI (Dummy Mode — No Database Required)
+
+All auth tRPC routes return dummy success responses, so you can test the full UI flow without a database.
+
+### Quick Start
+
+```bash
+npm install
+SKIP_ENV_VALIDATION=1 npm run dev
+```
+
+### Partner Login (`/login`)
+
+1. Enter any valid email (e.g. `test@gmail.com`)
+2. Enter any 10-digit phone number (e.g. `9876543210` with country code `+91`)
+3. Click **Send OTP** — moves to OTP screen
+4. Enter any 5 digits → click **Verify & Login**
+5. Success screen appears and redirects to dashboard
+6. You can also test **Can't access your account?** to see the recovery flow
+
+### Partner Signup (`/signup`)
+
+1. Select a role (Agency Owner or Independent Counselor)
+2. Fill in first name, last name, email, and phone number
+3. Click **Continue & Verify** — moves to dual OTP verification
+4. Enter any 5 digits in both the Email OTP and Phone OTP boxes — they auto-verify on completion
+5. For Agency: fill in Company Details → upload Documents → Review & Submit
+6. For Independent: upload Documents → Review & Submit
+7. Success screen shows a dummy application ID
+
+### Admin Login (`/admin/login`)
+
+1. Enter an email ending in `@collegepond.com` or `@convergeapp.co` (e.g. `suraj@collegepond.com`)
+2. Enter any valid phone number
+3. Click **Send OTP** → enter any 6 digits → click **Verify OTP**
+4. Verified card appears with role selection and session info
+5. Click **Continue to Dashboard** to proceed
+6. You can also test **Can't access your account?** for the recovery modal
+
+### Notes
+
+- All OTP verification is mocked — any digits are accepted
+- File uploads in the signup flow accept any file (no server-side processing)
+- The `SKIP_ENV_VALIDATION=1` flag bypasses the database connection requirement
+- Server logs (`console.log`) show the tRPC mutation inputs for debugging
+
+---
+
+## Automated Testing
 
 | Type             | Tool                   | Coverage                                                        |
 | ---------------- | ---------------------- | --------------------------------------------------------------- |
