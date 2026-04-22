@@ -135,6 +135,23 @@ interface FormErrors {
 interface FileState {
   file?: File;
   name?: string;
+  path?: string;
+  uploading?: boolean;
+}
+
+async function uploadFile(file: File, folder: string): Promise<string> {
+  const fd = new FormData();
+  fd.append("file", file);
+  fd.append("folder", folder);
+  const res = await fetch("/api/upload", { method: "POST", body: fd });
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({ error: "Upload failed" }))) as {
+      error?: string;
+    };
+    throw new Error(body.error ?? "Upload failed");
+  }
+  const data = (await res.json()) as { path: string; url: string };
+  return data.url;
 }
 
 export default function SignupPage() {
@@ -433,13 +450,11 @@ export default function SignupPage() {
   const handleSubmit = () => {
     if (!validateConsent()) return;
 
-    const docNames = role === "agency"
-      ? Object.entries(agencyDocs)
-          .filter(([, v]) => v.name)
-          .map(([k]) => k)
-      : Object.entries(independentDocs)
-          .filter(([, v]) => v.name)
-          .map(([k]) => k);
+    const docs = role === "agency" ? agencyDocs : independentDocs;
+    const documents: Record<string, string> = {};
+    for (const [k, v] of Object.entries(docs)) {
+      if (v.path) documents[k] = v.path;
+    }
 
     submitApp.mutate(
       {
@@ -457,7 +472,7 @@ export default function SignupPage() {
         companyAddress: role === "agency" ? companyAddress : undefined,
         numCounselors: role === "agency" ? numCounselors : undefined,
         annualVolume: role === "agency" ? annualVolume : undefined,
-        documents: docNames,
+        documents,
       },
       {
         onSuccess: (data) => {
@@ -476,14 +491,34 @@ export default function SignupPage() {
   };
 
   // File upload helpers
-  const setAgencyDoc = (key: string, file: File) => {
-    setAgencyDocs((prev) => ({ ...prev, [key]: { file, name: file.name } }));
+  const setAgencyDoc = async (key: string, file: File) => {
+    setAgencyDocs((prev) => ({ ...prev, [key]: { file, uploading: true } }));
+    try {
+      const path = await uploadFile(file, `signup/agency/${key}`);
+      setAgencyDocs((prev) => ({
+        ...prev,
+        [key]: { file, name: file.name, path, uploading: false },
+      }));
+    } catch (err) {
+      setAgencyDocs((prev) => ({ ...prev, [key]: {} }));
+      alert(err instanceof Error ? err.message : "Upload failed");
+    }
   };
   const removeAgencyDoc = (key: string) => {
     setAgencyDocs((prev) => ({ ...prev, [key]: {} }));
   };
-  const setIndependentDoc = (key: string, file: File) => {
-    setIndependentDocs((prev) => ({ ...prev, [key]: { file, name: file.name } }));
+  const setIndependentDoc = async (key: string, file: File) => {
+    setIndependentDocs((prev) => ({ ...prev, [key]: { file, uploading: true } }));
+    try {
+      const path = await uploadFile(file, `signup/independent/${key}`);
+      setIndependentDocs((prev) => ({
+        ...prev,
+        [key]: { file, name: file.name, path, uploading: false },
+      }));
+    } catch (err) {
+      setIndependentDocs((prev) => ({ ...prev, [key]: {} }));
+      alert(err instanceof Error ? err.message : "Upload failed");
+    }
   };
   const removeIndependentDoc = (key: string) => {
     setIndependentDocs((prev) => ({ ...prev, [key]: {} }));
@@ -938,8 +973,9 @@ export default function SignupPage() {
                 required
                 hint="PDF, JPG or PNG (max 5MB)"
                 fileName={agencyDocs.companyPan?.name}
+                uploading={agencyDocs.companyPan?.uploading}
                 error={!!errors.documents && !agencyDocs.companyPan?.name}
-                onFileSelect={(f) => setAgencyDoc("companyPan", f)}
+                onFileSelect={(f) => void setAgencyDoc("companyPan", f)}
                 onFileRemove={() => removeAgencyDoc("companyPan")}
               />
               <FileUpload
@@ -947,8 +983,9 @@ export default function SignupPage() {
                 required
                 hint="PDF, JPG or PNG (max 5MB)"
                 fileName={agencyDocs.aadhaar?.name}
+                uploading={agencyDocs.aadhaar?.uploading}
                 error={!!errors.documents && !agencyDocs.aadhaar?.name}
-                onFileSelect={(f) => setAgencyDoc("aadhaar", f)}
+                onFileSelect={(f) => void setAgencyDoc("aadhaar", f)}
                 onFileRemove={() => removeAgencyDoc("aadhaar")}
               />
               <FileUpload
@@ -956,8 +993,9 @@ export default function SignupPage() {
                 required
                 hint="PDF, JPG or PNG (max 5MB)"
                 fileName={agencyDocs.cancelledCheque?.name}
+                uploading={agencyDocs.cancelledCheque?.uploading}
                 error={!!errors.documents && !agencyDocs.cancelledCheque?.name}
-                onFileSelect={(f) => setAgencyDoc("cancelledCheque", f)}
+                onFileSelect={(f) => void setAgencyDoc("cancelledCheque", f)}
                 onFileRemove={() => removeAgencyDoc("cancelledCheque")}
               />
               <FileUpload
@@ -965,8 +1003,9 @@ export default function SignupPage() {
                 required
                 hint="PDF, JPG or PNG (max 5MB)"
                 fileName={agencyDocs.partnershipDocs?.name}
+                uploading={agencyDocs.partnershipDocs?.uploading}
                 error={!!errors.documents && !agencyDocs.partnershipDocs?.name}
-                onFileSelect={(f) => setAgencyDoc("partnershipDocs", f)}
+                onFileSelect={(f) => void setAgencyDoc("partnershipDocs", f)}
                 onFileRemove={() => removeAgencyDoc("partnershipDocs")}
               />
             </div>
@@ -981,14 +1020,16 @@ export default function SignupPage() {
                 accept=".jpg,.jpeg,.png"
                 maxSize={2}
                 fileName={agencyDocs.logo?.name}
-                onFileSelect={(f) => setAgencyDoc("logo", f)}
+                uploading={agencyDocs.logo?.uploading}
+                onFileSelect={(f) => void setAgencyDoc("logo", f)}
                 onFileRemove={() => removeAgencyDoc("logo")}
               />
               <FileUpload
                 label="GST Certificate"
                 hint="PDF, JPG or PNG (max 5MB)"
                 fileName={agencyDocs.gst?.name}
-                onFileSelect={(f) => setAgencyDoc("gst", f)}
+                uploading={agencyDocs.gst?.uploading}
+                onFileSelect={(f) => void setAgencyDoc("gst", f)}
                 onFileRemove={() => removeAgencyDoc("gst")}
               />
             </div>
@@ -1025,8 +1066,9 @@ export default function SignupPage() {
                 required
                 hint="PDF, JPG or PNG (max 5MB)"
                 fileName={independentDocs.pan?.name}
+                uploading={independentDocs.pan?.uploading}
                 error={!!errors.documents && !independentDocs.pan?.name}
-                onFileSelect={(f) => setIndependentDoc("pan", f)}
+                onFileSelect={(f) => void setIndependentDoc("pan", f)}
                 onFileRemove={() => removeIndependentDoc("pan")}
               />
               <FileUpload
@@ -1034,8 +1076,9 @@ export default function SignupPage() {
                 required
                 hint="PDF, JPG or PNG (max 5MB)"
                 fileName={independentDocs.aadhaar?.name}
+                uploading={independentDocs.aadhaar?.uploading}
                 error={!!errors.documents && !independentDocs.aadhaar?.name}
-                onFileSelect={(f) => setIndependentDoc("aadhaar", f)}
+                onFileSelect={(f) => void setIndependentDoc("aadhaar", f)}
                 onFileRemove={() => removeIndependentDoc("aadhaar")}
               />
               <FileUpload
@@ -1043,8 +1086,9 @@ export default function SignupPage() {
                 required
                 hint="PDF, JPG or PNG (max 5MB)"
                 fileName={independentDocs.cancelledCheque?.name}
+                uploading={independentDocs.cancelledCheque?.uploading}
                 error={!!errors.documents && !independentDocs.cancelledCheque?.name}
-                onFileSelect={(f) => setIndependentDoc("cancelledCheque", f)}
+                onFileSelect={(f) => void setIndependentDoc("cancelledCheque", f)}
                 onFileRemove={() => removeIndependentDoc("cancelledCheque")}
               />
             </div>
@@ -1059,7 +1103,8 @@ export default function SignupPage() {
                 accept=".jpg,.jpeg,.png"
                 maxSize={2}
                 fileName={independentDocs.profilePhoto?.name}
-                onFileSelect={(f) => setIndependentDoc("profilePhoto", f)}
+                uploading={independentDocs.profilePhoto?.uploading}
+                onFileSelect={(f) => void setIndependentDoc("profilePhoto", f)}
                 onFileRemove={() => removeIndependentDoc("profilePhoto")}
               />
             </div>

@@ -1,5 +1,15 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import {
+  sendEmailOtp,
+  sendPhoneOtp,
+  toE164,
+  verifyEmailOtp,
+  verifyPhoneOtp,
+} from "~/server/otp";
+import { saveApplication } from "~/server/applications/store";
+import { notifyAdminOfSignup } from "~/server/notifications";
 
 export const signupRouter = createTRPCRouter({
   sendSignupOtp: publicProcedure
@@ -11,8 +21,25 @@ export const signupRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input }) => {
-      console.log("Sending signup OTP to", input.email, input.countryCode + input.phone);
-      return { success: true as const };
+      const phoneE164 = toE164(input.phone, input.countryCode);
+      const results = await Promise.allSettled([
+        sendEmailOtp(input.email),
+        sendPhoneOtp(phoneE164),
+      ]);
+
+      const failed = results.filter((r) => r.status === "rejected");
+      if (failed.length === results.length) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to send OTP",
+        });
+      }
+
+      return {
+        success: true as const,
+        emailSent: results[0]!.status === "fulfilled",
+        phoneSent: results[1]!.status === "fulfilled",
+      };
     }),
 
   verifyEmailOtp: publicProcedure
@@ -23,7 +50,10 @@ export const signupRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input }) => {
-      console.log("Verifying email OTP for", input.email, "OTP:", input.otp);
+      const ok = await verifyEmailOtp(input.email, input.otp);
+      if (!ok) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Invalid or expired OTP" });
+      }
       return { verified: true as const };
     }),
 
@@ -36,7 +66,11 @@ export const signupRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input }) => {
-      console.log("Verifying phone OTP for", input.countryCode + input.phone, "OTP:", input.otp);
+      const phoneE164 = toE164(input.phone, input.countryCode);
+      const ok = await verifyPhoneOtp(phoneE164, input.otp);
+      if (!ok) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Invalid or expired OTP" });
+      }
       return { verified: true as const };
     }),
 
@@ -58,16 +92,36 @@ export const signupRouter = createTRPCRouter({
         companyAddress: z.string().optional(),
         numCounselors: z.string().optional(),
         annualVolume: z.string().optional(),
-        // Document names (just names for placeholder)
-        documents: z.array(z.string()).optional(),
+        // Map of document key -> stored file URL (e.g. "/uploads/...")
+        documents: z.record(z.string(), z.string()).optional(),
       }),
     )
     .mutation(async ({ input }) => {
-      console.log("Submitting application for", input.firstName, input.lastName);
-      const applicationId = `#CP-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 999999)).padStart(6, "0")}`;
+      const app = saveApplication({
+        email: input.email,
+        role: input.role,
+        firstName: input.firstName,
+        lastName: input.lastName,
+        phone: input.phone,
+        countryCode: input.countryCode,
+        companyName: input.companyName,
+        companyWebsite: input.companyWebsite,
+        country: input.country,
+        state: input.state,
+        city: input.city,
+        companyAddress: input.companyAddress,
+        numCounselors: input.numCounselors,
+        annualVolume: input.annualVolume,
+        documents: input.documents,
+      });
+
+      notifyAdminOfSignup(app).catch((err) => {
+        console.error("Admin notification failed:", err);
+      });
+
       return {
-        applicationId,
-        status: "under_review" as const,
+        applicationId: app.applicationId,
+        status: app.status,
       };
     }),
 });

@@ -10,6 +10,7 @@ interface FileUploadProps {
   maxSize?: number;
   fileName?: string;
   error?: boolean;
+  uploading?: boolean;
   onFileSelect: (file: File) => void;
   onFileRemove: () => void;
 }
@@ -61,6 +62,7 @@ export function FileUpload({
   maxSize = 5,
   fileName,
   error,
+  uploading,
   onFileSelect,
   onFileRemove,
 }: FileUploadProps) {
@@ -68,7 +70,7 @@ export function FileUpload({
   const uploaded = !!fileName;
 
   const handleClick = () => {
-    if (!uploaded) {
+    if (!uploaded && !uploading) {
       inputRef.current?.click();
     }
   };
@@ -124,7 +126,7 @@ export function FileUpload({
       <div
         className={`text-[11px] ${uploaded ? "text-[#12B76A]" : "text-[#98A2B3]"}`}
       >
-        {hint}
+        {uploading ? "Uploading..." : hint}
       </div>
       {uploaded && (
         <div className="mt-2 flex items-center justify-center gap-2">

@@ -15,6 +15,14 @@ export const env = createEnv({
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
+    GEMINI_API_KEY: z.string(),
+    GEMINI_MODEL: z.string().default("gemini-flash-latest"),
+    MSG91_AUTH_KEY: z.string().optional(),
+    MSG91_SMS_TEMPLATE_ID: z.string().optional(),
+    MSG91_EMAIL_TEMPLATE_ID: z.string().optional(),
+    MSG91_EMAIL_FROM: z.string().optional(),
+    MSG91_EMAIL_DOMAIN: z.string().optional(),
+    ADMIN_EMAIL: z.string().email().optional(),
   },
 
   /**
@@ -34,6 +42,14 @@ export const env = createEnv({
     AUTH_SECRET: process.env.AUTH_SECRET,
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
+    GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+    GEMINI_MODEL: process.env.GEMINI_MODEL,
+    MSG91_AUTH_KEY: process.env.MSG91_AUTH_KEY,
+    MSG91_SMS_TEMPLATE_ID: process.env.MSG91_SMS_TEMPLATE_ID,
+    MSG91_EMAIL_TEMPLATE_ID: process.env.MSG91_EMAIL_TEMPLATE_ID,
+    MSG91_EMAIL_FROM: process.env.MSG91_EMAIL_FROM,
+    MSG91_EMAIL_DOMAIN: process.env.MSG91_EMAIL_DOMAIN,
+    ADMIN_EMAIL: process.env.ADMIN_EMAIL,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

@@ -21,6 +21,12 @@ next-env.d.ts
 # production
 /build
 
+# local file uploads
+/public/uploads
+
+# local app data (dev-only app store; swap to DB later)
+/data
+
 # misc
 .DS_Store
 *.pem

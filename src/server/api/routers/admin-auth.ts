@@ -1,5 +1,7 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { setApplicationStatus } from "~/server/applications/store";
 
 const ROLE_LABELS: Record<string, string> = {
   super_admin: "Super Admin",
@@ -70,5 +72,22 @@ export const adminAuthRouter = createTRPCRouter({
       // Placeholder — in production, create session with selected role
       console.log("Admin login:", input.email, "as", input.role);
       return { success: true as const, redirectUrl: "/" };
+    }),
+
+  // DEV-ONLY: flips an applicant's status without a real admin UI.
+  // Replace with a protected mutation (proper auth + audit log) when admin UI lands.
+  approveApplication: publicProcedure
+    .input(
+      z.object({
+        email: z.string().email(),
+        status: z.enum(["approved", "rejected", "under_review"]).default("approved"),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const app = setApplicationStatus(input.email, input.status);
+      if (!app) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Application not found" });
+      }
+      return { success: true as const, status: app.status };
     }),
 });

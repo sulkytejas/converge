@@ -1,5 +1,13 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import {
+  sendEmailOtp,
+  sendPhoneOtp,
+  toE164,
+  verifyEmailOtp,
+} from "~/server/otp";
+import { getApplicationByEmail } from "~/server/applications/store";
 
 export const authRouter = createTRPCRouter({
   sendLoginOtp: publicProcedure
@@ -11,8 +19,27 @@ export const authRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input }) => {
-      // Placeholder — in production, send OTP via email/SMS
-      console.log("Sending login OTP to", input.email, input.countryCode + input.phone);
+      const app = getApplicationByEmail(input.email);
+      if (!app) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No account found for this email. Please sign up first.",
+        });
+      }
+
+      const phoneE164 = toE164(input.phone, input.countryCode);
+      const results = await Promise.allSettled([
+        sendEmailOtp(input.email),
+        sendPhoneOtp(phoneE164),
+      ]);
+      const failed = results.filter((r) => r.status === "rejected");
+      if (failed.length === results.length) {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to send OTP",
+        });
+      }
+
       return { success: true as const };
     }),
 
@@ -25,8 +52,24 @@ export const authRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input }) => {
-      // Placeholder — in production, verify OTP
-      console.log("Verifying login OTP for", input.email, "OTP:", input.otp);
-      return { success: true as const, name: "User" };
+      const ok = await verifyEmailOtp(input.email, input.otp);
+      if (!ok) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "Invalid or expired OTP" });
+      }
+
+      const app = getApplicationByEmail(input.email);
+      if (!app) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No account found for this email",
+        });
+      }
+
+      return {
+        success: true as const,
+        name: app.firstName,
+        status: app.status,
+        applicationId: app.applicationId,
+      };
     }),
 });
