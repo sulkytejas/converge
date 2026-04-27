@@ -16,8 +16,8 @@ Converge is a B2B Partner Portal designed to streamline the recruitment partner 
 | ORM                | Prisma                      | Database schema management, type-safe queries        |
 | Styling            | Tailwind CSS                | Utility-first CSS framework for responsive UI        |
 | UI Components      | shadcn/ui                   | Accessible, customizable component library           |
-| Authentication     | NextAuth.js (Auth.js)       | Credential-based login, session management, RBAC     |
-| Database           | PostgreSQL 16               | Relational data storage with ACID compliance         |
+| Authentication     | OTP-based (MSG91) + custom session table | Phone/email OTP login, session rows in DB, RBAC in tRPC |
+| Database           | MySQL 8                     | Relational data storage with ACID compliance         |
 | File Storage       | AWS S3                      | Document uploads, logos, certificates                |
 | Validation         | Zod                         | Runtime schema validation for inputs and env vars    |
 | State Management   | TanStack React Query        | Server state caching via tRPC integration            |
@@ -28,7 +28,7 @@ Converge is a B2B Partner Portal designed to streamline the recruitment partner 
 
 - **Node.js** v20 LTS or higher (managed via [nvm](https://github.com/nvm-sh/nvm))
 - **npm** v10+
-- **Docker** (for local PostgreSQL database)
+- **Docker** (for local MySQL database)
 - **Git**
 
 ---
@@ -62,7 +62,7 @@ cp .env.example .env
 ./start-database.sh
 ```
 
-This script spins up a PostgreSQL 16 container via Docker (or Podman). It reads the `DATABASE_URL` from your `.env` file and offers to generate a random password if you're using the default.
+This script spins up a MySQL 8 container via Docker (or Podman). It reads the `DATABASE_URL` from your `.env` file and offers to generate a random password if you're using the default.
 
 ### 5. Apply the database schema
 
@@ -130,19 +130,17 @@ converge/
 │   ├── app/                   # Next.js App Router pages and layouts
 │   │   ├── _components/       # Page-level React components
 │   │   ├── api/               # API route handlers
-│   │   │   ├── auth/          # NextAuth.js route handler
 │   │   │   └── trpc/          # tRPC HTTP handler
 │   │   ├── layout.tsx         # Root layout
 │   │   └── page.tsx           # Home page
 │   ├── server/                # Server-side code
 │   │   ├── api/               # tRPC routers and procedures
 │   │   │   ├── root.ts        # Root tRPC router
-│   │   │   ├── routers/       # Feature-specific tRPC routers
+│   │   │   ├── routers/       # Feature-specific tRPC routers (auth, signup, admin-auth, ...)
 │   │   │   └── trpc.ts        # tRPC initialization and middleware
-│   │   ├── auth/              # NextAuth.js configuration
-│   │   │   ├── config.ts      # Auth providers, callbacks, adapter
-│   │   │   └── index.ts       # Auth exports
-│   │   └── db.ts              # Prisma client instance
+│   │   ├── db.ts              # Prisma client instance
+│   │   └── db/
+│   │       └── enums.ts       # Domain enums for integer-coded status / type columns
 │   ├── trpc/                  # tRPC client-side setup
 │   │   ├── query-client.ts    # TanStack Query client config
 │   │   ├── react.tsx          # React tRPC provider and hooks
@@ -168,7 +166,7 @@ converge/
 Multi-step registration form with OTP-verified identity (phone and Aadhaar), company document upload, and admin approval before granting portal access.
 
 ### 2. Authentication & Role-Based Access Control
-Credential-based login via NextAuth.js with three roles:
+OTP-based login (phone + email) via MSG91, backed by a `session` table in MySQL. Roles enforced inside tRPC procedures:
 - **Admin** — Full access across all counselors, commissions, payments, and team management
 - **Manager** — Access to all counselors within their partner organization (read-only on financials)
 - **Counselor** — Access limited to their own students and applications
@@ -257,12 +255,9 @@ Server-generated Excel reports via ExcelJS: student lists with application statu
 Create a `.env` file based on `.env.example` with the following variables:
 
 ```bash
-# Authentication
-AUTH_SECRET=""                  # NextAuth.js secret (generate with: npx auth secret)
-
 # Database
-DATABASE_URL=""                # PostgreSQL connection string
-                               # Example: postgresql://postgres:password@localhost:5432/converge
+DATABASE_URL=""                # MySQL connection string
+                               # Example: mysql://root:password@localhost:3306/converge
 
 # AWS
 AWS_ACCESS_KEY_ID=""           # AWS IAM credentials
@@ -312,7 +307,7 @@ The application is deployed on **AWS** using **SST (Serverless Stack)** for infr
 | Region     | ap-south-1 (Mumbai)        | Lowest latency for target users in India   |
 | Compute    | SST on AWS Lambda          | Serverless Next.js deployment via OpenNext  |
 | CDN        | CloudFront                 | Static asset caching, edge delivery        |
-| Database   | RDS PostgreSQL (db.t3.micro) | Managed relational DB with automated backups |
+| Database   | RDS MySQL (db.t3.micro)    | Managed relational DB with automated backups |
 | Storage    | S3                         | Partner documents, logos, signed MOUs      |
 | Email      | SES                        | Transactional email delivery               |
 | Secrets    | SSM Parameter Store        | API keys, database credentials, tokens     |
