@@ -71,7 +71,7 @@ export const adminAuthRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       // Placeholder — in production, create session with selected role
       console.log("Admin login:", input.email, "as", input.role);
-      return { success: true as const, redirectUrl: "/" };
+      return { success: true as const, redirectUrl: "/cp-dashboard" };
     }),
 
   // DEV-ONLY: flips an applicant's status without a real admin UI.
