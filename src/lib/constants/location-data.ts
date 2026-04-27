@@ -49,6 +49,23 @@ export const locationData: Record<string, Record<string, string[]>> = {
 
 export const countries = Object.keys(locationData);
 
+export const countryToISO2: Record<string, string> = {
+  India: "IN",
+  Nepal: "NP",
+  Bangladesh: "BD",
+  "Sri Lanka": "LK",
+  Nigeria: "NG",
+  Ghana: "GH",
+  Kenya: "KE",
+  UAE: "AE",
+};
+
+export function toISO2(country: string | undefined | null): string | null {
+  if (!country) return null;
+  if (country.length === 2) return country.toUpperCase();
+  return countryToISO2[country] ?? null;
+}
+
 export function getStates(country: string): string[] {
   return Object.keys(locationData[country] ?? {});
 }

@@ -1,10 +1,18 @@
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
-import path from "node:path";
+import { db } from "~/server/db";
+import {
+  DocumentStatus,
+  OrganizationType,
+  UserStatus,
+  UserType,
+  counsellorRangeToCode,
+  statusCodeFromLabel,
+  statusLabelFromCode,
+  volumeRangeToCode,
+  type ApplicationStatus,
+} from "~/server/db/enums";
+import { toISO2 } from "~/lib/constants/location-data";
 
-const DATA_DIR = path.join(process.cwd(), "data");
-const DATA_FILE = path.join(DATA_DIR, "applications.json");
-
-export type ApplicationStatus = "under_review" | "approved" | "rejected";
+export type { ApplicationStatus } from "~/server/db/enums";
 
 export interface Application {
   applicationId: string;
@@ -28,65 +36,269 @@ export interface Application {
   updatedAt: string;
 }
 
-function loadAll(): Record<string, Application> {
-  if (!existsSync(DATA_FILE)) return {};
-  try {
-    const raw = readFileSync(DATA_FILE, "utf8");
-    return JSON.parse(raw) as Record<string, Application>;
-  } catch {
-    return {};
-  }
-}
+type ApplicationInput = Omit<
+  Application,
+  "applicationId" | "status" | "submittedAt" | "updatedAt"
+>;
 
-function saveAll(all: Record<string, Application>) {
-  if (!existsSync(DATA_DIR)) mkdirSync(DATA_DIR, { recursive: true });
-  writeFileSync(DATA_FILE, JSON.stringify(all, null, 2), "utf8");
-}
-
-function keyOf(email: string): string {
-  return email.toLowerCase();
-}
-
-function generateApplicationId(): string {
+function generateTrackingId(): string {
   return `#CP-${new Date().getFullYear()}-${String(
     Math.floor(Math.random() * 999999),
   ).padStart(6, "0")}`;
 }
 
-export function getApplicationByEmail(email: string): Application | null {
-  const all = loadAll();
-  return all[keyOf(email)] ?? null;
+function slugify(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
 }
 
-export function saveApplication(
-  input: Omit<Application, "applicationId" | "status" | "submittedAt" | "updatedAt">,
-): Application {
-  const all = loadAll();
-  const key = keyOf(input.email);
-  const now = new Date().toISOString();
-  const existing = all[key];
-  const app: Application = {
-    ...input,
-    applicationId: existing?.applicationId ?? generateApplicationId(),
-    status: "under_review",
-    submittedAt: existing?.submittedAt ?? now,
-    updatedAt: now,
+function randomSuffix(len = 6): string {
+  return Math.random().toString(36).slice(2, 2 + len);
+}
+
+// A slot name from signup ("companyPan", "aadhaar", etc.) → whether the doc
+// belongs to the organization (true) or the user (false). Personal identity
+// docs stay on the user even when uploaded during an agency signup.
+const ORG_DOC_SLOTS = new Set([
+  "companyPan",
+  "cancelledCheque", // business bank account for agencies
+  "partnershipDocs",
+  "logo",
+  "gst",
+]);
+
+function isOrgDoc(role: "agency" | "independent", slot: string): boolean {
+  if (role === "independent") return false;
+  return ORG_DOC_SLOTS.has(slot);
+}
+
+function fileNameFromUrl(url: string): string {
+  const last = url.split("/").pop() ?? url;
+  return last.split("?")[0] ?? last;
+}
+
+export async function saveApplication(input: ApplicationInput): Promise<Application> {
+  const email = input.email.toLowerCase();
+
+  return db.$transaction(async (tx) => {
+    const existing = await tx.user.findUnique({ where: { email } });
+
+    let orgId: number | null = null;
+
+    if (input.role === "agency" && input.companyName) {
+      if (existing?.org_id) {
+        await tx.organization.update({
+          where: { id: existing.org_id },
+          data: {
+            name: input.companyName,
+            website: input.companyWebsite ?? null,
+            address: input.companyAddress ?? null,
+            city: input.city ?? null,
+            state: input.state ?? null,
+            country: toISO2(input.country),
+            num_counsellors: counsellorRangeToCode(input.numCounselors),
+            annual_student_volume: volumeRangeToCode(input.annualVolume),
+          },
+        });
+        orgId = existing.org_id;
+      } else {
+        let urlIdentifier = slugify(input.companyName);
+        if (!urlIdentifier) urlIdentifier = `org-${randomSuffix()}`;
+        const taken = await tx.organization.findUnique({
+          where: { url_identifier: urlIdentifier },
+          select: { id: true },
+        });
+        if (taken) urlIdentifier = `${urlIdentifier}-${randomSuffix()}`;
+
+        const newOrg = await tx.organization.create({
+          data: {
+            name: input.companyName,
+            type: OrganizationType.AGENCY,
+            url_identifier: urlIdentifier,
+            website: input.companyWebsite ?? null,
+            address: input.companyAddress ?? null,
+            city: input.city ?? null,
+            state: input.state ?? null,
+            country: toISO2(input.country),
+            num_counsellors: counsellorRangeToCode(input.numCounselors),
+            annual_student_volume: volumeRangeToCode(input.annualVolume),
+            is_verified: 0,
+          },
+        });
+        orgId = newOrg.id;
+      }
+    }
+
+    const userType =
+      input.role === "agency"
+        ? UserType.AGENCY_OWNER
+        : UserType.INDEPENDENT_COUNSELLOR;
+
+    const baseUserFields = {
+      first_name: input.firstName,
+      last_name: input.lastName,
+      phone: `${input.countryCode}${input.phone}`,
+      type: userType,
+      is_owner: input.role === "agency" ? 1 : 0,
+      org_id: orgId,
+      country: toISO2(input.country),
+      state: input.state ?? null,
+      city: input.city ?? null,
+      address: input.role === "independent" ? (input.companyAddress ?? null) : null,
+    };
+
+    const user = existing
+      ? await tx.user.update({
+          where: { id: existing.id },
+          data: baseUserFields,
+        })
+      : await tx.user.create({
+          data: {
+            ...baseUserFields,
+            email,
+            tracking_id: generateTrackingId(),
+            status: UserStatus.UNDER_REVIEW,
+            is_email_verified: 1,
+            is_phone_verified: 1,
+          },
+        });
+
+    if (input.documents) {
+      await tx.document.deleteMany({ where: { user_id: user.id } });
+      if (orgId) {
+        await tx.document.deleteMany({ where: { org_id: orgId } });
+      }
+
+      const rows = Object.entries(input.documents)
+        .filter(([, url]) => !!url)
+        .map(([slot, url]) => {
+          const orgDoc = isOrgDoc(input.role, slot);
+          return {
+            file_name: fileNameFromUrl(url),
+            file_url: url,
+            doc_type: slot,
+            status: DocumentStatus.PENDING,
+            is_org_document: orgDoc ? 1 : 0,
+            user_id: orgDoc ? null : user.id,
+            org_id: orgDoc ? orgId : null,
+          };
+        });
+
+      if (rows.length) {
+        await tx.document.createMany({ data: rows });
+      }
+
+      if (orgId && input.documents.logo) {
+        await tx.organization.update({
+          where: { id: orgId },
+          data: { logo_url: input.documents.logo },
+        });
+      }
+    }
+
+    return toApplication(user, orgId, input);
+  });
+}
+
+export async function getApplicationByEmail(
+  email: string,
+): Promise<Application | null> {
+  const user = await db.user.findUnique({
+    where: { email: email.toLowerCase() },
+    include: {
+      organization: true,
+      document: true,
+    },
+  });
+  if (!user) return null;
+
+  const docs: Record<string, string> = {};
+  for (const d of user.document) docs[d.doc_type] = d.file_url;
+
+  // Also pull documents linked to the org (for agencies)
+  if (user.org_id) {
+    const orgDocs = await db.document.findMany({
+      where: { org_id: user.org_id },
+    });
+    for (const d of orgDocs) docs[d.doc_type] = d.file_url;
+  }
+
+  const role: "agency" | "independent" =
+    user.type === UserType.AGENCY_OWNER ? "agency" : "independent";
+
+  const countryCode = user.phone.startsWith("+")
+    ? user.phone.slice(0, user.phone.length - 10)
+    : "";
+  const phone = user.phone.replace(countryCode, "");
+
+  return {
+    applicationId: user.tracking_id ?? "",
+    email: user.email,
+    role,
+    firstName: user.first_name,
+    lastName: user.last_name,
+    phone,
+    countryCode,
+    companyName: user.organization?.name,
+    companyWebsite: user.organization?.website ?? undefined,
+    country: user.country ?? user.organization?.country ?? undefined,
+    state: user.state ?? user.organization?.state ?? undefined,
+    city: user.city ?? user.organization?.city ?? undefined,
+    companyAddress: user.organization?.address ?? undefined,
+    documents: Object.keys(docs).length ? docs : undefined,
+    status: statusLabelFromCode(user.status),
+    submittedAt: user.created_at.toISOString(),
+    updatedAt: user.updated_at.toISOString(),
   };
-  all[key] = app;
-  saveAll(all);
-  return app;
 }
 
-export function setApplicationStatus(
+export async function setApplicationStatus(
   email: string,
   status: ApplicationStatus,
-): Application | null {
-  const all = loadAll();
-  const key = keyOf(email);
-  const existing = all[key];
-  if (!existing) return null;
-  const updated: Application = { ...existing, status, updatedAt: new Date().toISOString() };
-  all[key] = updated;
-  saveAll(all);
-  return updated;
+): Promise<Application | null> {
+  const user = await db.user.findUnique({
+    where: { email: email.toLowerCase() },
+    select: { id: true },
+  });
+  if (!user) return null;
+
+  await db.user.update({
+    where: { id: user.id },
+    data: { status: statusCodeFromLabel(status) },
+  });
+
+  return getApplicationByEmail(email);
+}
+
+function toApplication(
+  user: { id: number; email: string; tracking_id: string | null; status: number; created_at: Date; updated_at: Date; type: number; first_name: string; last_name: string },
+  _orgId: number | null,
+  input: ApplicationInput,
+): Application {
+  return {
+    applicationId: user.tracking_id ?? "",
+    email: user.email,
+    role: input.role,
+    firstName: input.firstName,
+    lastName: input.lastName,
+    phone: input.phone,
+    countryCode: input.countryCode,
+    companyName: input.companyName,
+    companyWebsite: input.companyWebsite,
+    country: input.country,
+    state: input.state,
+    city: input.city,
+    companyAddress: input.companyAddress,
+    numCounselors: input.numCounselors,
+    annualVolume: input.annualVolume,
+    documents: input.documents,
+    status: statusLabelFromCode(user.status),
+    submittedAt: user.created_at.toISOString(),
+    updatedAt: user.updated_at.toISOString(),
+  };
 }

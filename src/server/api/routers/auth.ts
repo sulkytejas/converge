@@ -19,7 +19,7 @@ export const authRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input }) => {
-      const app = getApplicationByEmail(input.email);
+      const app = await getApplicationByEmail(input.email);
       if (!app) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -57,7 +57,7 @@ export const authRouter = createTRPCRouter({
         throw new TRPCError({ code: "BAD_REQUEST", message: "Invalid or expired OTP" });
       }
 
-      const app = getApplicationByEmail(input.email);
+      const app = await getApplicationByEmail(input.email);
       if (!app) {
         throw new TRPCError({
           code: "NOT_FOUND",

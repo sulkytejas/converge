@@ -7,16 +7,10 @@ export const env = createEnv({
    * isn't built with invalid env vars.
    */
   server: {
-    AUTH_SECRET:
-      process.env.NODE_ENV === "production"
-        ? z.string()
-        : z.string().optional(),
     DATABASE_URL: z.string().url(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
-    GEMINI_API_KEY: z.string(),
-    GEMINI_MODEL: z.string().default("gemini-flash-latest"),
     MSG91_AUTH_KEY: z.string().optional(),
     MSG91_SMS_TEMPLATE_ID: z.string().optional(),
     MSG91_EMAIL_TEMPLATE_ID: z.string().optional(),
@@ -39,11 +33,8 @@ export const env = createEnv({
    * middlewares) or client-side so we need to destruct manually.
    */
   runtimeEnv: {
-    AUTH_SECRET: process.env.AUTH_SECRET,
     DATABASE_URL: process.env.DATABASE_URL,
     NODE_ENV: process.env.NODE_ENV,
-    GEMINI_API_KEY: process.env.GEMINI_API_KEY,
-    GEMINI_MODEL: process.env.GEMINI_MODEL,
     MSG91_AUTH_KEY: process.env.MSG91_AUTH_KEY,
     MSG91_SMS_TEMPLATE_ID: process.env.MSG91_SMS_TEMPLATE_ID,
     MSG91_EMAIL_TEMPLATE_ID: process.env.MSG91_EMAIL_TEMPLATE_ID,

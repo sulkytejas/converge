@@ -97,7 +97,7 @@ export const signupRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input }) => {
-      const app = saveApplication({
+      const app = await saveApplication({
         email: input.email,
         role: input.role,
         firstName: input.firstName,

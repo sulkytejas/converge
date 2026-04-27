@@ -121,49 +121,227 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
-exports.Prisma.PostScalarFieldEnum = {
+exports.Prisma.ApplicationScalarFieldEnum = {
   id: 'id',
-  name: 'name',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  createdById: 'createdById'
+  status: 'status',
+  submitted_at: 'submitted_at',
+  decided_at: 'decided_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  notes: 'notes',
+  student_id: 'student_id',
+  course_id: 'course_id',
+  org_id: 'org_id',
+  offer_letter_url: 'offer_letter_url',
+  program_start_date: 'program_start_date'
 };
 
-exports.Prisma.AccountScalarFieldEnum = {
+exports.Prisma.Audit_logScalarFieldEnum = {
   id: 'id',
-  userId: 'userId',
+  org_id: 'org_id',
+  user_id: 'user_id',
+  action: 'action',
+  entity_type: 'entity_type',
+  entity_id: 'entity_id',
+  metadata: 'metadata',
+  created_at: 'created_at'
+};
+
+exports.Prisma.CommissionScalarFieldEnum = {
+  id: 'id',
+  tuition_fee: 'tuition_fee',
+  currency: 'currency',
+  commision_rate: 'commision_rate',
+  commision_amount: 'commision_amount',
+  invoice_status: 'invoice_status',
+  paid_to_collegepond: 'paid_to_collegepond',
+  paid_to_partner: 'paid_to_partner',
+  partner_paid_at: 'partner_paid_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  application_id: 'application_id',
+  org_id: 'org_id',
+  collegepond_received_at: 'collegepond_received_at'
+};
+
+exports.Prisma.CourseScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  degree_level: 'degree_level',
+  duration_months: 'duration_months',
+  tuition_fee: 'tuition_fee',
+  currency: 'currency',
+  is_open: 'is_open',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  university_id: 'university_id',
+  code: 'code'
+};
+
+exports.Prisma.DocumentScalarFieldEnum = {
+  id: 'id',
+  file_name: 'file_name',
+  file_url: 'file_url',
+  mime_type: 'mime_type',
+  is_most_recent: 'is_most_recent',
+  doc_type: 'doc_type',
+  status: 'status',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  org_id: 'org_id',
+  user_id: 'user_id',
+  is_org_document: 'is_org_document'
+};
+
+exports.Prisma.EventScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  event_type: 'event_type',
+  description: 'description',
+  event_date: 'event_date',
+  start_time: 'start_time',
+  end_time: 'end_time',
+  timezone: 'timezone',
+  location: 'location',
+  is_virtual: 'is_virtual',
+  meeting_url: 'meeting_url',
+  max_attendees: 'max_attendees',
+  is_active: 'is_active',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.Event_registrationScalarFieldEnum = {
+  id: 'id',
+  event_id: 'event_id',
+  user_id: 'user_id',
+  num_attendees: 'num_attendees',
+  status: 'status',
+  created_at: 'created_at'
+};
+
+exports.Prisma.Event_reminderScalarFieldEnum = {
+  id: 'id',
+  event_registration_id: 'event_registration_id',
+  reminder_type: 'reminder_type',
+  via_email: 'via_email',
+  via_whatsapp: 'via_whatsapp'
+};
+
+exports.Prisma.InvoiceScalarFieldEnum = {
+  id: 'id',
+  invoice_number: 'invoice_number',
+  invoice_date: 'invoice_date',
+  total_amount: 'total_amount',
+  currency: 'currency',
+  status: 'status',
+  bank_details: 'bank_details',
+  notes: 'notes',
+  signatory_name: 'signatory_name',
+  signatory_designation: 'signatory_designation',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  org_id: 'org_id'
+};
+
+exports.Prisma.Invoice_itemScalarFieldEnum = {
+  invoice_id: 'invoice_id',
+  commission_id: 'commission_id',
+  id: 'id',
+  amount: 'amount',
+  created_at: 'created_at'
+};
+
+exports.Prisma.Notification_preferenceScalarFieldEnum = {
+  id: 'id',
+  user_id: 'user_id',
+  notification_type: 'notification_type',
+  via_email: 'via_email',
+  via_sms: 'via_sms'
+};
+
+exports.Prisma.OrganizationScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
   type: 'type',
-  provider: 'provider',
-  providerAccountId: 'providerAccountId',
-  refresh_token: 'refresh_token',
-  access_token: 'access_token',
-  expires_at: 'expires_at',
-  token_type: 'token_type',
-  scope: 'scope',
-  id_token: 'id_token',
-  session_state: 'session_state',
-  refresh_token_expires_in: 'refresh_token_expires_in'
+  website: 'website',
+  address: 'address',
+  city: 'city',
+  state: 'state',
+  country: 'country',
+  num_counsellors: 'num_counsellors',
+  is_verified: 'is_verified',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  annual_student_volume: 'annual_student_volume',
+  url_identifier: 'url_identifier',
+  logo_url: 'logo_url',
+  gst_number: 'gst_number'
 };
 
 exports.Prisma.SessionScalarFieldEnum = {
   id: 'id',
-  sessionToken: 'sessionToken',
-  userId: 'userId',
-  expires: 'expires'
+  token_hash: 'token_hash',
+  ip_address: 'ip_address',
+  user_agent: 'user_agent',
+  expires_at: 'expires_at',
+  created_at: 'created_at',
+  user_id: 'user_id'
+};
+
+exports.Prisma.StudentScalarFieldEnum = {
+  id: 'id',
+  first_name: 'first_name',
+  last_name: 'last_name',
+  email: 'email',
+  phone: 'phone',
+  country: 'country',
+  intake: 'intake',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  gender: 'gender',
+  org_id: 'org_id',
+  counsellor_id: 'counsellor_id',
+  date_of_birth: 'date_of_birth',
+  nationality: 'nationality'
+};
+
+exports.Prisma.UniversityScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  city: 'city',
+  country: 'country',
+  website: 'website',
+  logo_url: 'logo_url',
+  is_open: 'is_open',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
 };
 
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
-  name: 'name',
+  first_name: 'first_name',
+  type: 'type',
   email: 'email',
-  emailVerified: 'emailVerified',
-  image: 'image'
-};
-
-exports.Prisma.VerificationTokenScalarFieldEnum = {
-  identifier: 'identifier',
-  token: 'token',
-  expires: 'expires'
+  phone: 'phone',
+  is_owner: 'is_owner',
+  status: 'status',
+  avatar_url: 'avatar_url',
+  is_email_verified: 'is_email_verified',
+  last_login_at: 'last_login_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  last_name: 'last_name',
+  is_phone_verified: 'is_phone_verified',
+  tracking_id: 'tracking_id',
+  org_id: 'org_id',
+  date_of_birth: 'date_of_birth',
+  gender: 'gender',
+  nationality: 'nationality',
+  address: 'address',
+  city: 'city',
+  state: 'state',
+  country: 'country'
 };
 
 exports.Prisma.SortOrder = {
@@ -171,9 +349,9 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
-exports.Prisma.PostOrderByRelevanceFieldEnum = {
-  name: 'name',
-  createdById: 'createdById'
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.NullsOrder = {
@@ -181,45 +359,129 @@ exports.Prisma.NullsOrder = {
   last: 'last'
 };
 
-exports.Prisma.AccountOrderByRelevanceFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  type: 'type',
-  provider: 'provider',
-  providerAccountId: 'providerAccountId',
-  refresh_token: 'refresh_token',
-  access_token: 'access_token',
-  token_type: 'token_type',
-  scope: 'scope',
-  id_token: 'id_token',
-  session_state: 'session_state'
+exports.Prisma.applicationOrderByRelevanceFieldEnum = {
+  notes: 'notes',
+  offer_letter_url: 'offer_letter_url'
 };
 
-exports.Prisma.SessionOrderByRelevanceFieldEnum = {
-  id: 'id',
-  sessionToken: 'sessionToken',
-  userId: 'userId'
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
 };
 
-exports.Prisma.UserOrderByRelevanceFieldEnum = {
-  id: 'id',
+exports.Prisma.QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+};
+
+exports.Prisma.audit_logOrderByRelevanceFieldEnum = {
+  action: 'action',
+  entity_type: 'entity_type'
+};
+
+exports.Prisma.commissionOrderByRelevanceFieldEnum = {
+  currency: 'currency'
+};
+
+exports.Prisma.courseOrderByRelevanceFieldEnum = {
   name: 'name',
-  email: 'email',
-  image: 'image'
+  currency: 'currency',
+  code: 'code'
 };
 
-exports.Prisma.VerificationTokenOrderByRelevanceFieldEnum = {
-  identifier: 'identifier',
-  token: 'token'
+exports.Prisma.documentOrderByRelevanceFieldEnum = {
+  file_name: 'file_name',
+  file_url: 'file_url',
+  mime_type: 'mime_type',
+  doc_type: 'doc_type'
+};
+
+exports.Prisma.eventOrderByRelevanceFieldEnum = {
+  title: 'title',
+  description: 'description',
+  timezone: 'timezone',
+  location: 'location',
+  meeting_url: 'meeting_url'
+};
+
+exports.Prisma.invoiceOrderByRelevanceFieldEnum = {
+  invoice_number: 'invoice_number',
+  currency: 'currency',
+  bank_details: 'bank_details',
+  notes: 'notes',
+  signatory_name: 'signatory_name',
+  signatory_designation: 'signatory_designation'
+};
+
+exports.Prisma.organizationOrderByRelevanceFieldEnum = {
+  name: 'name',
+  website: 'website',
+  address: 'address',
+  city: 'city',
+  state: 'state',
+  country: 'country',
+  url_identifier: 'url_identifier',
+  logo_url: 'logo_url',
+  gst_number: 'gst_number'
+};
+
+exports.Prisma.sessionOrderByRelevanceFieldEnum = {
+  token_hash: 'token_hash',
+  ip_address: 'ip_address',
+  user_agent: 'user_agent'
+};
+
+exports.Prisma.studentOrderByRelevanceFieldEnum = {
+  first_name: 'first_name',
+  last_name: 'last_name',
+  email: 'email',
+  phone: 'phone',
+  country: 'country',
+  intake: 'intake',
+  nationality: 'nationality'
+};
+
+exports.Prisma.universityOrderByRelevanceFieldEnum = {
+  name: 'name',
+  city: 'city',
+  country: 'country',
+  website: 'website',
+  logo_url: 'logo_url'
+};
+
+exports.Prisma.userOrderByRelevanceFieldEnum = {
+  first_name: 'first_name',
+  email: 'email',
+  phone: 'phone',
+  avatar_url: 'avatar_url',
+  last_name: 'last_name',
+  tracking_id: 'tracking_id',
+  nationality: 'nationality',
+  address: 'address',
+  city: 'city',
+  state: 'state',
+  country: 'country'
 };
 
 
 exports.Prisma.ModelName = {
-  Post: 'Post',
-  Account: 'Account',
-  Session: 'Session',
-  User: 'User',
-  VerificationToken: 'VerificationToken'
+  application: 'application',
+  audit_log: 'audit_log',
+  commission: 'commission',
+  course: 'course',
+  document: 'document',
+  event: 'event',
+  event_registration: 'event_registration',
+  event_reminder: 'event_reminder',
+  invoice: 'invoice',
+  invoice_item: 'invoice_item',
+  notification_preference: 'notification_preference',
+  organization: 'organization',
+  session: 'session',
+  student: 'student',
+  university: 'university',
+  user: 'user'
 };
 
 /**

@@ -93,49 +93,227 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
-exports.Prisma.PostScalarFieldEnum = {
+exports.Prisma.ApplicationScalarFieldEnum = {
   id: 'id',
-  name: 'name',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  createdById: 'createdById'
+  status: 'status',
+  submitted_at: 'submitted_at',
+  decided_at: 'decided_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  notes: 'notes',
+  student_id: 'student_id',
+  course_id: 'course_id',
+  org_id: 'org_id',
+  offer_letter_url: 'offer_letter_url',
+  program_start_date: 'program_start_date'
 };
 
-exports.Prisma.AccountScalarFieldEnum = {
+exports.Prisma.Audit_logScalarFieldEnum = {
   id: 'id',
-  userId: 'userId',
+  org_id: 'org_id',
+  user_id: 'user_id',
+  action: 'action',
+  entity_type: 'entity_type',
+  entity_id: 'entity_id',
+  metadata: 'metadata',
+  created_at: 'created_at'
+};
+
+exports.Prisma.CommissionScalarFieldEnum = {
+  id: 'id',
+  tuition_fee: 'tuition_fee',
+  currency: 'currency',
+  commision_rate: 'commision_rate',
+  commision_amount: 'commision_amount',
+  invoice_status: 'invoice_status',
+  paid_to_collegepond: 'paid_to_collegepond',
+  paid_to_partner: 'paid_to_partner',
+  partner_paid_at: 'partner_paid_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  application_id: 'application_id',
+  org_id: 'org_id',
+  collegepond_received_at: 'collegepond_received_at'
+};
+
+exports.Prisma.CourseScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  degree_level: 'degree_level',
+  duration_months: 'duration_months',
+  tuition_fee: 'tuition_fee',
+  currency: 'currency',
+  is_open: 'is_open',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  university_id: 'university_id',
+  code: 'code'
+};
+
+exports.Prisma.DocumentScalarFieldEnum = {
+  id: 'id',
+  file_name: 'file_name',
+  file_url: 'file_url',
+  mime_type: 'mime_type',
+  is_most_recent: 'is_most_recent',
+  doc_type: 'doc_type',
+  status: 'status',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  org_id: 'org_id',
+  user_id: 'user_id',
+  is_org_document: 'is_org_document'
+};
+
+exports.Prisma.EventScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  event_type: 'event_type',
+  description: 'description',
+  event_date: 'event_date',
+  start_time: 'start_time',
+  end_time: 'end_time',
+  timezone: 'timezone',
+  location: 'location',
+  is_virtual: 'is_virtual',
+  meeting_url: 'meeting_url',
+  max_attendees: 'max_attendees',
+  is_active: 'is_active',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.Event_registrationScalarFieldEnum = {
+  id: 'id',
+  event_id: 'event_id',
+  user_id: 'user_id',
+  num_attendees: 'num_attendees',
+  status: 'status',
+  created_at: 'created_at'
+};
+
+exports.Prisma.Event_reminderScalarFieldEnum = {
+  id: 'id',
+  event_registration_id: 'event_registration_id',
+  reminder_type: 'reminder_type',
+  via_email: 'via_email',
+  via_whatsapp: 'via_whatsapp'
+};
+
+exports.Prisma.InvoiceScalarFieldEnum = {
+  id: 'id',
+  invoice_number: 'invoice_number',
+  invoice_date: 'invoice_date',
+  total_amount: 'total_amount',
+  currency: 'currency',
+  status: 'status',
+  bank_details: 'bank_details',
+  notes: 'notes',
+  signatory_name: 'signatory_name',
+  signatory_designation: 'signatory_designation',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  org_id: 'org_id'
+};
+
+exports.Prisma.Invoice_itemScalarFieldEnum = {
+  invoice_id: 'invoice_id',
+  commission_id: 'commission_id',
+  id: 'id',
+  amount: 'amount',
+  created_at: 'created_at'
+};
+
+exports.Prisma.Notification_preferenceScalarFieldEnum = {
+  id: 'id',
+  user_id: 'user_id',
+  notification_type: 'notification_type',
+  via_email: 'via_email',
+  via_sms: 'via_sms'
+};
+
+exports.Prisma.OrganizationScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
   type: 'type',
-  provider: 'provider',
-  providerAccountId: 'providerAccountId',
-  refresh_token: 'refresh_token',
-  access_token: 'access_token',
-  expires_at: 'expires_at',
-  token_type: 'token_type',
-  scope: 'scope',
-  id_token: 'id_token',
-  session_state: 'session_state',
-  refresh_token_expires_in: 'refresh_token_expires_in'
+  website: 'website',
+  address: 'address',
+  city: 'city',
+  state: 'state',
+  country: 'country',
+  num_counsellors: 'num_counsellors',
+  is_verified: 'is_verified',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  annual_student_volume: 'annual_student_volume',
+  url_identifier: 'url_identifier',
+  logo_url: 'logo_url',
+  gst_number: 'gst_number'
 };
 
 exports.Prisma.SessionScalarFieldEnum = {
   id: 'id',
-  sessionToken: 'sessionToken',
-  userId: 'userId',
-  expires: 'expires'
+  token_hash: 'token_hash',
+  ip_address: 'ip_address',
+  user_agent: 'user_agent',
+  expires_at: 'expires_at',
+  created_at: 'created_at',
+  user_id: 'user_id'
+};
+
+exports.Prisma.StudentScalarFieldEnum = {
+  id: 'id',
+  first_name: 'first_name',
+  last_name: 'last_name',
+  email: 'email',
+  phone: 'phone',
+  country: 'country',
+  intake: 'intake',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  gender: 'gender',
+  org_id: 'org_id',
+  counsellor_id: 'counsellor_id',
+  date_of_birth: 'date_of_birth',
+  nationality: 'nationality'
+};
+
+exports.Prisma.UniversityScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  city: 'city',
+  country: 'country',
+  website: 'website',
+  logo_url: 'logo_url',
+  is_open: 'is_open',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
 };
 
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
-  name: 'name',
+  first_name: 'first_name',
+  type: 'type',
   email: 'email',
-  emailVerified: 'emailVerified',
-  image: 'image'
-};
-
-exports.Prisma.VerificationTokenScalarFieldEnum = {
-  identifier: 'identifier',
-  token: 'token',
-  expires: 'expires'
+  phone: 'phone',
+  is_owner: 'is_owner',
+  status: 'status',
+  avatar_url: 'avatar_url',
+  is_email_verified: 'is_email_verified',
+  last_login_at: 'last_login_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  last_name: 'last_name',
+  is_phone_verified: 'is_phone_verified',
+  tracking_id: 'tracking_id',
+  org_id: 'org_id',
+  date_of_birth: 'date_of_birth',
+  gender: 'gender',
+  nationality: 'nationality',
+  address: 'address',
+  city: 'city',
+  state: 'state',
+  country: 'country'
 };
 
 exports.Prisma.SortOrder = {
@@ -143,9 +321,9 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
-exports.Prisma.PostOrderByRelevanceFieldEnum = {
-  name: 'name',
-  createdById: 'createdById'
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.NullsOrder = {
@@ -153,45 +331,129 @@ exports.Prisma.NullsOrder = {
   last: 'last'
 };
 
-exports.Prisma.AccountOrderByRelevanceFieldEnum = {
-  id: 'id',
-  userId: 'userId',
-  type: 'type',
-  provider: 'provider',
-  providerAccountId: 'providerAccountId',
-  refresh_token: 'refresh_token',
-  access_token: 'access_token',
-  token_type: 'token_type',
-  scope: 'scope',
-  id_token: 'id_token',
-  session_state: 'session_state'
+exports.Prisma.applicationOrderByRelevanceFieldEnum = {
+  notes: 'notes',
+  offer_letter_url: 'offer_letter_url'
 };
 
-exports.Prisma.SessionOrderByRelevanceFieldEnum = {
-  id: 'id',
-  sessionToken: 'sessionToken',
-  userId: 'userId'
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
 };
 
-exports.Prisma.UserOrderByRelevanceFieldEnum = {
-  id: 'id',
+exports.Prisma.QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+};
+
+exports.Prisma.audit_logOrderByRelevanceFieldEnum = {
+  action: 'action',
+  entity_type: 'entity_type'
+};
+
+exports.Prisma.commissionOrderByRelevanceFieldEnum = {
+  currency: 'currency'
+};
+
+exports.Prisma.courseOrderByRelevanceFieldEnum = {
   name: 'name',
-  email: 'email',
-  image: 'image'
+  currency: 'currency',
+  code: 'code'
 };
 
-exports.Prisma.VerificationTokenOrderByRelevanceFieldEnum = {
-  identifier: 'identifier',
-  token: 'token'
+exports.Prisma.documentOrderByRelevanceFieldEnum = {
+  file_name: 'file_name',
+  file_url: 'file_url',
+  mime_type: 'mime_type',
+  doc_type: 'doc_type'
+};
+
+exports.Prisma.eventOrderByRelevanceFieldEnum = {
+  title: 'title',
+  description: 'description',
+  timezone: 'timezone',
+  location: 'location',
+  meeting_url: 'meeting_url'
+};
+
+exports.Prisma.invoiceOrderByRelevanceFieldEnum = {
+  invoice_number: 'invoice_number',
+  currency: 'currency',
+  bank_details: 'bank_details',
+  notes: 'notes',
+  signatory_name: 'signatory_name',
+  signatory_designation: 'signatory_designation'
+};
+
+exports.Prisma.organizationOrderByRelevanceFieldEnum = {
+  name: 'name',
+  website: 'website',
+  address: 'address',
+  city: 'city',
+  state: 'state',
+  country: 'country',
+  url_identifier: 'url_identifier',
+  logo_url: 'logo_url',
+  gst_number: 'gst_number'
+};
+
+exports.Prisma.sessionOrderByRelevanceFieldEnum = {
+  token_hash: 'token_hash',
+  ip_address: 'ip_address',
+  user_agent: 'user_agent'
+};
+
+exports.Prisma.studentOrderByRelevanceFieldEnum = {
+  first_name: 'first_name',
+  last_name: 'last_name',
+  email: 'email',
+  phone: 'phone',
+  country: 'country',
+  intake: 'intake',
+  nationality: 'nationality'
+};
+
+exports.Prisma.universityOrderByRelevanceFieldEnum = {
+  name: 'name',
+  city: 'city',
+  country: 'country',
+  website: 'website',
+  logo_url: 'logo_url'
+};
+
+exports.Prisma.userOrderByRelevanceFieldEnum = {
+  first_name: 'first_name',
+  email: 'email',
+  phone: 'phone',
+  avatar_url: 'avatar_url',
+  last_name: 'last_name',
+  tracking_id: 'tracking_id',
+  nationality: 'nationality',
+  address: 'address',
+  city: 'city',
+  state: 'state',
+  country: 'country'
 };
 
 
 exports.Prisma.ModelName = {
-  Post: 'Post',
-  Account: 'Account',
-  Session: 'Session',
-  User: 'User',
-  VerificationToken: 'VerificationToken'
+  application: 'application',
+  audit_log: 'audit_log',
+  commission: 'commission',
+  course: 'course',
+  document: 'document',
+  event: 'event',
+  event_registration: 'event_registration',
+  event_reminder: 'event_reminder',
+  invoice: 'invoice',
+  invoice_item: 'invoice_item',
+  notification_preference: 'notification_preference',
+  organization: 'organization',
+  session: 'session',
+  student: 'student',
+  university: 'university',
+  user: 'user'
 };
 /**
  * Create the Client
@@ -204,7 +466,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/tejas/Documents/Code/converge/generated/prisma",
+      "value": "/Users/tejaspashte/Documents/Code/converge/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -218,7 +480,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/Users/tejas/Documents/Code/converge/prisma/schema.prisma",
+    "sourceFilePath": "/Users/tejaspashte/Documents/Code/converge/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -232,6 +494,7 @@ const config = {
     "db"
   ],
   "activeProvider": "mysql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -240,13 +503,13 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"mysql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel Post {\n  id        Int      @id @default(autoincrement())\n  name      String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  createdBy   User   @relation(fields: [createdById], references: [id])\n  createdById String\n\n  @@index([name])\n}\n\n// Necessary for Next auth\nmodel Account {\n  id                       String  @id @default(cuid())\n  userId                   String\n  type                     String\n  provider                 String\n  providerAccountId        String\n  refresh_token            String? @db.Text\n  access_token             String? @db.Text\n  expires_at               Int?\n  token_type               String?\n  scope                    String?\n  id_token                 String? @db.Text\n  session_state            String?\n  user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)\n  refresh_token_expires_in Int?\n\n  @@unique([provider, providerAccountId])\n}\n\nmodel Session {\n  id           String   @id @default(cuid())\n  sessionToken String   @unique\n  userId       String\n  expires      DateTime\n  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)\n}\n\nmodel User {\n  id            String    @id @default(cuid())\n  name          String?\n  email         String?   @unique\n  emailVerified DateTime?\n  image         String?\n  accounts      Account[]\n  sessions      Session[]\n  posts         Post[]\n}\n\nmodel VerificationToken {\n  identifier String\n  token      String   @unique\n  expires    DateTime\n\n  @@unique([identifier, token])\n}\n",
-  "inlineSchemaHash": "fd31b5f11e75381ad3227406bf1adedbb571e4c8e52e0a15fd584ac272ce43dd",
+  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../generated/prisma\"\n}\n\ndatasource db {\n  provider = \"mysql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel application {\n  id                 Int          @id @default(autoincrement())\n  status             Int          @default(0) @db.TinyInt\n  submitted_at       DateTime?    @db.Timestamp(0)\n  decided_at         DateTime?    @db.Timestamp(0)\n  created_at         DateTime     @default(now()) @db.Timestamp(0)\n  updated_at         DateTime     @default(now()) @db.Timestamp(0)\n  notes              String?      @db.VarChar(1000)\n  student_id         Int\n  course_id          Int\n  org_id             Int\n  offer_letter_url   String?      @db.VarChar(255)\n  program_start_date DateTime?    @db.Date\n  course             course       @relation(fields: [course_id], references: [id], map: \"fk_application_course\")\n  organization       organization @relation(fields: [org_id], references: [id], map: \"fk_application_organization\")\n  student            student      @relation(fields: [student_id], references: [id], onDelete: Cascade, map: \"fk_application_student\")\n  commission         commission?\n\n  @@index([course_id], map: \"fk_application_course1_idx\")\n  @@index([org_id], map: \"fk_application_organization1_idx\")\n  @@index([student_id], map: \"fk_application_student1_idx\")\n}\n\nmodel audit_log {\n  id           Int           @id @default(autoincrement())\n  org_id       Int?\n  user_id      Int?\n  action       String        @db.VarChar(100)\n  entity_type  String?       @db.VarChar(50)\n  entity_id    Int?\n  metadata     Json?\n  created_at   DateTime      @default(now()) @db.Timestamp(0)\n  organization organization? @relation(fields: [org_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: \"fk_audit_log_organization1\")\n  user         user?         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: \"fk_audit_log_user1\")\n\n  @@index([org_id], map: \"fk_audit_log_organization1_idx\")\n  @@index([user_id], map: \"fk_audit_log_user1_idx\")\n}\n\nmodel commission {\n  id                      Int           @id @default(autoincrement())\n  tuition_fee             Decimal       @db.Decimal(12, 2)\n  currency                String        @db.Char(3)\n  commision_rate          Decimal       @db.Decimal(5, 2)\n  commision_amount        Decimal       @db.Decimal(12, 2)\n  invoice_status          Int           @default(0) @db.UnsignedTinyInt\n  paid_to_collegepond     Int           @default(0) @db.TinyInt\n  paid_to_partner         Int           @default(0) @db.TinyInt\n  partner_paid_at         DateTime?     @db.Timestamp(0)\n  created_at              DateTime      @default(now()) @db.Timestamp(0)\n  updated_at              DateTime      @default(now()) @db.Timestamp(0)\n  application_id          Int           @unique(map: \"application_id_UNIQUE\")\n  org_id                  Int\n  collegepond_received_at DateTime?     @db.Timestamp(0)\n  application             application   @relation(fields: [application_id], references: [id], onDelete: Cascade, map: \"fk_commission_application\")\n  organization            organization  @relation(fields: [org_id], references: [id], map: \"fk_commission_organization\")\n  invoice_item            invoice_item?\n\n  @@index([application_id], map: \"fk_commission_application1_idx\")\n  @@index([org_id], map: \"fk_commission_organization1_idx\")\n}\n\nmodel course {\n  id              Int           @id @default(autoincrement())\n  name            String        @db.VarChar(150)\n  degree_level    Int?          @db.UnsignedTinyInt\n  duration_months Int?          @db.SmallInt\n  tuition_fee     Decimal?      @db.Decimal(12, 2)\n  currency        String?       @db.Char(3)\n  is_open         Int           @default(1) @db.TinyInt\n  created_at      DateTime      @default(now()) @db.Timestamp(0)\n  updated_at      DateTime      @default(now()) @db.Timestamp(0)\n  university_id   Int\n  code            String?       @unique(map: \"code_UNIQUE\") @db.VarChar(50)\n  application     application[]\n  university      university    @relation(fields: [university_id], references: [id], map: \"fk_course_university\")\n\n  @@index([university_id], map: \"fk_course_university1_idx\")\n}\n\nmodel document {\n  id              Int           @id @default(autoincrement())\n  file_name       String        @db.VarChar(255)\n  file_url        String        @db.VarChar(500)\n  mime_type       String?       @db.VarChar(100)\n  is_most_recent  Int           @default(1) @db.TinyInt\n  doc_type        String        @db.VarChar(50)\n  status          Int           @default(0) @db.UnsignedTinyInt\n  created_at      DateTime      @default(now()) @db.Timestamp(0)\n  updated_at      DateTime      @default(now()) @db.Timestamp(0)\n  org_id          Int?\n  user_id         Int?\n  is_org_document Int           @default(0) @db.TinyInt\n  organization    organization? @relation(fields: [org_id], references: [id], onDelete: Restrict, map: \"fk_document_organization\")\n  user            user?         @relation(fields: [user_id], references: [id], onUpdate: NoAction, map: \"fk_document_user\")\n\n  @@index([org_id], map: \"fk_document_organization1_idx\")\n  @@index([user_id], map: \"fk_document_user1_idx\")\n}\n\nmodel event {\n  id                 Int                  @id @default(autoincrement())\n  title              String               @db.VarChar(255)\n  event_type         Int                  @db.UnsignedTinyInt\n  description        String?              @db.VarChar(1000)\n  event_date         DateTime             @db.Date\n  start_time         DateTime?            @db.Time(0)\n  end_time           DateTime?            @db.Time(0)\n  timezone           String?              @db.VarChar(50)\n  location           String?              @db.VarChar(255)\n  is_virtual         Int                  @default(0) @db.TinyInt\n  meeting_url        String?              @db.VarChar(500)\n  max_attendees      Int?\n  is_active          Int                  @default(1) @db.TinyInt\n  created_at         DateTime             @default(now()) @db.Timestamp(0)\n  updated_at         DateTime             @default(now()) @db.Timestamp(0)\n  event_registration event_registration[]\n}\n\nmodel event_registration {\n  id             Int              @id @default(autoincrement())\n  event_id       Int\n  user_id        Int\n  num_attendees  Int              @default(0) @db.UnsignedTinyInt\n  status         Int              @default(0) @db.UnsignedTinyInt\n  created_at     DateTime         @default(now()) @db.Timestamp(0)\n  event          event            @relation(fields: [event_id], references: [id], onDelete: Cascade, map: \"fk_event_registration_event\")\n  user           user             @relation(fields: [user_id], references: [id], onDelete: Cascade, map: \"fk_event_registration_user\")\n  event_reminder event_reminder[]\n\n  @@index([event_id], map: \"fk_event_registration_event1_idx\")\n  @@index([user_id], map: \"fk_event_registration_user1_idx\")\n}\n\nmodel event_reminder {\n  id                    Int                @id @default(autoincrement())\n  event_registration_id Int\n  reminder_type         Int                @db.UnsignedTinyInt\n  via_email             Int                @default(1) @db.TinyInt\n  via_whatsapp          Int                @default(0) @db.TinyInt\n  event_registration    event_registration @relation(fields: [event_registration_id], references: [id], onDelete: Cascade, map: \"fk_event_reminder_event_registration\")\n\n  @@index([event_registration_id], map: \"fk_event_reminder_event_registration1_idx\")\n}\n\nmodel invoice {\n  id                    Int            @id @default(autoincrement())\n  invoice_number        String         @unique(map: \"invoice_number_UNIQUE\") @db.VarChar(30)\n  invoice_date          DateTime       @db.Date\n  total_amount          Decimal        @db.Decimal(14, 2)\n  currency              String         @db.Char(3)\n  status                Int            @default(0) @db.UnsignedTinyInt\n  bank_details          String?        @db.VarChar(1000)\n  notes                 String?        @db.VarChar(1000)\n  signatory_name        String?        @db.VarChar(100)\n  signatory_designation String?        @db.VarChar(100)\n  created_at            DateTime       @default(now()) @db.Timestamp(0)\n  updated_at            DateTime       @default(now()) @db.Timestamp(0)\n  org_id                Int\n  organization          organization   @relation(fields: [org_id], references: [id], map: \"fk_invoice_organization\")\n  invoice_item          invoice_item[]\n\n  @@index([org_id], map: \"fk_invoice_organization1_idx\")\n}\n\nmodel invoice_item {\n  invoice_id    Int\n  commission_id Int        @unique(map: \"commission_id_UNIQUE\")\n  id            Int        @id @default(autoincrement())\n  amount        Decimal    @db.Decimal(12, 2)\n  created_at    DateTime   @default(now()) @db.Timestamp(0)\n  commission    commission @relation(fields: [commission_id], references: [id], map: \"fk_invoice_item_commission\")\n  invoice       invoice    @relation(fields: [invoice_id], references: [id], onDelete: Cascade, map: \"fk_invoice_item_invoice\")\n\n  @@index([commission_id], map: \"fk_invoice_item_commission1_idx\")\n  @@index([invoice_id], map: \"fk_invoice_item_invoice1_idx\")\n}\n\nmodel notification_preference {\n  id                Int  @id @default(autoincrement())\n  user_id           Int\n  notification_type Int  @db.UnsignedTinyInt\n  via_email         Int  @default(1) @db.TinyInt\n  via_sms           Int  @default(0) @db.TinyInt\n  user              user @relation(fields: [user_id], references: [id], onDelete: Cascade, map: \"fk_notification_preference_user\")\n\n  @@index([user_id], map: \"fk_notification_preference_user1_idx\")\n}\n\nmodel organization {\n  id                    Int           @id @default(autoincrement())\n  name                  String        @db.VarChar(100)\n  type                  Int           @db.UnsignedTinyInt\n  website               String?       @db.VarChar(255)\n  address               String?       @db.VarChar(255)\n  city                  String?       @db.VarChar(100)\n  state                 String?       @db.VarChar(100)\n  country               String?       @db.VarChar(2)\n  num_counsellors       Int?          @db.UnsignedTinyInt\n  is_verified           Int           @default(0) @db.TinyInt\n  created_at            DateTime      @default(now()) @db.Timestamp(0)\n  updated_at            DateTime      @default(now()) @db.Timestamp(0)\n  annual_student_volume Int?          @db.UnsignedTinyInt\n  url_identifier        String        @unique(map: \"url_identifier_UNIQUE\") @db.VarChar(100)\n  logo_url              String?       @db.VarChar(255)\n  gst_number            String?       @db.VarChar(20)\n  application           application[]\n  audit_log             audit_log[]\n  commission            commission[]\n  document              document[]\n  invoice               invoice[]\n  student               student[]\n  user                  user[]\n}\n\nmodel session {\n  id         Int      @id @default(autoincrement())\n  token_hash String   @unique(map: \"token_hash_UNIQUE\") @db.VarChar(255)\n  ip_address String?  @db.VarChar(45)\n  user_agent String?  @db.VarChar(500)\n  expires_at DateTime @db.Timestamp(0)\n  created_at DateTime @default(now()) @db.Timestamp(0)\n  user_id    Int\n  user       user     @relation(fields: [user_id], references: [id], onDelete: Cascade, map: \"fk_session_user1\")\n\n  @@index([user_id], map: \"fk_session_user1_idx\")\n}\n\nmodel student {\n  id            Int           @id @default(autoincrement())\n  first_name    String        @db.VarChar(50)\n  last_name     String        @db.VarChar(50)\n  email         String?       @db.VarChar(255)\n  phone         String?       @db.VarChar(20)\n  country       String?       @db.VarChar(2)\n  intake        String?       @db.VarChar(20)\n  created_at    DateTime      @default(now()) @db.Timestamp(0)\n  updated_at    DateTime      @default(now()) @db.Timestamp(0)\n  gender        Int?          @db.UnsignedTinyInt\n  org_id        Int\n  counsellor_id Int?\n  date_of_birth DateTime?     @db.Date\n  nationality   String?       @db.VarChar(2)\n  application   application[]\n  organization  organization  @relation(fields: [org_id], references: [id], map: \"fk_student_organization\")\n  user          user?         @relation(fields: [counsellor_id], references: [id], onUpdate: NoAction, map: \"fk_student_user\")\n\n  @@index([org_id], map: \"fk_student_organization1_idx\")\n  @@index([counsellor_id], map: \"fk_student_user1_idx\")\n}\n\nmodel university {\n  id         Int      @id @default(autoincrement())\n  name       String   @db.VarChar(150)\n  city       String?  @db.VarChar(100)\n  country    String   @db.VarChar(2)\n  website    String?  @db.VarChar(255)\n  logo_url   String?  @db.VarChar(255)\n  is_open    Int      @default(1) @db.TinyInt\n  created_at DateTime @default(now()) @db.Timestamp(0)\n  updated_at DateTime @default(now()) @db.Timestamp(0)\n  course     course[]\n}\n\nmodel user {\n  id                      Int                       @id @default(autoincrement())\n  first_name              String                    @db.VarChar(50)\n  type                    Int                       @db.UnsignedTinyInt\n  email                   String                    @unique(map: \"email_UNIQUE\") @db.VarChar(255)\n  phone                   String                    @db.VarChar(45)\n  is_owner                Int                       @default(0) @db.TinyInt\n  status                  Int                       @default(0) @db.UnsignedTinyInt\n  avatar_url              String?                   @db.VarChar(500)\n  is_email_verified       Int                       @default(0) @db.TinyInt\n  last_login_at           DateTime?                 @db.Timestamp(0)\n  created_at              DateTime                  @default(now()) @db.Timestamp(0)\n  updated_at              DateTime                  @default(now()) @db.Timestamp(0)\n  last_name               String                    @db.VarChar(50)\n  is_phone_verified       Int                       @default(0) @db.TinyInt\n  tracking_id             String?                   @unique(map: \"tracking_id_UNIQUE\") @db.VarChar(50)\n  org_id                  Int?\n  date_of_birth           DateTime?                 @db.Date\n  gender                  Int?                      @db.UnsignedTinyInt\n  nationality             String?                   @db.VarChar(2)\n  address                 String?                   @db.VarChar(255)\n  city                    String?                   @db.VarChar(100)\n  state                   String?                   @db.VarChar(100)\n  country                 String?                   @db.VarChar(2)\n  audit_log               audit_log[]\n  document                document[]\n  event_registration      event_registration[]\n  notification_preference notification_preference[]\n  session                 session[]\n  student                 student[]\n  organization            organization?             @relation(fields: [org_id], references: [id], onDelete: Cascade, map: \"fk_user_organization\")\n\n  @@index([org_id], map: \"fk_user_organization_idx\")\n}\n",
+  "inlineSchemaHash": "b61ee4d8d405f656733ffa639a0a653bed66ce0e4ffbab016c4b1b41bf2b2171",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"Post\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"createdBy\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"PostToUser\"},{\"name\":\"createdById\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"Account\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"type\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"provider\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"providerAccountId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"refresh_token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"access_token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"expires_at\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"token_type\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"scope\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"id_token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"session_state\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"AccountToUser\"},{\"name\":\"refresh_token_expires_in\",\"kind\":\"scalar\",\"type\":\"Int\"}],\"dbName\":null},\"Session\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"sessionToken\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"expires\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"SessionToUser\"}],\"dbName\":null},\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"emailVerified\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"image\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"accounts\",\"kind\":\"object\",\"type\":\"Account\",\"relationName\":\"AccountToUser\"},{\"name\":\"sessions\",\"kind\":\"object\",\"type\":\"Session\",\"relationName\":\"SessionToUser\"},{\"name\":\"posts\",\"kind\":\"object\",\"type\":\"Post\",\"relationName\":\"PostToUser\"}],\"dbName\":null},\"VerificationToken\":{\"fields\":[{\"name\":\"identifier\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"token\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"expires\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"application\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"status\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"submitted_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"decided_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updated_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"notes\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"student_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"course_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"org_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"offer_letter_url\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"program_start_date\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"course\",\"kind\":\"object\",\"type\":\"course\",\"relationName\":\"applicationTocourse\"},{\"name\":\"organization\",\"kind\":\"object\",\"type\":\"organization\",\"relationName\":\"applicationToorganization\"},{\"name\":\"student\",\"kind\":\"object\",\"type\":\"student\",\"relationName\":\"applicationTostudent\"},{\"name\":\"commission\",\"kind\":\"object\",\"type\":\"commission\",\"relationName\":\"applicationTocommission\"}],\"dbName\":null},\"audit_log\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"org_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"user_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"action\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"entity_type\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"entity_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"metadata\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"organization\",\"kind\":\"object\",\"type\":\"organization\",\"relationName\":\"audit_logToorganization\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"user\",\"relationName\":\"audit_logTouser\"}],\"dbName\":null},\"commission\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"tuition_fee\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"currency\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"commision_rate\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"commision_amount\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"invoice_status\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"paid_to_collegepond\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"paid_to_partner\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"partner_paid_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updated_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"application_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"org_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"collegepond_received_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"application\",\"kind\":\"object\",\"type\":\"application\",\"relationName\":\"applicationTocommission\"},{\"name\":\"organization\",\"kind\":\"object\",\"type\":\"organization\",\"relationName\":\"commissionToorganization\"},{\"name\":\"invoice_item\",\"kind\":\"object\",\"type\":\"invoice_item\",\"relationName\":\"commissionToinvoice_item\"}],\"dbName\":null},\"course\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"degree_level\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"duration_months\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"tuition_fee\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"currency\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"is_open\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updated_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"university_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"code\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"application\",\"kind\":\"object\",\"type\":\"application\",\"relationName\":\"applicationTocourse\"},{\"name\":\"university\",\"kind\":\"object\",\"type\":\"university\",\"relationName\":\"courseTouniversity\"}],\"dbName\":null},\"document\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"file_name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"file_url\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"mime_type\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"is_most_recent\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"doc_type\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updated_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"org_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"user_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"is_org_document\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"organization\",\"kind\":\"object\",\"type\":\"organization\",\"relationName\":\"documentToorganization\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"user\",\"relationName\":\"documentTouser\"}],\"dbName\":null},\"event\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"event_type\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"event_date\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"start_time\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"end_time\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"timezone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"location\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"is_virtual\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"meeting_url\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"max_attendees\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"is_active\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updated_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"event_registration\",\"kind\":\"object\",\"type\":\"event_registration\",\"relationName\":\"eventToevent_registration\"}],\"dbName\":null},\"event_registration\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"event_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"user_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"num_attendees\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"status\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"event\",\"kind\":\"object\",\"type\":\"event\",\"relationName\":\"eventToevent_registration\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"user\",\"relationName\":\"event_registrationTouser\"},{\"name\":\"event_reminder\",\"kind\":\"object\",\"type\":\"event_reminder\",\"relationName\":\"event_registrationToevent_reminder\"}],\"dbName\":null},\"event_reminder\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"event_registration_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"reminder_type\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"via_email\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"via_whatsapp\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"event_registration\",\"kind\":\"object\",\"type\":\"event_registration\",\"relationName\":\"event_registrationToevent_reminder\"}],\"dbName\":null},\"invoice\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"invoice_number\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"invoice_date\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"total_amount\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"currency\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"status\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"bank_details\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"notes\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"signatory_name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"signatory_designation\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updated_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"org_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"organization\",\"kind\":\"object\",\"type\":\"organization\",\"relationName\":\"invoiceToorganization\"},{\"name\":\"invoice_item\",\"kind\":\"object\",\"type\":\"invoice_item\",\"relationName\":\"invoiceToinvoice_item\"}],\"dbName\":null},\"invoice_item\":{\"fields\":[{\"name\":\"invoice_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"commission_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"amount\",\"kind\":\"scalar\",\"type\":\"Decimal\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"commission\",\"kind\":\"object\",\"type\":\"commission\",\"relationName\":\"commissionToinvoice_item\"},{\"name\":\"invoice\",\"kind\":\"object\",\"type\":\"invoice\",\"relationName\":\"invoiceToinvoice_item\"}],\"dbName\":null},\"notification_preference\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"user_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"notification_type\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"via_email\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"via_sms\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"user\",\"relationName\":\"notification_preferenceTouser\"}],\"dbName\":null},\"organization\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"type\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"website\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"address\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"city\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"state\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"country\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"num_counsellors\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"is_verified\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updated_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"annual_student_volume\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"url_identifier\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"logo_url\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"gst_number\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"application\",\"kind\":\"object\",\"type\":\"application\",\"relationName\":\"applicationToorganization\"},{\"name\":\"audit_log\",\"kind\":\"object\",\"type\":\"audit_log\",\"relationName\":\"audit_logToorganization\"},{\"name\":\"commission\",\"kind\":\"object\",\"type\":\"commission\",\"relationName\":\"commissionToorganization\"},{\"name\":\"document\",\"kind\":\"object\",\"type\":\"document\",\"relationName\":\"documentToorganization\"},{\"name\":\"invoice\",\"kind\":\"object\",\"type\":\"invoice\",\"relationName\":\"invoiceToorganization\"},{\"name\":\"student\",\"kind\":\"object\",\"type\":\"student\",\"relationName\":\"organizationTostudent\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"user\",\"relationName\":\"organizationTouser\"}],\"dbName\":null},\"session\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"token_hash\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"ip_address\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user_agent\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"expires_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"user_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"user\",\"relationName\":\"sessionTouser\"}],\"dbName\":null},\"student\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"first_name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"last_name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"phone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"country\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"intake\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updated_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"gender\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"org_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"counsellor_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"date_of_birth\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"nationality\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"application\",\"kind\":\"object\",\"type\":\"application\",\"relationName\":\"applicationTostudent\"},{\"name\":\"organization\",\"kind\":\"object\",\"type\":\"organization\",\"relationName\":\"organizationTostudent\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"user\",\"relationName\":\"studentTouser\"}],\"dbName\":null},\"university\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"city\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"country\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"website\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"logo_url\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"is_open\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updated_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"course\",\"kind\":\"object\",\"type\":\"course\",\"relationName\":\"courseTouniversity\"}],\"dbName\":null},\"user\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"first_name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"type\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"phone\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"is_owner\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"status\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"avatar_url\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"is_email_verified\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"last_login_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updated_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"last_name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"is_phone_verified\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"tracking_id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"org_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"date_of_birth\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"gender\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nationality\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"address\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"city\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"state\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"country\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"audit_log\",\"kind\":\"object\",\"type\":\"audit_log\",\"relationName\":\"audit_logTouser\"},{\"name\":\"document\",\"kind\":\"object\",\"type\":\"document\",\"relationName\":\"documentTouser\"},{\"name\":\"event_registration\",\"kind\":\"object\",\"type\":\"event_registration\",\"relationName\":\"event_registrationTouser\"},{\"name\":\"notification_preference\",\"kind\":\"object\",\"type\":\"notification_preference\",\"relationName\":\"notification_preferenceTouser\"},{\"name\":\"session\",\"kind\":\"object\",\"type\":\"session\",\"relationName\":\"sessionTouser\"},{\"name\":\"student\",\"kind\":\"object\",\"type\":\"student\",\"relationName\":\"studentTouser\"},{\"name\":\"organization\",\"kind\":\"object\",\"type\":\"organization\",\"relationName\":\"organizationTouser\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),

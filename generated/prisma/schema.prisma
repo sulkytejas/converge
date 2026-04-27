@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -11,61 +8,301 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Post {
-  id        Int      @id @default(autoincrement())
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model application {
+  id                 Int          @id @default(autoincrement())
+  status             Int          @default(0) @db.TinyInt
+  submitted_at       DateTime?    @db.Timestamp(0)
+  decided_at         DateTime?    @db.Timestamp(0)
+  created_at         DateTime     @default(now()) @db.Timestamp(0)
+  updated_at         DateTime     @default(now()) @db.Timestamp(0)
+  notes              String?      @db.VarChar(1000)
+  student_id         Int
+  course_id          Int
+  org_id             Int
+  offer_letter_url   String?      @db.VarChar(255)
+  program_start_date DateTime?    @db.Date
+  course             course       @relation(fields: [course_id], references: [id], map: "fk_application_course")
+  organization       organization @relation(fields: [org_id], references: [id], map: "fk_application_organization")
+  student            student      @relation(fields: [student_id], references: [id], onDelete: Cascade, map: "fk_application_student")
+  commission         commission?
 
-  createdBy   User   @relation(fields: [createdById], references: [id])
-  createdById String
-
-  @@index([name])
+  @@index([course_id], map: "fk_application_course1_idx")
+  @@index([org_id], map: "fk_application_organization1_idx")
+  @@index([student_id], map: "fk_application_student1_idx")
 }
 
-// Necessary for Next auth
-model Account {
-  id                       String  @id @default(cuid())
-  userId                   String
-  type                     String
-  provider                 String
-  providerAccountId        String
-  refresh_token            String? @db.Text
-  access_token             String? @db.Text
-  expires_at               Int?
-  token_type               String?
-  scope                    String?
-  id_token                 String? @db.Text
-  session_state            String?
-  user                     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  refresh_token_expires_in Int?
+model audit_log {
+  id           Int           @id @default(autoincrement())
+  org_id       Int?
+  user_id      Int?
+  action       String        @db.VarChar(100)
+  entity_type  String?       @db.VarChar(50)
+  entity_id    Int?
+  metadata     Json?
+  created_at   DateTime      @default(now()) @db.Timestamp(0)
+  organization organization? @relation(fields: [org_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_audit_log_organization1")
+  user         user?         @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_audit_log_user1")
 
-  @@unique([provider, providerAccountId])
+  @@index([org_id], map: "fk_audit_log_organization1_idx")
+  @@index([user_id], map: "fk_audit_log_user1_idx")
 }
 
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+model commission {
+  id                      Int           @id @default(autoincrement())
+  tuition_fee             Decimal       @db.Decimal(12, 2)
+  currency                String        @db.Char(3)
+  commision_rate          Decimal       @db.Decimal(5, 2)
+  commision_amount        Decimal       @db.Decimal(12, 2)
+  invoice_status          Int           @default(0) @db.UnsignedTinyInt
+  paid_to_collegepond     Int           @default(0) @db.TinyInt
+  paid_to_partner         Int           @default(0) @db.TinyInt
+  partner_paid_at         DateTime?     @db.Timestamp(0)
+  created_at              DateTime      @default(now()) @db.Timestamp(0)
+  updated_at              DateTime      @default(now()) @db.Timestamp(0)
+  application_id          Int           @unique(map: "application_id_UNIQUE")
+  org_id                  Int
+  collegepond_received_at DateTime?     @db.Timestamp(0)
+  application             application   @relation(fields: [application_id], references: [id], onDelete: Cascade, map: "fk_commission_application")
+  organization            organization  @relation(fields: [org_id], references: [id], map: "fk_commission_organization")
+  invoice_item            invoice_item?
+
+  @@index([application_id], map: "fk_commission_application1_idx")
+  @@index([org_id], map: "fk_commission_organization1_idx")
 }
 
-model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  posts         Post[]
+model course {
+  id              Int           @id @default(autoincrement())
+  name            String        @db.VarChar(150)
+  degree_level    Int?          @db.UnsignedTinyInt
+  duration_months Int?          @db.SmallInt
+  tuition_fee     Decimal?      @db.Decimal(12, 2)
+  currency        String?       @db.Char(3)
+  is_open         Int           @default(1) @db.TinyInt
+  created_at      DateTime      @default(now()) @db.Timestamp(0)
+  updated_at      DateTime      @default(now()) @db.Timestamp(0)
+  university_id   Int
+  code            String?       @unique(map: "code_UNIQUE") @db.VarChar(50)
+  application     application[]
+  university      university    @relation(fields: [university_id], references: [id], map: "fk_course_university")
+
+  @@index([university_id], map: "fk_course_university1_idx")
 }
 
-model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
+model document {
+  id              Int           @id @default(autoincrement())
+  file_name       String        @db.VarChar(255)
+  file_url        String        @db.VarChar(500)
+  mime_type       String?       @db.VarChar(100)
+  is_most_recent  Int           @default(1) @db.TinyInt
+  doc_type        String        @db.VarChar(50)
+  status          Int           @default(0) @db.UnsignedTinyInt
+  created_at      DateTime      @default(now()) @db.Timestamp(0)
+  updated_at      DateTime      @default(now()) @db.Timestamp(0)
+  org_id          Int?
+  user_id         Int?
+  is_org_document Int           @default(0) @db.TinyInt
+  organization    organization? @relation(fields: [org_id], references: [id], onDelete: Restrict, map: "fk_document_organization")
+  user            user?         @relation(fields: [user_id], references: [id], onUpdate: NoAction, map: "fk_document_user")
 
-  @@unique([identifier, token])
+  @@index([org_id], map: "fk_document_organization1_idx")
+  @@index([user_id], map: "fk_document_user1_idx")
+}
+
+model event {
+  id                 Int                  @id @default(autoincrement())
+  title              String               @db.VarChar(255)
+  event_type         Int                  @db.UnsignedTinyInt
+  description        String?              @db.VarChar(1000)
+  event_date         DateTime             @db.Date
+  start_time         DateTime?            @db.Time(0)
+  end_time           DateTime?            @db.Time(0)
+  timezone           String?              @db.VarChar(50)
+  location           String?              @db.VarChar(255)
+  is_virtual         Int                  @default(0) @db.TinyInt
+  meeting_url        String?              @db.VarChar(500)
+  max_attendees      Int?
+  is_active          Int                  @default(1) @db.TinyInt
+  created_at         DateTime             @default(now()) @db.Timestamp(0)
+  updated_at         DateTime             @default(now()) @db.Timestamp(0)
+  event_registration event_registration[]
+}
+
+model event_registration {
+  id             Int              @id @default(autoincrement())
+  event_id       Int
+  user_id        Int
+  num_attendees  Int              @default(0) @db.UnsignedTinyInt
+  status         Int              @default(0) @db.UnsignedTinyInt
+  created_at     DateTime         @default(now()) @db.Timestamp(0)
+  event          event            @relation(fields: [event_id], references: [id], onDelete: Cascade, map: "fk_event_registration_event")
+  user           user             @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "fk_event_registration_user")
+  event_reminder event_reminder[]
+
+  @@index([event_id], map: "fk_event_registration_event1_idx")
+  @@index([user_id], map: "fk_event_registration_user1_idx")
+}
+
+model event_reminder {
+  id                    Int                @id @default(autoincrement())
+  event_registration_id Int
+  reminder_type         Int                @db.UnsignedTinyInt
+  via_email             Int                @default(1) @db.TinyInt
+  via_whatsapp          Int                @default(0) @db.TinyInt
+  event_registration    event_registration @relation(fields: [event_registration_id], references: [id], onDelete: Cascade, map: "fk_event_reminder_event_registration")
+
+  @@index([event_registration_id], map: "fk_event_reminder_event_registration1_idx")
+}
+
+model invoice {
+  id                    Int            @id @default(autoincrement())
+  invoice_number        String         @unique(map: "invoice_number_UNIQUE") @db.VarChar(30)
+  invoice_date          DateTime       @db.Date
+  total_amount          Decimal        @db.Decimal(14, 2)
+  currency              String         @db.Char(3)
+  status                Int            @default(0) @db.UnsignedTinyInt
+  bank_details          String?        @db.VarChar(1000)
+  notes                 String?        @db.VarChar(1000)
+  signatory_name        String?        @db.VarChar(100)
+  signatory_designation String?        @db.VarChar(100)
+  created_at            DateTime       @default(now()) @db.Timestamp(0)
+  updated_at            DateTime       @default(now()) @db.Timestamp(0)
+  org_id                Int
+  organization          organization   @relation(fields: [org_id], references: [id], map: "fk_invoice_organization")
+  invoice_item          invoice_item[]
+
+  @@index([org_id], map: "fk_invoice_organization1_idx")
+}
+
+model invoice_item {
+  invoice_id    Int
+  commission_id Int        @unique(map: "commission_id_UNIQUE")
+  id            Int        @id @default(autoincrement())
+  amount        Decimal    @db.Decimal(12, 2)
+  created_at    DateTime   @default(now()) @db.Timestamp(0)
+  commission    commission @relation(fields: [commission_id], references: [id], map: "fk_invoice_item_commission")
+  invoice       invoice    @relation(fields: [invoice_id], references: [id], onDelete: Cascade, map: "fk_invoice_item_invoice")
+
+  @@index([commission_id], map: "fk_invoice_item_commission1_idx")
+  @@index([invoice_id], map: "fk_invoice_item_invoice1_idx")
+}
+
+model notification_preference {
+  id                Int  @id @default(autoincrement())
+  user_id           Int
+  notification_type Int  @db.UnsignedTinyInt
+  via_email         Int  @default(1) @db.TinyInt
+  via_sms           Int  @default(0) @db.TinyInt
+  user              user @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "fk_notification_preference_user")
+
+  @@index([user_id], map: "fk_notification_preference_user1_idx")
+}
+
+model organization {
+  id                    Int           @id @default(autoincrement())
+  name                  String        @db.VarChar(100)
+  type                  Int           @db.UnsignedTinyInt
+  website               String?       @db.VarChar(255)
+  address               String?       @db.VarChar(255)
+  city                  String?       @db.VarChar(100)
+  state                 String?       @db.VarChar(100)
+  country               String?       @db.VarChar(2)
+  num_counsellors       Int?          @db.UnsignedTinyInt
+  is_verified           Int           @default(0) @db.TinyInt
+  created_at            DateTime      @default(now()) @db.Timestamp(0)
+  updated_at            DateTime      @default(now()) @db.Timestamp(0)
+  annual_student_volume Int?          @db.UnsignedTinyInt
+  url_identifier        String        @unique(map: "url_identifier_UNIQUE") @db.VarChar(100)
+  logo_url              String?       @db.VarChar(255)
+  gst_number            String?       @db.VarChar(20)
+  application           application[]
+  audit_log             audit_log[]
+  commission            commission[]
+  document              document[]
+  invoice               invoice[]
+  student               student[]
+  user                  user[]
+}
+
+model session {
+  id         Int      @id @default(autoincrement())
+  token_hash String   @unique(map: "token_hash_UNIQUE") @db.VarChar(255)
+  ip_address String?  @db.VarChar(45)
+  user_agent String?  @db.VarChar(500)
+  expires_at DateTime @db.Timestamp(0)
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  user_id    Int
+  user       user     @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "fk_session_user1")
+
+  @@index([user_id], map: "fk_session_user1_idx")
+}
+
+model student {
+  id            Int           @id @default(autoincrement())
+  first_name    String        @db.VarChar(50)
+  last_name     String        @db.VarChar(50)
+  email         String?       @db.VarChar(255)
+  phone         String?       @db.VarChar(20)
+  country       String?       @db.VarChar(2)
+  intake        String?       @db.VarChar(20)
+  created_at    DateTime      @default(now()) @db.Timestamp(0)
+  updated_at    DateTime      @default(now()) @db.Timestamp(0)
+  gender        Int?          @db.UnsignedTinyInt
+  org_id        Int
+  counsellor_id Int?
+  date_of_birth DateTime?     @db.Date
+  nationality   String?       @db.VarChar(2)
+  application   application[]
+  organization  organization  @relation(fields: [org_id], references: [id], map: "fk_student_organization")
+  user          user?         @relation(fields: [counsellor_id], references: [id], onUpdate: NoAction, map: "fk_student_user")
+
+  @@index([org_id], map: "fk_student_organization1_idx")
+  @@index([counsellor_id], map: "fk_student_user1_idx")
+}
+
+model university {
+  id         Int      @id @default(autoincrement())
+  name       String   @db.VarChar(150)
+  city       String?  @db.VarChar(100)
+  country    String   @db.VarChar(2)
+  website    String?  @db.VarChar(255)
+  logo_url   String?  @db.VarChar(255)
+  is_open    Int      @default(1) @db.TinyInt
+  created_at DateTime @default(now()) @db.Timestamp(0)
+  updated_at DateTime @default(now()) @db.Timestamp(0)
+  course     course[]
+}
+
+model user {
+  id                      Int                       @id @default(autoincrement())
+  first_name              String                    @db.VarChar(50)
+  type                    Int                       @db.UnsignedTinyInt
+  email                   String                    @unique(map: "email_UNIQUE") @db.VarChar(255)
+  phone                   String                    @db.VarChar(45)
+  is_owner                Int                       @default(0) @db.TinyInt
+  status                  Int                       @default(0) @db.UnsignedTinyInt
+  avatar_url              String?                   @db.VarChar(500)
+  is_email_verified       Int                       @default(0) @db.TinyInt
+  last_login_at           DateTime?                 @db.Timestamp(0)
+  created_at              DateTime                  @default(now()) @db.Timestamp(0)
+  updated_at              DateTime                  @default(now()) @db.Timestamp(0)
+  last_name               String                    @db.VarChar(50)
+  is_phone_verified       Int                       @default(0) @db.TinyInt
+  tracking_id             String?                   @unique(map: "tracking_id_UNIQUE") @db.VarChar(50)
+  org_id                  Int?
+  date_of_birth           DateTime?                 @db.Date
+  gender                  Int?                      @db.UnsignedTinyInt
+  nationality             String?                   @db.VarChar(2)
+  address                 String?                   @db.VarChar(255)
+  city                    String?                   @db.VarChar(100)
+  state                   String?                   @db.VarChar(100)
+  country                 String?                   @db.VarChar(2)
+  audit_log               audit_log[]
+  document                document[]
+  event_registration      event_registration[]
+  notification_preference notification_preference[]
+  session                 session[]
+  student                 student[]
+  organization            organization?             @relation(fields: [org_id], references: [id], onDelete: Cascade, map: "fk_user_organization")
+
+  @@index([org_id], map: "fk_user_organization_idx")
 }

@@ -84,7 +84,7 @@ export const adminAuthRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input }) => {
-      const app = setApplicationStatus(input.email, input.status);
+      const app = await setApplicationStatus(input.email, input.status);
       if (!app) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Application not found" });
       }
