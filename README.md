@@ -64,11 +64,28 @@ cp .env.example .env
 
 This script spins up a PostgreSQL 16 container via Docker (or Podman). It reads the `DATABASE_URL` from your `.env` file and offers to generate a random password if you're using the default.
 
-### 5. Push the database schema
+### 5. Apply the database schema
+
+The canonical schema lives at `prisma/sql/schema.sql`. Reset and apply it with:
 
 ```bash
-npm run db:push
+npm run db:reset
 ```
+
+This script (see `scripts/db-reset.sh`) reads `DATABASE_URL` from `.env`, drops
+and recreates the target database, applies `prisma/sql/schema.sql`, and then
+runs `prisma generate`. It works against the Docker container started in step 4
+(or any local `mysql` client that can reach the configured host).
+
+For non-interactive runs (CI, repeated resets) use:
+
+```bash
+npm run db:reset:force
+```
+
+> If you prefer Prisma to drive schema changes instead of the SQL file, you can
+> still run `npm run db:push` — but `db:reset` is the supported one-shot setup
+> for fresh clones.
 
 ### 6. Start the development server
 
@@ -85,6 +102,8 @@ The app will be available at [http://localhost:3000](http://localhost:3000).
 | `npm run dev`            | Start dev server with Turbopack       |
 | `npm run build`          | Production build                      |
 | `npm run start`          | Start production server               |
+| `npm run db:reset`       | Drop DB, apply `prisma/sql/schema.sql`, regen client (interactive) |
+| `npm run db:reset:force` | Same as above, no confirmation prompt |
 | `npm run db:push`        | Push Prisma schema to database        |
 | `npm run db:generate`    | Run Prisma migrations (dev)           |
 | `npm run db:migrate`     | Deploy Prisma migrations (production) |
@@ -101,7 +120,11 @@ The app will be available at [http://localhost:3000](http://localhost:3000).
 ```
 converge/
 ├── prisma/
-│   └── schema.prisma          # Database schema definition
+│   ├── schema.prisma          # Prisma model definitions (generates the client)
+│   └── sql/
+│       └── schema.sql         # Canonical MySQL DDL — applied by db-reset.sh
+├── scripts/
+│   └── db-reset.sh            # Reset DB and apply prisma/sql/schema.sql
 ├── public/                    # Static assets
 ├── src/
 │   ├── app/                   # Next.js App Router pages and layouts
