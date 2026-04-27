@@ -2,116 +2,82 @@
 
 **B2B Partner Portal for International Education Consulting**
 
-Converge is a B2B Partner Portal designed to streamline the recruitment partner ecosystem for international education consulting. The platform enables recruitment agencies, freelance counselors, and education consultants to register, manage student applications, track commissions, and collaborate with Collegepond's internal teams through a unified digital interface.
+Converge is a B2B Partner Portal for the recruitment partner ecosystem of international education consulting. Recruitment agencies, freelance counselors, and education consultants register, manage student applications, track commissions, and collaborate with Collegepond's internal teams through a unified portal.
 
 ---
 
 ## Tech Stack
 
-| Layer              | Technology                  | Purpose                                              |
-| ------------------ | --------------------------- | ---------------------------------------------------- |
-| Framework          | Next.js 14+ (App Router)    | Server-side rendering, API routes, server components |
-| Language           | TypeScript                  | End-to-end type safety across all layers             |
-| API Layer          | tRPC v11                    | Type-safe API procedures, middleware for auth/roles   |
-| ORM                | Prisma                      | Database schema management, type-safe queries        |
-| Styling            | Tailwind CSS                | Utility-first CSS framework for responsive UI        |
-| UI Components      | shadcn/ui                   | Accessible, customizable component library           |
-| Authentication     | OTP-based (MSG91) + custom session table | Phone/email OTP login, session rows in DB, RBAC in tRPC |
-| Database           | MySQL 8                     | Relational data storage with ACID compliance         |
-| File Storage       | AWS S3                      | Document uploads, logos, certificates                |
-| Validation         | Zod                         | Runtime schema validation for inputs and env vars    |
-| State Management   | TanStack React Query        | Server state caching via tRPC integration            |
-
----
-
-## Prerequisites
-
-- **Node.js** v20 LTS or higher (managed via [nvm](https://github.com/nvm-sh/nvm))
-- **npm** v10+
-- **Docker** (for local MySQL database)
-- **Git**
+| Layer            | Technology                | Notes                                              |
+| ---------------- | ------------------------- | -------------------------------------------------- |
+| Framework        | Next.js 15 (App Router)   | Server components, route handlers                  |
+| Language         | TypeScript                | Strict mode, end-to-end type safety                |
+| API Layer        | tRPC v11                  | Type-safe procedures consumed by React Query       |
+| ORM              | Prisma                    | Generated client; canonical DDL in `prisma/sql/`   |
+| Styling          | Tailwind CSS v4           | Utility-first; theme tokens in `src/styles/globals.css` |
+| Authentication   | OTP via MSG91 (in progress) | Email + phone OTP; session layer not yet wired in |
+| Database         | MySQL 8                   | Local dev runs in Docker                           |
+| Validation       | Zod                       | Runtime input + env validation (`src/env.js`)      |
+| State            | TanStack React Query      | Via tRPC integration                               |
 
 ---
 
 ## Getting Started
 
-### 1. Clone the repository
+You have two options. **Pick the dev container path** unless you have a reason to install everything natively.
+
+### Option A — Dev container (recommended)
+
+One-time host install: **Docker Desktop** + **VS Code** + the **Dev Containers** extension. Then:
 
 ```bash
 git clone https://github.com/sulkytejas/converge.git
 cd converge
+code .
 ```
 
-### 2. Install dependencies
+VS Code will detect `.devcontainer/` and prompt **"Reopen in Container"** — click it. The first build takes a few minutes (downloading the Node + MySQL images). After that:
+
+- `npm install` has run
+- `.env` was created from `.env.example`
+- The MySQL container is up at host `db:3306` (also forwarded to host `localhost:3306`)
+- Schema from `prisma/sql/schema.sql` is applied
+- The Prisma client is generated
+
+Open the integrated terminal and run `npm run dev`. App is available at `http://localhost:3000`.
+
+To enable real OTP delivery, fill in the `MSG91_*` keys in `.env`. Without them, OTPs are logged to the server console (sandbox mode).
+
+### Option B — Native setup
+
+Prerequisites: Node.js 20+, npm 10+, Docker (for the MySQL container), Git.
 
 ```bash
+git clone https://github.com/sulkytejas/converge.git
+cd converge
 npm install
-```
-
-### 3. Environment setup
-
-Copy the example env file and populate it with your values:
-
-```bash
 cp .env.example .env
-```
-
-### 4. Start the database
-
-```bash
-./start-database.sh
-```
-
-This script spins up a MySQL 8 container via Docker (or Podman). It reads the `DATABASE_URL` from your `.env` file and offers to generate a random password if you're using the default.
-
-### 5. Apply the database schema
-
-The canonical schema lives at `prisma/sql/schema.sql`. Reset and apply it with:
-
-```bash
-npm run db:reset
-```
-
-This script (see `scripts/db-reset.sh`) reads `DATABASE_URL` from `.env`, drops
-and recreates the target database, applies `prisma/sql/schema.sql`, and then
-runs `prisma generate`. It works against the Docker container started in step 4
-(or any local `mysql` client that can reach the configured host).
-
-For non-interactive runs (CI, repeated resets) use:
-
-```bash
-npm run db:reset:force
-```
-
-> If you prefer Prisma to drive schema changes instead of the SQL file, you can
-> still run `npm run db:push` — but `db:reset` is the supported one-shot setup
-> for fresh clones.
-
-### 6. Start the development server
-
-```bash
+./start-database.sh        # boots a local MySQL 8 container
+npm run db:reset           # applies schema + generates Prisma client
 npm run dev
 ```
 
-The app will be available at [http://localhost:3000](http://localhost:3000).
+---
 
-### Useful scripts
+## Useful scripts
 
-| Command                  | Description                           |
-| ------------------------ | ------------------------------------- |
-| `npm run dev`            | Start dev server with Turbopack       |
-| `npm run build`          | Production build                      |
-| `npm run start`          | Start production server               |
-| `npm run db:reset`       | Drop DB, apply `prisma/sql/schema.sql`, regen client (interactive) |
-| `npm run db:reset:force` | Same as above, no confirmation prompt |
-| `npm run db:push`        | Push Prisma schema to database        |
-| `npm run db:generate`    | Run Prisma migrations (dev)           |
-| `npm run db:migrate`     | Deploy Prisma migrations (production) |
-| `npm run db:studio`      | Open Prisma Studio GUI               |
-| `npm run lint`           | Run ESLint                            |
-| `npm run typecheck`      | Run TypeScript type checking          |
-| `npm run format:check`   | Check code formatting with Prettier   |
-| `npm run format:write`   | Auto-format code with Prettier        |
+| Command                  | Description                                                       |
+| ------------------------ | ----------------------------------------------------------------- |
+| `npm run dev`            | Dev server with Turbopack                                         |
+| `npm run build`          | Production build                                                  |
+| `npm run start`          | Production server                                                 |
+| `npm run db:reset`       | Drop DB, apply `prisma/sql/schema.sql`, regenerate client (interactive) |
+| `npm run db:reset:force` | Same, no confirmation prompt                                      |
+| `npm run db:push`        | Push Prisma schema to DB (Prisma-driven path)                     |
+| `npm run db:studio`      | Open Prisma Studio                                                |
+| `npm run lint`           | ESLint                                                            |
+| `npm run typecheck`      | TypeScript type-check (`tsc --noEmit`)                            |
+| `npm run format:write`   | Auto-format with Prettier                                         |
 
 ---
 
@@ -119,296 +85,138 @@ The app will be available at [http://localhost:3000](http://localhost:3000).
 
 ```
 converge/
+├── .devcontainer/             # Dev container (Dockerfile, compose, post-create)
 ├── prisma/
-│   ├── schema.prisma          # Prisma model definitions (generates the client)
-│   └── sql/
-│       └── schema.sql         # Canonical MySQL DDL — applied by db-reset.sh
+│   ├── schema.prisma          # Prisma model definitions
+│   └── sql/schema.sql         # Canonical MySQL DDL — applied by db-reset.sh
 ├── scripts/
 │   └── db-reset.sh            # Reset DB and apply prisma/sql/schema.sql
 ├── public/                    # Static assets
 ├── src/
-│   ├── app/                   # Next.js App Router pages and layouts
-│   │   ├── _components/       # Page-level React components
-│   │   ├── api/               # API route handlers
-│   │   │   └── trpc/          # tRPC HTTP handler
+│   ├── app/                   # Next.js App Router
+│   │   ├── (dashboard)/       # Admin dashboard route group (sidebar+topbar layout)
+│   │   ├── admin/login/       # Admin OTP login
+│   │   ├── login/             # Partner OTP login
+│   │   ├── signup/            # Partner registration flow
+│   │   ├── api/trpc/          # tRPC HTTP handler
 │   │   ├── layout.tsx         # Root layout
-│   │   └── page.tsx           # Home page
-│   ├── server/                # Server-side code
-│   │   ├── api/               # tRPC routers and procedures
-│   │   │   ├── root.ts        # Root tRPC router
-│   │   │   ├── routers/       # Feature-specific tRPC routers (auth, signup, admin-auth, ...)
-│   │   │   └── trpc.ts        # tRPC initialization and middleware
-│   │   ├── db.ts              # Prisma client instance
-│   │   └── db/
-│   │       └── enums.ts       # Domain enums for integer-coded status / type columns
-│   ├── trpc/                  # tRPC client-side setup
-│   │   ├── query-client.ts    # TanStack Query client config
-│   │   ├── react.tsx          # React tRPC provider and hooks
-│   │   └── server.ts          # Server-side tRPC caller
-│   ├── styles/
-│   │   └── globals.css        # Global styles and Tailwind imports
-│   └── env.js                 # Environment variable validation (Zod)
+│   │   └── page.tsx           # Redirects to /login
+│   ├── components/
+│   │   ├── dashboard/         # DashboardShell (HOC), Sidebar, Topbar, nav config
+│   │   └── ui/                # Reusable UI primitives (button, inputs, modal, etc.)
+│   ├── server/
+│   │   ├── api/               # tRPC routers (auth, signup, admin-auth) + trpc.ts
+│   │   ├── applications/      # Application/user persistence layer
+│   │   └── db/enums.ts        # Domain enums for integer-coded columns
+│   ├── trpc/                  # tRPC client setup (React provider, query client)
+│   ├── styles/globals.css     # Tailwind + theme tokens
+│   └── env.js                 # Zod schema for environment variables
 ├── generated/                 # Auto-generated Prisma client
-├── start-database.sh          # Docker-based local DB setup script
-├── next.config.js
-├── tsconfig.json
-├── eslint.config.js
-├── postcss.config.js
-├── prettier.config.js
+├── start-database.sh          # Native-path Docker DB launcher
 └── package.json
 ```
 
 ---
 
-## Feature Modules
-
-### 1. Partner Registration & Onboarding
-Multi-step registration form with OTP-verified identity (phone and Aadhaar), company document upload, and admin approval before granting portal access.
-
-### 2. Authentication & Role-Based Access Control
-OTP-based login (phone + email) via MSG91, backed by a `session` table in MySQL. Roles enforced inside tRPC procedures:
-- **Admin** — Full access across all counselors, commissions, payments, and team management
-- **Manager** — Access to all counselors within their partner organization (read-only on financials)
-- **Counselor** — Access limited to their own students and applications
-
-### 3. MOU / Terms & Conditions Signing
-Mandatory digital signature of Terms & Conditions upon first admin login via Digio/Leegality integration. Signed MOU is emailed and stored in the partner profile.
-
-### 4. Dashboard
-Role-appropriate overview with key metrics: total students, active applications by status, pending commissions, recent notifications, and quick-action buttons.
-
-### 5. Student Management
-Create and manage student profiles including personal information, academic history, test scores, passport details, and supporting documents. Each student maintains a complete application timeline.
-
-### 6. Application Management
-Applications linked to student profiles with specific universities and programs. Status lifecycle: Draft → Submitted → Under Review → Conditional Offer → Unconditional Offer → Visa Ready → Enrolled. Each status change triggers notifications.
-
-### 7. University & Program Finder
-Searchable directory of partner universities and programs. Filterable by country, program level, intake season, and tuition range. Includes entry requirements, deadlines, and commission structures.
-
-### 8. Commission Tracking
-Transparent commission management showing partner status tier, current rates, and per-university structures. Filterable by country and school. Includes commission history and payout schedule visibility.
-
-### 9. Bank Details & Payouts
-Partners upload cancelled cheques and enter bank details for commission payouts. Account name verification against company/individual name. Managed under the "Commissions" navigation section.
-
-### 10. Contracts
-View and download active contracts/MOUs. Tracks contract updates, validity periods, and current status (Active / Expired / Pending Renewal).
-
-### 11. Team Management (Admin Only)
-Admin users add counselors and managers to their partner organization. New team members receive temporary credentials via email. Admin assigns roles and selects primary contact.
-
-### 12. Notification Preferences
-Configurable delivery preferences for email (Immediate, Daily digest, Weekly digest, Never) and WhatsApp notifications for application status updates.
-
-### 13. Education Loan Assistance
-Workflow module to help students access education loan options. Partners can initiate loan assistance requests linked to student applications.
-
-### 14. Excel Report Downloads
-Server-generated Excel reports via ExcelJS: student lists with application statuses, commission summaries by period, application pipeline by university, and partner performance analytics.
-
----
-
-## Database Entities
-
-| Entity         | Description                                                                                                       |
-| -------------- | ----------------------------------------------------------------------------------------------------------------- |
-| **Partner**    | Registered partner company or freelancer. Fields: companyName, gstNumber, panCard, incorporationCert, logo, status |
-| **User**       | Individual user account linked to a partner. Fields: name, email, phone, aadhaarHash, designation, role            |
-| **Student**    | Student record created by counselors. Fields: name, email, phone, passport, educationHistory, documents            |
-| **Application**| University application for a student. Fields: universityId, programId, status, intakeSeason, documents             |
-| **University** | University master data. Fields: name, country, programs, commissionStructure, deadlines                            |
-| **Commission** | Commission record tied to an application. Fields: applicationId, rate, amount, status, payoutDate, invoiceRef      |
-| **Contract**   | MOU/agreement between Collegepond and partner. Fields: partnerId, documentUrl, signedDate, expiryDate, status      |
-| **BankDetails**| Partner bank/payment details. Fields: partnerId, accountName, accountNumber, ifscCode, cancelledChequeUrl          |
-| **Notification**| System notifications for partners. Fields: userId, type, message, channel, readStatus, sentAt                    |
-| **AuditLog**   | System-wide activity tracking. Fields: userId, action, entityType, entityId, metadata, ipAddress, timestamp        |
-
-### Key Relationships
-- Partner has many Users (Admin, Managers, Counselors)
-- User (Counselor) creates many Students
-- Student has many Applications
-- Application belongs to one University and one Program
-- Application generates one Commission record
-- Partner has one BankDetails record and many Contracts
-- All entities link to AuditLog for compliance tracking
-
----
-
-## Third-Party Integrations
-
-| Service              | Provider              | Usage                                                  |
-| -------------------- | --------------------- | ------------------------------------------------------ |
-| SMS OTP              | MSG91                 | Phone number verification during registration and login |
-| Email                | AWS SES               | Transactional emails: OTP, credentials, notifications  |
-| WhatsApp             | MSG91 / Gupshup       | Application status updates, partner notifications      |
-| GST Verification     | Masters India / Surepass | GSTIN validation and company details cross-check    |
-| Aadhaar Verification | Surepass / Signzy     | OTP-based Aadhaar verification for partner KYC         |
-| Payments             | Razorpay / RazorpayX  | Commission payouts and payment processing              |
-| Digital Signature    | Digio / Leegality     | MOU/contract e-signature with legal validity           |
-| Excel Reports        | ExcelJS               | Server-side report generation for downloads            |
-
----
-
 ## Environment Variables
 
-Create a `.env` file based on `.env.example` with the following variables:
+`.env.example` is the source of truth. Currently:
 
 ```bash
-# Database
-DATABASE_URL=""                # MySQL connection string
-                               # Example: mysql://root:password@localhost:3306/converge
+DATABASE_URL="mysql://root:password@localhost:3306/converge"
 
-# AWS
-AWS_ACCESS_KEY_ID=""           # AWS IAM credentials
-AWS_SECRET_ACCESS_KEY=""
-AWS_REGION="ap-south-1"
-AWS_S3_BUCKET=""               # S3 bucket for document storage
+# MSG91 (OTP provider — leave empty for sandbox: OTPs print to server log)
+MSG91_AUTH_KEY=""
+MSG91_SMS_TEMPLATE_ID=""
+MSG91_EMAIL_TEMPLATE_ID=""
+MSG91_EMAIL_FROM=""
+MSG91_EMAIL_DOMAIN=""
 
-# AWS SES
-AWS_SES_FROM_EMAIL=""          # Verified sender email address
-
-# MSG91
-MSG91_AUTH_KEY=""               # MSG91 API key for SMS OTP
-MSG91_TEMPLATE_ID=""           # SMS template ID
-
-# WhatsApp (MSG91 / Gupshup)
-WHATSAPP_API_KEY=""            # WhatsApp messaging API key
-WHATSAPP_TEMPLATE_ID=""
-
-# GST Verification
-GST_API_KEY=""                 # Masters India / Surepass API key
-
-# Aadhaar Verification
-AADHAAR_API_KEY=""             # Surepass / Signzy API key
-
-# Razorpay
-RAZORPAY_KEY_ID=""             # Razorpay API key
-RAZORPAY_KEY_SECRET=""         # Razorpay API secret
-
-# Digital Signature
-DIGIO_CLIENT_ID=""             # Digio / Leegality client credentials
-DIGIO_CLIENT_SECRET=""
-
-# Application
-NEXT_PUBLIC_APP_URL=""         # Public-facing app URL
+ADMIN_EMAIL=""
 ```
 
-Environment variables are validated at build time using Zod schemas defined in `src/env.js`.
+Variables are validated at startup by Zod (`src/env.js`). Set `SKIP_ENV_VALIDATION=1` to bypass the check during builds.
+
+> Inside the dev container, `DATABASE_URL` is overridden by `.devcontainer/compose.yml` to point at the `db` service. Your `.env` is left untouched so the native-path workflow keeps working.
 
 ---
 
-## Deployment
+## Testing the UI without a database
 
-The application is deployed on **AWS** using **SST (Serverless Stack)** for infrastructure-as-code.
-
-| Service    | Configuration              | Purpose                                    |
-| ---------- | -------------------------- | ------------------------------------------ |
-| Region     | ap-south-1 (Mumbai)        | Lowest latency for target users in India   |
-| Compute    | SST on AWS Lambda          | Serverless Next.js deployment via OpenNext  |
-| CDN        | CloudFront                 | Static asset caching, edge delivery        |
-| Database   | RDS MySQL (db.t3.micro)    | Managed relational DB with automated backups |
-| Storage    | S3                         | Partner documents, logos, signed MOUs      |
-| Email      | SES                        | Transactional email delivery               |
-| Secrets    | SSM Parameter Store        | API keys, database credentials, tokens     |
-| Monitoring | CloudWatch                 | Logs, alarms, performance metrics          |
-
-### Environments
-
-| Environment | URL                                        | Purpose                      |
-| ----------- | ------------------------------------------ | ---------------------------- |
-| Local       | localhost:3000                              | Development with Docker DB   |
-| Staging     | staging.converge.collegepond.com            | Pre-production testing, UAT  |
-| Production  | converge.collegepond.com                    | Live system                  |
-
-### CI/CD Pipeline (GitHub Actions)
-
-Triggered on push to `develop` (staging) and `main` (production):
-
-1. Install dependencies
-2. Run lint and type-check
-3. Execute unit and API test suites
-4. Run Prisma migration check
-5. Build Next.js application
-6. Deploy via SST to target AWS environment
-7. Post-deployment health check
-
----
-
-## Testing the UI (Dummy Mode — No Database Required)
-
-All auth tRPC routes return dummy success responses, so you can test the full UI flow without a database.
-
-### Quick Start
+Most auth tRPC routes still return placeholder success responses, so the UI flows can be exercised without a working DB.
 
 ```bash
-npm install
 SKIP_ENV_VALIDATION=1 npm run dev
 ```
 
-### Partner Login (`/login`)
-
-1. Enter any valid email (e.g. `test@gmail.com`)
-2. Enter any 10-digit phone number (e.g. `9876543210` with country code `+91`)
-3. Click **Send OTP** — moves to OTP screen
-4. Enter any 5 digits → click **Verify & Login**
-5. Success screen appears and redirects to dashboard
-6. You can also test **Can't access your account?** to see the recovery flow
-
-### Partner Signup (`/signup`)
-
-1. Select a role (Agency Owner or Independent Counselor)
-2. Fill in first name, last name, email, and phone number
-3. Click **Continue & Verify** — moves to dual OTP verification
-4. Enter any 5 digits in both the Email OTP and Phone OTP boxes — they auto-verify on completion
-5. For Agency: fill in Company Details → upload Documents → Review & Submit
-6. For Independent: upload Documents → Review & Submit
-7. Success screen shows a dummy application ID
-
-### Admin Login (`/admin/login`)
-
-1. Enter an email ending in `@collegepond.com` or `@convergeapp.co` (e.g. `suraj@collegepond.com`)
-2. Enter any valid phone number
-3. Click **Send OTP** → enter any 6 digits → click **Verify OTP**
-4. Verified card appears with role selection and session info
-5. Click **Continue to Dashboard** to proceed
-6. You can also test **Can't access your account?** for the recovery modal
-
-### Notes
-
-- All OTP verification is mocked — any digits are accepted
-- File uploads in the signup flow accept any file (no server-side processing)
-- The `SKIP_ENV_VALIDATION=1` flag bypasses the database connection requirement
-- Server logs (`console.log`) show the tRPC mutation inputs for debugging
+- **Partner login** (`/login`) — any valid email, any 10-digit phone, any 5-digit OTP succeeds.
+- **Partner signup** (`/signup`) — full multi-step flow; uploads accept any file; success returns a dummy application ID.
+- **Admin login** (`/admin/login`) — email must end in `@collegepond.com` or `@convergeapp.co`; any 6-digit OTP succeeds; lands on `/cp-dashboard`.
+- **Dashboard routes** (`/cp-dashboard`, `/cp-partners`, `/cp-students`, etc.) — currently render placeholder pages inside the shared sidebar+topbar shell.
 
 ---
 
-## Automated Testing
+## Planned scope
 
-| Type             | Tool                   | Coverage                                                        |
-| ---------------- | ---------------------- | --------------------------------------------------------------- |
-| Unit Tests       | Vitest                 | Business logic, commission calculations, role checks, validation |
-| API Tests        | Vitest + tRPC caller   | All tRPC procedures tested with mock DB context per role        |
-| Component Tests  | React Testing Library  | Form components, role-based UI rendering, state management      |
-| E2E Tests        | Playwright             | Critical user flows: registration, login, application submission |
+The sections below describe the target product — not all of it is implemented yet. Track the actual state via git history and the `(dashboard)` route stubs.
 
-### Quality Gates
+### Feature modules
 
-- All PRs require passing CI (lint + type-check + unit tests) before merge
-- E2E test suite runs nightly on the staging environment
-- UAT sign-off required from Collegepond team before production deployment
+1. **Partner Registration & Onboarding** — multi-step form with OTP verification, document upload, admin approval. *(signup flow partially implemented; admin approval is dev-only)*
+2. **Authentication & RBAC** — OTP login backed by a session table; roles enforced inside tRPC. *(OTP flow exists; session layer not yet wired)*
+3. **MOU / Terms signing** — digital signature via Digio/Leegality on first admin login.
+4. **Dashboard** — role-appropriate metrics and quick actions. *(shell scaffolded; content TBD)*
+5. **Student Management** — profiles, academic history, documents, application timeline.
+6. **Application Management** — status lifecycle from Draft to Enrolled, with notification triggers.
+7. **University & Program Finder** — searchable directory with entry requirements and commissions.
+8. **Commission Tracking** — tier, rates, history, payout schedule.
+9. **Bank Details & Payouts** — cancelled cheque upload, account verification.
+10. **Contracts** — view/download active MOUs.
+11. **Team Management (Admin)** — add counselors/managers, send credentials.
+12. **Notification Preferences** — per-channel delivery cadence.
+13. **Education Loan Assistance** — initiate loan requests against a student.
+14. **Excel Reports** — server-generated via ExcelJS.
+
+### Roles
+
+- **Admin** — full access across counselors, commissions, payments, team
+- **Manager** — read-most across the partner org
+- **Counselor** — own students and applications only
+
+### Third-party integrations (planned)
+
+| Service               | Provider                | Usage                                   |
+| --------------------- | ----------------------- | --------------------------------------- |
+| SMS / Email OTP       | MSG91                   | Verification + notifications *(active)* |
+| Email                 | AWS SES                 | Transactional email                     |
+| WhatsApp              | MSG91 / Gupshup         | Application status updates              |
+| GST verification      | Masters India / Surepass | GSTIN validation                       |
+| Aadhaar verification  | Surepass / Signzy       | KYC                                     |
+| Payments              | Razorpay / RazorpayX    | Commission payouts                      |
+| Digital signature     | Digio / Leegality       | MOU e-signature                         |
+| File storage          | AWS S3                  | Documents, logos, signed MOUs           |
+
+### Deployment (planned)
+
+AWS via SST (OpenNext) into ap-south-1: Lambda compute, CloudFront CDN, RDS MySQL, S3, SES, SSM Parameter Store, CloudWatch.
+
+| Environment | Host                                  |
+| ----------- | ------------------------------------- |
+| Local       | localhost:3000                        |
+| Staging     | staging.converge.collegepond.com      |
+| Production  | converge.collegepond.com              |
 
 ---
 
 ## Team
 
-| Name              | Role                                              |
-| ----------------- | ------------------------------------------------- |
-| **Riana Nawany**  | Architecture, development, testing, deployment    |
-| **Tejas Pashte**  | Architecture, development, testing, deployment    |
+| Name             | Role                                           |
+| ---------------- | ---------------------------------------------- |
+| **Riana Nawany** | Architecture, development, testing, deployment |
+| **Tejas Pashte** | Architecture, development, testing, deployment |
 
 ---
 
 ## License
 
-This project is proprietary and confidential. Internal use only.
+Proprietary and confidential. Internal use only.

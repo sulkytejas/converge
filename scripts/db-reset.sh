@@ -27,21 +27,23 @@ if [[ "${1:-}" == "--force" || "${1:-}" == "-f" ]]; then
   FORCE=1
 fi
 
-if [[ ! -f "$ENV_FILE" ]]; then
-  echo "Error: $ENV_FILE not found. Copy .env.example to .env first." >&2
-  exit 1
-fi
-
 if [[ ! -f "$SCHEMA_FILE" ]]; then
   echo "Error: $SCHEMA_FILE not found." >&2
   exit 1
 fi
 
-# Load DATABASE_URL from .env (only that one var; avoid polluting the env)
-DATABASE_URL="$(grep -E '^DATABASE_URL=' "$ENV_FILE" | tail -n1 | cut -d= -f2- | sed -e 's/^"//' -e 's/"$//' -e "s/^'//" -e "s/'$//")"
+# Prefer DATABASE_URL from the environment (set by the devcontainer compose);
+# fall back to the .env file for the native-host workflow.
+if [[ -z "${DATABASE_URL:-}" ]]; then
+  if [[ ! -f "$ENV_FILE" ]]; then
+    echo "Error: DATABASE_URL not set and $ENV_FILE not found. Copy .env.example to .env first." >&2
+    exit 1
+  fi
+  DATABASE_URL="$(grep -E '^DATABASE_URL=' "$ENV_FILE" | tail -n1 | cut -d= -f2- | sed -e 's/^"//' -e 's/"$//' -e "s/^'//" -e "s/'$//")"
+fi
 
 if [[ -z "${DATABASE_URL:-}" ]]; then
-  echo "Error: DATABASE_URL is empty or missing in $ENV_FILE." >&2
+  echo "Error: DATABASE_URL is empty (checked env and $ENV_FILE)." >&2
   exit 1
 fi
 

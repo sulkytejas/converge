@@ -1,0 +1,41 @@
+# Compose stack used only by the VS Code dev container.
+# - `app` is where the editor attaches; nothing runs here until you `npm run dev`.
+# - `db` is a MySQL 8 service the app reaches at host `db`, port 3306.
+#
+# `node_modules` and the MySQL data directory live in named volumes so they
+# survive container rebuilds and avoid bind-mount perf cost on macOS.
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ..:/workspaces/converge:cached
+      - node-modules:/workspaces/converge/node_modules
+    command: sleep infinity
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Inside the container the DB is reachable by service name, not localhost.
+      # This overrides whatever DATABASE_URL is in .env when running in-container.
+      DATABASE_URL: mysql://root:password@db:3306/converge
+
+  db:
+    image: mysql:8
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: converge
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-ppassword"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  node-modules:
+  db-data:
