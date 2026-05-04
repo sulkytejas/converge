@@ -257,6 +257,130 @@ export async function getApplicationByEmail(
   };
 }
 
+// Document status flag exposed to the admin UI. Mirrors DocumentStatus but as
+// strings so the API surface doesn't leak the integer codes.
+export type PartnerDocStatus = "pending" | "approved" | "rejected";
+
+export interface PartnerDocument {
+  id: number;
+  type: string;
+  url: string;
+  fileName: string;
+  status: PartnerDocStatus;
+}
+
+export interface PartnerListing {
+  applicationId: string;
+  email: string;
+  role: "agency" | "independent";
+  firstName: string;
+  lastName: string;
+  phone: string;
+  countryCode: string;
+  companyName?: string;
+  city?: string;
+  status: ApplicationStatus;
+  submittedAt: string;
+  updatedAt: string;
+  documents: PartnerDocument[];
+}
+
+function mapDocStatus(code: number): PartnerDocStatus {
+  if (code === DocumentStatus.APPROVED) return "approved";
+  if (code === DocumentStatus.REJECTED) return "rejected";
+  return "pending";
+}
+
+// Lists partner applications (any user that isn't an admin). Documents are
+// included with id + status so the admin UI can render Verify / Reject
+// controls per document without an extra round-trip.
+export async function listApplications(): Promise<PartnerListing[]> {
+  const users = await db.user.findMany({
+    where: { type: { not: UserType.ADMIN } },
+    orderBy: { created_at: "desc" },
+    include: { organization: true, document: true },
+  });
+
+  const orgIds = users
+    .map((u) => u.org_id)
+    .filter((v): v is number => v !== null);
+
+  const orgDocs = orgIds.length
+    ? await db.document.findMany({ where: { org_id: { in: orgIds } } })
+    : [];
+  const orgDocsByOrgId = new Map<number, typeof orgDocs>();
+  for (const d of orgDocs) {
+    if (d.org_id == null) continue;
+    const list = orgDocsByOrgId.get(d.org_id) ?? [];
+    list.push(d);
+    orgDocsByOrgId.set(d.org_id, list);
+  }
+
+  return users.map((user) => {
+    const documents: PartnerDocument[] = [];
+    for (const d of user.document) {
+      documents.push({
+        id: d.id,
+        type: d.doc_type,
+        url: d.file_url,
+        fileName: d.file_name,
+        status: mapDocStatus(d.status),
+      });
+    }
+    if (user.org_id) {
+      for (const d of orgDocsByOrgId.get(user.org_id) ?? []) {
+        documents.push({
+          id: d.id,
+          type: d.doc_type,
+          url: d.file_url,
+          fileName: d.file_name,
+          status: mapDocStatus(d.status),
+        });
+      }
+    }
+
+    const role: "agency" | "independent" =
+      user.type === UserType.AGENCY_OWNER ? "agency" : "independent";
+
+    const countryCode = user.phone.startsWith("+")
+      ? user.phone.slice(0, user.phone.length - 10)
+      : "";
+    const phone = user.phone.replace(countryCode, "");
+
+    return {
+      applicationId: user.tracking_id ?? "",
+      email: user.email,
+      role,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      phone,
+      countryCode,
+      companyName: user.organization?.name ?? undefined,
+      city: user.city ?? user.organization?.city ?? undefined,
+      status: statusLabelFromCode(user.status),
+      submittedAt: user.created_at.toISOString(),
+      updatedAt: user.updated_at.toISOString(),
+      documents,
+    };
+  });
+}
+
+export async function setDocumentStatus(
+  documentId: number,
+  status: PartnerDocStatus,
+): Promise<void> {
+  const code =
+    status === "approved"
+      ? DocumentStatus.APPROVED
+      : status === "rejected"
+        ? DocumentStatus.REJECTED
+        : DocumentStatus.PENDING;
+  await db.document.update({
+    where: { id: documentId },
+    data: { status: code },
+  });
+}
+
 export async function setApplicationStatus(
   email: string,
   status: ApplicationStatus,

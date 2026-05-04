@@ -6,10 +6,7 @@ import {
   toE164,
   verifyPhoneOtp,
 } from "~/server/otp";
-import {
-  getApplicationByEmail,
-  setApplicationStatus,
-} from "~/server/applications/store";
+import { getApplicationByEmail } from "~/server/applications/store";
 
 // Admin login: identifies the user by email, requires the registered phone to
 // match, and uses phone OTP only (no email OTP).
@@ -88,22 +85,5 @@ export const adminAuthRouter = createTRPCRouter({
         status: app.status,
         applicationId: app.applicationId,
       };
-    }),
-
-  // DEV-ONLY: flips an applicant's status without a real admin UI.
-  // Replace with a protected mutation (proper auth + audit log) when admin UI lands.
-  approveApplication: publicProcedure
-    .input(
-      z.object({
-        email: z.string().email(),
-        status: z.enum(["approved", "rejected", "under_review"]).default("approved"),
-      }),
-    )
-    .mutation(async ({ input }) => {
-      const app = await setApplicationStatus(input.email, input.status);
-      if (!app) {
-        throw new TRPCError({ code: "NOT_FOUND", message: "Application not found" });
-      }
-      return { success: true as const, status: app.status };
     }),
 });
