@@ -1,71 +1,114 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AdminBrandPanel } from "~/components/ui/admin-brand-panel";
 import { StepDots } from "~/components/ui/step-dots";
 import { FormInput } from "~/components/ui/form-input";
 import { PhoneInput } from "~/components/ui/phone-input";
 import { OtpInput } from "~/components/ui/otp-input";
-import { VerifiedCard } from "~/components/ui/verified-card";
-import { SessionInfo } from "~/components/ui/session-info";
-import { RecoveryModal } from "~/components/ui/recovery-modal";
-import { LockoutOverlay } from "~/components/ui/lockout-overlay";
-import { Toast } from "~/components/ui/toast";
 import { Button } from "~/components/ui/button";
 import { isValidEmail, isValidPhone, getExpectedPhoneDigits } from "~/lib/utils/validation";
-import { maskEmail, maskPhone } from "~/lib/utils/masking";
+import { maskPhone } from "~/lib/utils/masking";
 import { api } from "~/trpc/react";
 
-type Step = 1 | 2 | 3;
-const MAX_ATTEMPTS = 5;
+type Screen = "email" | "otp" | "recovery" | "success";
+
+type RecoveryDetailType = "phone" | "email" | "locked" | "other" | null;
+
+const recoveryOptions = [
+  { id: "phone" as const, title: "Changed my phone number", subtitle: "I can't receive OTP on my registered phone" },
+  { id: "email" as const, title: "Changed my email", subtitle: "I no longer have access to my registered email" },
+  { id: "locked" as const, title: "Account locked or deactivated", subtitle: "Too many attempts or account suspended" },
+  { id: "other" as const, title: "Other issue", subtitle: "I need help with something else" },
+];
+
+const recoveryDetails: Record<string, React.ReactNode> = {
+  phone: (
+    <div className="rounded-[10px] bg-[#EFF8FF] p-4 text-[13px] leading-relaxed text-[#344054]">
+      <h4 className="mb-2 text-sm font-bold text-[#175CD3]">Changed Phone Number</h4>
+      <p className="mb-2">To update your registered phone number:</p>
+      <ol className="list-decimal space-y-1 pl-5">
+        <li>Email <strong>support@collegepond.com</strong> from your registered email</li>
+        <li>Include your full name and reason for the change</li>
+        <li>Attach a government-issued ID for verification</li>
+        <li>Our team will update your phone number within 24 hours</li>
+      </ol>
+    </div>
+  ),
+  email: (
+    <div className="rounded-[10px] bg-[#FFFAEB] p-4 text-[13px] leading-relaxed text-[#344054]">
+      <h4 className="mb-2 text-sm font-bold text-[#B54708]">Changed Email</h4>
+      <p className="mb-2">To update your registered email:</p>
+      <ol className="list-decimal space-y-1 pl-5">
+        <li>Contact support at <strong>support@collegepond.com</strong></li>
+        <li>You may need to verify your identity via your registered phone</li>
+        <li>Updates are processed within 24-48 hours</li>
+      </ol>
+    </div>
+  ),
+  locked: (
+    <div className="rounded-[10px] bg-[#FEF3F2] p-4 text-[13px] leading-relaxed text-[#344054]">
+      <h4 className="mb-2 text-sm font-bold text-[#B42318]">Account Locked or Deactivated</h4>
+      <ul className="list-disc space-y-1 pl-5">
+        <li><strong>Too many failed attempts</strong> — Wait 30 minutes and try again</li>
+        <li><strong>Account deactivated</strong> — Contact Collegepond support for reactivation</li>
+      </ul>
+      <p className="mt-2">For immediate help, email <strong>support@collegepond.com</strong>.</p>
+    </div>
+  ),
+  other: (
+    <div className="rounded-[10px] bg-[#F2F4F7] p-4 text-[13px] leading-relaxed text-[#344054]">
+      <h4 className="mb-2 text-sm font-bold text-[#344054]">Need Help?</h4>
+      <p className="mb-2">For any other login issues, contact:</p>
+      <div className="leading-loose">
+        <strong>Email:</strong> support@collegepond.com<br />
+        <strong>Hours:</strong> Mon-Fri, 9:00 AM - 6:00 PM IST
+      </div>
+    </div>
+  ),
+};
+
+function SecureAdminBadge() {
+  return (
+    <div className="mb-7 inline-flex items-center gap-1.5 rounded-full border border-[#A6F4C5] bg-[#ECFDF3] px-3.5 py-1.5 text-xs font-semibold text-[#027A48]">
+      <svg
+        viewBox="0 0 24 24"
+        className="h-3.5 w-3.5 fill-none stroke-[#027A48] stroke-2"
+      >
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      </svg>
+      Secure Admin Access
+    </div>
+  );
+}
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const [step, setStep] = useState<Step>(1);
+  const [screen, setScreen] = useState<Screen>("email");
 
   // Form state
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [countryCode, setCountryCode] = useState("+91");
-  const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
+  const [otp, setOtp] = useState<string[]>(["", "", "", "", ""]);
+  const [userName, setUserName] = useState("User");
 
   // Error state
   const [emailError, setEmailError] = useState("");
   const [phoneError, setPhoneError] = useState("");
   const [otpError, setOtpError] = useState("");
 
-  // Step 3 state
-  const [userName, setUserName] = useState("");
-  const [userEmail, setUserEmail] = useState("");
-  const [roleLabel, setRoleLabel] = useState("");
-  const [roles, setRoles] = useState<{ value: string; label: string }[]>([]);
-  const [selectedRole, setSelectedRole] = useState("");
-  const [lastLogin, setLastLogin] = useState<string | null>(null);
-
-  // Security state
-  const [failedAttempts, setFailedAttempts] = useState(0);
-  const [isLocked, setIsLocked] = useState(false);
-  const [showRecovery, setShowRecovery] = useState(false);
+  // Recovery state
+  const [recoveryDetail, setRecoveryDetail] = useState<RecoveryDetailType>(null);
 
   // Timer state
   const [resendSeconds, setResendSeconds] = useState(30);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Toast state
-  const [toastMessage, setToastMessage] = useState("");
-  const [toastOpen, setToastOpen] = useState(false);
-
   // tRPC mutations
-  const identify = api.adminAuth.identify.useMutation();
-  const verifyOtp = api.adminAuth.verifyOtp.useMutation();
-  const loginMut = api.adminAuth.login.useMutation();
-
-  const showToast = useCallback((msg: string) => {
-    setToastMessage(msg);
-    setToastOpen(true);
-  }, []);
+  const sendOtp = api.adminAuth.sendLoginOtp.useMutation();
+  const verifyOtp = api.adminAuth.verifyLoginOtp.useMutation();
 
   const startResendTimer = useCallback(() => {
     setResendSeconds(30);
@@ -87,61 +130,40 @@ export default function AdminLoginPage() {
     };
   }, []);
 
-  const handleIdentify = () => {
-    if (failedAttempts >= MAX_ATTEMPTS) {
-      setIsLocked(true);
-      return;
-    }
-
+  const handleSendOtp = () => {
     setEmailError("");
     setPhoneError("");
+
     let hasError = false;
 
-    // Email validation
     if (!email) {
       setEmailError("Email address is required");
       hasError = true;
     } else if (!isValidEmail(email)) {
       setEmailError("Please enter a valid email address");
       hasError = true;
-    } else if (
-      !email.endsWith("@collegepond.com") &&
-      !email.endsWith("@convergeapp.co")
-    ) {
-      setEmailError("Login requires a @collegepond.com or @convergeapp.co email address");
-      hasError = true;
     }
 
-    // Phone validation
     const phoneDigits = phone.replace(/\s/g, "").replace(/[^0-9]/g, "");
     const expectedDigits = getExpectedPhoneDigits(countryCode);
     if (!phoneDigits) {
-      setPhoneError("Phone number is required");
+      setPhoneError("Mobile number is required");
       hasError = true;
     } else if (!isValidPhone(phone, countryCode)) {
-      setPhoneError(`Phone number must be ${expectedDigits} digits for ${countryCode}`);
+      setPhoneError(`Mobile number must be ${expectedDigits} digits for ${countryCode}`);
       hasError = true;
     }
 
     if (hasError) return;
 
-    identify.mutate(
+    sendOtp.mutate(
       { email, phone: phone.replace(/\s/g, ""), countryCode },
       {
         onSuccess: () => {
-          setOtp(["", "", "", "", "", ""]);
+          setOtp(["", "", "", "", ""]);
           setOtpError("");
-          setStep(2);
+          setScreen("otp");
           startResendTimer();
-          showToast("OTP sent successfully");
-        },
-        onError: () => {
-          setFailedAttempts((prev) => {
-            const next = prev + 1;
-            if (next >= MAX_ATTEMPTS) setIsLocked(true);
-            return next;
-          });
-          setEmailError("Email and phone combination not found. Contact IT support.");
         },
       },
     );
@@ -149,66 +171,42 @@ export default function AdminLoginPage() {
 
   const handleVerifyOtp = () => {
     const otpValue = otp.join("");
-    if (otpValue.length !== 6) return;
+    if (otpValue.length !== 5) return;
 
     verifyOtp.mutate(
-      { email, otp: otpValue },
+      { email, phone: phone.replace(/\s/g, ""), countryCode, otp: otpValue },
       {
         onSuccess: (data) => {
           setUserName(data.name);
-          setUserEmail(data.email);
-          setRoleLabel(data.roleLabel);
-          setRoles(data.roles);
-          setSelectedRole(data.role);
-          setLastLogin(data.lastLogin);
-          setStep(3);
-          showToast("Identity verified successfully");
-          if (timerRef.current) clearInterval(timerRef.current);
+          setScreen("success");
+          setTimeout(() => {
+            if (data.status === "approved") {
+              router.push("/admin/dashboard");
+            } else {
+              const qs = new URLSearchParams({
+                email,
+                name: data.name,
+                applicationId: data.applicationId,
+              });
+              router.push(`/pending-verification?${qs.toString()}`);
+            }
+          }, 2200);
         },
         onError: () => {
-          setOtpError("Invalid OTP. Please try again.");
+          setOtpError("Invalid code. Please try again.");
         },
       },
     );
   };
 
-  const handleResend = () => {
-    setOtp(["", "", "", "", "", ""]);
+  const handleResendOtp = () => {
+    setOtp(["", "", "", "", ""]);
     setOtpError("");
     startResendTimer();
-    identify.mutate({ email, phone: phone.replace(/\s/g, ""), countryCode });
-    showToast("OTP resent successfully");
-  };
-
-  const handleLogin = () => {
-    loginMut.mutate(
-      { email, role: selectedRole },
-      {
-        onSuccess: (data) => {
-          router.push(data.redirectUrl);
-        },
-      },
-    );
+    sendOtp.mutate({ email, phone: phone.replace(/\s/g, ""), countryCode });
   };
 
   const allOtpFilled = otp.every((d) => d.length === 1);
-
-  const sessionItems = [
-    {
-      label: "Last login",
-      value: lastLogin
-        ? new Date(lastLogin).toLocaleString("en-IN", {
-            day: "numeric",
-            month: "short",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-          })
-        : "First login",
-    },
-    { label: "IP address", value: "192.168.1.42" },
-    { label: "Session timeout", value: "8 hours" },
-  ];
 
   return (
     <>
@@ -217,36 +215,30 @@ export default function AdminLoginPage() {
         <AdminBrandPanel />
 
         {/* Right Login Panel */}
-        <div className="relative flex flex-1 items-center justify-center px-10">
+        <div className="relative flex flex-1 items-center justify-center px-10 py-24">
           <div className="w-full max-w-[440px]">
-            {/* Step Dots */}
-            <StepDots total={3} current={step - 1} />
+            {(screen === "email" || screen === "otp") && (
+              <StepDots total={2} current={screen === "email" ? 0 : 1} />
+            )}
 
-            {/* Step 1: Identify */}
-            {step === 1 && (
+            {/* Screen 1: Email + Phone */}
+            {screen === "email" && (
               <div className="animate-[fadeSlide_0.3s_ease-out]">
-                <div className="mb-7 inline-flex items-center gap-1.5 rounded-full border border-[#A6F4C5] bg-[#ECFDF3] px-3.5 py-1.5 text-xs font-semibold text-[#027A48]">
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="h-3.5 w-3.5 fill-none stroke-[#027A48] stroke-2"
-                  >
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                  </svg>
-                  Secure Admin Access
-                </div>
+                <SecureAdminBadge />
 
                 <h1 className="mb-1.5 text-[26px] font-bold tracking-tight text-[#101828]">
                   Sign in to Admin Portal
                 </h1>
                 <p className="mb-8 text-sm leading-relaxed text-[#667085]">
-                  Enter your Collegepond admin credentials to continue.
+                  Enter your credentials to continue.
                 </p>
 
                 <div className="mb-5">
                   <FormInput
-                    label="Email address"
+                    label="Email Address"
+                    required
                     type="email"
-                    placeholder="you@collegepond.com"
+                    placeholder="you@company.com"
                     value={email}
                     onChange={(e) => {
                       setEmail(e.target.value);
@@ -254,13 +246,14 @@ export default function AdminLoginPage() {
                     }}
                     error={!!emailError}
                     errorMessage={emailError}
-                    onKeyDown={(e) => e.key === "Enter" && handleIdentify()}
+                    onKeyDown={(e) => e.key === "Enter" && handleSendOtp()}
                   />
                 </div>
 
                 <div className="mb-5">
                   <PhoneInput
-                    label="Phone number"
+                    label="Mobile Number"
+                    required
                     countryCode={countryCode}
                     phone={phone}
                     onCountryCodeChange={(code) => {
@@ -277,19 +270,13 @@ export default function AdminLoginPage() {
                 </div>
 
                 <Button
-                  onClick={handleIdentify}
-                  loading={identify.isPending}
+                  onClick={handleSendOtp}
+                  loading={sendOtp.isPending}
                   iconRight
                   className="w-full"
                 >
                   Send OTP
                 </Button>
-
-                {failedAttempts > 0 && failedAttempts < MAX_ATTEMPTS && (
-                  <div className="mt-3 text-center text-xs text-[#F04438]">
-                    {failedAttempts} of {MAX_ATTEMPTS} attempts used
-                  </div>
-                )}
 
                 <div className="mt-5 flex items-center justify-center gap-1.5 text-xs text-[#98A2B3]">
                   <svg
@@ -304,33 +291,23 @@ export default function AdminLoginPage() {
               </div>
             )}
 
-            {/* Step 2: OTP Verification */}
-            {step === 2 && (
+            {/* Screen 2: OTP Verification */}
+            {screen === "otp" && (
               <div className="animate-[fadeSlide_0.3s_ease-out]">
-                <div className="mb-7 inline-flex items-center gap-1.5 rounded-full border border-[#A6F4C5] bg-[#ECFDF3] px-3.5 py-1.5 text-xs font-semibold text-[#027A48]">
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="h-3.5 w-3.5 fill-none stroke-[#027A48] stroke-2"
-                  >
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                  </svg>
-                  Secure Admin Access
-                </div>
+                <SecureAdminBadge />
 
                 <h1 className="mb-1.5 text-[26px] font-bold tracking-tight text-[#101828]">
                   Verify your identity
                 </h1>
                 <div className="mb-6 text-sm leading-relaxed text-[#667085]">
-                  OTP sent to your phone and email
+                  Code sent to your phone
                   <br />
                   <strong className="text-[#344054]">{maskPhone(phone, countryCode)}</strong>
-                  {" \u00B7 "}
-                  <strong className="text-[#344054]">{maskEmail(email)}</strong>
                 </div>
 
                 <div className="mb-2 flex justify-center">
                   <OtpInput
-                    length={6}
+                    length={5}
                     value={otp}
                     onChange={(val) => {
                       setOtp(val);
@@ -358,16 +335,18 @@ export default function AdminLoginPage() {
                   loading={verifyOtp.isPending}
                   className="mt-4 w-full"
                 >
-                  Verify OTP
+                  Verify &amp; Login
                 </Button>
 
                 <div className="mt-4 text-center text-[13px] text-[#667085]">
                   {"Didn't receive the code? "}
                   {resendSeconds > 0 ? (
-                    <span className="tabular-nums text-[#98A2B3]">({resendSeconds}s)</span>
+                    <span className="tabular-nums text-[#98A2B3]">
+                      ({String(resendSeconds).padStart(2, "0")}s)
+                    </span>
                   ) : (
                     <button
-                      onClick={handleResend}
+                      onClick={handleResendOtp}
                       className="cursor-pointer border-none bg-transparent font-semibold text-[#1570EF] hover:underline"
                     >
                       Resend OTP
@@ -377,7 +356,7 @@ export default function AdminLoginPage() {
 
                 <div className="mt-4 text-center">
                   <button
-                    onClick={() => setStep(1)}
+                    onClick={() => setScreen("email")}
                     className="cursor-pointer border-none bg-transparent text-[13px] font-medium text-[#667085] hover:text-[#1570EF]"
                   >
                     &larr; Back to login
@@ -386,63 +365,114 @@ export default function AdminLoginPage() {
               </div>
             )}
 
-            {/* Step 3: Role Selection */}
-            {step === 3 && (
+            {/* Screen: Account Recovery */}
+            {screen === "recovery" && (
               <div className="animate-[fadeSlide_0.3s_ease-out]">
-                <VerifiedCard
-                  name={userName}
-                  email={userEmail}
-                  roleLabel={roleLabel}
-                  roles={roles}
-                  selectedRole={selectedRole}
-                  onRoleChange={setSelectedRole}
-                />
-
-                <SessionInfo items={sessionItems} />
-
-                <Button
-                  onClick={handleLogin}
-                  loading={loginMut.isPending}
-                  iconRight
-                  className="w-full"
+                <button
+                  onClick={() => {
+                    setRecoveryDetail(null);
+                    setScreen("email");
+                  }}
+                  className="mb-5 inline-flex cursor-pointer items-center gap-1.5 border-none bg-transparent font-[family-name:var(--font-inter)] text-[13px] font-medium text-[#667085] hover:text-[#1570EF]"
                 >
-                  Continue to Dashboard
-                </Button>
+                  <svg
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    className="h-[15px] w-[15px]"
+                  >
+                    <path d="M10 12L6 8l4-4" />
+                  </svg>
+                  Back to login
+                </button>
+
+                <h1 className="mb-1.5 text-[26px] font-bold tracking-tight text-[#101828]">
+                  Account Recovery
+                </h1>
+
+                {!recoveryDetail ? (
+                  <>
+                    <p className="mb-5 text-sm text-[#667085]">Select your issue:</p>
+                    <div className="flex flex-col gap-2">
+                      {recoveryOptions.map((opt) => (
+                        <button
+                          key={opt.id}
+                          onClick={() => setRecoveryDetail(opt.id)}
+                          className="cursor-pointer rounded-lg border border-[#E4E7EC] bg-white px-3.5 py-3 text-left transition-all hover:border-[#1570EF] hover:bg-[#F0F7FF]"
+                        >
+                          <strong className="block text-[13px] text-[#101828]">{opt.title}</strong>
+                          <small className="text-[11px] text-[#667085]">{opt.subtitle}</small>
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {recoveryDetails[recoveryDetail]}
+                    <button
+                      onClick={() => setRecoveryDetail(null)}
+                      className="mt-4 cursor-pointer rounded-lg border border-[#D0D5DD] bg-white px-4 py-2 text-[13px] font-semibold text-[#344054] transition-colors hover:bg-[#F9FAFB]"
+                    >
+                      Back
+                    </button>
+                  </>
+                )}
               </div>
             )}
           </div>
 
           {/* Footer */}
-          <div className="absolute bottom-6 left-0 right-0 text-center">
-            <div className="mb-2">
-              <button
-                onClick={() => setShowRecovery(true)}
-                className="cursor-pointer border-none bg-transparent text-[13px] font-medium text-[#1570EF] hover:underline"
-              >
-                Can&apos;t access your account?
-              </button>
+          {screen !== "recovery" && (
+            <div className="absolute bottom-6 left-0 right-0 text-center">
+              <div className="mb-2">
+                <button
+                  onClick={() => {
+                    setRecoveryDetail(null);
+                    setScreen("recovery");
+                  }}
+                  className="cursor-pointer border-none bg-transparent text-[13px] font-medium text-[#1570EF] hover:underline"
+                >
+                  Can&apos;t access your account?
+                </button>
+              </div>
+              <div className="text-xs text-[#98A2B3]">
+                Collegepond Admin Portal v1.0 | Need help? Contact IT Support
+              </div>
             </div>
-            <div className="mb-1.5 text-xs text-[#98A2B3]">
-              Collegepond Admin Portal v1.0 | Need help? Contact IT Support
-            </div>
-            <div className="text-[13px] text-[#667085]">
-              Are you a partner?{" "}
-              <Link href="/login" className="font-medium text-[#1570EF] no-underline hover:underline">
-                Login here
-              </Link>
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
-      {/* Modals & Overlays */}
-      <RecoveryModal open={showRecovery} onClose={() => setShowRecovery(false)} />
-      <LockoutOverlay open={isLocked} />
-      <Toast
-        message={toastMessage}
-        open={toastOpen}
-        onClose={() => setToastOpen(false)}
-      />
+      {/* Screen 3: Success Overlay */}
+      {screen === "success" && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-[#0f1117]">
+          <div className="w-[460px] rounded-2xl bg-white p-16 px-11 text-center shadow-[0_24px_80px_rgba(0,0,0,0.4)]">
+            <div className="mx-auto mb-5 flex h-[72px] w-[72px] items-center justify-center rounded-full bg-[#ECFDF3] animate-[scaleIn_0.4s_ease-out]">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#12B76A"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-9 w-9"
+              >
+                <path d="M20 6L9 17l-5-5" />
+              </svg>
+            </div>
+            <h2 className="mb-1.5 text-[22px] font-bold text-[#101828]">
+              Welcome back, {userName}!
+            </h2>
+            <p className="mb-5 text-sm text-[#667085]">
+              Redirecting to your dashboard...
+            </p>
+            <div className="mx-auto h-1 w-[180px] overflow-hidden rounded bg-[#E4E7EC]">
+              <div className="h-full rounded bg-[#1570EF] animate-[progressFill_2s_ease-in-out_forwards]" />
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

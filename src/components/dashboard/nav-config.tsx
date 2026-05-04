@@ -61,26 +61,26 @@ export const NAV_SECTIONS: NavSection[] = [
   {
     label: "Operations",
     items: [
-      { label: "Dashboard", href: "/cp-dashboard", icon: <DashboardIcon /> },
-      { label: "Partners", href: "/cp-partners", icon: <PartnersIcon /> },
-      { label: "Students", href: "/cp-students", icon: <StudentsIcon /> },
+      { label: "Dashboard", href: "/admin/dashboard", icon: <DashboardIcon /> },
+      { label: "Partners", href: "/admin/partners", icon: <PartnersIcon /> },
+      { label: "Students", href: "/admin/students", icon: <StudentsIcon /> },
       {
         label: "Student Placements",
-        href: "/cp-student-placements",
+        href: "/admin/student-placements",
         icon: <PlacementsIcon />,
       },
       {
         label: "Counselor Approvals",
-        href: "/cp-counselor-approvals",
+        href: "/admin/counselor-approvals",
         icon: <ApprovalsIcon />,
         badgeKey: "approvals",
       },
       {
         label: "TAT Management",
-        href: "/cp-tat-management",
+        href: "/admin/tat-management",
         icon: <ClockIcon />,
       },
-      { label: "Uni Assist", href: "/cp-uni-assist", icon: <SearchIcon /> },
+      { label: "Uni Assist", href: "/admin/uni-assist", icon: <SearchIcon /> },
     ],
   },
   {
@@ -88,7 +88,7 @@ export const NAV_SECTIONS: NavSection[] = [
     items: [
       {
         label: "BDM Performance",
-        href: "/cp-bdm-performance",
+        href: "/admin/bdm-performance",
         icon: <BarChartIcon />,
       },
     ],
@@ -98,22 +98,22 @@ export const NAV_SECTIONS: NavSection[] = [
     items: [
       {
         label: "Commission Rates",
-        href: "/cp-commission-rates",
+        href: "/admin/commission-rates",
         icon: <CommissionIcon />,
       },
       {
         label: "University Billing",
-        href: "/cp-university-billing",
+        href: "/admin/university-billing",
         icon: <BillingIcon />,
       },
       {
         label: "Invoices & Payouts",
-        href: "/cp-invoices",
+        href: "/admin/invoices",
         icon: <InvoiceIcon />,
       },
       {
         label: "Reconciliation",
-        href: "/cp-reconciliation",
+        href: "/admin/reconciliation",
         icon: <ReconciliationIcon />,
       },
     ],
@@ -123,10 +123,10 @@ export const NAV_SECTIONS: NavSection[] = [
     items: [
       {
         label: "Universities",
-        href: "/cp-universities",
+        href: "/admin/universities",
         icon: <StudentsIcon />,
       },
-      { label: "Events", href: "/cp-events", icon: <CalendarIcon /> },
+      { label: "Events", href: "/admin/events", icon: <CalendarIcon /> },
     ],
   },
   {
@@ -134,13 +134,13 @@ export const NAV_SECTIONS: NavSection[] = [
     items: [
       {
         label: "Reports",
-        href: "/cp-reports",
+        href: "/admin/reports",
         icon: <BarChartIcon />,
         disabled: true,
       },
-      { label: "Users", href: "/cp-users", icon: <UsersIcon /> },
-      { label: "Settings", href: "/cp-settings", icon: <SettingsIcon /> },
-      { label: "Audit Logs", href: "/cp-audit-logs", icon: <AuditLogIcon /> },
+      { label: "Users", href: "/admin/users", icon: <UsersIcon /> },
+      { label: "Settings", href: "/admin/settings", icon: <SettingsIcon /> },
+      { label: "Audit Logs", href: "/admin/audit-logs", icon: <AuditLogIcon /> },
     ],
   },
 ];

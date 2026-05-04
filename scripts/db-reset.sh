@@ -20,6 +20,7 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SCHEMA_FILE="$ROOT_DIR/prisma/sql/schema.sql"
+SEED_FILE="$ROOT_DIR/prisma/sql/seed.sql"
 ENV_FILE="$ROOT_DIR/.env"
 
 FORCE=0
@@ -128,6 +129,11 @@ run_sql "DROP DATABASE IF EXISTS \`$DB_NAME\`; CREATE DATABASE \`$DB_NAME\` DEFA
 
 echo "Applying schema.sql..."
 run_file "$SCHEMA_FILE"
+
+if [[ -f "$SEED_FILE" ]]; then
+  echo "Applying seed.sql..."
+  run_file "$SEED_FILE"
+fi
 
 echo "Regenerating Prisma client..."
 ( cd "$ROOT_DIR" && npx prisma generate )

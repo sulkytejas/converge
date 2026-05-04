@@ -71,7 +71,7 @@ npm run dev
 | `npm run dev`            | Dev server with Turbopack                                         |
 | `npm run build`          | Production build                                                  |
 | `npm run start`          | Production server                                                 |
-| `npm run db:reset`       | Drop DB, apply `prisma/sql/schema.sql`, regenerate client (interactive) |
+| `npm run db:reset`       | Drop DB, apply `prisma/sql/schema.sql` + `seed.sql`, regenerate client (interactive) |
 | `npm run db:reset:force` | Same, no confirmation prompt                                      |
 | `npm run db:push`        | Push Prisma schema to DB (Prisma-driven path)                     |
 | `npm run db:studio`      | Open Prisma Studio                                                |
@@ -88,14 +88,18 @@ converge/
 ├── .devcontainer/             # Dev container (Dockerfile, compose, post-create)
 ├── prisma/
 │   ├── schema.prisma          # Prisma model definitions
-│   └── sql/schema.sql         # Canonical MySQL DDL — applied by db-reset.sh
+│   └── sql/
+│       ├── schema.sql         # Canonical MySQL DDL — applied by db-reset.sh
+│       └── seed.sql           # Dev seed (dummy admin user)
 ├── scripts/
-│   └── db-reset.sh            # Reset DB and apply prisma/sql/schema.sql
+│   └── db-reset.sh            # Reset DB, apply schema.sql + seed.sql, regenerate Prisma client
 ├── public/                    # Static assets
 ├── src/
 │   ├── app/                   # Next.js App Router
-│   │   ├── (dashboard)/       # Admin dashboard route group (sidebar+topbar layout)
-│   │   ├── admin/login/       # Admin OTP login
+│   │   ├── admin/
+│   │   │   ├── (dashboard)/   # Admin dashboard route group (sidebar+topbar layout)
+│   │   │   │                  # → /admin/dashboard, /admin/students, /admin/partners, ...
+│   │   │   └── login/         # Admin phone-OTP login (→ /admin/login)
 │   │   ├── login/             # Partner OTP login
 │   │   ├── signup/            # Partner registration flow
 │   │   ├── api/trpc/          # tRPC HTTP handler
@@ -105,8 +109,9 @@ converge/
 │   │   ├── dashboard/         # DashboardShell (HOC), Sidebar, Topbar, nav config
 │   │   └── ui/                # Reusable UI primitives (button, inputs, modal, etc.)
 │   ├── server/
-│   │   ├── api/               # tRPC routers (auth, signup, admin-auth) + trpc.ts
+│   │   ├── api/routers/       # tRPC routers — auth (partner), admin-auth (admin), signup
 │   │   ├── applications/      # Application/user persistence layer
+│   │   ├── otp/               # OTP send/verify (MSG91 + sandbox provider)
 │   │   └── db/enums.ts        # Domain enums for integer-coded columns
 │   ├── trpc/                  # tRPC client setup (React provider, query client)
 │   ├── styles/globals.css     # Tailwind + theme tokens
@@ -141,24 +146,23 @@ Variables are validated at startup by Zod (`src/env.js`). Set `SKIP_ENV_VALIDATI
 
 ---
 
-## Testing the UI without a database
+## Testing the UI
 
-Most auth tRPC routes still return placeholder success responses, so the UI flows can be exercised without a working DB.
+The dev DB seed (`prisma/sql/seed.sql`) adds a dummy admin so the admin flow works end-to-end on a fresh `npm run db:reset:force`. Without `MSG91_*` keys configured, OTPs print to the server log instead of being delivered (sandbox mode).
 
-```bash
-SKIP_ENV_VALIDATION=1 npm run dev
-```
-
-- **Partner login** (`/login`) — any valid email, any 10-digit phone, any 5-digit OTP succeeds.
-- **Partner signup** (`/signup`) — full multi-step flow; uploads accept any file; success returns a dummy application ID.
-- **Admin login** (`/admin/login`) — email must end in `@collegepond.com` or `@convergeapp.co`; any 6-digit OTP succeeds; lands on `/cp-dashboard`.
-- **Dashboard routes** (`/cp-dashboard`, `/cp-partners`, `/cp-students`, etc.) — currently render placeholder pages inside the shared sidebar+topbar shell.
+- **Admin login** (`/admin/login`) — phone-only OTP, gated by an email→phone match in the DB.
+  - Seed user: `admin@collegepond.com` / `+91 9876543210`
+  - Watch the server log for `[OTP:sandbox] SMS to 919876543210 => <code>`
+  - Lands on `/admin/dashboard`.
+- **Admin dashboard** (`/admin/dashboard`, `/admin/students`, `/admin/partners`, `/admin/universities`, `/admin/users`, `/admin/settings`, ...) — placeholder pages inside the shared sidebar+topbar shell.
+- **Partner signup** (`/signup`) — full multi-step flow; uploads accept any file; the user gets persisted to the `user` table.
+- **Partner login** (`/login`) — sign up first, then sign in with that email + phone. OTP goes to email + phone; verified against email. *(Auth source for partner login will switch to its own table later.)*
 
 ---
 
 ## Planned scope
 
-The sections below describe the target product — not all of it is implemented yet. Track the actual state via git history and the `(dashboard)` route stubs.
+The sections below describe the target product — not all of it is implemented yet. Track the actual state via git history and the `src/app/admin/(dashboard)` route stubs.
 
 ### Feature modules
 

@@ -1,20 +1,20 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { setApplicationStatus } from "~/server/applications/store";
+import {
+  sendPhoneOtp,
+  toE164,
+  verifyPhoneOtp,
+} from "~/server/otp";
+import {
+  getApplicationByEmail,
+  setApplicationStatus,
+} from "~/server/applications/store";
 
-const ROLE_LABELS: Record<string, string> = {
-  super_admin: "Super Admin",
-  finance_mgr: "Finance Manager",
-  finance_exec: "Finance Executive",
-  ops_team_lead: "Ops Team Lead",
-  ops_counselor: "Ops Counselor",
-  bdm: "Business Development Manager",
-  content_mgr: "Content Manager",
-};
-
+// Admin login: identifies the user by email, requires the registered phone to
+// match, and uses phone OTP only (no email OTP).
 export const adminAuthRouter = createTRPCRouter({
-  identify: publicProcedure
+  sendLoginOtp: publicProcedure
     .input(
       z.object({
         email: z.string().email(),
@@ -23,55 +23,71 @@ export const adminAuthRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input }) => {
-      // Placeholder — in production, look up admin user by email + phone
-      console.log("Admin identify:", input.email, input.countryCode + input.phone);
-      return {
-        success: true as const,
-        maskedPhone: "****" + input.phone.slice(-4),
-        maskedEmail:
-          input.email[0] +
-          "***" +
-          input.email.substring(input.email.indexOf("@")),
-      };
+      const app = await getApplicationByEmail(input.email);
+      // Single generic error to avoid leaking which side mismatched.
+      const mismatchError = new TRPCError({
+        code: "NOT_FOUND",
+        message: "Email and phone combination not found. Contact IT support.",
+      });
+      if (!app) throw mismatchError;
+
+      const providedE164 = toE164(input.phone, input.countryCode);
+      const storedE164 = toE164(app.phone, app.countryCode);
+      if (providedE164 !== storedE164) throw mismatchError;
+
+      try {
+        await sendPhoneOtp(providedE164);
+      } catch {
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to send OTP",
+        });
+      }
+
+      return { success: true as const };
     }),
 
-  verifyOtp: publicProcedure
+  verifyLoginOtp: publicProcedure
     .input(
       z.object({
         email: z.string().email(),
-        otp: z.string().length(6),
+        phone: z.string().min(1),
+        countryCode: z.string().min(1),
+        otp: z.string().length(5),
       }),
     )
     .mutation(async ({ input }) => {
-      // Placeholder — in production, verify OTP and return user info
-      console.log("Admin verify OTP:", input.email, input.otp);
+      const app = await getApplicationByEmail(input.email);
+      if (!app) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No account found",
+        });
+      }
 
-      const roleKey = "super_admin";
+      const providedE164 = toE164(input.phone, input.countryCode);
+      const storedE164 = toE164(app.phone, app.countryCode);
+      if (providedE164 !== storedE164) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Phone number does not match this account",
+        });
+      }
+
+      const ok = await verifyPhoneOtp(providedE164, input.otp);
+      if (!ok) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Invalid or expired OTP",
+        });
+      }
+
       return {
         success: true as const,
-        name: "Admin User",
-        email: input.email,
-        role: roleKey,
-        roleLabel: ROLE_LABELS[roleKey] ?? roleKey,
-        roles: Object.entries(ROLE_LABELS).map(([value, label]) => ({
-          value,
-          label,
-        })),
-        lastLogin: null as string | null,
+        name: app.firstName,
+        status: app.status,
+        applicationId: app.applicationId,
       };
-    }),
-
-  login: publicProcedure
-    .input(
-      z.object({
-        email: z.string().email(),
-        role: z.string().min(1),
-      }),
-    )
-    .mutation(async ({ input }) => {
-      // Placeholder — in production, create session with selected role
-      console.log("Admin login:", input.email, "as", input.role);
-      return { success: true as const, redirectUrl: "/cp-dashboard" };
     }),
 
   // DEV-ONLY: flips an applicant's status without a real admin UI.
