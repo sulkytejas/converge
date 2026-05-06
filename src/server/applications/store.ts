@@ -32,6 +32,7 @@ export interface Application {
   annualVolume?: string;
   documents?: Record<string, string>;
   status: ApplicationStatus;
+  mouSignedAt?: string | null;
   submittedAt: string;
   updatedAt: string;
 }
@@ -255,9 +256,24 @@ export async function getApplicationByEmail(
     companyAddress: user.organization?.address ?? undefined,
     documents: Object.keys(docs).length ? docs : undefined,
     status: statusLabelFromCode(user.status),
+    mouSignedAt: user.mou_signed_at?.toISOString() ?? null,
     submittedAt: user.created_at.toISOString(),
     updatedAt: user.updated_at.toISOString(),
   };
+}
+
+export async function markMouSigned(userId: number): Promise<void> {
+  await db.user.update({
+    where: { id: userId },
+    data: { mou_signed_at: new Date() },
+  });
+}
+
+export async function recordPartnerLogin(userId: number): Promise<void> {
+  await db.user.update({
+    where: { id: userId },
+    data: { last_login_at: new Date() },
+  });
 }
 
 // Document status flag exposed to the admin UI. Mirrors DocumentStatus but as

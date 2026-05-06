@@ -165,16 +165,7 @@ export default function LoginPage() {
           setUserName(data.name);
           setScreen("success");
           setTimeout(() => {
-            if (data.status === "approved") {
-              router.push("/");
-            } else {
-              const qs = new URLSearchParams({
-                email,
-                name: data.name,
-                applicationId: data.applicationId,
-              });
-              router.push(`/pending-verification?${qs.toString()}`);
-            }
+            router.push(data.redirectUrl);
           }, 2200);
         },
         onError: () => {

@@ -18707,6 +18707,7 @@ export namespace Prisma {
     bdm_id: number | null
     notes: string | null
     tier: number | null
+    mou_signed_at: Date | null
     last_login_at: Date | null
     created_at: Date | null
     updated_at: Date | null
@@ -18739,6 +18740,7 @@ export namespace Prisma {
     bdm_id: number | null
     notes: string | null
     tier: number | null
+    mou_signed_at: Date | null
     last_login_at: Date | null
     created_at: Date | null
     updated_at: Date | null
@@ -18771,6 +18773,7 @@ export namespace Prisma {
     bdm_id: number
     notes: number
     tier: number
+    mou_signed_at: number
     last_login_at: number
     created_at: number
     updated_at: number
@@ -18837,6 +18840,7 @@ export namespace Prisma {
     bdm_id?: true
     notes?: true
     tier?: true
+    mou_signed_at?: true
     last_login_at?: true
     created_at?: true
     updated_at?: true
@@ -18869,6 +18873,7 @@ export namespace Prisma {
     bdm_id?: true
     notes?: true
     tier?: true
+    mou_signed_at?: true
     last_login_at?: true
     created_at?: true
     updated_at?: true
@@ -18901,6 +18906,7 @@ export namespace Prisma {
     bdm_id?: true
     notes?: true
     tier?: true
+    mou_signed_at?: true
     last_login_at?: true
     created_at?: true
     updated_at?: true
@@ -19020,6 +19026,7 @@ export namespace Prisma {
     bdm_id: number | null
     notes: string | null
     tier: number
+    mou_signed_at: Date | null
     last_login_at: Date | null
     created_at: Date
     updated_at: Date
@@ -19071,6 +19078,7 @@ export namespace Prisma {
     bdm_id?: boolean
     notes?: boolean
     tier?: boolean
+    mou_signed_at?: boolean
     last_login_at?: boolean
     created_at?: boolean
     updated_at?: boolean
@@ -19117,12 +19125,13 @@ export namespace Prisma {
     bdm_id?: boolean
     notes?: boolean
     tier?: boolean
+    mou_signed_at?: boolean
     last_login_at?: boolean
     created_at?: boolean
     updated_at?: boolean
   }
 
-  export type userOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "first_name" | "last_name" | "type" | "email" | "phone" | "is_owner" | "status" | "avatar_url" | "is_email_verified" | "is_phone_verified" | "tracking_id" | "org_id" | "date_of_birth" | "gender" | "nationality" | "address" | "city" | "state" | "country" | "approved_by_collegepond_user_id" | "lead_counsellor_id" | "counsellor_id" | "bdm_id" | "notes" | "tier" | "last_login_at" | "created_at" | "updated_at", ExtArgs["result"]["user"]>
+  export type userOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "first_name" | "last_name" | "type" | "email" | "phone" | "is_owner" | "status" | "avatar_url" | "is_email_verified" | "is_phone_verified" | "tracking_id" | "org_id" | "date_of_birth" | "gender" | "nationality" | "address" | "city" | "state" | "country" | "approved_by_collegepond_user_id" | "lead_counsellor_id" | "counsellor_id" | "bdm_id" | "notes" | "tier" | "mou_signed_at" | "last_login_at" | "created_at" | "updated_at", ExtArgs["result"]["user"]>
   export type userInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     audit_log?: boolean | user$audit_logArgs<ExtArgs>
     document?: boolean | user$documentArgs<ExtArgs>
@@ -19180,6 +19189,7 @@ export namespace Prisma {
       bdm_id: number | null
       notes: string | null
       tier: number
+      mou_signed_at: Date | null
       last_login_at: Date | null
       created_at: Date
       updated_at: Date
@@ -19589,6 +19599,7 @@ export namespace Prisma {
     readonly bdm_id: FieldRef<"user", 'Int'>
     readonly notes: FieldRef<"user", 'String'>
     readonly tier: FieldRef<"user", 'Int'>
+    readonly mou_signed_at: FieldRef<"user", 'DateTime'>
     readonly last_login_at: FieldRef<"user", 'DateTime'>
     readonly created_at: FieldRef<"user", 'DateTime'>
     readonly updated_at: FieldRef<"user", 'DateTime'>
@@ -21611,6 +21622,7 @@ export namespace Prisma {
     bdm_id: 'bdm_id',
     notes: 'notes',
     tier: 'tier',
+    mou_signed_at: 'mou_signed_at',
     last_login_at: 'last_login_at',
     created_at: 'created_at',
     updated_at: 'updated_at'
@@ -23215,6 +23227,7 @@ export namespace Prisma {
     bdm_id?: IntNullableFilter<"user"> | number | null
     notes?: StringNullableFilter<"user"> | string | null
     tier?: IntFilter<"user"> | number
+    mou_signed_at?: DateTimeNullableFilter<"user"> | Date | string | null
     last_login_at?: DateTimeNullableFilter<"user"> | Date | string | null
     created_at?: DateTimeFilter<"user"> | Date | string
     updated_at?: DateTimeFilter<"user"> | Date | string
@@ -23258,6 +23271,7 @@ export namespace Prisma {
     bdm_id?: SortOrderInput | SortOrder
     notes?: SortOrderInput | SortOrder
     tier?: SortOrder
+    mou_signed_at?: SortOrderInput | SortOrder
     last_login_at?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
@@ -23305,6 +23319,7 @@ export namespace Prisma {
     bdm_id?: IntNullableFilter<"user"> | number | null
     notes?: StringNullableFilter<"user"> | string | null
     tier?: IntFilter<"user"> | number
+    mou_signed_at?: DateTimeNullableFilter<"user"> | Date | string | null
     last_login_at?: DateTimeNullableFilter<"user"> | Date | string | null
     created_at?: DateTimeFilter<"user"> | Date | string
     updated_at?: DateTimeFilter<"user"> | Date | string
@@ -23348,6 +23363,7 @@ export namespace Prisma {
     bdm_id?: SortOrderInput | SortOrder
     notes?: SortOrderInput | SortOrder
     tier?: SortOrder
+    mou_signed_at?: SortOrderInput | SortOrder
     last_login_at?: SortOrderInput | SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
@@ -23388,6 +23404,7 @@ export namespace Prisma {
     bdm_id?: IntNullableWithAggregatesFilter<"user"> | number | null
     notes?: StringNullableWithAggregatesFilter<"user"> | string | null
     tier?: IntWithAggregatesFilter<"user"> | number
+    mou_signed_at?: DateTimeNullableWithAggregatesFilter<"user"> | Date | string | null
     last_login_at?: DateTimeNullableWithAggregatesFilter<"user"> | Date | string | null
     created_at?: DateTimeWithAggregatesFilter<"user"> | Date | string
     updated_at?: DateTimeWithAggregatesFilter<"user"> | Date | string
@@ -24880,6 +24897,7 @@ export namespace Prisma {
     country?: string | null
     notes?: string | null
     tier?: number
+    mou_signed_at?: Date | string | null
     last_login_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -24923,6 +24941,7 @@ export namespace Prisma {
     bdm_id?: number | null
     notes?: string | null
     tier?: number
+    mou_signed_at?: Date | string | null
     last_login_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -24955,6 +24974,7 @@ export namespace Prisma {
     country?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
+    mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -24998,6 +25018,7 @@ export namespace Prisma {
     bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
+    mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -25036,6 +25057,7 @@ export namespace Prisma {
     bdm_id?: number | null
     notes?: string | null
     tier?: number
+    mou_signed_at?: Date | string | null
     last_login_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -25062,6 +25084,7 @@ export namespace Prisma {
     country?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
+    mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -25094,6 +25117,7 @@ export namespace Prisma {
     bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
+    mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26606,6 +26630,7 @@ export namespace Prisma {
     bdm_id?: SortOrder
     notes?: SortOrder
     tier?: SortOrder
+    mou_signed_at?: SortOrder
     last_login_at?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
@@ -26654,6 +26679,7 @@ export namespace Prisma {
     bdm_id?: SortOrder
     notes?: SortOrder
     tier?: SortOrder
+    mou_signed_at?: SortOrder
     last_login_at?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
@@ -26686,6 +26712,7 @@ export namespace Prisma {
     bdm_id?: SortOrder
     notes?: SortOrder
     tier?: SortOrder
+    mou_signed_at?: SortOrder
     last_login_at?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
@@ -28904,6 +28931,7 @@ export namespace Prisma {
     country?: string | null
     notes?: string | null
     tier?: number
+    mou_signed_at?: Date | string | null
     last_login_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -28946,6 +28974,7 @@ export namespace Prisma {
     bdm_id?: number | null
     notes?: string | null
     tier?: number
+    mou_signed_at?: Date | string | null
     last_login_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -29053,6 +29082,7 @@ export namespace Prisma {
     country?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
+    mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -29095,6 +29125,7 @@ export namespace Prisma {
     bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
+    mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -29545,6 +29576,7 @@ export namespace Prisma {
     country?: string | null
     notes?: string | null
     tier?: number
+    mou_signed_at?: Date | string | null
     last_login_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -29587,6 +29619,7 @@ export namespace Prisma {
     bdm_id?: number | null
     notes?: string | null
     tier?: number
+    mou_signed_at?: Date | string | null
     last_login_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -29694,6 +29727,7 @@ export namespace Prisma {
     country?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
+    mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -29736,6 +29770,7 @@ export namespace Prisma {
     bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
+    mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -29862,6 +29897,7 @@ export namespace Prisma {
     country?: string | null
     notes?: string | null
     tier?: number
+    mou_signed_at?: Date | string | null
     last_login_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -29904,6 +29940,7 @@ export namespace Prisma {
     bdm_id?: number | null
     notes?: string | null
     tier?: number
+    mou_signed_at?: Date | string | null
     last_login_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -30020,6 +30057,7 @@ export namespace Prisma {
     country?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
+    mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -30062,6 +30100,7 @@ export namespace Prisma {
     bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
+    mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -30494,6 +30533,7 @@ export namespace Prisma {
     country?: string | null
     notes?: string | null
     tier?: number
+    mou_signed_at?: Date | string | null
     last_login_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -30536,6 +30576,7 @@ export namespace Prisma {
     bdm_id?: number | null
     notes?: string | null
     tier?: number
+    mou_signed_at?: Date | string | null
     last_login_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -30583,6 +30624,7 @@ export namespace Prisma {
     country?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
+    mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -30625,6 +30667,7 @@ export namespace Prisma {
     bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
+    mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -30888,6 +30931,7 @@ export namespace Prisma {
     country?: string | null
     notes?: string | null
     tier?: number
+    mou_signed_at?: Date | string | null
     last_login_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -30929,6 +30973,7 @@ export namespace Prisma {
     bdm_id?: number | null
     notes?: string | null
     tier?: number
+    mou_signed_at?: Date | string | null
     last_login_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -31183,6 +31228,7 @@ export namespace Prisma {
     bdm_id?: IntNullableFilter<"user"> | number | null
     notes?: StringNullableFilter<"user"> | string | null
     tier?: IntFilter<"user"> | number
+    mou_signed_at?: DateTimeNullableFilter<"user"> | Date | string | null
     last_login_at?: DateTimeNullableFilter<"user"> | Date | string | null
     created_at?: DateTimeFilter<"user"> | Date | string
     updated_at?: DateTimeFilter<"user"> | Date | string
@@ -31209,6 +31255,7 @@ export namespace Prisma {
     country?: string | null
     notes?: string | null
     tier?: number
+    mou_signed_at?: Date | string | null
     last_login_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -31251,6 +31298,7 @@ export namespace Prisma {
     bdm_id?: number | null
     notes?: string | null
     tier?: number
+    mou_signed_at?: Date | string | null
     last_login_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -31298,6 +31346,7 @@ export namespace Prisma {
     country?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
+    mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -31340,6 +31389,7 @@ export namespace Prisma {
     bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
+    mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -31464,6 +31514,7 @@ export namespace Prisma {
     country?: string | null
     notes?: string | null
     tier?: number
+    mou_signed_at?: Date | string | null
     last_login_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -31506,6 +31557,7 @@ export namespace Prisma {
     bdm_id?: number | null
     notes?: string | null
     tier?: number
+    mou_signed_at?: Date | string | null
     last_login_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -31629,6 +31681,7 @@ export namespace Prisma {
     country?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
+    mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -31671,6 +31724,7 @@ export namespace Prisma {
     bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
+    mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -32504,6 +32558,7 @@ export namespace Prisma {
     country?: string | null
     notes?: string | null
     tier?: number
+    mou_signed_at?: Date | string | null
     last_login_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -32545,6 +32600,7 @@ export namespace Prisma {
     bdm_id?: number | null
     notes?: string | null
     tier?: number
+    mou_signed_at?: Date | string | null
     last_login_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -32587,6 +32643,7 @@ export namespace Prisma {
     country?: string | null
     notes?: string | null
     tier?: number
+    mou_signed_at?: Date | string | null
     last_login_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -32628,6 +32685,7 @@ export namespace Prisma {
     counsellor_id?: number | null
     notes?: string | null
     tier?: number
+    mou_signed_at?: Date | string | null
     last_login_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -32670,6 +32728,7 @@ export namespace Prisma {
     country?: string | null
     notes?: string | null
     tier?: number
+    mou_signed_at?: Date | string | null
     last_login_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -32711,6 +32770,7 @@ export namespace Prisma {
     bdm_id?: number | null
     notes?: string | null
     tier?: number
+    mou_signed_at?: Date | string | null
     last_login_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -32753,6 +32813,7 @@ export namespace Prisma {
     country?: string | null
     notes?: string | null
     tier?: number
+    mou_signed_at?: Date | string | null
     last_login_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -32794,6 +32855,7 @@ export namespace Prisma {
     bdm_id?: number | null
     notes?: string | null
     tier?: number
+    mou_signed_at?: Date | string | null
     last_login_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -33134,6 +33196,7 @@ export namespace Prisma {
     bdm_id?: number | null
     notes?: string | null
     tier?: number
+    mou_signed_at?: Date | string | null
     last_login_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -33417,6 +33480,7 @@ export namespace Prisma {
     country?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
+    mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33458,6 +33522,7 @@ export namespace Prisma {
     bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
+    mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33495,6 +33560,7 @@ export namespace Prisma {
     bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
+    mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33890,6 +33956,7 @@ export namespace Prisma {
     bdm_id?: number | null
     notes?: string | null
     tier?: number
+    mou_signed_at?: Date | string | null
     last_login_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -33921,6 +33988,7 @@ export namespace Prisma {
     counsellor_id?: number | null
     notes?: string | null
     tier?: number
+    mou_signed_at?: Date | string | null
     last_login_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -33952,6 +34020,7 @@ export namespace Prisma {
     bdm_id?: number | null
     notes?: string | null
     tier?: number
+    mou_signed_at?: Date | string | null
     last_login_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -33983,6 +34052,7 @@ export namespace Prisma {
     bdm_id?: number | null
     notes?: string | null
     tier?: number
+    mou_signed_at?: Date | string | null
     last_login_at?: Date | string | null
     created_at?: Date | string
     updated_at?: Date | string
@@ -34009,6 +34079,7 @@ export namespace Prisma {
     country?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
+    mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34050,6 +34121,7 @@ export namespace Prisma {
     bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
+    mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34087,6 +34159,7 @@ export namespace Prisma {
     bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
+    mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34113,6 +34186,7 @@ export namespace Prisma {
     country?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
+    mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34154,6 +34228,7 @@ export namespace Prisma {
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
+    mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34191,6 +34266,7 @@ export namespace Prisma {
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
+    mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34217,6 +34293,7 @@ export namespace Prisma {
     country?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
+    mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34258,6 +34335,7 @@ export namespace Prisma {
     bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
+    mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34295,6 +34373,7 @@ export namespace Prisma {
     bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
+    mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34321,6 +34400,7 @@ export namespace Prisma {
     country?: NullableStringFieldUpdateOperationsInput | string | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
+    mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34362,6 +34442,7 @@ export namespace Prisma {
     bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
+    mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34399,6 +34480,7 @@ export namespace Prisma {
     bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
+    mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string

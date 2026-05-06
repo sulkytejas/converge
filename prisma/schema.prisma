@@ -299,6 +299,7 @@ model user {
   bdm_id                                                                  Int?
   notes                                                                   String?                   @db.VarChar(255)
   tier                                                                    Int                       @default(0) @db.UnsignedTinyInt
+  mou_signed_at                                                           DateTime?                 @db.Timestamp(0)
   last_login_at                                                           DateTime?                 @db.Timestamp(0)
   created_at                                                              DateTime                  @default(now()) @db.Timestamp(0)
   updated_at                                                              DateTime                  @default(now()) @db.Timestamp(0)

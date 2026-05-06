@@ -89,6 +89,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `bdm_id`                          INT NULL DEFAULT NULL,
   `notes`                           VARCHAR(255) NULL DEFAULT NULL,
   `tier`                            TINYINT(3) UNSIGNED NOT NULL DEFAULT 0,
+  `mou_signed_at`                   TIMESTAMP NULL DEFAULT NULL,
   `last_login_at`                   TIMESTAMP NULL DEFAULT NULL,
   `created_at`                      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at`                      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

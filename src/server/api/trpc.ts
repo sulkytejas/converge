@@ -12,7 +12,12 @@ import superjson from "superjson";
 import { ZodError } from "zod";
 
 import { db } from "~/server/db";
-import { SESSION_COOKIE_NAME, verifySessionJwt } from "~/server/auth/jwt";
+import {
+  PARTNER_SESSION_COOKIE_NAME,
+  SESSION_COOKIE_NAME,
+  verifyPartnerSessionJwt,
+  verifySessionJwt,
+} from "~/server/auth/jwt";
 import { AdminRole } from "~/server/db/enums";
 
 interface CpUser {
@@ -20,12 +25,16 @@ interface CpUser {
   role: number;
 }
 
-function readSessionCookie(headers: Headers): string | null {
+interface CpPartner {
+  id: number;
+}
+
+function readCookie(headers: Headers, name: string): string | null {
   const raw = headers.get("cookie");
   if (!raw) return null;
   for (const part of raw.split(";")) {
-    const [name, ...rest] = part.trim().split("=");
-    if (name === SESSION_COOKIE_NAME) return rest.join("=");
+    const [k, ...rest] = part.trim().split("=");
+    if (k === name) return rest.join("=");
   }
   return null;
 }
@@ -35,13 +44,21 @@ export const createTRPCContext = async (opts: {
   resHeaders: Headers;
 }) => {
   let cpUser: CpUser | null = null;
-  const token = readSessionCookie(opts.headers);
-  if (token) {
-    cpUser = await verifySessionJwt(token);
+  const adminToken = readCookie(opts.headers, SESSION_COOKIE_NAME);
+  if (adminToken) {
+    cpUser = await verifySessionJwt(adminToken);
   }
+
+  let cpPartner: CpPartner | null = null;
+  const partnerToken = readCookie(opts.headers, PARTNER_SESSION_COOKIE_NAME);
+  if (partnerToken) {
+    cpPartner = await verifyPartnerSessionJwt(partnerToken);
+  }
+
   return {
     db,
     cpUser,
+    cpPartner,
     ...opts,
   };
 };
@@ -99,4 +116,12 @@ export const superAdminProcedure = protectedAdminProcedure.use(({ ctx, next }) =
     });
   }
   return next();
+});
+
+// Requires a valid partner (user table) session cookie.
+export const protectedPartnerProcedure = publicProcedure.use(({ ctx, next }) => {
+  if (!ctx.cpPartner) {
+    throw new TRPCError({ code: "UNAUTHORIZED", message: "Not signed in" });
+  }
+  return next({ ctx: { ...ctx, cpPartner: ctx.cpPartner } });
 });

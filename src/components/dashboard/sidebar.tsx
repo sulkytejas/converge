@@ -7,26 +7,24 @@ import {
   CollegepondLogoIcon,
   LogoutIcon,
 } from "./nav-icons";
-import {
-  NAV_SECTIONS,
-  ROLE_OPTIONS,
-  type AdminRole,
-  type NavItem,
-} from "./nav-config";
+import { type NavItem, type NavSection } from "./nav-config";
 
 interface SidebarProps {
   collapsed: boolean;
+  sections: NavSection[];
+  logoSubtitle: string;
   badges?: Record<string, number | string | undefined>;
-  role: AdminRole;
-  onRoleChange: (role: AdminRole) => void;
+  /** Optional render slot above the logout button (e.g. admin role switcher). */
+  footer?: ReactNode;
   onLogout?: () => void;
 }
 
 export function Sidebar({
   collapsed,
+  sections,
+  logoSubtitle,
   badges = {},
-  role,
-  onRoleChange,
+  footer,
   onLogout,
 }: SidebarProps) {
   const pathname = usePathname();
@@ -53,7 +51,7 @@ export function Sidebar({
               Collegepond
             </div>
             <div className="text-[10px] font-semibold tracking-wider text-[#1570EF] uppercase">
-              Admin Portal
+              {logoSubtitle}
             </div>
           </div>
         )}
@@ -61,7 +59,7 @@ export function Sidebar({
 
       {/* Sections */}
       <div className="flex-1 overflow-y-auto px-2.5 py-3">
-        {NAV_SECTIONS.map((section, sectionIdx) => (
+        {sections.map((section, sectionIdx) => (
           <div key={section.label}>
             {!collapsed && (
               <div
@@ -85,28 +83,9 @@ export function Sidebar({
         ))}
       </div>
 
-      {/* Role Switcher */}
-      {!collapsed && (
-        <div className="border-t border-[#E4E7EC] px-3 py-2">
-          <label
-            htmlFor="role-switcher"
-            className="mb-1.5 block text-[11px] font-semibold tracking-wider text-[#98A2B3] uppercase"
-          >
-            Demo as
-          </label>
-          <select
-            id="role-switcher"
-            value={role}
-            onChange={(e) => onRoleChange(e.target.value as AdminRole)}
-            className="w-full cursor-pointer rounded-md border border-[#D0D5DD] bg-white px-2.5 py-1.5 text-[13px] text-[#344054] outline-none transition-colors focus:border-[#1570EF] focus:shadow-[0_0_0_3px_rgba(21,112,239,0.12)]"
-          >
-            {ROLE_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label} — {opt.name}
-              </option>
-            ))}
-          </select>
-        </div>
+      {/* Optional footer slot (e.g. admin role switcher) */}
+      {!collapsed && footer && (
+        <div className="border-t border-[#E4E7EC] px-3 py-2">{footer}</div>
       )}
 
       {/* Footer / Logout */}

@@ -345,6 +345,7 @@ exports.Prisma.UserScalarFieldEnum = {
   bdm_id: 'bdm_id',
   notes: 'notes',
   tier: 'tier',
+  mou_signed_at: 'mou_signed_at',
   last_login_at: 'last_login_at',
   created_at: 'created_at',
   updated_at: 'updated_at'

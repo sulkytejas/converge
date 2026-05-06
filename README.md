@@ -100,14 +100,21 @@ converge/
 │   │   │   ├── (dashboard)/   # Admin dashboard route group (sidebar+topbar layout)
 │   │   │   │                  # → /admin/dashboard, /admin/students, /admin/partners, ...
 │   │   │   └── login/         # Admin phone-OTP login (→ /admin/login)
+│   │   ├── partner/(dashboard)/  # Partner dashboard route group
+│   │   │                         # → /partner/dashboard, /partner/students, /partner/uni-assist,
+│   │   │                         #   /partner/commission, /partner/resources, /partner/events
 │   │   ├── login/             # Partner OTP login
 │   │   ├── signup/            # Partner registration flow
+│   │   ├── pending-verification/  # Shown when partner is not yet approved
+│   │   ├── mou-signing/       # 4-step MOU acceptance (gated to approved partners)
 │   │   ├── api/trpc/          # tRPC HTTP handler
 │   │   ├── layout.tsx         # Root layout
 │   │   └── page.tsx           # Redirects to /login
 │   ├── components/
-│   │   ├── dashboard/         # DashboardShell (HOC), Sidebar, Topbar, nav config
+│   │   ├── dashboard/         # DashboardShell + PartnerDashboardShell, Sidebar, Topbar, nav configs
 │   │   └── ui/                # Reusable UI primitives (button, inputs, modal, etc.)
+│   ├── middleware.ts          # Gates /admin/* and /partner|/mou-signing|/pending-verification
+│   ├── server/auth/jwt.ts     # Admin + partner session JWTs (jose, HS256, 8h TTL)
 │   ├── server/
 │   │   ├── api/routers/       # tRPC routers — auth (partner), admin-auth (admin), signup
 │   │   ├── applications/      # Application/user persistence layer
@@ -155,8 +162,12 @@ The dev DB seed (`prisma/sql/seed.sql`) adds a dummy admin so the admin flow wor
   - Watch the server log for `[OTP:sandbox] SMS to 919876543210 => <code>`
   - Lands on `/admin/dashboard`.
 - **Admin dashboard** (`/admin/dashboard`, `/admin/students`, `/admin/partners`, `/admin/universities`, `/admin/users`, `/admin/settings`, ...) — placeholder pages inside the shared sidebar+topbar shell.
-- **Partner signup** (`/signup`) — full multi-step flow; uploads accept any file; the user gets persisted to the `user` table.
-- **Partner login** (`/login`) — sign up first, then sign in with that email + phone. OTP goes to email + phone; verified against email. *(Auth source for partner login will switch to its own table later.)*
+- **Partner signup** (`/signup`) — full multi-step flow; uploads accept any file; the user gets persisted to the `user` table with `status = under_review`.
+- **Partner login** (`/login`) — sign up first, then sign in with that email + phone. Email-OTP verified, phone-OTP sent but not verified yet. On success the response carries a `redirectUrl` based on partner state:
+  - `under_review` / `rejected` / `inactive` → `/pending-verification` (warning page)
+  - `approved` + MOU not signed → `/mou-signing` (4-step accept + canvas signature; partner must complete this)
+  - `approved` + MOU signed → `/partner/dashboard`
+- **Partner dashboard** (`/partner/dashboard`, `/partner/students`, `/partner/uni-assist`, `/partner/commission`, `/partner/resources`, `/partner/events`) — placeholder pages inside the shared sidebar+topbar shell. `last_login_at` is recorded on every dashboard mount (not on login itself).
 
 ---
 

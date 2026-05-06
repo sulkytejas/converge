@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { Sidebar } from "./sidebar";
 import { Topbar, type NotificationItem } from "./topbar";
-import { ROLE_OPTIONS, type AdminRole } from "./nav-config";
+import { NAV_SECTIONS, ROLE_OPTIONS, type AdminRole } from "./nav-config";
 
 const STORAGE_KEY = "cp-sidebar-collapsed";
 
@@ -88,9 +88,31 @@ export function DashboardShell({
     <div className="min-h-screen bg-[#F5F6FA] text-[#1D2939]">
       <Sidebar
         collapsed={collapsed}
+        sections={NAV_SECTIONS}
+        logoSubtitle="Admin Portal"
         badges={badges}
-        role={role}
-        onRoleChange={setRole}
+        footer={
+          <>
+            <label
+              htmlFor="role-switcher"
+              className="mb-1.5 block text-[11px] font-semibold tracking-wider text-[#98A2B3] uppercase"
+            >
+              Demo as
+            </label>
+            <select
+              id="role-switcher"
+              value={role}
+              onChange={(e) => setRole(e.target.value as AdminRole)}
+              className="w-full cursor-pointer rounded-md border border-[#D0D5DD] bg-white px-2.5 py-1.5 text-[13px] text-[#344054] outline-none transition-colors focus:border-[#1570EF] focus:shadow-[0_0_0_3px_rgba(21,112,239,0.12)]"
+            >
+              {ROLE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label} — {opt.name}
+                </option>
+              ))}
+            </select>
+          </>
+        }
       />
       <Topbar
         collapsed={collapsed}
