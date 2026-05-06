@@ -12,6 +12,37 @@ export const UserType = {
 } as const;
 export type UserType = (typeof UserType)[keyof typeof UserType];
 
+export const AdminRole = {
+  SUPER_ADMIN: 0,
+  FINANCE_MANAGER: 1,
+  FINANCE_EXECUTIVE: 2,
+  COUNSELLOR_LEAD: 3,
+  COUNSELLOR: 4,
+  OPERATIONS_LEAD: 5,
+  OPERATIONS_EXECUTIVE: 6,
+  CONTENT_MANAGER: 7,
+  BDM: 8,
+} as const;
+export type AdminRole = (typeof AdminRole)[keyof typeof AdminRole];
+
+export const AdminRoleLabel: Record<AdminRole, string> = {
+  [AdminRole.SUPER_ADMIN]: "Super Admin",
+  [AdminRole.FINANCE_MANAGER]: "Finance Manager",
+  [AdminRole.FINANCE_EXECUTIVE]: "Finance Executive",
+  [AdminRole.COUNSELLOR_LEAD]: "Counsellor Lead",
+  [AdminRole.COUNSELLOR]: "Counsellor",
+  [AdminRole.OPERATIONS_LEAD]: "Operations Lead",
+  [AdminRole.OPERATIONS_EXECUTIVE]: "Operations Executive",
+  [AdminRole.CONTENT_MANAGER]: "Content Manager",
+  [AdminRole.BDM]: "BDM",
+};
+
+export const ADMIN_ROLE_CODES = Object.values(AdminRole) as AdminRole[];
+
+export function isAdminRole(value: number): value is AdminRole {
+  return ADMIN_ROLE_CODES.includes(value as AdminRole);
+}
+
 export const UserStatus = {
   UNDER_REVIEW: 0,
   APPROVED: 1,

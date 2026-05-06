@@ -1,14 +1,12 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedAdminProcedure,
+  superAdminProcedure,
+} from "~/server/api/trpc";
 import { db } from "~/server/db";
-import { UserStatus, UserType } from "~/server/db/enums";
-
-function generateTrackingId(): string {
-  return `#CP-${new Date().getFullYear()}-${String(
-    Math.floor(Math.random() * 999999),
-  ).padStart(6, "0")}`;
-}
+import { ADMIN_ROLE_CODES, type AdminRole } from "~/server/db/enums";
 
 // Phone is stored as `${countryCode}${phone}` (e.g. "+919876543210"). When the
 // country code starts with "+", we treat the trailing 10 chars as the local
@@ -21,31 +19,31 @@ function splitPhone(stored: string): { phone: string; countryCode: string } {
   return { countryCode: "", phone: stored };
 }
 
-const adminUserSelect = {
+const cpUserSelect = {
   id: true,
   first_name: true,
   last_name: true,
   email: true,
   phone: true,
+  role: true,
   status: true,
   last_login_at: true,
   created_at: true,
-  tracking_id: true,
 } as const;
 
-interface DbAdminUser {
+interface DbCpUser {
   id: number;
   first_name: string;
   last_name: string;
   email: string;
   phone: string;
+  role: number;
   status: number;
   last_login_at: Date | null;
   created_at: Date;
-  tracking_id: string | null;
 }
 
-function toApi(u: DbAdminUser) {
+function toApi(u: DbCpUser) {
   const { phone, countryCode } = splitPhone(u.phone);
   return {
     id: u.id,
@@ -54,10 +52,10 @@ function toApi(u: DbAdminUser) {
     email: u.email,
     phone,
     countryCode,
-    status: u.status === UserStatus.APPROVED ? ("active" as const) : ("inactive" as const),
+    role: u.role as AdminRole,
+    status: u.status === 1 ? ("active" as const) : ("inactive" as const),
     lastLogin: u.last_login_at?.toISOString() ?? null,
     createdAt: u.created_at.toISOString(),
-    trackingId: u.tracking_id ?? "",
   };
 }
 
@@ -67,22 +65,39 @@ const personFields = z.object({
   email: z.string().email(),
   phone: z.string().min(1),
   countryCode: z.string().min(1),
+  role: z
+    .number()
+    .int()
+    .refine((v) => ADMIN_ROLE_CODES.includes(v as AdminRole), { message: "Invalid role" }),
 });
 
 export const usersRouter = createTRPCRouter({
-  list: publicProcedure.query(async () => {
-    const rows = await db.user.findMany({
-      where: { type: UserType.ADMIN },
+  list: protectedAdminProcedure.query(async () => {
+    const rows = await db.collegepond_user.findMany({
       orderBy: { created_at: "desc" },
-      select: adminUserSelect,
+      select: cpUserSelect,
     });
     return rows.map(toApi);
   }),
 
-  create: publicProcedure.input(personFields).mutation(async ({ input }) => {
+  // Used by the partner-approval modal to pick a counsellor lead / counsellor.
+  // (Partner signup uses signup.listBdms instead — that path is public-facing
+  // and intentionally narrow.)
+  listByRole: protectedAdminProcedure
+    .input(z.object({ role: z.number().int() }))
+    .query(async ({ input }) => {
+      const rows = await db.collegepond_user.findMany({
+        where: { role: input.role, status: 1 },
+        orderBy: [{ first_name: "asc" }, { last_name: "asc" }],
+        select: cpUserSelect,
+      });
+      return rows.map(toApi);
+    }),
+
+  create: superAdminProcedure.input(personFields).mutation(async ({ input }) => {
     const email = input.email.toLowerCase();
 
-    const existing = await db.user.findUnique({ where: { email } });
+    const existing = await db.collegepond_user.findUnique({ where: { email } });
     if (existing) {
       throw new TRPCError({
         code: "CONFLICT",
@@ -92,31 +107,27 @@ export const usersRouter = createTRPCRouter({
 
     const phoneStored = `${input.countryCode}${input.phone.replace(/\s/g, "")}`;
 
-    const user = await db.user.create({
+    const user = await db.collegepond_user.create({
       data: {
         first_name: input.firstName,
         last_name: input.lastName,
         email,
         phone: phoneStored,
-        type: UserType.ADMIN,
-        status: UserStatus.APPROVED,
-        is_owner: 0,
-        is_email_verified: 1,
-        is_phone_verified: 1,
-        tracking_id: generateTrackingId(),
+        role: input.role,
+        status: 1,
       },
-      select: adminUserSelect,
+      select: cpUserSelect,
     });
 
     return toApi(user);
   }),
 
-  update: publicProcedure
+  update: superAdminProcedure
     .input(personFields.extend({ id: z.number().int().positive() }))
     .mutation(async ({ input }) => {
       const email = input.email.toLowerCase();
 
-      const dup = await db.user.findUnique({ where: { email } });
+      const dup = await db.collegepond_user.findUnique({ where: { email } });
       if (dup && dup.id !== input.id) {
         throw new TRPCError({
           code: "CONFLICT",
@@ -126,21 +137,22 @@ export const usersRouter = createTRPCRouter({
 
       const phoneStored = `${input.countryCode}${input.phone.replace(/\s/g, "")}`;
 
-      const user = await db.user.update({
+      const user = await db.collegepond_user.update({
         where: { id: input.id },
         data: {
           first_name: input.firstName,
           last_name: input.lastName,
           email,
           phone: phoneStored,
+          role: input.role,
         },
-        select: adminUserSelect,
+        select: cpUserSelect,
       });
 
       return toApi(user);
     }),
 
-  setStatus: publicProcedure
+  setStatus: superAdminProcedure
     .input(
       z.object({
         id: z.number().int().positive(),
@@ -148,12 +160,10 @@ export const usersRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input }) => {
-      const user = await db.user.update({
+      const user = await db.collegepond_user.update({
         where: { id: input.id },
-        data: {
-          status: input.active ? UserStatus.APPROVED : UserStatus.INACTIVE,
-        },
-        select: adminUserSelect,
+        data: { status: input.active ? 1 : 0 },
+        select: cpUserSelect,
       });
       return toApi(user);
     }),

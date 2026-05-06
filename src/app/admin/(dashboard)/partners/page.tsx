@@ -2,7 +2,9 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import { Button } from "~/components/ui/button";
+import { FormSelect } from "~/components/ui/form-select";
 import { Toast } from "~/components/ui/toast";
+import { AdminRole } from "~/server/db/enums";
 import { api } from "~/trpc/react";
 
 type Tab = "all" | "pending" | "deactivated";
@@ -155,6 +157,11 @@ export default function PartnersPage() {
     setToastOpen(true);
   };
 
+  const [assignModal, setAssignModal] = useState<{
+    email: string;
+    name: string;
+  } | null>(null);
+
   const setStatus = api.partners.setStatus.useMutation({
     onSuccess: (data, vars) => {
       void utils.partners.list.invalidate();
@@ -167,6 +174,18 @@ export default function PartnersPage() {
               ? "deactivated"
               : "updated";
       showToast(`${displayName(data)} ${action}`);
+      if (vars.status === "approved") {
+        setAssignModal({ email: data.email, name: displayName(data) });
+      }
+    },
+    onError: (err) => showToast(err.message),
+  });
+
+  const assignCounsellorsMut = api.partners.assignCounsellors.useMutation({
+    onSuccess: () => {
+      void utils.partners.list.invalidate();
+      setAssignModal(null);
+      showToast("Counsellors assigned");
     },
     onError: (err) => showToast(err.message),
   });
@@ -444,8 +463,116 @@ export default function PartnersPage() {
         />
       )}
 
+      {assignModal && (
+        <AssignCounsellorsModal
+          partnerEmail={assignModal.email}
+          partnerName={assignModal.name}
+          onClose={() => setAssignModal(null)}
+          onSave={(leadCounsellorId, counsellorId) =>
+            assignCounsellorsMut.mutate({
+              email: assignModal.email,
+              leadCounsellorId,
+              counsellorId,
+            })
+          }
+          saving={assignCounsellorsMut.isPending}
+        />
+      )}
+
       <Toast message={toastMsg} open={toastOpen} onClose={() => setToastOpen(false)} />
     </>
+  );
+}
+
+function AssignCounsellorsModal({
+  partnerEmail: _partnerEmail,
+  partnerName,
+  onClose,
+  onSave,
+  saving,
+}: {
+  partnerEmail: string;
+  partnerName: string;
+  onClose: () => void;
+  onSave: (leadCounsellorId: number | null, counsellorId: number | null) => void;
+  saving: boolean;
+}) {
+  const leadsQuery = api.users.listByRole.useQuery({ role: AdminRole.COUNSELLOR_LEAD });
+  const counsellorsQuery = api.users.listByRole.useQuery({ role: AdminRole.COUNSELLOR });
+
+  const [leadId, setLeadId] = useState<string>("");
+  const [counsellorId, setCounsellorId] = useState<string>("");
+
+  const leadOptions = [
+    { value: "", label: "— Select counsellor lead —" },
+    ...(leadsQuery.data ?? []).map((u) => ({
+      value: String(u.id),
+      label: `${u.firstName} ${u.lastName}`.trim() || u.email,
+    })),
+  ];
+  const counsellorOptions = [
+    { value: "", label: "— Select counsellor —" },
+    ...(counsellorsQuery.data ?? []).map((u) => ({
+      value: String(u.id),
+      label: `${u.firstName} ${u.lastName}`.trim() || u.email,
+    })),
+  ];
+
+  const handleSave = () => {
+    onSave(
+      leadId ? Number(leadId) : null,
+      counsellorId ? Number(counsellorId) : null,
+    );
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-[250] flex items-center justify-center bg-[rgba(16,24,40,0.55)]"
+      onClick={onClose}
+    >
+      <div
+        className="max-h-[90vh] w-[480px] overflow-y-auto rounded-xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.2)]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between border-b border-[#E4E7EC] px-6 py-5">
+          <div>
+            <h3 className="text-base font-bold text-[#101828]">Assign Counsellors</h3>
+            <p className="mt-0.5 text-sm text-[#667085]">{partnerName}</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-[#E4E7EC] bg-white"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="#667085" strokeWidth="2" className="h-4 w-4">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div className="space-y-4 px-6 py-5">
+          <FormSelect
+            label="Counsellor Lead"
+            options={leadOptions}
+            value={leadId}
+            onChange={(e) => setLeadId(e.target.value)}
+          />
+          <FormSelect
+            label="Counsellor"
+            options={counsellorOptions}
+            value={counsellorId}
+            onChange={(e) => setCounsellorId(e.target.value)}
+          />
+        </div>
+        <div className="flex justify-end gap-2 border-t border-[#E4E7EC] px-6 py-4">
+          <Button variant="secondary" onClick={onClose} className="!h-[38px] !px-4">
+            Skip
+          </Button>
+          <Button onClick={handleSave} loading={saving} className="!h-[38px] !px-4">
+            Save
+          </Button>
+        </div>
+      </div>
+    </div>
   );
 }
 

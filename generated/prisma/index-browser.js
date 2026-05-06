@@ -245,9 +245,9 @@ exports.Prisma.InvoiceScalarFieldEnum = {
 };
 
 exports.Prisma.Invoice_itemScalarFieldEnum = {
+  id: 'id',
   invoice_id: 'invoice_id',
   commission_id: 'commission_id',
-  id: 'id',
   amount: 'amount',
   created_at: 'created_at'
 };
@@ -321,6 +321,7 @@ exports.Prisma.UniversityScalarFieldEnum = {
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   first_name: 'first_name',
+  last_name: 'last_name',
   type: 'type',
   email: 'email',
   phone: 'phone',
@@ -328,10 +329,6 @@ exports.Prisma.UserScalarFieldEnum = {
   status: 'status',
   avatar_url: 'avatar_url',
   is_email_verified: 'is_email_verified',
-  last_login_at: 'last_login_at',
-  created_at: 'created_at',
-  updated_at: 'updated_at',
-  last_name: 'last_name',
   is_phone_verified: 'is_phone_verified',
   tracking_id: 'tracking_id',
   org_id: 'org_id',
@@ -341,7 +338,29 @@ exports.Prisma.UserScalarFieldEnum = {
   address: 'address',
   city: 'city',
   state: 'state',
-  country: 'country'
+  country: 'country',
+  approved_by_collegepond_user_id: 'approved_by_collegepond_user_id',
+  lead_counsellor_id: 'lead_counsellor_id',
+  counsellor_id: 'counsellor_id',
+  bdm_id: 'bdm_id',
+  notes: 'notes',
+  tier: 'tier',
+  last_login_at: 'last_login_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.Collegepond_userScalarFieldEnum = {
+  id: 'id',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  first_name: 'first_name',
+  last_name: 'last_name',
+  email: 'email',
+  phone: 'phone',
+  role: 'role',
+  status: 'status',
+  last_login_at: 'last_login_at'
 };
 
 exports.Prisma.SortOrder = {
@@ -452,16 +471,24 @@ exports.Prisma.universityOrderByRelevanceFieldEnum = {
 
 exports.Prisma.userOrderByRelevanceFieldEnum = {
   first_name: 'first_name',
+  last_name: 'last_name',
   email: 'email',
   phone: 'phone',
   avatar_url: 'avatar_url',
-  last_name: 'last_name',
   tracking_id: 'tracking_id',
   nationality: 'nationality',
   address: 'address',
   city: 'city',
   state: 'state',
-  country: 'country'
+  country: 'country',
+  notes: 'notes'
+};
+
+exports.Prisma.collegepond_userOrderByRelevanceFieldEnum = {
+  first_name: 'first_name',
+  last_name: 'last_name',
+  email: 'email',
+  phone: 'phone'
 };
 
 
@@ -481,7 +508,8 @@ exports.Prisma.ModelName = {
   session: 'session',
   student: 'student',
   university: 'university',
-  user: 'user'
+  user: 'user',
+  collegepond_user: 'collegepond_user'
 };
 
 /**

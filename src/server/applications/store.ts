@@ -39,7 +39,9 @@ export interface Application {
 type ApplicationInput = Omit<
   Application,
   "applicationId" | "status" | "submittedAt" | "updatedAt"
->;
+> & {
+  bdmId?: number | null;
+};
 
 function generateTrackingId(): string {
   return `#CP-${new Date().getFullYear()}-${String(
@@ -150,6 +152,7 @@ export async function saveApplication(input: ApplicationInput): Promise<Applicat
       state: input.state ?? null,
       city: input.city ?? null,
       address: input.role === "independent" ? (input.companyAddress ?? null) : null,
+      bdm_id: input.bdmId ?? null,
     };
 
     const user = existing

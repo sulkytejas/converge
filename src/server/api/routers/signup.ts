@@ -10,8 +10,24 @@ import {
 } from "~/server/otp";
 import { saveApplication } from "~/server/applications/store";
 import { notifyAdminOfSignup } from "~/server/notifications";
+import { db } from "~/server/db";
+import { AdminRole } from "~/server/db/enums";
 
 export const signupRouter = createTRPCRouter({
+  // Public BDM list for the signup form. Returns only id + display name —
+  // narrow on purpose since this endpoint is reachable without auth.
+  listBdms: publicProcedure.query(async () => {
+    const rows = await db.collegepond_user.findMany({
+      where: { role: AdminRole.BDM, status: 1 },
+      orderBy: [{ first_name: "asc" }, { last_name: "asc" }],
+      select: { id: true, first_name: true, last_name: true },
+    });
+    return rows.map((r) => ({
+      id: r.id,
+      name: `${r.first_name} ${r.last_name}`.trim(),
+    }));
+  }),
+
   sendSignupOtp: publicProcedure
     .input(
       z.object({
@@ -94,6 +110,7 @@ export const signupRouter = createTRPCRouter({
         annualVolume: z.string().optional(),
         // Map of document key -> stored file URL (e.g. "/uploads/...")
         documents: z.record(z.string(), z.string()).optional(),
+        bdmId: z.number().int().positive().nullable().optional(),
       }),
     )
     .mutation(async ({ input }) => {
@@ -113,6 +130,7 @@ export const signupRouter = createTRPCRouter({
         numCounselors: input.numCounselors,
         annualVolume: input.annualVolume,
         documents: input.documents,
+        bdmId: input.bdmId ?? null,
       });
 
       notifyAdminOfSignup(app).catch((err) => {

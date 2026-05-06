@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { db } from "~/server/db";
 import {
   listApplications,
   setApplicationStatus,
@@ -37,6 +38,38 @@ export const partnersRouter = createTRPCRouter({
         });
       }
       return app;
+    }),
+
+  // After approval, assign a lead counsellor + counsellor (both rows from
+  // collegepond_user) onto the partner's user row. Either side can be null
+  // if the admin wants to skip and assign later.
+  assignCounsellors: publicProcedure
+    .input(
+      z.object({
+        email: z.string().email(),
+        leadCounsellorId: z.number().int().positive().nullable(),
+        counsellorId: z.number().int().positive().nullable(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const user = await db.user.findUnique({
+        where: { email: input.email.toLowerCase() },
+        select: { id: true },
+      });
+      if (!user) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Partner not found",
+        });
+      }
+      await db.user.update({
+        where: { id: user.id },
+        data: {
+          lead_counsellor_id: input.leadCounsellorId,
+          counsellor_id: input.counsellorId,
+        },
+      });
+      return { success: true as const };
     }),
 
   setDocumentStatus: publicProcedure

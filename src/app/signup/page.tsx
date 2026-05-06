@@ -165,6 +165,8 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [countryCode, setCountryCode] = useState("+91");
+  const [bdmId, setBdmId] = useState<string>("");
+  const bdmsQuery = api.signup.listBdms.useQuery();
 
   // Company data
   const [companyName, setCompanyName] = useState("");
@@ -473,6 +475,7 @@ export default function SignupPage() {
         numCounselors: role === "agency" ? numCounselors : undefined,
         annualVolume: role === "agency" ? annualVolume : undefined,
         documents,
+        bdmId: bdmId ? Number(bdmId) : null,
       },
       {
         onSuccess: (data) => {
@@ -690,6 +693,21 @@ export default function SignupPage() {
                 onPhoneChange={(val) => { setPhone(val); setErrors((p) => ({ ...p, phone: undefined })); }}
                 error={!!errors.phone}
                 errorMessage={errors.phone}
+              />
+            </div>
+
+            <div className="mb-4">
+              <FormSelect
+                label="BDM Partner"
+                value={bdmId}
+                onChange={(e) => setBdmId(e.target.value)}
+                options={[
+                  { value: "", label: "— Select your BDM —" },
+                  ...(bdmsQuery.data ?? []).map((b) => ({
+                    value: String(b.id),
+                    label: b.name,
+                  })),
+                ]}
               />
             </div>
 

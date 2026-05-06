@@ -50,8 +50,9 @@ fi
 
 # Parse mysql://USER:PASS@HOST:PORT/DBNAME
 parse() { echo "$DATABASE_URL" | sed -E "s|^mysql://([^:]+):([^@]+)@([^:/]+):([0-9]+)/([^?]+).*|\\$1|"; }
-DB_USER="$(echo "$DATABASE_URL" | sed -E 's|^mysql://([^:]+):.*|\1|')"
-DB_PASS="$(echo "$DATABASE_URL" | sed -E 's|^mysql://[^:]+:([^@]+)@.*|\1|')"
+urldecode() { local s="${1//+/ }"; printf '%b' "${s//%/\\x}"; }
+DB_USER="$(urldecode "$(echo "$DATABASE_URL" | sed -E 's|^mysql://([^:]+):.*|\1|')")"
+DB_PASS="$(urldecode "$(echo "$DATABASE_URL" | sed -E 's|^mysql://[^:]+:([^@]+)@.*|\1|')")"
 DB_HOST="$(echo "$DATABASE_URL" | sed -E 's|^mysql://[^:]+:[^@]+@([^:/]+):.*|\1|')"
 DB_PORT="$(echo "$DATABASE_URL" | sed -E 's|^mysql://[^:]+:[^@]+@[^:]+:([0-9]+)/.*|\1|')"
 DB_NAME="$(echo "$DATABASE_URL" | sed -E 's|^mysql://[^:]+:[^@]+@[^:]+:[0-9]+/([^?]+).*|\1|')"

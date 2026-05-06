@@ -93,6 +93,11 @@ export type university = $Result.DefaultSelection<Prisma.$universityPayload>
  * 
  */
 export type user = $Result.DefaultSelection<Prisma.$userPayload>
+/**
+ * Model collegepond_user
+ * 
+ */
+export type collegepond_user = $Result.DefaultSelection<Prisma.$collegepond_userPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -371,6 +376,16 @@ export class PrismaClient<
     * ```
     */
   get user(): Prisma.userDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.collegepond_user`: Exposes CRUD operations for the **collegepond_user** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Collegepond_users
+    * const collegepond_users = await prisma.collegepond_user.findMany()
+    * ```
+    */
+  get collegepond_user(): Prisma.collegepond_userDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -827,7 +842,8 @@ export namespace Prisma {
     session: 'session',
     student: 'student',
     university: 'university',
-    user: 'user'
+    user: 'user',
+    collegepond_user: 'collegepond_user'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -846,7 +862,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "application" | "audit_log" | "commission" | "course" | "document" | "event" | "event_registration" | "event_reminder" | "invoice" | "invoice_item" | "notification_preference" | "organization" | "session" | "student" | "university" | "user"
+      modelProps: "application" | "audit_log" | "commission" | "course" | "document" | "event" | "event_registration" | "event_reminder" | "invoice" | "invoice_item" | "notification_preference" | "organization" | "session" | "student" | "university" | "user" | "collegepond_user"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1906,6 +1922,72 @@ export namespace Prisma {
           }
         }
       }
+      collegepond_user: {
+        payload: Prisma.$collegepond_userPayload<ExtArgs>
+        fields: Prisma.collegepond_userFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.collegepond_userFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$collegepond_userPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.collegepond_userFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$collegepond_userPayload>
+          }
+          findFirst: {
+            args: Prisma.collegepond_userFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$collegepond_userPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.collegepond_userFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$collegepond_userPayload>
+          }
+          findMany: {
+            args: Prisma.collegepond_userFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$collegepond_userPayload>[]
+          }
+          create: {
+            args: Prisma.collegepond_userCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$collegepond_userPayload>
+          }
+          createMany: {
+            args: Prisma.collegepond_userCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.collegepond_userDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$collegepond_userPayload>
+          }
+          update: {
+            args: Prisma.collegepond_userUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$collegepond_userPayload>
+          }
+          deleteMany: {
+            args: Prisma.collegepond_userDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.collegepond_userUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.collegepond_userUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$collegepond_userPayload>
+          }
+          aggregate: {
+            args: Prisma.Collegepond_userAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCollegepond_user>
+          }
+          groupBy: {
+            args: Prisma.collegepond_userGroupByArgs<ExtArgs>
+            result: $Utils.Optional<Collegepond_userGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.collegepond_userCountArgs<ExtArgs>
+            result: $Utils.Optional<Collegepond_userCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -2018,6 +2100,7 @@ export namespace Prisma {
     student?: studentOmit
     university?: universityOmit
     user?: userOmit
+    collegepond_user?: collegepond_userOmit
   }
 
   /* Types for Logging */
@@ -2437,6 +2520,64 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountStudentArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: studentWhereInput
+  }
+
+
+  /**
+   * Count Type Collegepond_userCountOutputType
+   */
+
+  export type Collegepond_userCountOutputType = {
+    user_user_approved_by_collegepond_user_idTocollegepond_user: number
+    user_user_bdm_idTocollegepond_user: number
+    user_user_counsellor_idTocollegepond_user: number
+    user_user_lead_counsellor_idTocollegepond_user: number
+  }
+
+  export type Collegepond_userCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user_user_approved_by_collegepond_user_idTocollegepond_user?: boolean | Collegepond_userCountOutputTypeCountUser_user_approved_by_collegepond_user_idTocollegepond_userArgs
+    user_user_bdm_idTocollegepond_user?: boolean | Collegepond_userCountOutputTypeCountUser_user_bdm_idTocollegepond_userArgs
+    user_user_counsellor_idTocollegepond_user?: boolean | Collegepond_userCountOutputTypeCountUser_user_counsellor_idTocollegepond_userArgs
+    user_user_lead_counsellor_idTocollegepond_user?: boolean | Collegepond_userCountOutputTypeCountUser_user_lead_counsellor_idTocollegepond_userArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * Collegepond_userCountOutputType without action
+   */
+  export type Collegepond_userCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Collegepond_userCountOutputType
+     */
+    select?: Collegepond_userCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * Collegepond_userCountOutputType without action
+   */
+  export type Collegepond_userCountOutputTypeCountUser_user_approved_by_collegepond_user_idTocollegepond_userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: userWhereInput
+  }
+
+  /**
+   * Collegepond_userCountOutputType without action
+   */
+  export type Collegepond_userCountOutputTypeCountUser_user_bdm_idTocollegepond_userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: userWhereInput
+  }
+
+  /**
+   * Collegepond_userCountOutputType without action
+   */
+  export type Collegepond_userCountOutputTypeCountUser_user_counsellor_idTocollegepond_userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: userWhereInput
+  }
+
+  /**
+   * Collegepond_userCountOutputType without action
+   */
+  export type Collegepond_userCountOutputTypeCountUser_user_lead_counsellor_idTocollegepond_userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: userWhereInput
   }
 
 
@@ -12103,39 +12244,39 @@ export namespace Prisma {
   }
 
   export type Invoice_itemAvgAggregateOutputType = {
+    id: number | null
     invoice_id: number | null
     commission_id: number | null
-    id: number | null
     amount: Decimal | null
   }
 
   export type Invoice_itemSumAggregateOutputType = {
+    id: number | null
     invoice_id: number | null
     commission_id: number | null
-    id: number | null
     amount: Decimal | null
   }
 
   export type Invoice_itemMinAggregateOutputType = {
+    id: number | null
     invoice_id: number | null
     commission_id: number | null
-    id: number | null
     amount: Decimal | null
     created_at: Date | null
   }
 
   export type Invoice_itemMaxAggregateOutputType = {
+    id: number | null
     invoice_id: number | null
     commission_id: number | null
-    id: number | null
     amount: Decimal | null
     created_at: Date | null
   }
 
   export type Invoice_itemCountAggregateOutputType = {
+    id: number
     invoice_id: number
     commission_id: number
-    id: number
     amount: number
     created_at: number
     _all: number
@@ -12143,39 +12284,39 @@ export namespace Prisma {
 
 
   export type Invoice_itemAvgAggregateInputType = {
+    id?: true
     invoice_id?: true
     commission_id?: true
-    id?: true
     amount?: true
   }
 
   export type Invoice_itemSumAggregateInputType = {
+    id?: true
     invoice_id?: true
     commission_id?: true
-    id?: true
     amount?: true
   }
 
   export type Invoice_itemMinAggregateInputType = {
+    id?: true
     invoice_id?: true
     commission_id?: true
-    id?: true
     amount?: true
     created_at?: true
   }
 
   export type Invoice_itemMaxAggregateInputType = {
+    id?: true
     invoice_id?: true
     commission_id?: true
-    id?: true
     amount?: true
     created_at?: true
   }
 
   export type Invoice_itemCountAggregateInputType = {
+    id?: true
     invoice_id?: true
     commission_id?: true
-    id?: true
     amount?: true
     created_at?: true
     _all?: true
@@ -12268,9 +12409,9 @@ export namespace Prisma {
   }
 
   export type Invoice_itemGroupByOutputType = {
+    id: number
     invoice_id: number
     commission_id: number
-    id: number
     amount: Decimal
     created_at: Date
     _count: Invoice_itemCountAggregateOutputType | null
@@ -12295,9 +12436,9 @@ export namespace Prisma {
 
 
   export type invoice_itemSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
     invoice_id?: boolean
     commission_id?: boolean
-    id?: boolean
     amount?: boolean
     created_at?: boolean
     commission?: boolean | commissionDefaultArgs<ExtArgs>
@@ -12307,14 +12448,14 @@ export namespace Prisma {
 
 
   export type invoice_itemSelectScalar = {
+    id?: boolean
     invoice_id?: boolean
     commission_id?: boolean
-    id?: boolean
     amount?: boolean
     created_at?: boolean
   }
 
-  export type invoice_itemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"invoice_id" | "commission_id" | "id" | "amount" | "created_at", ExtArgs["result"]["invoice_item"]>
+  export type invoice_itemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "invoice_id" | "commission_id" | "amount" | "created_at", ExtArgs["result"]["invoice_item"]>
   export type invoice_itemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     commission?: boolean | commissionDefaultArgs<ExtArgs>
     invoice?: boolean | invoiceDefaultArgs<ExtArgs>
@@ -12327,9 +12468,9 @@ export namespace Prisma {
       invoice: Prisma.$invoicePayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
+      id: number
       invoice_id: number
       commission_id: number
-      id: number
       amount: Prisma.Decimal
       created_at: Date
     }, ExtArgs["result"]["invoice_item"]>
@@ -12415,8 +12556,8 @@ export namespace Prisma {
      * // Get first 10 Invoice_items
      * const invoice_items = await prisma.invoice_item.findMany({ take: 10 })
      * 
-     * // Only select the `invoice_id`
-     * const invoice_itemWithInvoice_idOnly = await prisma.invoice_item.findMany({ select: { invoice_id: true } })
+     * // Only select the `id`
+     * const invoice_itemWithIdOnly = await prisma.invoice_item.findMany({ select: { id: true } })
      * 
      */
     findMany<T extends invoice_itemFindManyArgs>(args?: SelectSubset<T, invoice_itemFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$invoice_itemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -12703,9 +12844,9 @@ export namespace Prisma {
    * Fields of the invoice_item model
    */
   interface invoice_itemFieldRefs {
+    readonly id: FieldRef<"invoice_item", 'Int'>
     readonly invoice_id: FieldRef<"invoice_item", 'Int'>
     readonly commission_id: FieldRef<"invoice_item", 'Int'>
-    readonly id: FieldRef<"invoice_item", 'Int'>
     readonly amount: FieldRef<"invoice_item", 'Decimal'>
     readonly created_at: FieldRef<"invoice_item", 'DateTime'>
   }
@@ -18516,6 +18657,11 @@ export namespace Prisma {
     is_phone_verified: number | null
     org_id: number | null
     gender: number | null
+    approved_by_collegepond_user_id: number | null
+    lead_counsellor_id: number | null
+    counsellor_id: number | null
+    bdm_id: number | null
+    tier: number | null
   }
 
   export type UserSumAggregateOutputType = {
@@ -18527,11 +18673,17 @@ export namespace Prisma {
     is_phone_verified: number | null
     org_id: number | null
     gender: number | null
+    approved_by_collegepond_user_id: number | null
+    lead_counsellor_id: number | null
+    counsellor_id: number | null
+    bdm_id: number | null
+    tier: number | null
   }
 
   export type UserMinAggregateOutputType = {
     id: number | null
     first_name: string | null
+    last_name: string | null
     type: number | null
     email: string | null
     phone: string | null
@@ -18539,10 +18691,6 @@ export namespace Prisma {
     status: number | null
     avatar_url: string | null
     is_email_verified: number | null
-    last_login_at: Date | null
-    created_at: Date | null
-    updated_at: Date | null
-    last_name: string | null
     is_phone_verified: number | null
     tracking_id: string | null
     org_id: number | null
@@ -18553,11 +18701,21 @@ export namespace Prisma {
     city: string | null
     state: string | null
     country: string | null
+    approved_by_collegepond_user_id: number | null
+    lead_counsellor_id: number | null
+    counsellor_id: number | null
+    bdm_id: number | null
+    notes: string | null
+    tier: number | null
+    last_login_at: Date | null
+    created_at: Date | null
+    updated_at: Date | null
   }
 
   export type UserMaxAggregateOutputType = {
     id: number | null
     first_name: string | null
+    last_name: string | null
     type: number | null
     email: string | null
     phone: string | null
@@ -18565,10 +18723,6 @@ export namespace Prisma {
     status: number | null
     avatar_url: string | null
     is_email_verified: number | null
-    last_login_at: Date | null
-    created_at: Date | null
-    updated_at: Date | null
-    last_name: string | null
     is_phone_verified: number | null
     tracking_id: string | null
     org_id: number | null
@@ -18579,11 +18733,21 @@ export namespace Prisma {
     city: string | null
     state: string | null
     country: string | null
+    approved_by_collegepond_user_id: number | null
+    lead_counsellor_id: number | null
+    counsellor_id: number | null
+    bdm_id: number | null
+    notes: string | null
+    tier: number | null
+    last_login_at: Date | null
+    created_at: Date | null
+    updated_at: Date | null
   }
 
   export type UserCountAggregateOutputType = {
     id: number
     first_name: number
+    last_name: number
     type: number
     email: number
     phone: number
@@ -18591,10 +18755,6 @@ export namespace Prisma {
     status: number
     avatar_url: number
     is_email_verified: number
-    last_login_at: number
-    created_at: number
-    updated_at: number
-    last_name: number
     is_phone_verified: number
     tracking_id: number
     org_id: number
@@ -18605,6 +18765,15 @@ export namespace Prisma {
     city: number
     state: number
     country: number
+    approved_by_collegepond_user_id: number
+    lead_counsellor_id: number
+    counsellor_id: number
+    bdm_id: number
+    notes: number
+    tier: number
+    last_login_at: number
+    created_at: number
+    updated_at: number
     _all: number
   }
 
@@ -18618,6 +18787,11 @@ export namespace Prisma {
     is_phone_verified?: true
     org_id?: true
     gender?: true
+    approved_by_collegepond_user_id?: true
+    lead_counsellor_id?: true
+    counsellor_id?: true
+    bdm_id?: true
+    tier?: true
   }
 
   export type UserSumAggregateInputType = {
@@ -18629,11 +18803,17 @@ export namespace Prisma {
     is_phone_verified?: true
     org_id?: true
     gender?: true
+    approved_by_collegepond_user_id?: true
+    lead_counsellor_id?: true
+    counsellor_id?: true
+    bdm_id?: true
+    tier?: true
   }
 
   export type UserMinAggregateInputType = {
     id?: true
     first_name?: true
+    last_name?: true
     type?: true
     email?: true
     phone?: true
@@ -18641,10 +18821,6 @@ export namespace Prisma {
     status?: true
     avatar_url?: true
     is_email_verified?: true
-    last_login_at?: true
-    created_at?: true
-    updated_at?: true
-    last_name?: true
     is_phone_verified?: true
     tracking_id?: true
     org_id?: true
@@ -18655,11 +18831,21 @@ export namespace Prisma {
     city?: true
     state?: true
     country?: true
+    approved_by_collegepond_user_id?: true
+    lead_counsellor_id?: true
+    counsellor_id?: true
+    bdm_id?: true
+    notes?: true
+    tier?: true
+    last_login_at?: true
+    created_at?: true
+    updated_at?: true
   }
 
   export type UserMaxAggregateInputType = {
     id?: true
     first_name?: true
+    last_name?: true
     type?: true
     email?: true
     phone?: true
@@ -18667,10 +18853,6 @@ export namespace Prisma {
     status?: true
     avatar_url?: true
     is_email_verified?: true
-    last_login_at?: true
-    created_at?: true
-    updated_at?: true
-    last_name?: true
     is_phone_verified?: true
     tracking_id?: true
     org_id?: true
@@ -18681,11 +18863,21 @@ export namespace Prisma {
     city?: true
     state?: true
     country?: true
+    approved_by_collegepond_user_id?: true
+    lead_counsellor_id?: true
+    counsellor_id?: true
+    bdm_id?: true
+    notes?: true
+    tier?: true
+    last_login_at?: true
+    created_at?: true
+    updated_at?: true
   }
 
   export type UserCountAggregateInputType = {
     id?: true
     first_name?: true
+    last_name?: true
     type?: true
     email?: true
     phone?: true
@@ -18693,10 +18885,6 @@ export namespace Prisma {
     status?: true
     avatar_url?: true
     is_email_verified?: true
-    last_login_at?: true
-    created_at?: true
-    updated_at?: true
-    last_name?: true
     is_phone_verified?: true
     tracking_id?: true
     org_id?: true
@@ -18707,6 +18895,15 @@ export namespace Prisma {
     city?: true
     state?: true
     country?: true
+    approved_by_collegepond_user_id?: true
+    lead_counsellor_id?: true
+    counsellor_id?: true
+    bdm_id?: true
+    notes?: true
+    tier?: true
+    last_login_at?: true
+    created_at?: true
+    updated_at?: true
     _all?: true
   }
 
@@ -18799,6 +18996,7 @@ export namespace Prisma {
   export type UserGroupByOutputType = {
     id: number
     first_name: string
+    last_name: string
     type: number
     email: string
     phone: string
@@ -18806,10 +19004,6 @@ export namespace Prisma {
     status: number
     avatar_url: string | null
     is_email_verified: number
-    last_login_at: Date | null
-    created_at: Date
-    updated_at: Date
-    last_name: string
     is_phone_verified: number
     tracking_id: string | null
     org_id: number | null
@@ -18820,6 +19014,15 @@ export namespace Prisma {
     city: string | null
     state: string | null
     country: string | null
+    approved_by_collegepond_user_id: number | null
+    lead_counsellor_id: number | null
+    counsellor_id: number | null
+    bdm_id: number | null
+    notes: string | null
+    tier: number
+    last_login_at: Date | null
+    created_at: Date
+    updated_at: Date
     _count: UserCountAggregateOutputType | null
     _avg: UserAvgAggregateOutputType | null
     _sum: UserSumAggregateOutputType | null
@@ -18844,6 +19047,7 @@ export namespace Prisma {
   export type userSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     first_name?: boolean
+    last_name?: boolean
     type?: boolean
     email?: boolean
     phone?: boolean
@@ -18851,10 +19055,6 @@ export namespace Prisma {
     status?: boolean
     avatar_url?: boolean
     is_email_verified?: boolean
-    last_login_at?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-    last_name?: boolean
     is_phone_verified?: boolean
     tracking_id?: boolean
     org_id?: boolean
@@ -18865,12 +19065,25 @@ export namespace Prisma {
     city?: boolean
     state?: boolean
     country?: boolean
+    approved_by_collegepond_user_id?: boolean
+    lead_counsellor_id?: boolean
+    counsellor_id?: boolean
+    bdm_id?: boolean
+    notes?: boolean
+    tier?: boolean
+    last_login_at?: boolean
+    created_at?: boolean
+    updated_at?: boolean
     audit_log?: boolean | user$audit_logArgs<ExtArgs>
     document?: boolean | user$documentArgs<ExtArgs>
     event_registration?: boolean | user$event_registrationArgs<ExtArgs>
     notification_preference?: boolean | user$notification_preferenceArgs<ExtArgs>
     session?: boolean | user$sessionArgs<ExtArgs>
     student?: boolean | user$studentArgs<ExtArgs>
+    collegepond_user_user_approved_by_collegepond_user_idTocollegepond_user?: boolean | user$collegepond_user_user_approved_by_collegepond_user_idTocollegepond_userArgs<ExtArgs>
+    collegepond_user_user_bdm_idTocollegepond_user?: boolean | user$collegepond_user_user_bdm_idTocollegepond_userArgs<ExtArgs>
+    collegepond_user_user_counsellor_idTocollegepond_user?: boolean | user$collegepond_user_user_counsellor_idTocollegepond_userArgs<ExtArgs>
+    collegepond_user_user_lead_counsellor_idTocollegepond_user?: boolean | user$collegepond_user_user_lead_counsellor_idTocollegepond_userArgs<ExtArgs>
     organization?: boolean | user$organizationArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
@@ -18880,6 +19093,7 @@ export namespace Prisma {
   export type userSelectScalar = {
     id?: boolean
     first_name?: boolean
+    last_name?: boolean
     type?: boolean
     email?: boolean
     phone?: boolean
@@ -18887,10 +19101,6 @@ export namespace Prisma {
     status?: boolean
     avatar_url?: boolean
     is_email_verified?: boolean
-    last_login_at?: boolean
-    created_at?: boolean
-    updated_at?: boolean
-    last_name?: boolean
     is_phone_verified?: boolean
     tracking_id?: boolean
     org_id?: boolean
@@ -18901,9 +19111,18 @@ export namespace Prisma {
     city?: boolean
     state?: boolean
     country?: boolean
+    approved_by_collegepond_user_id?: boolean
+    lead_counsellor_id?: boolean
+    counsellor_id?: boolean
+    bdm_id?: boolean
+    notes?: boolean
+    tier?: boolean
+    last_login_at?: boolean
+    created_at?: boolean
+    updated_at?: boolean
   }
 
-  export type userOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "first_name" | "type" | "email" | "phone" | "is_owner" | "status" | "avatar_url" | "is_email_verified" | "last_login_at" | "created_at" | "updated_at" | "last_name" | "is_phone_verified" | "tracking_id" | "org_id" | "date_of_birth" | "gender" | "nationality" | "address" | "city" | "state" | "country", ExtArgs["result"]["user"]>
+  export type userOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "first_name" | "last_name" | "type" | "email" | "phone" | "is_owner" | "status" | "avatar_url" | "is_email_verified" | "is_phone_verified" | "tracking_id" | "org_id" | "date_of_birth" | "gender" | "nationality" | "address" | "city" | "state" | "country" | "approved_by_collegepond_user_id" | "lead_counsellor_id" | "counsellor_id" | "bdm_id" | "notes" | "tier" | "last_login_at" | "created_at" | "updated_at", ExtArgs["result"]["user"]>
   export type userInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     audit_log?: boolean | user$audit_logArgs<ExtArgs>
     document?: boolean | user$documentArgs<ExtArgs>
@@ -18911,6 +19130,10 @@ export namespace Prisma {
     notification_preference?: boolean | user$notification_preferenceArgs<ExtArgs>
     session?: boolean | user$sessionArgs<ExtArgs>
     student?: boolean | user$studentArgs<ExtArgs>
+    collegepond_user_user_approved_by_collegepond_user_idTocollegepond_user?: boolean | user$collegepond_user_user_approved_by_collegepond_user_idTocollegepond_userArgs<ExtArgs>
+    collegepond_user_user_bdm_idTocollegepond_user?: boolean | user$collegepond_user_user_bdm_idTocollegepond_userArgs<ExtArgs>
+    collegepond_user_user_counsellor_idTocollegepond_user?: boolean | user$collegepond_user_user_counsellor_idTocollegepond_userArgs<ExtArgs>
+    collegepond_user_user_lead_counsellor_idTocollegepond_user?: boolean | user$collegepond_user_user_lead_counsellor_idTocollegepond_userArgs<ExtArgs>
     organization?: boolean | user$organizationArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
@@ -18924,11 +19147,16 @@ export namespace Prisma {
       notification_preference: Prisma.$notification_preferencePayload<ExtArgs>[]
       session: Prisma.$sessionPayload<ExtArgs>[]
       student: Prisma.$studentPayload<ExtArgs>[]
+      collegepond_user_user_approved_by_collegepond_user_idTocollegepond_user: Prisma.$collegepond_userPayload<ExtArgs> | null
+      collegepond_user_user_bdm_idTocollegepond_user: Prisma.$collegepond_userPayload<ExtArgs> | null
+      collegepond_user_user_counsellor_idTocollegepond_user: Prisma.$collegepond_userPayload<ExtArgs> | null
+      collegepond_user_user_lead_counsellor_idTocollegepond_user: Prisma.$collegepond_userPayload<ExtArgs> | null
       organization: Prisma.$organizationPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: number
       first_name: string
+      last_name: string
       type: number
       email: string
       phone: string
@@ -18936,10 +19164,6 @@ export namespace Prisma {
       status: number
       avatar_url: string | null
       is_email_verified: number
-      last_login_at: Date | null
-      created_at: Date
-      updated_at: Date
-      last_name: string
       is_phone_verified: number
       tracking_id: string | null
       org_id: number | null
@@ -18950,6 +19174,15 @@ export namespace Prisma {
       city: string | null
       state: string | null
       country: string | null
+      approved_by_collegepond_user_id: number | null
+      lead_counsellor_id: number | null
+      counsellor_id: number | null
+      bdm_id: number | null
+      notes: string | null
+      tier: number
+      last_login_at: Date | null
+      created_at: Date
+      updated_at: Date
     }, ExtArgs["result"]["user"]>
     composites: {}
   }
@@ -19296,6 +19529,10 @@ export namespace Prisma {
     notification_preference<T extends user$notification_preferenceArgs<ExtArgs> = {}>(args?: Subset<T, user$notification_preferenceArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$notification_preferencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     session<T extends user$sessionArgs<ExtArgs> = {}>(args?: Subset<T, user$sessionArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$sessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     student<T extends user$studentArgs<ExtArgs> = {}>(args?: Subset<T, user$studentArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$studentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    collegepond_user_user_approved_by_collegepond_user_idTocollegepond_user<T extends user$collegepond_user_user_approved_by_collegepond_user_idTocollegepond_userArgs<ExtArgs> = {}>(args?: Subset<T, user$collegepond_user_user_approved_by_collegepond_user_idTocollegepond_userArgs<ExtArgs>>): Prisma__collegepond_userClient<$Result.GetResult<Prisma.$collegepond_userPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    collegepond_user_user_bdm_idTocollegepond_user<T extends user$collegepond_user_user_bdm_idTocollegepond_userArgs<ExtArgs> = {}>(args?: Subset<T, user$collegepond_user_user_bdm_idTocollegepond_userArgs<ExtArgs>>): Prisma__collegepond_userClient<$Result.GetResult<Prisma.$collegepond_userPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    collegepond_user_user_counsellor_idTocollegepond_user<T extends user$collegepond_user_user_counsellor_idTocollegepond_userArgs<ExtArgs> = {}>(args?: Subset<T, user$collegepond_user_user_counsellor_idTocollegepond_userArgs<ExtArgs>>): Prisma__collegepond_userClient<$Result.GetResult<Prisma.$collegepond_userPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    collegepond_user_user_lead_counsellor_idTocollegepond_user<T extends user$collegepond_user_user_lead_counsellor_idTocollegepond_userArgs<ExtArgs> = {}>(args?: Subset<T, user$collegepond_user_user_lead_counsellor_idTocollegepond_userArgs<ExtArgs>>): Prisma__collegepond_userClient<$Result.GetResult<Prisma.$collegepond_userPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     organization<T extends user$organizationArgs<ExtArgs> = {}>(args?: Subset<T, user$organizationArgs<ExtArgs>>): Prisma__organizationClient<$Result.GetResult<Prisma.$organizationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -19328,6 +19565,7 @@ export namespace Prisma {
   interface userFieldRefs {
     readonly id: FieldRef<"user", 'Int'>
     readonly first_name: FieldRef<"user", 'String'>
+    readonly last_name: FieldRef<"user", 'String'>
     readonly type: FieldRef<"user", 'Int'>
     readonly email: FieldRef<"user", 'String'>
     readonly phone: FieldRef<"user", 'String'>
@@ -19335,10 +19573,6 @@ export namespace Prisma {
     readonly status: FieldRef<"user", 'Int'>
     readonly avatar_url: FieldRef<"user", 'String'>
     readonly is_email_verified: FieldRef<"user", 'Int'>
-    readonly last_login_at: FieldRef<"user", 'DateTime'>
-    readonly created_at: FieldRef<"user", 'DateTime'>
-    readonly updated_at: FieldRef<"user", 'DateTime'>
-    readonly last_name: FieldRef<"user", 'String'>
     readonly is_phone_verified: FieldRef<"user", 'Int'>
     readonly tracking_id: FieldRef<"user", 'String'>
     readonly org_id: FieldRef<"user", 'Int'>
@@ -19349,6 +19583,15 @@ export namespace Prisma {
     readonly city: FieldRef<"user", 'String'>
     readonly state: FieldRef<"user", 'String'>
     readonly country: FieldRef<"user", 'String'>
+    readonly approved_by_collegepond_user_id: FieldRef<"user", 'Int'>
+    readonly lead_counsellor_id: FieldRef<"user", 'Int'>
+    readonly counsellor_id: FieldRef<"user", 'Int'>
+    readonly bdm_id: FieldRef<"user", 'Int'>
+    readonly notes: FieldRef<"user", 'String'>
+    readonly tier: FieldRef<"user", 'Int'>
+    readonly last_login_at: FieldRef<"user", 'DateTime'>
+    readonly created_at: FieldRef<"user", 'DateTime'>
+    readonly updated_at: FieldRef<"user", 'DateTime'>
   }
     
 
@@ -19836,6 +20079,82 @@ export namespace Prisma {
   }
 
   /**
+   * user.collegepond_user_user_approved_by_collegepond_user_idTocollegepond_user
+   */
+  export type user$collegepond_user_user_approved_by_collegepond_user_idTocollegepond_userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the collegepond_user
+     */
+    select?: collegepond_userSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the collegepond_user
+     */
+    omit?: collegepond_userOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: collegepond_userInclude<ExtArgs> | null
+    where?: collegepond_userWhereInput
+  }
+
+  /**
+   * user.collegepond_user_user_bdm_idTocollegepond_user
+   */
+  export type user$collegepond_user_user_bdm_idTocollegepond_userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the collegepond_user
+     */
+    select?: collegepond_userSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the collegepond_user
+     */
+    omit?: collegepond_userOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: collegepond_userInclude<ExtArgs> | null
+    where?: collegepond_userWhereInput
+  }
+
+  /**
+   * user.collegepond_user_user_counsellor_idTocollegepond_user
+   */
+  export type user$collegepond_user_user_counsellor_idTocollegepond_userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the collegepond_user
+     */
+    select?: collegepond_userSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the collegepond_user
+     */
+    omit?: collegepond_userOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: collegepond_userInclude<ExtArgs> | null
+    where?: collegepond_userWhereInput
+  }
+
+  /**
+   * user.collegepond_user_user_lead_counsellor_idTocollegepond_user
+   */
+  export type user$collegepond_user_user_lead_counsellor_idTocollegepond_userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the collegepond_user
+     */
+    select?: collegepond_userSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the collegepond_user
+     */
+    omit?: collegepond_userOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: collegepond_userInclude<ExtArgs> | null
+    where?: collegepond_userWhereInput
+  }
+
+  /**
    * user.organization
    */
   export type user$organizationArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -19870,6 +20189,1142 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: userInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model collegepond_user
+   */
+
+  export type AggregateCollegepond_user = {
+    _count: Collegepond_userCountAggregateOutputType | null
+    _avg: Collegepond_userAvgAggregateOutputType | null
+    _sum: Collegepond_userSumAggregateOutputType | null
+    _min: Collegepond_userMinAggregateOutputType | null
+    _max: Collegepond_userMaxAggregateOutputType | null
+  }
+
+  export type Collegepond_userAvgAggregateOutputType = {
+    id: number | null
+    role: number | null
+    status: number | null
+  }
+
+  export type Collegepond_userSumAggregateOutputType = {
+    id: number | null
+    role: number | null
+    status: number | null
+  }
+
+  export type Collegepond_userMinAggregateOutputType = {
+    id: number | null
+    created_at: Date | null
+    updated_at: Date | null
+    first_name: string | null
+    last_name: string | null
+    email: string | null
+    phone: string | null
+    role: number | null
+    status: number | null
+    last_login_at: Date | null
+  }
+
+  export type Collegepond_userMaxAggregateOutputType = {
+    id: number | null
+    created_at: Date | null
+    updated_at: Date | null
+    first_name: string | null
+    last_name: string | null
+    email: string | null
+    phone: string | null
+    role: number | null
+    status: number | null
+    last_login_at: Date | null
+  }
+
+  export type Collegepond_userCountAggregateOutputType = {
+    id: number
+    created_at: number
+    updated_at: number
+    first_name: number
+    last_name: number
+    email: number
+    phone: number
+    role: number
+    status: number
+    last_login_at: number
+    _all: number
+  }
+
+
+  export type Collegepond_userAvgAggregateInputType = {
+    id?: true
+    role?: true
+    status?: true
+  }
+
+  export type Collegepond_userSumAggregateInputType = {
+    id?: true
+    role?: true
+    status?: true
+  }
+
+  export type Collegepond_userMinAggregateInputType = {
+    id?: true
+    created_at?: true
+    updated_at?: true
+    first_name?: true
+    last_name?: true
+    email?: true
+    phone?: true
+    role?: true
+    status?: true
+    last_login_at?: true
+  }
+
+  export type Collegepond_userMaxAggregateInputType = {
+    id?: true
+    created_at?: true
+    updated_at?: true
+    first_name?: true
+    last_name?: true
+    email?: true
+    phone?: true
+    role?: true
+    status?: true
+    last_login_at?: true
+  }
+
+  export type Collegepond_userCountAggregateInputType = {
+    id?: true
+    created_at?: true
+    updated_at?: true
+    first_name?: true
+    last_name?: true
+    email?: true
+    phone?: true
+    role?: true
+    status?: true
+    last_login_at?: true
+    _all?: true
+  }
+
+  export type Collegepond_userAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which collegepond_user to aggregate.
+     */
+    where?: collegepond_userWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of collegepond_users to fetch.
+     */
+    orderBy?: collegepond_userOrderByWithRelationInput | collegepond_userOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: collegepond_userWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` collegepond_users from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` collegepond_users.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned collegepond_users
+    **/
+    _count?: true | Collegepond_userCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: Collegepond_userAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: Collegepond_userSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: Collegepond_userMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: Collegepond_userMaxAggregateInputType
+  }
+
+  export type GetCollegepond_userAggregateType<T extends Collegepond_userAggregateArgs> = {
+        [P in keyof T & keyof AggregateCollegepond_user]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCollegepond_user[P]>
+      : GetScalarType<T[P], AggregateCollegepond_user[P]>
+  }
+
+
+
+
+  export type collegepond_userGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: collegepond_userWhereInput
+    orderBy?: collegepond_userOrderByWithAggregationInput | collegepond_userOrderByWithAggregationInput[]
+    by: Collegepond_userScalarFieldEnum[] | Collegepond_userScalarFieldEnum
+    having?: collegepond_userScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: Collegepond_userCountAggregateInputType | true
+    _avg?: Collegepond_userAvgAggregateInputType
+    _sum?: Collegepond_userSumAggregateInputType
+    _min?: Collegepond_userMinAggregateInputType
+    _max?: Collegepond_userMaxAggregateInputType
+  }
+
+  export type Collegepond_userGroupByOutputType = {
+    id: number
+    created_at: Date
+    updated_at: Date
+    first_name: string
+    last_name: string
+    email: string
+    phone: string
+    role: number
+    status: number
+    last_login_at: Date | null
+    _count: Collegepond_userCountAggregateOutputType | null
+    _avg: Collegepond_userAvgAggregateOutputType | null
+    _sum: Collegepond_userSumAggregateOutputType | null
+    _min: Collegepond_userMinAggregateOutputType | null
+    _max: Collegepond_userMaxAggregateOutputType | null
+  }
+
+  type GetCollegepond_userGroupByPayload<T extends collegepond_userGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<Collegepond_userGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof Collegepond_userGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], Collegepond_userGroupByOutputType[P]>
+            : GetScalarType<T[P], Collegepond_userGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type collegepond_userSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    first_name?: boolean
+    last_name?: boolean
+    email?: boolean
+    phone?: boolean
+    role?: boolean
+    status?: boolean
+    last_login_at?: boolean
+    user_user_approved_by_collegepond_user_idTocollegepond_user?: boolean | collegepond_user$user_user_approved_by_collegepond_user_idTocollegepond_userArgs<ExtArgs>
+    user_user_bdm_idTocollegepond_user?: boolean | collegepond_user$user_user_bdm_idTocollegepond_userArgs<ExtArgs>
+    user_user_counsellor_idTocollegepond_user?: boolean | collegepond_user$user_user_counsellor_idTocollegepond_userArgs<ExtArgs>
+    user_user_lead_counsellor_idTocollegepond_user?: boolean | collegepond_user$user_user_lead_counsellor_idTocollegepond_userArgs<ExtArgs>
+    _count?: boolean | Collegepond_userCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["collegepond_user"]>
+
+
+
+  export type collegepond_userSelectScalar = {
+    id?: boolean
+    created_at?: boolean
+    updated_at?: boolean
+    first_name?: boolean
+    last_name?: boolean
+    email?: boolean
+    phone?: boolean
+    role?: boolean
+    status?: boolean
+    last_login_at?: boolean
+  }
+
+  export type collegepond_userOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "created_at" | "updated_at" | "first_name" | "last_name" | "email" | "phone" | "role" | "status" | "last_login_at", ExtArgs["result"]["collegepond_user"]>
+  export type collegepond_userInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user_user_approved_by_collegepond_user_idTocollegepond_user?: boolean | collegepond_user$user_user_approved_by_collegepond_user_idTocollegepond_userArgs<ExtArgs>
+    user_user_bdm_idTocollegepond_user?: boolean | collegepond_user$user_user_bdm_idTocollegepond_userArgs<ExtArgs>
+    user_user_counsellor_idTocollegepond_user?: boolean | collegepond_user$user_user_counsellor_idTocollegepond_userArgs<ExtArgs>
+    user_user_lead_counsellor_idTocollegepond_user?: boolean | collegepond_user$user_user_lead_counsellor_idTocollegepond_userArgs<ExtArgs>
+    _count?: boolean | Collegepond_userCountOutputTypeDefaultArgs<ExtArgs>
+  }
+
+  export type $collegepond_userPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "collegepond_user"
+    objects: {
+      user_user_approved_by_collegepond_user_idTocollegepond_user: Prisma.$userPayload<ExtArgs>[]
+      user_user_bdm_idTocollegepond_user: Prisma.$userPayload<ExtArgs>[]
+      user_user_counsellor_idTocollegepond_user: Prisma.$userPayload<ExtArgs>[]
+      user_user_lead_counsellor_idTocollegepond_user: Prisma.$userPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      created_at: Date
+      updated_at: Date
+      first_name: string
+      last_name: string
+      email: string
+      phone: string
+      role: number
+      status: number
+      last_login_at: Date | null
+    }, ExtArgs["result"]["collegepond_user"]>
+    composites: {}
+  }
+
+  type collegepond_userGetPayload<S extends boolean | null | undefined | collegepond_userDefaultArgs> = $Result.GetResult<Prisma.$collegepond_userPayload, S>
+
+  type collegepond_userCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<collegepond_userFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: Collegepond_userCountAggregateInputType | true
+    }
+
+  export interface collegepond_userDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['collegepond_user'], meta: { name: 'collegepond_user' } }
+    /**
+     * Find zero or one Collegepond_user that matches the filter.
+     * @param {collegepond_userFindUniqueArgs} args - Arguments to find a Collegepond_user
+     * @example
+     * // Get one Collegepond_user
+     * const collegepond_user = await prisma.collegepond_user.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends collegepond_userFindUniqueArgs>(args: SelectSubset<T, collegepond_userFindUniqueArgs<ExtArgs>>): Prisma__collegepond_userClient<$Result.GetResult<Prisma.$collegepond_userPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Collegepond_user that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {collegepond_userFindUniqueOrThrowArgs} args - Arguments to find a Collegepond_user
+     * @example
+     * // Get one Collegepond_user
+     * const collegepond_user = await prisma.collegepond_user.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends collegepond_userFindUniqueOrThrowArgs>(args: SelectSubset<T, collegepond_userFindUniqueOrThrowArgs<ExtArgs>>): Prisma__collegepond_userClient<$Result.GetResult<Prisma.$collegepond_userPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Collegepond_user that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {collegepond_userFindFirstArgs} args - Arguments to find a Collegepond_user
+     * @example
+     * // Get one Collegepond_user
+     * const collegepond_user = await prisma.collegepond_user.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends collegepond_userFindFirstArgs>(args?: SelectSubset<T, collegepond_userFindFirstArgs<ExtArgs>>): Prisma__collegepond_userClient<$Result.GetResult<Prisma.$collegepond_userPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Collegepond_user that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {collegepond_userFindFirstOrThrowArgs} args - Arguments to find a Collegepond_user
+     * @example
+     * // Get one Collegepond_user
+     * const collegepond_user = await prisma.collegepond_user.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends collegepond_userFindFirstOrThrowArgs>(args?: SelectSubset<T, collegepond_userFindFirstOrThrowArgs<ExtArgs>>): Prisma__collegepond_userClient<$Result.GetResult<Prisma.$collegepond_userPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Collegepond_users that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {collegepond_userFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Collegepond_users
+     * const collegepond_users = await prisma.collegepond_user.findMany()
+     * 
+     * // Get first 10 Collegepond_users
+     * const collegepond_users = await prisma.collegepond_user.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const collegepond_userWithIdOnly = await prisma.collegepond_user.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends collegepond_userFindManyArgs>(args?: SelectSubset<T, collegepond_userFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$collegepond_userPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Collegepond_user.
+     * @param {collegepond_userCreateArgs} args - Arguments to create a Collegepond_user.
+     * @example
+     * // Create one Collegepond_user
+     * const Collegepond_user = await prisma.collegepond_user.create({
+     *   data: {
+     *     // ... data to create a Collegepond_user
+     *   }
+     * })
+     * 
+     */
+    create<T extends collegepond_userCreateArgs>(args: SelectSubset<T, collegepond_userCreateArgs<ExtArgs>>): Prisma__collegepond_userClient<$Result.GetResult<Prisma.$collegepond_userPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Collegepond_users.
+     * @param {collegepond_userCreateManyArgs} args - Arguments to create many Collegepond_users.
+     * @example
+     * // Create many Collegepond_users
+     * const collegepond_user = await prisma.collegepond_user.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends collegepond_userCreateManyArgs>(args?: SelectSubset<T, collegepond_userCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a Collegepond_user.
+     * @param {collegepond_userDeleteArgs} args - Arguments to delete one Collegepond_user.
+     * @example
+     * // Delete one Collegepond_user
+     * const Collegepond_user = await prisma.collegepond_user.delete({
+     *   where: {
+     *     // ... filter to delete one Collegepond_user
+     *   }
+     * })
+     * 
+     */
+    delete<T extends collegepond_userDeleteArgs>(args: SelectSubset<T, collegepond_userDeleteArgs<ExtArgs>>): Prisma__collegepond_userClient<$Result.GetResult<Prisma.$collegepond_userPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Collegepond_user.
+     * @param {collegepond_userUpdateArgs} args - Arguments to update one Collegepond_user.
+     * @example
+     * // Update one Collegepond_user
+     * const collegepond_user = await prisma.collegepond_user.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends collegepond_userUpdateArgs>(args: SelectSubset<T, collegepond_userUpdateArgs<ExtArgs>>): Prisma__collegepond_userClient<$Result.GetResult<Prisma.$collegepond_userPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Collegepond_users.
+     * @param {collegepond_userDeleteManyArgs} args - Arguments to filter Collegepond_users to delete.
+     * @example
+     * // Delete a few Collegepond_users
+     * const { count } = await prisma.collegepond_user.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends collegepond_userDeleteManyArgs>(args?: SelectSubset<T, collegepond_userDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Collegepond_users.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {collegepond_userUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Collegepond_users
+     * const collegepond_user = await prisma.collegepond_user.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends collegepond_userUpdateManyArgs>(args: SelectSubset<T, collegepond_userUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Collegepond_user.
+     * @param {collegepond_userUpsertArgs} args - Arguments to update or create a Collegepond_user.
+     * @example
+     * // Update or create a Collegepond_user
+     * const collegepond_user = await prisma.collegepond_user.upsert({
+     *   create: {
+     *     // ... data to create a Collegepond_user
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Collegepond_user we want to update
+     *   }
+     * })
+     */
+    upsert<T extends collegepond_userUpsertArgs>(args: SelectSubset<T, collegepond_userUpsertArgs<ExtArgs>>): Prisma__collegepond_userClient<$Result.GetResult<Prisma.$collegepond_userPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Collegepond_users.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {collegepond_userCountArgs} args - Arguments to filter Collegepond_users to count.
+     * @example
+     * // Count the number of Collegepond_users
+     * const count = await prisma.collegepond_user.count({
+     *   where: {
+     *     // ... the filter for the Collegepond_users we want to count
+     *   }
+     * })
+    **/
+    count<T extends collegepond_userCountArgs>(
+      args?: Subset<T, collegepond_userCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], Collegepond_userCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Collegepond_user.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Collegepond_userAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends Collegepond_userAggregateArgs>(args: Subset<T, Collegepond_userAggregateArgs>): Prisma.PrismaPromise<GetCollegepond_userAggregateType<T>>
+
+    /**
+     * Group by Collegepond_user.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {collegepond_userGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends collegepond_userGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: collegepond_userGroupByArgs['orderBy'] }
+        : { orderBy?: collegepond_userGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, collegepond_userGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCollegepond_userGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the collegepond_user model
+   */
+  readonly fields: collegepond_userFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for collegepond_user.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__collegepond_userClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user_user_approved_by_collegepond_user_idTocollegepond_user<T extends collegepond_user$user_user_approved_by_collegepond_user_idTocollegepond_userArgs<ExtArgs> = {}>(args?: Subset<T, collegepond_user$user_user_approved_by_collegepond_user_idTocollegepond_userArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$userPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    user_user_bdm_idTocollegepond_user<T extends collegepond_user$user_user_bdm_idTocollegepond_userArgs<ExtArgs> = {}>(args?: Subset<T, collegepond_user$user_user_bdm_idTocollegepond_userArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$userPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    user_user_counsellor_idTocollegepond_user<T extends collegepond_user$user_user_counsellor_idTocollegepond_userArgs<ExtArgs> = {}>(args?: Subset<T, collegepond_user$user_user_counsellor_idTocollegepond_userArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$userPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    user_user_lead_counsellor_idTocollegepond_user<T extends collegepond_user$user_user_lead_counsellor_idTocollegepond_userArgs<ExtArgs> = {}>(args?: Subset<T, collegepond_user$user_user_lead_counsellor_idTocollegepond_userArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$userPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the collegepond_user model
+   */
+  interface collegepond_userFieldRefs {
+    readonly id: FieldRef<"collegepond_user", 'Int'>
+    readonly created_at: FieldRef<"collegepond_user", 'DateTime'>
+    readonly updated_at: FieldRef<"collegepond_user", 'DateTime'>
+    readonly first_name: FieldRef<"collegepond_user", 'String'>
+    readonly last_name: FieldRef<"collegepond_user", 'String'>
+    readonly email: FieldRef<"collegepond_user", 'String'>
+    readonly phone: FieldRef<"collegepond_user", 'String'>
+    readonly role: FieldRef<"collegepond_user", 'Int'>
+    readonly status: FieldRef<"collegepond_user", 'Int'>
+    readonly last_login_at: FieldRef<"collegepond_user", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * collegepond_user findUnique
+   */
+  export type collegepond_userFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the collegepond_user
+     */
+    select?: collegepond_userSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the collegepond_user
+     */
+    omit?: collegepond_userOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: collegepond_userInclude<ExtArgs> | null
+    /**
+     * Filter, which collegepond_user to fetch.
+     */
+    where: collegepond_userWhereUniqueInput
+  }
+
+  /**
+   * collegepond_user findUniqueOrThrow
+   */
+  export type collegepond_userFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the collegepond_user
+     */
+    select?: collegepond_userSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the collegepond_user
+     */
+    omit?: collegepond_userOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: collegepond_userInclude<ExtArgs> | null
+    /**
+     * Filter, which collegepond_user to fetch.
+     */
+    where: collegepond_userWhereUniqueInput
+  }
+
+  /**
+   * collegepond_user findFirst
+   */
+  export type collegepond_userFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the collegepond_user
+     */
+    select?: collegepond_userSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the collegepond_user
+     */
+    omit?: collegepond_userOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: collegepond_userInclude<ExtArgs> | null
+    /**
+     * Filter, which collegepond_user to fetch.
+     */
+    where?: collegepond_userWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of collegepond_users to fetch.
+     */
+    orderBy?: collegepond_userOrderByWithRelationInput | collegepond_userOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for collegepond_users.
+     */
+    cursor?: collegepond_userWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` collegepond_users from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` collegepond_users.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of collegepond_users.
+     */
+    distinct?: Collegepond_userScalarFieldEnum | Collegepond_userScalarFieldEnum[]
+  }
+
+  /**
+   * collegepond_user findFirstOrThrow
+   */
+  export type collegepond_userFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the collegepond_user
+     */
+    select?: collegepond_userSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the collegepond_user
+     */
+    omit?: collegepond_userOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: collegepond_userInclude<ExtArgs> | null
+    /**
+     * Filter, which collegepond_user to fetch.
+     */
+    where?: collegepond_userWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of collegepond_users to fetch.
+     */
+    orderBy?: collegepond_userOrderByWithRelationInput | collegepond_userOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for collegepond_users.
+     */
+    cursor?: collegepond_userWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` collegepond_users from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` collegepond_users.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of collegepond_users.
+     */
+    distinct?: Collegepond_userScalarFieldEnum | Collegepond_userScalarFieldEnum[]
+  }
+
+  /**
+   * collegepond_user findMany
+   */
+  export type collegepond_userFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the collegepond_user
+     */
+    select?: collegepond_userSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the collegepond_user
+     */
+    omit?: collegepond_userOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: collegepond_userInclude<ExtArgs> | null
+    /**
+     * Filter, which collegepond_users to fetch.
+     */
+    where?: collegepond_userWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of collegepond_users to fetch.
+     */
+    orderBy?: collegepond_userOrderByWithRelationInput | collegepond_userOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing collegepond_users.
+     */
+    cursor?: collegepond_userWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` collegepond_users from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` collegepond_users.
+     */
+    skip?: number
+    distinct?: Collegepond_userScalarFieldEnum | Collegepond_userScalarFieldEnum[]
+  }
+
+  /**
+   * collegepond_user create
+   */
+  export type collegepond_userCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the collegepond_user
+     */
+    select?: collegepond_userSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the collegepond_user
+     */
+    omit?: collegepond_userOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: collegepond_userInclude<ExtArgs> | null
+    /**
+     * The data needed to create a collegepond_user.
+     */
+    data: XOR<collegepond_userCreateInput, collegepond_userUncheckedCreateInput>
+  }
+
+  /**
+   * collegepond_user createMany
+   */
+  export type collegepond_userCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many collegepond_users.
+     */
+    data: collegepond_userCreateManyInput | collegepond_userCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * collegepond_user update
+   */
+  export type collegepond_userUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the collegepond_user
+     */
+    select?: collegepond_userSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the collegepond_user
+     */
+    omit?: collegepond_userOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: collegepond_userInclude<ExtArgs> | null
+    /**
+     * The data needed to update a collegepond_user.
+     */
+    data: XOR<collegepond_userUpdateInput, collegepond_userUncheckedUpdateInput>
+    /**
+     * Choose, which collegepond_user to update.
+     */
+    where: collegepond_userWhereUniqueInput
+  }
+
+  /**
+   * collegepond_user updateMany
+   */
+  export type collegepond_userUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update collegepond_users.
+     */
+    data: XOR<collegepond_userUpdateManyMutationInput, collegepond_userUncheckedUpdateManyInput>
+    /**
+     * Filter which collegepond_users to update
+     */
+    where?: collegepond_userWhereInput
+    /**
+     * Limit how many collegepond_users to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * collegepond_user upsert
+   */
+  export type collegepond_userUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the collegepond_user
+     */
+    select?: collegepond_userSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the collegepond_user
+     */
+    omit?: collegepond_userOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: collegepond_userInclude<ExtArgs> | null
+    /**
+     * The filter to search for the collegepond_user to update in case it exists.
+     */
+    where: collegepond_userWhereUniqueInput
+    /**
+     * In case the collegepond_user found by the `where` argument doesn't exist, create a new collegepond_user with this data.
+     */
+    create: XOR<collegepond_userCreateInput, collegepond_userUncheckedCreateInput>
+    /**
+     * In case the collegepond_user was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<collegepond_userUpdateInput, collegepond_userUncheckedUpdateInput>
+  }
+
+  /**
+   * collegepond_user delete
+   */
+  export type collegepond_userDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the collegepond_user
+     */
+    select?: collegepond_userSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the collegepond_user
+     */
+    omit?: collegepond_userOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: collegepond_userInclude<ExtArgs> | null
+    /**
+     * Filter which collegepond_user to delete.
+     */
+    where: collegepond_userWhereUniqueInput
+  }
+
+  /**
+   * collegepond_user deleteMany
+   */
+  export type collegepond_userDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which collegepond_users to delete
+     */
+    where?: collegepond_userWhereInput
+    /**
+     * Limit how many collegepond_users to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * collegepond_user.user_user_approved_by_collegepond_user_idTocollegepond_user
+   */
+  export type collegepond_user$user_user_approved_by_collegepond_user_idTocollegepond_userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the user
+     */
+    select?: userSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the user
+     */
+    omit?: userOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: userInclude<ExtArgs> | null
+    where?: userWhereInput
+    orderBy?: userOrderByWithRelationInput | userOrderByWithRelationInput[]
+    cursor?: userWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
+  }
+
+  /**
+   * collegepond_user.user_user_bdm_idTocollegepond_user
+   */
+  export type collegepond_user$user_user_bdm_idTocollegepond_userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the user
+     */
+    select?: userSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the user
+     */
+    omit?: userOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: userInclude<ExtArgs> | null
+    where?: userWhereInput
+    orderBy?: userOrderByWithRelationInput | userOrderByWithRelationInput[]
+    cursor?: userWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
+  }
+
+  /**
+   * collegepond_user.user_user_counsellor_idTocollegepond_user
+   */
+  export type collegepond_user$user_user_counsellor_idTocollegepond_userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the user
+     */
+    select?: userSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the user
+     */
+    omit?: userOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: userInclude<ExtArgs> | null
+    where?: userWhereInput
+    orderBy?: userOrderByWithRelationInput | userOrderByWithRelationInput[]
+    cursor?: userWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
+  }
+
+  /**
+   * collegepond_user.user_user_lead_counsellor_idTocollegepond_user
+   */
+  export type collegepond_user$user_user_lead_counsellor_idTocollegepond_userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the user
+     */
+    select?: userSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the user
+     */
+    omit?: userOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: userInclude<ExtArgs> | null
+    where?: userWhereInput
+    orderBy?: userOrderByWithRelationInput | userOrderByWithRelationInput[]
+    cursor?: userWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: UserScalarFieldEnum | UserScalarFieldEnum[]
+  }
+
+  /**
+   * collegepond_user without action
+   */
+  export type collegepond_userDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the collegepond_user
+     */
+    select?: collegepond_userSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the collegepond_user
+     */
+    omit?: collegepond_userOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: collegepond_userInclude<ExtArgs> | null
   }
 
 
@@ -20038,9 +21493,9 @@ export namespace Prisma {
 
 
   export const Invoice_itemScalarFieldEnum: {
+    id: 'id',
     invoice_id: 'invoice_id',
     commission_id: 'commission_id',
-    id: 'id',
     amount: 'amount',
     created_at: 'created_at'
   };
@@ -20132,6 +21587,7 @@ export namespace Prisma {
   export const UserScalarFieldEnum: {
     id: 'id',
     first_name: 'first_name',
+    last_name: 'last_name',
     type: 'type',
     email: 'email',
     phone: 'phone',
@@ -20139,10 +21595,6 @@ export namespace Prisma {
     status: 'status',
     avatar_url: 'avatar_url',
     is_email_verified: 'is_email_verified',
-    last_login_at: 'last_login_at',
-    created_at: 'created_at',
-    updated_at: 'updated_at',
-    last_name: 'last_name',
     is_phone_verified: 'is_phone_verified',
     tracking_id: 'tracking_id',
     org_id: 'org_id',
@@ -20152,10 +21604,35 @@ export namespace Prisma {
     address: 'address',
     city: 'city',
     state: 'state',
-    country: 'country'
+    country: 'country',
+    approved_by_collegepond_user_id: 'approved_by_collegepond_user_id',
+    lead_counsellor_id: 'lead_counsellor_id',
+    counsellor_id: 'counsellor_id',
+    bdm_id: 'bdm_id',
+    notes: 'notes',
+    tier: 'tier',
+    last_login_at: 'last_login_at',
+    created_at: 'created_at',
+    updated_at: 'updated_at'
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+  export const Collegepond_userScalarFieldEnum: {
+    id: 'id',
+    created_at: 'created_at',
+    updated_at: 'updated_at',
+    first_name: 'first_name',
+    last_name: 'last_name',
+    email: 'email',
+    phone: 'phone',
+    role: 'role',
+    status: 'status',
+    last_login_at: 'last_login_at'
+  };
+
+  export type Collegepond_userScalarFieldEnum = (typeof Collegepond_userScalarFieldEnum)[keyof typeof Collegepond_userScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -20314,19 +21791,30 @@ export namespace Prisma {
 
   export const userOrderByRelevanceFieldEnum: {
     first_name: 'first_name',
+    last_name: 'last_name',
     email: 'email',
     phone: 'phone',
     avatar_url: 'avatar_url',
-    last_name: 'last_name',
     tracking_id: 'tracking_id',
     nationality: 'nationality',
     address: 'address',
     city: 'city',
     state: 'state',
-    country: 'country'
+    country: 'country',
+    notes: 'notes'
   };
 
   export type userOrderByRelevanceFieldEnum = (typeof userOrderByRelevanceFieldEnum)[keyof typeof userOrderByRelevanceFieldEnum]
+
+
+  export const collegepond_userOrderByRelevanceFieldEnum: {
+    first_name: 'first_name',
+    last_name: 'last_name',
+    email: 'email',
+    phone: 'phone'
+  };
+
+  export type collegepond_userOrderByRelevanceFieldEnum = (typeof collegepond_userOrderByRelevanceFieldEnum)[keyof typeof collegepond_userOrderByRelevanceFieldEnum]
 
 
   /**
@@ -21198,9 +22686,9 @@ export namespace Prisma {
     AND?: invoice_itemWhereInput | invoice_itemWhereInput[]
     OR?: invoice_itemWhereInput[]
     NOT?: invoice_itemWhereInput | invoice_itemWhereInput[]
+    id?: IntFilter<"invoice_item"> | number
     invoice_id?: IntFilter<"invoice_item"> | number
     commission_id?: IntFilter<"invoice_item"> | number
-    id?: IntFilter<"invoice_item"> | number
     amount?: DecimalFilter<"invoice_item"> | Decimal | DecimalJsLike | number | string
     created_at?: DateTimeFilter<"invoice_item"> | Date | string
     commission?: XOR<CommissionScalarRelationFilter, commissionWhereInput>
@@ -21208,9 +22696,9 @@ export namespace Prisma {
   }
 
   export type invoice_itemOrderByWithRelationInput = {
+    id?: SortOrder
     invoice_id?: SortOrder
     commission_id?: SortOrder
-    id?: SortOrder
     amount?: SortOrder
     created_at?: SortOrder
     commission?: commissionOrderByWithRelationInput
@@ -21218,8 +22706,8 @@ export namespace Prisma {
   }
 
   export type invoice_itemWhereUniqueInput = Prisma.AtLeast<{
-    commission_id?: number
     id?: number
+    commission_id?: number
     AND?: invoice_itemWhereInput | invoice_itemWhereInput[]
     OR?: invoice_itemWhereInput[]
     NOT?: invoice_itemWhereInput | invoice_itemWhereInput[]
@@ -21231,9 +22719,9 @@ export namespace Prisma {
   }, "id" | "commission_id">
 
   export type invoice_itemOrderByWithAggregationInput = {
+    id?: SortOrder
     invoice_id?: SortOrder
     commission_id?: SortOrder
-    id?: SortOrder
     amount?: SortOrder
     created_at?: SortOrder
     _count?: invoice_itemCountOrderByAggregateInput
@@ -21247,9 +22735,9 @@ export namespace Prisma {
     AND?: invoice_itemScalarWhereWithAggregatesInput | invoice_itemScalarWhereWithAggregatesInput[]
     OR?: invoice_itemScalarWhereWithAggregatesInput[]
     NOT?: invoice_itemScalarWhereWithAggregatesInput | invoice_itemScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"invoice_item"> | number
     invoice_id?: IntWithAggregatesFilter<"invoice_item"> | number
     commission_id?: IntWithAggregatesFilter<"invoice_item"> | number
-    id?: IntWithAggregatesFilter<"invoice_item"> | number
     amount?: DecimalWithAggregatesFilter<"invoice_item"> | Decimal | DecimalJsLike | number | string
     created_at?: DateTimeWithAggregatesFilter<"invoice_item"> | Date | string
   }
@@ -21703,6 +23191,7 @@ export namespace Prisma {
     NOT?: userWhereInput | userWhereInput[]
     id?: IntFilter<"user"> | number
     first_name?: StringFilter<"user"> | string
+    last_name?: StringFilter<"user"> | string
     type?: IntFilter<"user"> | number
     email?: StringFilter<"user"> | string
     phone?: StringFilter<"user"> | string
@@ -21710,10 +23199,6 @@ export namespace Prisma {
     status?: IntFilter<"user"> | number
     avatar_url?: StringNullableFilter<"user"> | string | null
     is_email_verified?: IntFilter<"user"> | number
-    last_login_at?: DateTimeNullableFilter<"user"> | Date | string | null
-    created_at?: DateTimeFilter<"user"> | Date | string
-    updated_at?: DateTimeFilter<"user"> | Date | string
-    last_name?: StringFilter<"user"> | string
     is_phone_verified?: IntFilter<"user"> | number
     tracking_id?: StringNullableFilter<"user"> | string | null
     org_id?: IntNullableFilter<"user"> | number | null
@@ -21724,18 +23209,32 @@ export namespace Prisma {
     city?: StringNullableFilter<"user"> | string | null
     state?: StringNullableFilter<"user"> | string | null
     country?: StringNullableFilter<"user"> | string | null
+    approved_by_collegepond_user_id?: IntNullableFilter<"user"> | number | null
+    lead_counsellor_id?: IntNullableFilter<"user"> | number | null
+    counsellor_id?: IntNullableFilter<"user"> | number | null
+    bdm_id?: IntNullableFilter<"user"> | number | null
+    notes?: StringNullableFilter<"user"> | string | null
+    tier?: IntFilter<"user"> | number
+    last_login_at?: DateTimeNullableFilter<"user"> | Date | string | null
+    created_at?: DateTimeFilter<"user"> | Date | string
+    updated_at?: DateTimeFilter<"user"> | Date | string
     audit_log?: Audit_logListRelationFilter
     document?: DocumentListRelationFilter
     event_registration?: Event_registrationListRelationFilter
     notification_preference?: Notification_preferenceListRelationFilter
     session?: SessionListRelationFilter
     student?: StudentListRelationFilter
+    collegepond_user_user_approved_by_collegepond_user_idTocollegepond_user?: XOR<Collegepond_userNullableScalarRelationFilter, collegepond_userWhereInput> | null
+    collegepond_user_user_bdm_idTocollegepond_user?: XOR<Collegepond_userNullableScalarRelationFilter, collegepond_userWhereInput> | null
+    collegepond_user_user_counsellor_idTocollegepond_user?: XOR<Collegepond_userNullableScalarRelationFilter, collegepond_userWhereInput> | null
+    collegepond_user_user_lead_counsellor_idTocollegepond_user?: XOR<Collegepond_userNullableScalarRelationFilter, collegepond_userWhereInput> | null
     organization?: XOR<OrganizationNullableScalarRelationFilter, organizationWhereInput> | null
   }
 
   export type userOrderByWithRelationInput = {
     id?: SortOrder
     first_name?: SortOrder
+    last_name?: SortOrder
     type?: SortOrder
     email?: SortOrder
     phone?: SortOrder
@@ -21743,10 +23242,6 @@ export namespace Prisma {
     status?: SortOrder
     avatar_url?: SortOrderInput | SortOrder
     is_email_verified?: SortOrder
-    last_login_at?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    last_name?: SortOrder
     is_phone_verified?: SortOrder
     tracking_id?: SortOrderInput | SortOrder
     org_id?: SortOrderInput | SortOrder
@@ -21757,12 +23252,25 @@ export namespace Prisma {
     city?: SortOrderInput | SortOrder
     state?: SortOrderInput | SortOrder
     country?: SortOrderInput | SortOrder
+    approved_by_collegepond_user_id?: SortOrderInput | SortOrder
+    lead_counsellor_id?: SortOrderInput | SortOrder
+    counsellor_id?: SortOrderInput | SortOrder
+    bdm_id?: SortOrderInput | SortOrder
+    notes?: SortOrderInput | SortOrder
+    tier?: SortOrder
+    last_login_at?: SortOrderInput | SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
     audit_log?: audit_logOrderByRelationAggregateInput
     document?: documentOrderByRelationAggregateInput
     event_registration?: event_registrationOrderByRelationAggregateInput
     notification_preference?: notification_preferenceOrderByRelationAggregateInput
     session?: sessionOrderByRelationAggregateInput
     student?: studentOrderByRelationAggregateInput
+    collegepond_user_user_approved_by_collegepond_user_idTocollegepond_user?: collegepond_userOrderByWithRelationInput
+    collegepond_user_user_bdm_idTocollegepond_user?: collegepond_userOrderByWithRelationInput
+    collegepond_user_user_counsellor_idTocollegepond_user?: collegepond_userOrderByWithRelationInput
+    collegepond_user_user_lead_counsellor_idTocollegepond_user?: collegepond_userOrderByWithRelationInput
     organization?: organizationOrderByWithRelationInput
     _relevance?: userOrderByRelevanceInput
   }
@@ -21775,16 +23283,13 @@ export namespace Prisma {
     OR?: userWhereInput[]
     NOT?: userWhereInput | userWhereInput[]
     first_name?: StringFilter<"user"> | string
+    last_name?: StringFilter<"user"> | string
     type?: IntFilter<"user"> | number
     phone?: StringFilter<"user"> | string
     is_owner?: IntFilter<"user"> | number
     status?: IntFilter<"user"> | number
     avatar_url?: StringNullableFilter<"user"> | string | null
     is_email_verified?: IntFilter<"user"> | number
-    last_login_at?: DateTimeNullableFilter<"user"> | Date | string | null
-    created_at?: DateTimeFilter<"user"> | Date | string
-    updated_at?: DateTimeFilter<"user"> | Date | string
-    last_name?: StringFilter<"user"> | string
     is_phone_verified?: IntFilter<"user"> | number
     org_id?: IntNullableFilter<"user"> | number | null
     date_of_birth?: DateTimeNullableFilter<"user"> | Date | string | null
@@ -21794,18 +23299,32 @@ export namespace Prisma {
     city?: StringNullableFilter<"user"> | string | null
     state?: StringNullableFilter<"user"> | string | null
     country?: StringNullableFilter<"user"> | string | null
+    approved_by_collegepond_user_id?: IntNullableFilter<"user"> | number | null
+    lead_counsellor_id?: IntNullableFilter<"user"> | number | null
+    counsellor_id?: IntNullableFilter<"user"> | number | null
+    bdm_id?: IntNullableFilter<"user"> | number | null
+    notes?: StringNullableFilter<"user"> | string | null
+    tier?: IntFilter<"user"> | number
+    last_login_at?: DateTimeNullableFilter<"user"> | Date | string | null
+    created_at?: DateTimeFilter<"user"> | Date | string
+    updated_at?: DateTimeFilter<"user"> | Date | string
     audit_log?: Audit_logListRelationFilter
     document?: DocumentListRelationFilter
     event_registration?: Event_registrationListRelationFilter
     notification_preference?: Notification_preferenceListRelationFilter
     session?: SessionListRelationFilter
     student?: StudentListRelationFilter
+    collegepond_user_user_approved_by_collegepond_user_idTocollegepond_user?: XOR<Collegepond_userNullableScalarRelationFilter, collegepond_userWhereInput> | null
+    collegepond_user_user_bdm_idTocollegepond_user?: XOR<Collegepond_userNullableScalarRelationFilter, collegepond_userWhereInput> | null
+    collegepond_user_user_counsellor_idTocollegepond_user?: XOR<Collegepond_userNullableScalarRelationFilter, collegepond_userWhereInput> | null
+    collegepond_user_user_lead_counsellor_idTocollegepond_user?: XOR<Collegepond_userNullableScalarRelationFilter, collegepond_userWhereInput> | null
     organization?: XOR<OrganizationNullableScalarRelationFilter, organizationWhereInput> | null
   }, "id" | "email" | "tracking_id">
 
   export type userOrderByWithAggregationInput = {
     id?: SortOrder
     first_name?: SortOrder
+    last_name?: SortOrder
     type?: SortOrder
     email?: SortOrder
     phone?: SortOrder
@@ -21813,10 +23332,6 @@ export namespace Prisma {
     status?: SortOrder
     avatar_url?: SortOrderInput | SortOrder
     is_email_verified?: SortOrder
-    last_login_at?: SortOrderInput | SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    last_name?: SortOrder
     is_phone_verified?: SortOrder
     tracking_id?: SortOrderInput | SortOrder
     org_id?: SortOrderInput | SortOrder
@@ -21827,6 +23342,15 @@ export namespace Prisma {
     city?: SortOrderInput | SortOrder
     state?: SortOrderInput | SortOrder
     country?: SortOrderInput | SortOrder
+    approved_by_collegepond_user_id?: SortOrderInput | SortOrder
+    lead_counsellor_id?: SortOrderInput | SortOrder
+    counsellor_id?: SortOrderInput | SortOrder
+    bdm_id?: SortOrderInput | SortOrder
+    notes?: SortOrderInput | SortOrder
+    tier?: SortOrder
+    last_login_at?: SortOrderInput | SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
     _count?: userCountOrderByAggregateInput
     _avg?: userAvgOrderByAggregateInput
     _max?: userMaxOrderByAggregateInput
@@ -21840,6 +23364,7 @@ export namespace Prisma {
     NOT?: userScalarWhereWithAggregatesInput | userScalarWhereWithAggregatesInput[]
     id?: IntWithAggregatesFilter<"user"> | number
     first_name?: StringWithAggregatesFilter<"user"> | string
+    last_name?: StringWithAggregatesFilter<"user"> | string
     type?: IntWithAggregatesFilter<"user"> | number
     email?: StringWithAggregatesFilter<"user"> | string
     phone?: StringWithAggregatesFilter<"user"> | string
@@ -21847,10 +23372,6 @@ export namespace Prisma {
     status?: IntWithAggregatesFilter<"user"> | number
     avatar_url?: StringNullableWithAggregatesFilter<"user"> | string | null
     is_email_verified?: IntWithAggregatesFilter<"user"> | number
-    last_login_at?: DateTimeNullableWithAggregatesFilter<"user"> | Date | string | null
-    created_at?: DateTimeWithAggregatesFilter<"user"> | Date | string
-    updated_at?: DateTimeWithAggregatesFilter<"user"> | Date | string
-    last_name?: StringWithAggregatesFilter<"user"> | string
     is_phone_verified?: IntWithAggregatesFilter<"user"> | number
     tracking_id?: StringNullableWithAggregatesFilter<"user"> | string | null
     org_id?: IntNullableWithAggregatesFilter<"user"> | number | null
@@ -21861,6 +23382,107 @@ export namespace Prisma {
     city?: StringNullableWithAggregatesFilter<"user"> | string | null
     state?: StringNullableWithAggregatesFilter<"user"> | string | null
     country?: StringNullableWithAggregatesFilter<"user"> | string | null
+    approved_by_collegepond_user_id?: IntNullableWithAggregatesFilter<"user"> | number | null
+    lead_counsellor_id?: IntNullableWithAggregatesFilter<"user"> | number | null
+    counsellor_id?: IntNullableWithAggregatesFilter<"user"> | number | null
+    bdm_id?: IntNullableWithAggregatesFilter<"user"> | number | null
+    notes?: StringNullableWithAggregatesFilter<"user"> | string | null
+    tier?: IntWithAggregatesFilter<"user"> | number
+    last_login_at?: DateTimeNullableWithAggregatesFilter<"user"> | Date | string | null
+    created_at?: DateTimeWithAggregatesFilter<"user"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"user"> | Date | string
+  }
+
+  export type collegepond_userWhereInput = {
+    AND?: collegepond_userWhereInput | collegepond_userWhereInput[]
+    OR?: collegepond_userWhereInput[]
+    NOT?: collegepond_userWhereInput | collegepond_userWhereInput[]
+    id?: IntFilter<"collegepond_user"> | number
+    created_at?: DateTimeFilter<"collegepond_user"> | Date | string
+    updated_at?: DateTimeFilter<"collegepond_user"> | Date | string
+    first_name?: StringFilter<"collegepond_user"> | string
+    last_name?: StringFilter<"collegepond_user"> | string
+    email?: StringFilter<"collegepond_user"> | string
+    phone?: StringFilter<"collegepond_user"> | string
+    role?: IntFilter<"collegepond_user"> | number
+    status?: IntFilter<"collegepond_user"> | number
+    last_login_at?: DateTimeNullableFilter<"collegepond_user"> | Date | string | null
+    user_user_approved_by_collegepond_user_idTocollegepond_user?: UserListRelationFilter
+    user_user_bdm_idTocollegepond_user?: UserListRelationFilter
+    user_user_counsellor_idTocollegepond_user?: UserListRelationFilter
+    user_user_lead_counsellor_idTocollegepond_user?: UserListRelationFilter
+  }
+
+  export type collegepond_userOrderByWithRelationInput = {
+    id?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    first_name?: SortOrder
+    last_name?: SortOrder
+    email?: SortOrder
+    phone?: SortOrder
+    role?: SortOrder
+    status?: SortOrder
+    last_login_at?: SortOrderInput | SortOrder
+    user_user_approved_by_collegepond_user_idTocollegepond_user?: userOrderByRelationAggregateInput
+    user_user_bdm_idTocollegepond_user?: userOrderByRelationAggregateInput
+    user_user_counsellor_idTocollegepond_user?: userOrderByRelationAggregateInput
+    user_user_lead_counsellor_idTocollegepond_user?: userOrderByRelationAggregateInput
+    _relevance?: collegepond_userOrderByRelevanceInput
+  }
+
+  export type collegepond_userWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    email?: string
+    AND?: collegepond_userWhereInput | collegepond_userWhereInput[]
+    OR?: collegepond_userWhereInput[]
+    NOT?: collegepond_userWhereInput | collegepond_userWhereInput[]
+    created_at?: DateTimeFilter<"collegepond_user"> | Date | string
+    updated_at?: DateTimeFilter<"collegepond_user"> | Date | string
+    first_name?: StringFilter<"collegepond_user"> | string
+    last_name?: StringFilter<"collegepond_user"> | string
+    phone?: StringFilter<"collegepond_user"> | string
+    role?: IntFilter<"collegepond_user"> | number
+    status?: IntFilter<"collegepond_user"> | number
+    last_login_at?: DateTimeNullableFilter<"collegepond_user"> | Date | string | null
+    user_user_approved_by_collegepond_user_idTocollegepond_user?: UserListRelationFilter
+    user_user_bdm_idTocollegepond_user?: UserListRelationFilter
+    user_user_counsellor_idTocollegepond_user?: UserListRelationFilter
+    user_user_lead_counsellor_idTocollegepond_user?: UserListRelationFilter
+  }, "id" | "email">
+
+  export type collegepond_userOrderByWithAggregationInput = {
+    id?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    first_name?: SortOrder
+    last_name?: SortOrder
+    email?: SortOrder
+    phone?: SortOrder
+    role?: SortOrder
+    status?: SortOrder
+    last_login_at?: SortOrderInput | SortOrder
+    _count?: collegepond_userCountOrderByAggregateInput
+    _avg?: collegepond_userAvgOrderByAggregateInput
+    _max?: collegepond_userMaxOrderByAggregateInput
+    _min?: collegepond_userMinOrderByAggregateInput
+    _sum?: collegepond_userSumOrderByAggregateInput
+  }
+
+  export type collegepond_userScalarWhereWithAggregatesInput = {
+    AND?: collegepond_userScalarWhereWithAggregatesInput | collegepond_userScalarWhereWithAggregatesInput[]
+    OR?: collegepond_userScalarWhereWithAggregatesInput[]
+    NOT?: collegepond_userScalarWhereWithAggregatesInput | collegepond_userScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"collegepond_user"> | number
+    created_at?: DateTimeWithAggregatesFilter<"collegepond_user"> | Date | string
+    updated_at?: DateTimeWithAggregatesFilter<"collegepond_user"> | Date | string
+    first_name?: StringWithAggregatesFilter<"collegepond_user"> | string
+    last_name?: StringWithAggregatesFilter<"collegepond_user"> | string
+    email?: StringWithAggregatesFilter<"collegepond_user"> | string
+    phone?: StringWithAggregatesFilter<"collegepond_user"> | string
+    role?: IntWithAggregatesFilter<"collegepond_user"> | number
+    status?: IntWithAggregatesFilter<"collegepond_user"> | number
+    last_login_at?: DateTimeNullableWithAggregatesFilter<"collegepond_user"> | Date | string | null
   }
 
   export type applicationCreateInput = {
@@ -22715,9 +24337,9 @@ export namespace Prisma {
   }
 
   export type invoice_itemUncheckedCreateInput = {
+    id?: number
     invoice_id: number
     commission_id: number
-    id?: number
     amount: Decimal | DecimalJsLike | number | string
     created_at?: Date | string
   }
@@ -22730,17 +24352,17 @@ export namespace Prisma {
   }
 
   export type invoice_itemUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
     invoice_id?: IntFieldUpdateOperationsInput | number
     commission_id?: IntFieldUpdateOperationsInput | number
-    id?: IntFieldUpdateOperationsInput | number
     amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type invoice_itemCreateManyInput = {
+    id?: number
     invoice_id: number
     commission_id: number
-    id?: number
     amount: Decimal | DecimalJsLike | number | string
     created_at?: Date | string
   }
@@ -22751,9 +24373,9 @@ export namespace Prisma {
   }
 
   export type invoice_itemUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
     invoice_id?: IntFieldUpdateOperationsInput | number
     commission_id?: IntFieldUpdateOperationsInput | number
-    id?: IntFieldUpdateOperationsInput | number
     amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -23239,6 +24861,7 @@ export namespace Prisma {
 
   export type userCreateInput = {
     first_name: string
+    last_name: string
     type: number
     email: string
     phone: string
@@ -23246,10 +24869,6 @@ export namespace Prisma {
     status?: number
     avatar_url?: string | null
     is_email_verified?: number
-    last_login_at?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    last_name: string
     is_phone_verified?: number
     tracking_id?: string | null
     date_of_birth?: Date | string | null
@@ -23259,18 +24878,28 @@ export namespace Prisma {
     city?: string | null
     state?: string | null
     country?: string | null
+    notes?: string | null
+    tier?: number
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
     audit_log?: audit_logCreateNestedManyWithoutUserInput
     document?: documentCreateNestedManyWithoutUserInput
     event_registration?: event_registrationCreateNestedManyWithoutUserInput
     notification_preference?: notification_preferenceCreateNestedManyWithoutUserInput
     session?: sessionCreateNestedManyWithoutUserInput
     student?: studentCreateNestedManyWithoutUserInput
+    collegepond_user_user_approved_by_collegepond_user_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput
+    collegepond_user_user_bdm_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_bdm_idTocollegepond_userInput
+    collegepond_user_user_counsellor_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_counsellor_idTocollegepond_userInput
+    collegepond_user_user_lead_counsellor_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_lead_counsellor_idTocollegepond_userInput
     organization?: organizationCreateNestedOneWithoutUserInput
   }
 
   export type userUncheckedCreateInput = {
     id?: number
     first_name: string
+    last_name: string
     type: number
     email: string
     phone: string
@@ -23278,10 +24907,6 @@ export namespace Prisma {
     status?: number
     avatar_url?: string | null
     is_email_verified?: number
-    last_login_at?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    last_name: string
     is_phone_verified?: number
     tracking_id?: string | null
     org_id?: number | null
@@ -23292,6 +24917,15 @@ export namespace Prisma {
     city?: string | null
     state?: string | null
     country?: string | null
+    approved_by_collegepond_user_id?: number | null
+    lead_counsellor_id?: number | null
+    counsellor_id?: number | null
+    bdm_id?: number | null
+    notes?: string | null
+    tier?: number
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
     audit_log?: audit_logUncheckedCreateNestedManyWithoutUserInput
     document?: documentUncheckedCreateNestedManyWithoutUserInput
     event_registration?: event_registrationUncheckedCreateNestedManyWithoutUserInput
@@ -23302,6 +24936,7 @@ export namespace Prisma {
 
   export type userUpdateInput = {
     first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
     type?: IntFieldUpdateOperationsInput | number
     email?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
@@ -23309,10 +24944,6 @@ export namespace Prisma {
     status?: IntFieldUpdateOperationsInput | number
     avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
     is_email_verified?: IntFieldUpdateOperationsInput | number
-    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    last_name?: StringFieldUpdateOperationsInput | string
     is_phone_verified?: IntFieldUpdateOperationsInput | number
     tracking_id?: NullableStringFieldUpdateOperationsInput | string | null
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -23322,18 +24953,28 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     country?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    tier?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     audit_log?: audit_logUpdateManyWithoutUserNestedInput
     document?: documentUpdateManyWithoutUserNestedInput
     event_registration?: event_registrationUpdateManyWithoutUserNestedInput
     notification_preference?: notification_preferenceUpdateManyWithoutUserNestedInput
     session?: sessionUpdateManyWithoutUserNestedInput
     student?: studentUpdateManyWithoutUserNestedInput
+    collegepond_user_user_approved_by_collegepond_user_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userNestedInput
+    collegepond_user_user_bdm_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_bdm_idTocollegepond_userNestedInput
+    collegepond_user_user_counsellor_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_counsellor_idTocollegepond_userNestedInput
+    collegepond_user_user_lead_counsellor_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_lead_counsellor_idTocollegepond_userNestedInput
     organization?: organizationUpdateOneWithoutUserNestedInput
   }
 
   export type userUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
     first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
     type?: IntFieldUpdateOperationsInput | number
     email?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
@@ -23341,10 +24982,6 @@ export namespace Prisma {
     status?: IntFieldUpdateOperationsInput | number
     avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
     is_email_verified?: IntFieldUpdateOperationsInput | number
-    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    last_name?: StringFieldUpdateOperationsInput | string
     is_phone_verified?: IntFieldUpdateOperationsInput | number
     tracking_id?: NullableStringFieldUpdateOperationsInput | string | null
     org_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -23355,6 +24992,15 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     country?: NullableStringFieldUpdateOperationsInput | string | null
+    approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
+    lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    tier?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     audit_log?: audit_logUncheckedUpdateManyWithoutUserNestedInput
     document?: documentUncheckedUpdateManyWithoutUserNestedInput
     event_registration?: event_registrationUncheckedUpdateManyWithoutUserNestedInput
@@ -23366,6 +25012,7 @@ export namespace Prisma {
   export type userCreateManyInput = {
     id?: number
     first_name: string
+    last_name: string
     type: number
     email: string
     phone: string
@@ -23373,10 +25020,6 @@ export namespace Prisma {
     status?: number
     avatar_url?: string | null
     is_email_verified?: number
-    last_login_at?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    last_name: string
     is_phone_verified?: number
     tracking_id?: string | null
     org_id?: number | null
@@ -23387,10 +25030,20 @@ export namespace Prisma {
     city?: string | null
     state?: string | null
     country?: string | null
+    approved_by_collegepond_user_id?: number | null
+    lead_counsellor_id?: number | null
+    counsellor_id?: number | null
+    bdm_id?: number | null
+    notes?: string | null
+    tier?: number
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
   }
 
   export type userUpdateManyMutationInput = {
     first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
     type?: IntFieldUpdateOperationsInput | number
     email?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
@@ -23398,10 +25051,6 @@ export namespace Prisma {
     status?: IntFieldUpdateOperationsInput | number
     avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
     is_email_verified?: IntFieldUpdateOperationsInput | number
-    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    last_name?: StringFieldUpdateOperationsInput | string
     is_phone_verified?: IntFieldUpdateOperationsInput | number
     tracking_id?: NullableStringFieldUpdateOperationsInput | string | null
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -23411,11 +25060,17 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     country?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    tier?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type userUncheckedUpdateManyInput = {
     id?: IntFieldUpdateOperationsInput | number
     first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
     type?: IntFieldUpdateOperationsInput | number
     email?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
@@ -23423,10 +25078,6 @@ export namespace Prisma {
     status?: IntFieldUpdateOperationsInput | number
     avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
     is_email_verified?: IntFieldUpdateOperationsInput | number
-    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    last_name?: StringFieldUpdateOperationsInput | string
     is_phone_verified?: IntFieldUpdateOperationsInput | number
     tracking_id?: NullableStringFieldUpdateOperationsInput | string | null
     org_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -23437,6 +25088,119 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     country?: NullableStringFieldUpdateOperationsInput | string | null
+    approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
+    lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    tier?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type collegepond_userCreateInput = {
+    created_at?: Date | string
+    updated_at?: Date | string
+    first_name: string
+    last_name: string
+    email: string
+    phone: string
+    role: number
+    status?: number
+    last_login_at?: Date | string | null
+    user_user_approved_by_collegepond_user_idTocollegepond_user?: userCreateNestedManyWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput
+    user_user_bdm_idTocollegepond_user?: userCreateNestedManyWithoutCollegepond_user_user_bdm_idTocollegepond_userInput
+    user_user_counsellor_idTocollegepond_user?: userCreateNestedManyWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput
+    user_user_lead_counsellor_idTocollegepond_user?: userCreateNestedManyWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput
+  }
+
+  export type collegepond_userUncheckedCreateInput = {
+    id?: number
+    created_at?: Date | string
+    updated_at?: Date | string
+    first_name: string
+    last_name: string
+    email: string
+    phone: string
+    role: number
+    status?: number
+    last_login_at?: Date | string | null
+    user_user_approved_by_collegepond_user_idTocollegepond_user?: userUncheckedCreateNestedManyWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput
+    user_user_bdm_idTocollegepond_user?: userUncheckedCreateNestedManyWithoutCollegepond_user_user_bdm_idTocollegepond_userInput
+    user_user_counsellor_idTocollegepond_user?: userUncheckedCreateNestedManyWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput
+    user_user_lead_counsellor_idTocollegepond_user?: userUncheckedCreateNestedManyWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput
+  }
+
+  export type collegepond_userUpdateInput = {
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    role?: IntFieldUpdateOperationsInput | number
+    status?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user_user_approved_by_collegepond_user_idTocollegepond_user?: userUpdateManyWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userNestedInput
+    user_user_bdm_idTocollegepond_user?: userUpdateManyWithoutCollegepond_user_user_bdm_idTocollegepond_userNestedInput
+    user_user_counsellor_idTocollegepond_user?: userUpdateManyWithoutCollegepond_user_user_counsellor_idTocollegepond_userNestedInput
+    user_user_lead_counsellor_idTocollegepond_user?: userUpdateManyWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userNestedInput
+  }
+
+  export type collegepond_userUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    role?: IntFieldUpdateOperationsInput | number
+    status?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user_user_approved_by_collegepond_user_idTocollegepond_user?: userUncheckedUpdateManyWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userNestedInput
+    user_user_bdm_idTocollegepond_user?: userUncheckedUpdateManyWithoutCollegepond_user_user_bdm_idTocollegepond_userNestedInput
+    user_user_counsellor_idTocollegepond_user?: userUncheckedUpdateManyWithoutCollegepond_user_user_counsellor_idTocollegepond_userNestedInput
+    user_user_lead_counsellor_idTocollegepond_user?: userUncheckedUpdateManyWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userNestedInput
+  }
+
+  export type collegepond_userCreateManyInput = {
+    id?: number
+    created_at?: Date | string
+    updated_at?: Date | string
+    first_name: string
+    last_name: string
+    email: string
+    phone: string
+    role: number
+    status?: number
+    last_login_at?: Date | string | null
+  }
+
+  export type collegepond_userUpdateManyMutationInput = {
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    role?: IntFieldUpdateOperationsInput | number
+    status?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  }
+
+  export type collegepond_userUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    role?: IntFieldUpdateOperationsInput | number
+    status?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -24389,40 +26153,40 @@ export namespace Prisma {
   }
 
   export type invoice_itemCountOrderByAggregateInput = {
+    id?: SortOrder
     invoice_id?: SortOrder
     commission_id?: SortOrder
-    id?: SortOrder
     amount?: SortOrder
     created_at?: SortOrder
   }
 
   export type invoice_itemAvgOrderByAggregateInput = {
+    id?: SortOrder
     invoice_id?: SortOrder
     commission_id?: SortOrder
-    id?: SortOrder
     amount?: SortOrder
   }
 
   export type invoice_itemMaxOrderByAggregateInput = {
+    id?: SortOrder
     invoice_id?: SortOrder
     commission_id?: SortOrder
-    id?: SortOrder
     amount?: SortOrder
     created_at?: SortOrder
   }
 
   export type invoice_itemMinOrderByAggregateInput = {
+    id?: SortOrder
     invoice_id?: SortOrder
     commission_id?: SortOrder
-    id?: SortOrder
     amount?: SortOrder
     created_at?: SortOrder
   }
 
   export type invoice_itemSumOrderByAggregateInput = {
+    id?: SortOrder
     invoice_id?: SortOrder
     commission_id?: SortOrder
-    id?: SortOrder
     amount?: SortOrder
   }
 
@@ -24796,6 +26560,11 @@ export namespace Prisma {
     none?: sessionWhereInput
   }
 
+  export type Collegepond_userNullableScalarRelationFilter = {
+    is?: collegepond_userWhereInput | null
+    isNot?: collegepond_userWhereInput | null
+  }
+
   export type notification_preferenceOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -24813,6 +26582,7 @@ export namespace Prisma {
   export type userCountOrderByAggregateInput = {
     id?: SortOrder
     first_name?: SortOrder
+    last_name?: SortOrder
     type?: SortOrder
     email?: SortOrder
     phone?: SortOrder
@@ -24820,10 +26590,6 @@ export namespace Prisma {
     status?: SortOrder
     avatar_url?: SortOrder
     is_email_verified?: SortOrder
-    last_login_at?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    last_name?: SortOrder
     is_phone_verified?: SortOrder
     tracking_id?: SortOrder
     org_id?: SortOrder
@@ -24834,6 +26600,15 @@ export namespace Prisma {
     city?: SortOrder
     state?: SortOrder
     country?: SortOrder
+    approved_by_collegepond_user_id?: SortOrder
+    lead_counsellor_id?: SortOrder
+    counsellor_id?: SortOrder
+    bdm_id?: SortOrder
+    notes?: SortOrder
+    tier?: SortOrder
+    last_login_at?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
   }
 
   export type userAvgOrderByAggregateInput = {
@@ -24845,11 +26620,17 @@ export namespace Prisma {
     is_phone_verified?: SortOrder
     org_id?: SortOrder
     gender?: SortOrder
+    approved_by_collegepond_user_id?: SortOrder
+    lead_counsellor_id?: SortOrder
+    counsellor_id?: SortOrder
+    bdm_id?: SortOrder
+    tier?: SortOrder
   }
 
   export type userMaxOrderByAggregateInput = {
     id?: SortOrder
     first_name?: SortOrder
+    last_name?: SortOrder
     type?: SortOrder
     email?: SortOrder
     phone?: SortOrder
@@ -24857,10 +26638,6 @@ export namespace Prisma {
     status?: SortOrder
     avatar_url?: SortOrder
     is_email_verified?: SortOrder
-    last_login_at?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    last_name?: SortOrder
     is_phone_verified?: SortOrder
     tracking_id?: SortOrder
     org_id?: SortOrder
@@ -24871,11 +26648,21 @@ export namespace Prisma {
     city?: SortOrder
     state?: SortOrder
     country?: SortOrder
+    approved_by_collegepond_user_id?: SortOrder
+    lead_counsellor_id?: SortOrder
+    counsellor_id?: SortOrder
+    bdm_id?: SortOrder
+    notes?: SortOrder
+    tier?: SortOrder
+    last_login_at?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
   }
 
   export type userMinOrderByAggregateInput = {
     id?: SortOrder
     first_name?: SortOrder
+    last_name?: SortOrder
     type?: SortOrder
     email?: SortOrder
     phone?: SortOrder
@@ -24883,10 +26670,6 @@ export namespace Prisma {
     status?: SortOrder
     avatar_url?: SortOrder
     is_email_verified?: SortOrder
-    last_login_at?: SortOrder
-    created_at?: SortOrder
-    updated_at?: SortOrder
-    last_name?: SortOrder
     is_phone_verified?: SortOrder
     tracking_id?: SortOrder
     org_id?: SortOrder
@@ -24897,6 +26680,15 @@ export namespace Prisma {
     city?: SortOrder
     state?: SortOrder
     country?: SortOrder
+    approved_by_collegepond_user_id?: SortOrder
+    lead_counsellor_id?: SortOrder
+    counsellor_id?: SortOrder
+    bdm_id?: SortOrder
+    notes?: SortOrder
+    tier?: SortOrder
+    last_login_at?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
   }
 
   export type userSumOrderByAggregateInput = {
@@ -24908,6 +26700,68 @@ export namespace Prisma {
     is_phone_verified?: SortOrder
     org_id?: SortOrder
     gender?: SortOrder
+    approved_by_collegepond_user_id?: SortOrder
+    lead_counsellor_id?: SortOrder
+    counsellor_id?: SortOrder
+    bdm_id?: SortOrder
+    tier?: SortOrder
+  }
+
+  export type collegepond_userOrderByRelevanceInput = {
+    fields: collegepond_userOrderByRelevanceFieldEnum | collegepond_userOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type collegepond_userCountOrderByAggregateInput = {
+    id?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    first_name?: SortOrder
+    last_name?: SortOrder
+    email?: SortOrder
+    phone?: SortOrder
+    role?: SortOrder
+    status?: SortOrder
+    last_login_at?: SortOrder
+  }
+
+  export type collegepond_userAvgOrderByAggregateInput = {
+    id?: SortOrder
+    role?: SortOrder
+    status?: SortOrder
+  }
+
+  export type collegepond_userMaxOrderByAggregateInput = {
+    id?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    first_name?: SortOrder
+    last_name?: SortOrder
+    email?: SortOrder
+    phone?: SortOrder
+    role?: SortOrder
+    status?: SortOrder
+    last_login_at?: SortOrder
+  }
+
+  export type collegepond_userMinOrderByAggregateInput = {
+    id?: SortOrder
+    created_at?: SortOrder
+    updated_at?: SortOrder
+    first_name?: SortOrder
+    last_name?: SortOrder
+    email?: SortOrder
+    phone?: SortOrder
+    role?: SortOrder
+    status?: SortOrder
+    last_login_at?: SortOrder
+  }
+
+  export type collegepond_userSumOrderByAggregateInput = {
+    id?: SortOrder
+    role?: SortOrder
+    status?: SortOrder
   }
 
   export type courseCreateNestedOneWithoutApplicationInput = {
@@ -25900,6 +27754,30 @@ export namespace Prisma {
     connect?: studentWhereUniqueInput | studentWhereUniqueInput[]
   }
 
+  export type collegepond_userCreateNestedOneWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput = {
+    create?: XOR<collegepond_userCreateWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput, collegepond_userUncheckedCreateWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput>
+    connectOrCreate?: collegepond_userCreateOrConnectWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput
+    connect?: collegepond_userWhereUniqueInput
+  }
+
+  export type collegepond_userCreateNestedOneWithoutUser_user_bdm_idTocollegepond_userInput = {
+    create?: XOR<collegepond_userCreateWithoutUser_user_bdm_idTocollegepond_userInput, collegepond_userUncheckedCreateWithoutUser_user_bdm_idTocollegepond_userInput>
+    connectOrCreate?: collegepond_userCreateOrConnectWithoutUser_user_bdm_idTocollegepond_userInput
+    connect?: collegepond_userWhereUniqueInput
+  }
+
+  export type collegepond_userCreateNestedOneWithoutUser_user_counsellor_idTocollegepond_userInput = {
+    create?: XOR<collegepond_userCreateWithoutUser_user_counsellor_idTocollegepond_userInput, collegepond_userUncheckedCreateWithoutUser_user_counsellor_idTocollegepond_userInput>
+    connectOrCreate?: collegepond_userCreateOrConnectWithoutUser_user_counsellor_idTocollegepond_userInput
+    connect?: collegepond_userWhereUniqueInput
+  }
+
+  export type collegepond_userCreateNestedOneWithoutUser_user_lead_counsellor_idTocollegepond_userInput = {
+    create?: XOR<collegepond_userCreateWithoutUser_user_lead_counsellor_idTocollegepond_userInput, collegepond_userUncheckedCreateWithoutUser_user_lead_counsellor_idTocollegepond_userInput>
+    connectOrCreate?: collegepond_userCreateOrConnectWithoutUser_user_lead_counsellor_idTocollegepond_userInput
+    connect?: collegepond_userWhereUniqueInput
+  }
+
   export type organizationCreateNestedOneWithoutUserInput = {
     create?: XOR<organizationCreateWithoutUserInput, organizationUncheckedCreateWithoutUserInput>
     connectOrCreate?: organizationCreateOrConnectWithoutUserInput
@@ -26032,6 +27910,46 @@ export namespace Prisma {
     deleteMany?: studentScalarWhereInput | studentScalarWhereInput[]
   }
 
+  export type collegepond_userUpdateOneWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userNestedInput = {
+    create?: XOR<collegepond_userCreateWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput, collegepond_userUncheckedCreateWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput>
+    connectOrCreate?: collegepond_userCreateOrConnectWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput
+    upsert?: collegepond_userUpsertWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput
+    disconnect?: collegepond_userWhereInput | boolean
+    delete?: collegepond_userWhereInput | boolean
+    connect?: collegepond_userWhereUniqueInput
+    update?: XOR<XOR<collegepond_userUpdateToOneWithWhereWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput, collegepond_userUpdateWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput>, collegepond_userUncheckedUpdateWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput>
+  }
+
+  export type collegepond_userUpdateOneWithoutUser_user_bdm_idTocollegepond_userNestedInput = {
+    create?: XOR<collegepond_userCreateWithoutUser_user_bdm_idTocollegepond_userInput, collegepond_userUncheckedCreateWithoutUser_user_bdm_idTocollegepond_userInput>
+    connectOrCreate?: collegepond_userCreateOrConnectWithoutUser_user_bdm_idTocollegepond_userInput
+    upsert?: collegepond_userUpsertWithoutUser_user_bdm_idTocollegepond_userInput
+    disconnect?: collegepond_userWhereInput | boolean
+    delete?: collegepond_userWhereInput | boolean
+    connect?: collegepond_userWhereUniqueInput
+    update?: XOR<XOR<collegepond_userUpdateToOneWithWhereWithoutUser_user_bdm_idTocollegepond_userInput, collegepond_userUpdateWithoutUser_user_bdm_idTocollegepond_userInput>, collegepond_userUncheckedUpdateWithoutUser_user_bdm_idTocollegepond_userInput>
+  }
+
+  export type collegepond_userUpdateOneWithoutUser_user_counsellor_idTocollegepond_userNestedInput = {
+    create?: XOR<collegepond_userCreateWithoutUser_user_counsellor_idTocollegepond_userInput, collegepond_userUncheckedCreateWithoutUser_user_counsellor_idTocollegepond_userInput>
+    connectOrCreate?: collegepond_userCreateOrConnectWithoutUser_user_counsellor_idTocollegepond_userInput
+    upsert?: collegepond_userUpsertWithoutUser_user_counsellor_idTocollegepond_userInput
+    disconnect?: collegepond_userWhereInput | boolean
+    delete?: collegepond_userWhereInput | boolean
+    connect?: collegepond_userWhereUniqueInput
+    update?: XOR<XOR<collegepond_userUpdateToOneWithWhereWithoutUser_user_counsellor_idTocollegepond_userInput, collegepond_userUpdateWithoutUser_user_counsellor_idTocollegepond_userInput>, collegepond_userUncheckedUpdateWithoutUser_user_counsellor_idTocollegepond_userInput>
+  }
+
+  export type collegepond_userUpdateOneWithoutUser_user_lead_counsellor_idTocollegepond_userNestedInput = {
+    create?: XOR<collegepond_userCreateWithoutUser_user_lead_counsellor_idTocollegepond_userInput, collegepond_userUncheckedCreateWithoutUser_user_lead_counsellor_idTocollegepond_userInput>
+    connectOrCreate?: collegepond_userCreateOrConnectWithoutUser_user_lead_counsellor_idTocollegepond_userInput
+    upsert?: collegepond_userUpsertWithoutUser_user_lead_counsellor_idTocollegepond_userInput
+    disconnect?: collegepond_userWhereInput | boolean
+    delete?: collegepond_userWhereInput | boolean
+    connect?: collegepond_userWhereUniqueInput
+    update?: XOR<XOR<collegepond_userUpdateToOneWithWhereWithoutUser_user_lead_counsellor_idTocollegepond_userInput, collegepond_userUpdateWithoutUser_user_lead_counsellor_idTocollegepond_userInput>, collegepond_userUncheckedUpdateWithoutUser_user_lead_counsellor_idTocollegepond_userInput>
+  }
+
   export type organizationUpdateOneWithoutUserNestedInput = {
     create?: XOR<organizationCreateWithoutUserInput, organizationUncheckedCreateWithoutUserInput>
     connectOrCreate?: organizationCreateOrConnectWithoutUserInput
@@ -26124,6 +28042,174 @@ export namespace Prisma {
     update?: studentUpdateWithWhereUniqueWithoutUserInput | studentUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: studentUpdateManyWithWhereWithoutUserInput | studentUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: studentScalarWhereInput | studentScalarWhereInput[]
+  }
+
+  export type userCreateNestedManyWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput = {
+    create?: XOR<userCreateWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput, userUncheckedCreateWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput> | userCreateWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput[] | userUncheckedCreateWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput[]
+    connectOrCreate?: userCreateOrConnectWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput | userCreateOrConnectWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput[]
+    createMany?: userCreateManyCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInputEnvelope
+    connect?: userWhereUniqueInput | userWhereUniqueInput[]
+  }
+
+  export type userCreateNestedManyWithoutCollegepond_user_user_bdm_idTocollegepond_userInput = {
+    create?: XOR<userCreateWithoutCollegepond_user_user_bdm_idTocollegepond_userInput, userUncheckedCreateWithoutCollegepond_user_user_bdm_idTocollegepond_userInput> | userCreateWithoutCollegepond_user_user_bdm_idTocollegepond_userInput[] | userUncheckedCreateWithoutCollegepond_user_user_bdm_idTocollegepond_userInput[]
+    connectOrCreate?: userCreateOrConnectWithoutCollegepond_user_user_bdm_idTocollegepond_userInput | userCreateOrConnectWithoutCollegepond_user_user_bdm_idTocollegepond_userInput[]
+    createMany?: userCreateManyCollegepond_user_user_bdm_idTocollegepond_userInputEnvelope
+    connect?: userWhereUniqueInput | userWhereUniqueInput[]
+  }
+
+  export type userCreateNestedManyWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput = {
+    create?: XOR<userCreateWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput, userUncheckedCreateWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput> | userCreateWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput[] | userUncheckedCreateWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput[]
+    connectOrCreate?: userCreateOrConnectWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput | userCreateOrConnectWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput[]
+    createMany?: userCreateManyCollegepond_user_user_counsellor_idTocollegepond_userInputEnvelope
+    connect?: userWhereUniqueInput | userWhereUniqueInput[]
+  }
+
+  export type userCreateNestedManyWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput = {
+    create?: XOR<userCreateWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput, userUncheckedCreateWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput> | userCreateWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput[] | userUncheckedCreateWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput[]
+    connectOrCreate?: userCreateOrConnectWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput | userCreateOrConnectWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput[]
+    createMany?: userCreateManyCollegepond_user_user_lead_counsellor_idTocollegepond_userInputEnvelope
+    connect?: userWhereUniqueInput | userWhereUniqueInput[]
+  }
+
+  export type userUncheckedCreateNestedManyWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput = {
+    create?: XOR<userCreateWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput, userUncheckedCreateWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput> | userCreateWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput[] | userUncheckedCreateWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput[]
+    connectOrCreate?: userCreateOrConnectWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput | userCreateOrConnectWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput[]
+    createMany?: userCreateManyCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInputEnvelope
+    connect?: userWhereUniqueInput | userWhereUniqueInput[]
+  }
+
+  export type userUncheckedCreateNestedManyWithoutCollegepond_user_user_bdm_idTocollegepond_userInput = {
+    create?: XOR<userCreateWithoutCollegepond_user_user_bdm_idTocollegepond_userInput, userUncheckedCreateWithoutCollegepond_user_user_bdm_idTocollegepond_userInput> | userCreateWithoutCollegepond_user_user_bdm_idTocollegepond_userInput[] | userUncheckedCreateWithoutCollegepond_user_user_bdm_idTocollegepond_userInput[]
+    connectOrCreate?: userCreateOrConnectWithoutCollegepond_user_user_bdm_idTocollegepond_userInput | userCreateOrConnectWithoutCollegepond_user_user_bdm_idTocollegepond_userInput[]
+    createMany?: userCreateManyCollegepond_user_user_bdm_idTocollegepond_userInputEnvelope
+    connect?: userWhereUniqueInput | userWhereUniqueInput[]
+  }
+
+  export type userUncheckedCreateNestedManyWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput = {
+    create?: XOR<userCreateWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput, userUncheckedCreateWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput> | userCreateWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput[] | userUncheckedCreateWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput[]
+    connectOrCreate?: userCreateOrConnectWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput | userCreateOrConnectWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput[]
+    createMany?: userCreateManyCollegepond_user_user_counsellor_idTocollegepond_userInputEnvelope
+    connect?: userWhereUniqueInput | userWhereUniqueInput[]
+  }
+
+  export type userUncheckedCreateNestedManyWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput = {
+    create?: XOR<userCreateWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput, userUncheckedCreateWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput> | userCreateWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput[] | userUncheckedCreateWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput[]
+    connectOrCreate?: userCreateOrConnectWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput | userCreateOrConnectWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput[]
+    createMany?: userCreateManyCollegepond_user_user_lead_counsellor_idTocollegepond_userInputEnvelope
+    connect?: userWhereUniqueInput | userWhereUniqueInput[]
+  }
+
+  export type userUpdateManyWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userNestedInput = {
+    create?: XOR<userCreateWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput, userUncheckedCreateWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput> | userCreateWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput[] | userUncheckedCreateWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput[]
+    connectOrCreate?: userCreateOrConnectWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput | userCreateOrConnectWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput[]
+    upsert?: userUpsertWithWhereUniqueWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput | userUpsertWithWhereUniqueWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput[]
+    createMany?: userCreateManyCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInputEnvelope
+    set?: userWhereUniqueInput | userWhereUniqueInput[]
+    disconnect?: userWhereUniqueInput | userWhereUniqueInput[]
+    delete?: userWhereUniqueInput | userWhereUniqueInput[]
+    connect?: userWhereUniqueInput | userWhereUniqueInput[]
+    update?: userUpdateWithWhereUniqueWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput | userUpdateWithWhereUniqueWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput[]
+    updateMany?: userUpdateManyWithWhereWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput | userUpdateManyWithWhereWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput[]
+    deleteMany?: userScalarWhereInput | userScalarWhereInput[]
+  }
+
+  export type userUpdateManyWithoutCollegepond_user_user_bdm_idTocollegepond_userNestedInput = {
+    create?: XOR<userCreateWithoutCollegepond_user_user_bdm_idTocollegepond_userInput, userUncheckedCreateWithoutCollegepond_user_user_bdm_idTocollegepond_userInput> | userCreateWithoutCollegepond_user_user_bdm_idTocollegepond_userInput[] | userUncheckedCreateWithoutCollegepond_user_user_bdm_idTocollegepond_userInput[]
+    connectOrCreate?: userCreateOrConnectWithoutCollegepond_user_user_bdm_idTocollegepond_userInput | userCreateOrConnectWithoutCollegepond_user_user_bdm_idTocollegepond_userInput[]
+    upsert?: userUpsertWithWhereUniqueWithoutCollegepond_user_user_bdm_idTocollegepond_userInput | userUpsertWithWhereUniqueWithoutCollegepond_user_user_bdm_idTocollegepond_userInput[]
+    createMany?: userCreateManyCollegepond_user_user_bdm_idTocollegepond_userInputEnvelope
+    set?: userWhereUniqueInput | userWhereUniqueInput[]
+    disconnect?: userWhereUniqueInput | userWhereUniqueInput[]
+    delete?: userWhereUniqueInput | userWhereUniqueInput[]
+    connect?: userWhereUniqueInput | userWhereUniqueInput[]
+    update?: userUpdateWithWhereUniqueWithoutCollegepond_user_user_bdm_idTocollegepond_userInput | userUpdateWithWhereUniqueWithoutCollegepond_user_user_bdm_idTocollegepond_userInput[]
+    updateMany?: userUpdateManyWithWhereWithoutCollegepond_user_user_bdm_idTocollegepond_userInput | userUpdateManyWithWhereWithoutCollegepond_user_user_bdm_idTocollegepond_userInput[]
+    deleteMany?: userScalarWhereInput | userScalarWhereInput[]
+  }
+
+  export type userUpdateManyWithoutCollegepond_user_user_counsellor_idTocollegepond_userNestedInput = {
+    create?: XOR<userCreateWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput, userUncheckedCreateWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput> | userCreateWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput[] | userUncheckedCreateWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput[]
+    connectOrCreate?: userCreateOrConnectWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput | userCreateOrConnectWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput[]
+    upsert?: userUpsertWithWhereUniqueWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput | userUpsertWithWhereUniqueWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput[]
+    createMany?: userCreateManyCollegepond_user_user_counsellor_idTocollegepond_userInputEnvelope
+    set?: userWhereUniqueInput | userWhereUniqueInput[]
+    disconnect?: userWhereUniqueInput | userWhereUniqueInput[]
+    delete?: userWhereUniqueInput | userWhereUniqueInput[]
+    connect?: userWhereUniqueInput | userWhereUniqueInput[]
+    update?: userUpdateWithWhereUniqueWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput | userUpdateWithWhereUniqueWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput[]
+    updateMany?: userUpdateManyWithWhereWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput | userUpdateManyWithWhereWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput[]
+    deleteMany?: userScalarWhereInput | userScalarWhereInput[]
+  }
+
+  export type userUpdateManyWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userNestedInput = {
+    create?: XOR<userCreateWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput, userUncheckedCreateWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput> | userCreateWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput[] | userUncheckedCreateWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput[]
+    connectOrCreate?: userCreateOrConnectWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput | userCreateOrConnectWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput[]
+    upsert?: userUpsertWithWhereUniqueWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput | userUpsertWithWhereUniqueWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput[]
+    createMany?: userCreateManyCollegepond_user_user_lead_counsellor_idTocollegepond_userInputEnvelope
+    set?: userWhereUniqueInput | userWhereUniqueInput[]
+    disconnect?: userWhereUniqueInput | userWhereUniqueInput[]
+    delete?: userWhereUniqueInput | userWhereUniqueInput[]
+    connect?: userWhereUniqueInput | userWhereUniqueInput[]
+    update?: userUpdateWithWhereUniqueWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput | userUpdateWithWhereUniqueWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput[]
+    updateMany?: userUpdateManyWithWhereWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput | userUpdateManyWithWhereWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput[]
+    deleteMany?: userScalarWhereInput | userScalarWhereInput[]
+  }
+
+  export type userUncheckedUpdateManyWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userNestedInput = {
+    create?: XOR<userCreateWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput, userUncheckedCreateWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput> | userCreateWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput[] | userUncheckedCreateWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput[]
+    connectOrCreate?: userCreateOrConnectWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput | userCreateOrConnectWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput[]
+    upsert?: userUpsertWithWhereUniqueWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput | userUpsertWithWhereUniqueWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput[]
+    createMany?: userCreateManyCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInputEnvelope
+    set?: userWhereUniqueInput | userWhereUniqueInput[]
+    disconnect?: userWhereUniqueInput | userWhereUniqueInput[]
+    delete?: userWhereUniqueInput | userWhereUniqueInput[]
+    connect?: userWhereUniqueInput | userWhereUniqueInput[]
+    update?: userUpdateWithWhereUniqueWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput | userUpdateWithWhereUniqueWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput[]
+    updateMany?: userUpdateManyWithWhereWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput | userUpdateManyWithWhereWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput[]
+    deleteMany?: userScalarWhereInput | userScalarWhereInput[]
+  }
+
+  export type userUncheckedUpdateManyWithoutCollegepond_user_user_bdm_idTocollegepond_userNestedInput = {
+    create?: XOR<userCreateWithoutCollegepond_user_user_bdm_idTocollegepond_userInput, userUncheckedCreateWithoutCollegepond_user_user_bdm_idTocollegepond_userInput> | userCreateWithoutCollegepond_user_user_bdm_idTocollegepond_userInput[] | userUncheckedCreateWithoutCollegepond_user_user_bdm_idTocollegepond_userInput[]
+    connectOrCreate?: userCreateOrConnectWithoutCollegepond_user_user_bdm_idTocollegepond_userInput | userCreateOrConnectWithoutCollegepond_user_user_bdm_idTocollegepond_userInput[]
+    upsert?: userUpsertWithWhereUniqueWithoutCollegepond_user_user_bdm_idTocollegepond_userInput | userUpsertWithWhereUniqueWithoutCollegepond_user_user_bdm_idTocollegepond_userInput[]
+    createMany?: userCreateManyCollegepond_user_user_bdm_idTocollegepond_userInputEnvelope
+    set?: userWhereUniqueInput | userWhereUniqueInput[]
+    disconnect?: userWhereUniqueInput | userWhereUniqueInput[]
+    delete?: userWhereUniqueInput | userWhereUniqueInput[]
+    connect?: userWhereUniqueInput | userWhereUniqueInput[]
+    update?: userUpdateWithWhereUniqueWithoutCollegepond_user_user_bdm_idTocollegepond_userInput | userUpdateWithWhereUniqueWithoutCollegepond_user_user_bdm_idTocollegepond_userInput[]
+    updateMany?: userUpdateManyWithWhereWithoutCollegepond_user_user_bdm_idTocollegepond_userInput | userUpdateManyWithWhereWithoutCollegepond_user_user_bdm_idTocollegepond_userInput[]
+    deleteMany?: userScalarWhereInput | userScalarWhereInput[]
+  }
+
+  export type userUncheckedUpdateManyWithoutCollegepond_user_user_counsellor_idTocollegepond_userNestedInput = {
+    create?: XOR<userCreateWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput, userUncheckedCreateWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput> | userCreateWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput[] | userUncheckedCreateWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput[]
+    connectOrCreate?: userCreateOrConnectWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput | userCreateOrConnectWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput[]
+    upsert?: userUpsertWithWhereUniqueWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput | userUpsertWithWhereUniqueWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput[]
+    createMany?: userCreateManyCollegepond_user_user_counsellor_idTocollegepond_userInputEnvelope
+    set?: userWhereUniqueInput | userWhereUniqueInput[]
+    disconnect?: userWhereUniqueInput | userWhereUniqueInput[]
+    delete?: userWhereUniqueInput | userWhereUniqueInput[]
+    connect?: userWhereUniqueInput | userWhereUniqueInput[]
+    update?: userUpdateWithWhereUniqueWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput | userUpdateWithWhereUniqueWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput[]
+    updateMany?: userUpdateManyWithWhereWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput | userUpdateManyWithWhereWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput[]
+    deleteMany?: userScalarWhereInput | userScalarWhereInput[]
+  }
+
+  export type userUncheckedUpdateManyWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userNestedInput = {
+    create?: XOR<userCreateWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput, userUncheckedCreateWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput> | userCreateWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput[] | userUncheckedCreateWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput[]
+    connectOrCreate?: userCreateOrConnectWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput | userCreateOrConnectWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput[]
+    upsert?: userUpsertWithWhereUniqueWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput | userUpsertWithWhereUniqueWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput[]
+    createMany?: userCreateManyCollegepond_user_user_lead_counsellor_idTocollegepond_userInputEnvelope
+    set?: userWhereUniqueInput | userWhereUniqueInput[]
+    disconnect?: userWhereUniqueInput | userWhereUniqueInput[]
+    delete?: userWhereUniqueInput | userWhereUniqueInput[]
+    connect?: userWhereUniqueInput | userWhereUniqueInput[]
+    update?: userUpdateWithWhereUniqueWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput | userUpdateWithWhereUniqueWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput[]
+    updateMany?: userUpdateManyWithWhereWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput | userUpdateManyWithWhereWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput[]
+    deleteMany?: userScalarWhereInput | userScalarWhereInput[]
   }
 
   export type NestedIntFilter<$PrismaModel = never> = {
@@ -26799,6 +28885,7 @@ export namespace Prisma {
 
   export type userCreateWithoutAudit_logInput = {
     first_name: string
+    last_name: string
     type: number
     email: string
     phone: string
@@ -26806,10 +28893,6 @@ export namespace Prisma {
     status?: number
     avatar_url?: string | null
     is_email_verified?: number
-    last_login_at?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    last_name: string
     is_phone_verified?: number
     tracking_id?: string | null
     date_of_birth?: Date | string | null
@@ -26819,17 +28902,27 @@ export namespace Prisma {
     city?: string | null
     state?: string | null
     country?: string | null
+    notes?: string | null
+    tier?: number
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
     document?: documentCreateNestedManyWithoutUserInput
     event_registration?: event_registrationCreateNestedManyWithoutUserInput
     notification_preference?: notification_preferenceCreateNestedManyWithoutUserInput
     session?: sessionCreateNestedManyWithoutUserInput
     student?: studentCreateNestedManyWithoutUserInput
+    collegepond_user_user_approved_by_collegepond_user_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput
+    collegepond_user_user_bdm_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_bdm_idTocollegepond_userInput
+    collegepond_user_user_counsellor_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_counsellor_idTocollegepond_userInput
+    collegepond_user_user_lead_counsellor_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_lead_counsellor_idTocollegepond_userInput
     organization?: organizationCreateNestedOneWithoutUserInput
   }
 
   export type userUncheckedCreateWithoutAudit_logInput = {
     id?: number
     first_name: string
+    last_name: string
     type: number
     email: string
     phone: string
@@ -26837,10 +28930,6 @@ export namespace Prisma {
     status?: number
     avatar_url?: string | null
     is_email_verified?: number
-    last_login_at?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    last_name: string
     is_phone_verified?: number
     tracking_id?: string | null
     org_id?: number | null
@@ -26851,6 +28940,15 @@ export namespace Prisma {
     city?: string | null
     state?: string | null
     country?: string | null
+    approved_by_collegepond_user_id?: number | null
+    lead_counsellor_id?: number | null
+    counsellor_id?: number | null
+    bdm_id?: number | null
+    notes?: string | null
+    tier?: number
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
     document?: documentUncheckedCreateNestedManyWithoutUserInput
     event_registration?: event_registrationUncheckedCreateNestedManyWithoutUserInput
     notification_preference?: notification_preferenceUncheckedCreateNestedManyWithoutUserInput
@@ -26936,6 +29034,7 @@ export namespace Prisma {
 
   export type userUpdateWithoutAudit_logInput = {
     first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
     type?: IntFieldUpdateOperationsInput | number
     email?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
@@ -26943,10 +29042,6 @@ export namespace Prisma {
     status?: IntFieldUpdateOperationsInput | number
     avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
     is_email_verified?: IntFieldUpdateOperationsInput | number
-    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    last_name?: StringFieldUpdateOperationsInput | string
     is_phone_verified?: IntFieldUpdateOperationsInput | number
     tracking_id?: NullableStringFieldUpdateOperationsInput | string | null
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -26956,17 +29051,27 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     country?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    tier?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     document?: documentUpdateManyWithoutUserNestedInput
     event_registration?: event_registrationUpdateManyWithoutUserNestedInput
     notification_preference?: notification_preferenceUpdateManyWithoutUserNestedInput
     session?: sessionUpdateManyWithoutUserNestedInput
     student?: studentUpdateManyWithoutUserNestedInput
+    collegepond_user_user_approved_by_collegepond_user_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userNestedInput
+    collegepond_user_user_bdm_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_bdm_idTocollegepond_userNestedInput
+    collegepond_user_user_counsellor_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_counsellor_idTocollegepond_userNestedInput
+    collegepond_user_user_lead_counsellor_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_lead_counsellor_idTocollegepond_userNestedInput
     organization?: organizationUpdateOneWithoutUserNestedInput
   }
 
   export type userUncheckedUpdateWithoutAudit_logInput = {
     id?: IntFieldUpdateOperationsInput | number
     first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
     type?: IntFieldUpdateOperationsInput | number
     email?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
@@ -26974,10 +29079,6 @@ export namespace Prisma {
     status?: IntFieldUpdateOperationsInput | number
     avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
     is_email_verified?: IntFieldUpdateOperationsInput | number
-    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    last_name?: StringFieldUpdateOperationsInput | string
     is_phone_verified?: IntFieldUpdateOperationsInput | number
     tracking_id?: NullableStringFieldUpdateOperationsInput | string | null
     org_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -26988,6 +29089,15 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     country?: NullableStringFieldUpdateOperationsInput | string | null
+    approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
+    lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    tier?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     document?: documentUncheckedUpdateManyWithoutUserNestedInput
     event_registration?: event_registrationUncheckedUpdateManyWithoutUserNestedInput
     notification_preference?: notification_preferenceUncheckedUpdateManyWithoutUserNestedInput
@@ -27090,8 +29200,8 @@ export namespace Prisma {
   }
 
   export type invoice_itemUncheckedCreateWithoutCommissionInput = {
-    invoice_id: number
     id?: number
+    invoice_id: number
     amount: Decimal | DecimalJsLike | number | string
     created_at?: Date | string
   }
@@ -27219,8 +29329,8 @@ export namespace Prisma {
   }
 
   export type invoice_itemUncheckedUpdateWithoutCommissionInput = {
-    invoice_id?: IntFieldUpdateOperationsInput | number
     id?: IntFieldUpdateOperationsInput | number
+    invoice_id?: IntFieldUpdateOperationsInput | number
     amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -27416,6 +29526,7 @@ export namespace Prisma {
 
   export type userCreateWithoutDocumentInput = {
     first_name: string
+    last_name: string
     type: number
     email: string
     phone: string
@@ -27423,10 +29534,6 @@ export namespace Prisma {
     status?: number
     avatar_url?: string | null
     is_email_verified?: number
-    last_login_at?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    last_name: string
     is_phone_verified?: number
     tracking_id?: string | null
     date_of_birth?: Date | string | null
@@ -27436,17 +29543,27 @@ export namespace Prisma {
     city?: string | null
     state?: string | null
     country?: string | null
+    notes?: string | null
+    tier?: number
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
     audit_log?: audit_logCreateNestedManyWithoutUserInput
     event_registration?: event_registrationCreateNestedManyWithoutUserInput
     notification_preference?: notification_preferenceCreateNestedManyWithoutUserInput
     session?: sessionCreateNestedManyWithoutUserInput
     student?: studentCreateNestedManyWithoutUserInput
+    collegepond_user_user_approved_by_collegepond_user_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput
+    collegepond_user_user_bdm_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_bdm_idTocollegepond_userInput
+    collegepond_user_user_counsellor_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_counsellor_idTocollegepond_userInput
+    collegepond_user_user_lead_counsellor_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_lead_counsellor_idTocollegepond_userInput
     organization?: organizationCreateNestedOneWithoutUserInput
   }
 
   export type userUncheckedCreateWithoutDocumentInput = {
     id?: number
     first_name: string
+    last_name: string
     type: number
     email: string
     phone: string
@@ -27454,10 +29571,6 @@ export namespace Prisma {
     status?: number
     avatar_url?: string | null
     is_email_verified?: number
-    last_login_at?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    last_name: string
     is_phone_verified?: number
     tracking_id?: string | null
     org_id?: number | null
@@ -27468,6 +29581,15 @@ export namespace Prisma {
     city?: string | null
     state?: string | null
     country?: string | null
+    approved_by_collegepond_user_id?: number | null
+    lead_counsellor_id?: number | null
+    counsellor_id?: number | null
+    bdm_id?: number | null
+    notes?: string | null
+    tier?: number
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
     audit_log?: audit_logUncheckedCreateNestedManyWithoutUserInput
     event_registration?: event_registrationUncheckedCreateNestedManyWithoutUserInput
     notification_preference?: notification_preferenceUncheckedCreateNestedManyWithoutUserInput
@@ -27553,6 +29675,7 @@ export namespace Prisma {
 
   export type userUpdateWithoutDocumentInput = {
     first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
     type?: IntFieldUpdateOperationsInput | number
     email?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
@@ -27560,10 +29683,6 @@ export namespace Prisma {
     status?: IntFieldUpdateOperationsInput | number
     avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
     is_email_verified?: IntFieldUpdateOperationsInput | number
-    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    last_name?: StringFieldUpdateOperationsInput | string
     is_phone_verified?: IntFieldUpdateOperationsInput | number
     tracking_id?: NullableStringFieldUpdateOperationsInput | string | null
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -27573,17 +29692,27 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     country?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    tier?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     audit_log?: audit_logUpdateManyWithoutUserNestedInput
     event_registration?: event_registrationUpdateManyWithoutUserNestedInput
     notification_preference?: notification_preferenceUpdateManyWithoutUserNestedInput
     session?: sessionUpdateManyWithoutUserNestedInput
     student?: studentUpdateManyWithoutUserNestedInput
+    collegepond_user_user_approved_by_collegepond_user_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userNestedInput
+    collegepond_user_user_bdm_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_bdm_idTocollegepond_userNestedInput
+    collegepond_user_user_counsellor_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_counsellor_idTocollegepond_userNestedInput
+    collegepond_user_user_lead_counsellor_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_lead_counsellor_idTocollegepond_userNestedInput
     organization?: organizationUpdateOneWithoutUserNestedInput
   }
 
   export type userUncheckedUpdateWithoutDocumentInput = {
     id?: IntFieldUpdateOperationsInput | number
     first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
     type?: IntFieldUpdateOperationsInput | number
     email?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
@@ -27591,10 +29720,6 @@ export namespace Prisma {
     status?: IntFieldUpdateOperationsInput | number
     avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
     is_email_verified?: IntFieldUpdateOperationsInput | number
-    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    last_name?: StringFieldUpdateOperationsInput | string
     is_phone_verified?: IntFieldUpdateOperationsInput | number
     tracking_id?: NullableStringFieldUpdateOperationsInput | string | null
     org_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -27605,6 +29730,15 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     country?: NullableStringFieldUpdateOperationsInput | string | null
+    approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
+    lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    tier?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     audit_log?: audit_logUncheckedUpdateManyWithoutUserNestedInput
     event_registration?: event_registrationUncheckedUpdateManyWithoutUserNestedInput
     notification_preference?: notification_preferenceUncheckedUpdateManyWithoutUserNestedInput
@@ -27709,6 +29843,7 @@ export namespace Prisma {
 
   export type userCreateWithoutEvent_registrationInput = {
     first_name: string
+    last_name: string
     type: number
     email: string
     phone: string
@@ -27716,10 +29851,6 @@ export namespace Prisma {
     status?: number
     avatar_url?: string | null
     is_email_verified?: number
-    last_login_at?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    last_name: string
     is_phone_verified?: number
     tracking_id?: string | null
     date_of_birth?: Date | string | null
@@ -27729,17 +29860,27 @@ export namespace Prisma {
     city?: string | null
     state?: string | null
     country?: string | null
+    notes?: string | null
+    tier?: number
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
     audit_log?: audit_logCreateNestedManyWithoutUserInput
     document?: documentCreateNestedManyWithoutUserInput
     notification_preference?: notification_preferenceCreateNestedManyWithoutUserInput
     session?: sessionCreateNestedManyWithoutUserInput
     student?: studentCreateNestedManyWithoutUserInput
+    collegepond_user_user_approved_by_collegepond_user_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput
+    collegepond_user_user_bdm_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_bdm_idTocollegepond_userInput
+    collegepond_user_user_counsellor_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_counsellor_idTocollegepond_userInput
+    collegepond_user_user_lead_counsellor_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_lead_counsellor_idTocollegepond_userInput
     organization?: organizationCreateNestedOneWithoutUserInput
   }
 
   export type userUncheckedCreateWithoutEvent_registrationInput = {
     id?: number
     first_name: string
+    last_name: string
     type: number
     email: string
     phone: string
@@ -27747,10 +29888,6 @@ export namespace Prisma {
     status?: number
     avatar_url?: string | null
     is_email_verified?: number
-    last_login_at?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    last_name: string
     is_phone_verified?: number
     tracking_id?: string | null
     org_id?: number | null
@@ -27761,6 +29898,15 @@ export namespace Prisma {
     city?: string | null
     state?: string | null
     country?: string | null
+    approved_by_collegepond_user_id?: number | null
+    lead_counsellor_id?: number | null
+    counsellor_id?: number | null
+    bdm_id?: number | null
+    notes?: string | null
+    tier?: number
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
     audit_log?: audit_logUncheckedCreateNestedManyWithoutUserInput
     document?: documentUncheckedCreateNestedManyWithoutUserInput
     notification_preference?: notification_preferenceUncheckedCreateNestedManyWithoutUserInput
@@ -27855,6 +30001,7 @@ export namespace Prisma {
 
   export type userUpdateWithoutEvent_registrationInput = {
     first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
     type?: IntFieldUpdateOperationsInput | number
     email?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
@@ -27862,10 +30009,6 @@ export namespace Prisma {
     status?: IntFieldUpdateOperationsInput | number
     avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
     is_email_verified?: IntFieldUpdateOperationsInput | number
-    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    last_name?: StringFieldUpdateOperationsInput | string
     is_phone_verified?: IntFieldUpdateOperationsInput | number
     tracking_id?: NullableStringFieldUpdateOperationsInput | string | null
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -27875,17 +30018,27 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     country?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    tier?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     audit_log?: audit_logUpdateManyWithoutUserNestedInput
     document?: documentUpdateManyWithoutUserNestedInput
     notification_preference?: notification_preferenceUpdateManyWithoutUserNestedInput
     session?: sessionUpdateManyWithoutUserNestedInput
     student?: studentUpdateManyWithoutUserNestedInput
+    collegepond_user_user_approved_by_collegepond_user_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userNestedInput
+    collegepond_user_user_bdm_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_bdm_idTocollegepond_userNestedInput
+    collegepond_user_user_counsellor_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_counsellor_idTocollegepond_userNestedInput
+    collegepond_user_user_lead_counsellor_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_lead_counsellor_idTocollegepond_userNestedInput
     organization?: organizationUpdateOneWithoutUserNestedInput
   }
 
   export type userUncheckedUpdateWithoutEvent_registrationInput = {
     id?: IntFieldUpdateOperationsInput | number
     first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
     type?: IntFieldUpdateOperationsInput | number
     email?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
@@ -27893,10 +30046,6 @@ export namespace Prisma {
     status?: IntFieldUpdateOperationsInput | number
     avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
     is_email_verified?: IntFieldUpdateOperationsInput | number
-    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    last_name?: StringFieldUpdateOperationsInput | string
     is_phone_verified?: IntFieldUpdateOperationsInput | number
     tracking_id?: NullableStringFieldUpdateOperationsInput | string | null
     org_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -27907,6 +30056,15 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     country?: NullableStringFieldUpdateOperationsInput | string | null
+    approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
+    lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    tier?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     audit_log?: audit_logUncheckedUpdateManyWithoutUserNestedInput
     document?: documentUncheckedUpdateManyWithoutUserNestedInput
     notification_preference?: notification_preferenceUncheckedUpdateManyWithoutUserNestedInput
@@ -28052,8 +30210,8 @@ export namespace Prisma {
   }
 
   export type invoice_itemUncheckedCreateWithoutInvoiceInput = {
-    commission_id: number
     id?: number
+    commission_id: number
     amount: Decimal | DecimalJsLike | number | string
     created_at?: Date | string
   }
@@ -28148,9 +30306,9 @@ export namespace Prisma {
     AND?: invoice_itemScalarWhereInput | invoice_itemScalarWhereInput[]
     OR?: invoice_itemScalarWhereInput[]
     NOT?: invoice_itemScalarWhereInput | invoice_itemScalarWhereInput[]
+    id?: IntFilter<"invoice_item"> | number
     invoice_id?: IntFilter<"invoice_item"> | number
     commission_id?: IntFilter<"invoice_item"> | number
-    id?: IntFilter<"invoice_item"> | number
     amount?: DecimalFilter<"invoice_item"> | Decimal | DecimalJsLike | number | string
     created_at?: DateTimeFilter<"invoice_item"> | Date | string
   }
@@ -28317,6 +30475,7 @@ export namespace Prisma {
 
   export type userCreateWithoutNotification_preferenceInput = {
     first_name: string
+    last_name: string
     type: number
     email: string
     phone: string
@@ -28324,10 +30483,6 @@ export namespace Prisma {
     status?: number
     avatar_url?: string | null
     is_email_verified?: number
-    last_login_at?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    last_name: string
     is_phone_verified?: number
     tracking_id?: string | null
     date_of_birth?: Date | string | null
@@ -28337,17 +30492,27 @@ export namespace Prisma {
     city?: string | null
     state?: string | null
     country?: string | null
+    notes?: string | null
+    tier?: number
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
     audit_log?: audit_logCreateNestedManyWithoutUserInput
     document?: documentCreateNestedManyWithoutUserInput
     event_registration?: event_registrationCreateNestedManyWithoutUserInput
     session?: sessionCreateNestedManyWithoutUserInput
     student?: studentCreateNestedManyWithoutUserInput
+    collegepond_user_user_approved_by_collegepond_user_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput
+    collegepond_user_user_bdm_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_bdm_idTocollegepond_userInput
+    collegepond_user_user_counsellor_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_counsellor_idTocollegepond_userInput
+    collegepond_user_user_lead_counsellor_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_lead_counsellor_idTocollegepond_userInput
     organization?: organizationCreateNestedOneWithoutUserInput
   }
 
   export type userUncheckedCreateWithoutNotification_preferenceInput = {
     id?: number
     first_name: string
+    last_name: string
     type: number
     email: string
     phone: string
@@ -28355,10 +30520,6 @@ export namespace Prisma {
     status?: number
     avatar_url?: string | null
     is_email_verified?: number
-    last_login_at?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    last_name: string
     is_phone_verified?: number
     tracking_id?: string | null
     org_id?: number | null
@@ -28369,6 +30530,15 @@ export namespace Prisma {
     city?: string | null
     state?: string | null
     country?: string | null
+    approved_by_collegepond_user_id?: number | null
+    lead_counsellor_id?: number | null
+    counsellor_id?: number | null
+    bdm_id?: number | null
+    notes?: string | null
+    tier?: number
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
     audit_log?: audit_logUncheckedCreateNestedManyWithoutUserInput
     document?: documentUncheckedCreateNestedManyWithoutUserInput
     event_registration?: event_registrationUncheckedCreateNestedManyWithoutUserInput
@@ -28394,6 +30564,7 @@ export namespace Prisma {
 
   export type userUpdateWithoutNotification_preferenceInput = {
     first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
     type?: IntFieldUpdateOperationsInput | number
     email?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
@@ -28401,10 +30572,6 @@ export namespace Prisma {
     status?: IntFieldUpdateOperationsInput | number
     avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
     is_email_verified?: IntFieldUpdateOperationsInput | number
-    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    last_name?: StringFieldUpdateOperationsInput | string
     is_phone_verified?: IntFieldUpdateOperationsInput | number
     tracking_id?: NullableStringFieldUpdateOperationsInput | string | null
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -28414,17 +30581,27 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     country?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    tier?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     audit_log?: audit_logUpdateManyWithoutUserNestedInput
     document?: documentUpdateManyWithoutUserNestedInput
     event_registration?: event_registrationUpdateManyWithoutUserNestedInput
     session?: sessionUpdateManyWithoutUserNestedInput
     student?: studentUpdateManyWithoutUserNestedInput
+    collegepond_user_user_approved_by_collegepond_user_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userNestedInput
+    collegepond_user_user_bdm_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_bdm_idTocollegepond_userNestedInput
+    collegepond_user_user_counsellor_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_counsellor_idTocollegepond_userNestedInput
+    collegepond_user_user_lead_counsellor_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_lead_counsellor_idTocollegepond_userNestedInput
     organization?: organizationUpdateOneWithoutUserNestedInput
   }
 
   export type userUncheckedUpdateWithoutNotification_preferenceInput = {
     id?: IntFieldUpdateOperationsInput | number
     first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
     type?: IntFieldUpdateOperationsInput | number
     email?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
@@ -28432,10 +30609,6 @@ export namespace Prisma {
     status?: IntFieldUpdateOperationsInput | number
     avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
     is_email_verified?: IntFieldUpdateOperationsInput | number
-    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    last_name?: StringFieldUpdateOperationsInput | string
     is_phone_verified?: IntFieldUpdateOperationsInput | number
     tracking_id?: NullableStringFieldUpdateOperationsInput | string | null
     org_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -28446,6 +30619,15 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     country?: NullableStringFieldUpdateOperationsInput | string | null
+    approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
+    lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    tier?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     audit_log?: audit_logUncheckedUpdateManyWithoutUserNestedInput
     document?: documentUncheckedUpdateManyWithoutUserNestedInput
     event_registration?: event_registrationUncheckedUpdateManyWithoutUserNestedInput
@@ -28687,6 +30869,7 @@ export namespace Prisma {
 
   export type userCreateWithoutOrganizationInput = {
     first_name: string
+    last_name: string
     type: number
     email: string
     phone: string
@@ -28694,10 +30877,6 @@ export namespace Prisma {
     status?: number
     avatar_url?: string | null
     is_email_verified?: number
-    last_login_at?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    last_name: string
     is_phone_verified?: number
     tracking_id?: string | null
     date_of_birth?: Date | string | null
@@ -28707,17 +30886,27 @@ export namespace Prisma {
     city?: string | null
     state?: string | null
     country?: string | null
+    notes?: string | null
+    tier?: number
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
     audit_log?: audit_logCreateNestedManyWithoutUserInput
     document?: documentCreateNestedManyWithoutUserInput
     event_registration?: event_registrationCreateNestedManyWithoutUserInput
     notification_preference?: notification_preferenceCreateNestedManyWithoutUserInput
     session?: sessionCreateNestedManyWithoutUserInput
     student?: studentCreateNestedManyWithoutUserInput
+    collegepond_user_user_approved_by_collegepond_user_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput
+    collegepond_user_user_bdm_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_bdm_idTocollegepond_userInput
+    collegepond_user_user_counsellor_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_counsellor_idTocollegepond_userInput
+    collegepond_user_user_lead_counsellor_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_lead_counsellor_idTocollegepond_userInput
   }
 
   export type userUncheckedCreateWithoutOrganizationInput = {
     id?: number
     first_name: string
+    last_name: string
     type: number
     email: string
     phone: string
@@ -28725,10 +30914,6 @@ export namespace Prisma {
     status?: number
     avatar_url?: string | null
     is_email_verified?: number
-    last_login_at?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    last_name: string
     is_phone_verified?: number
     tracking_id?: string | null
     date_of_birth?: Date | string | null
@@ -28738,6 +30923,15 @@ export namespace Prisma {
     city?: string | null
     state?: string | null
     country?: string | null
+    approved_by_collegepond_user_id?: number | null
+    lead_counsellor_id?: number | null
+    counsellor_id?: number | null
+    bdm_id?: number | null
+    notes?: string | null
+    tier?: number
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
     audit_log?: audit_logUncheckedCreateNestedManyWithoutUserInput
     document?: documentUncheckedCreateNestedManyWithoutUserInput
     event_registration?: event_registrationUncheckedCreateNestedManyWithoutUserInput
@@ -28965,6 +31159,7 @@ export namespace Prisma {
     NOT?: userScalarWhereInput | userScalarWhereInput[]
     id?: IntFilter<"user"> | number
     first_name?: StringFilter<"user"> | string
+    last_name?: StringFilter<"user"> | string
     type?: IntFilter<"user"> | number
     email?: StringFilter<"user"> | string
     phone?: StringFilter<"user"> | string
@@ -28972,10 +31167,6 @@ export namespace Prisma {
     status?: IntFilter<"user"> | number
     avatar_url?: StringNullableFilter<"user"> | string | null
     is_email_verified?: IntFilter<"user"> | number
-    last_login_at?: DateTimeNullableFilter<"user"> | Date | string | null
-    created_at?: DateTimeFilter<"user"> | Date | string
-    updated_at?: DateTimeFilter<"user"> | Date | string
-    last_name?: StringFilter<"user"> | string
     is_phone_verified?: IntFilter<"user"> | number
     tracking_id?: StringNullableFilter<"user"> | string | null
     org_id?: IntNullableFilter<"user"> | number | null
@@ -28986,10 +31177,20 @@ export namespace Prisma {
     city?: StringNullableFilter<"user"> | string | null
     state?: StringNullableFilter<"user"> | string | null
     country?: StringNullableFilter<"user"> | string | null
+    approved_by_collegepond_user_id?: IntNullableFilter<"user"> | number | null
+    lead_counsellor_id?: IntNullableFilter<"user"> | number | null
+    counsellor_id?: IntNullableFilter<"user"> | number | null
+    bdm_id?: IntNullableFilter<"user"> | number | null
+    notes?: StringNullableFilter<"user"> | string | null
+    tier?: IntFilter<"user"> | number
+    last_login_at?: DateTimeNullableFilter<"user"> | Date | string | null
+    created_at?: DateTimeFilter<"user"> | Date | string
+    updated_at?: DateTimeFilter<"user"> | Date | string
   }
 
   export type userCreateWithoutSessionInput = {
     first_name: string
+    last_name: string
     type: number
     email: string
     phone: string
@@ -28997,10 +31198,6 @@ export namespace Prisma {
     status?: number
     avatar_url?: string | null
     is_email_verified?: number
-    last_login_at?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    last_name: string
     is_phone_verified?: number
     tracking_id?: string | null
     date_of_birth?: Date | string | null
@@ -29010,17 +31207,27 @@ export namespace Prisma {
     city?: string | null
     state?: string | null
     country?: string | null
+    notes?: string | null
+    tier?: number
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
     audit_log?: audit_logCreateNestedManyWithoutUserInput
     document?: documentCreateNestedManyWithoutUserInput
     event_registration?: event_registrationCreateNestedManyWithoutUserInput
     notification_preference?: notification_preferenceCreateNestedManyWithoutUserInput
     student?: studentCreateNestedManyWithoutUserInput
+    collegepond_user_user_approved_by_collegepond_user_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput
+    collegepond_user_user_bdm_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_bdm_idTocollegepond_userInput
+    collegepond_user_user_counsellor_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_counsellor_idTocollegepond_userInput
+    collegepond_user_user_lead_counsellor_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_lead_counsellor_idTocollegepond_userInput
     organization?: organizationCreateNestedOneWithoutUserInput
   }
 
   export type userUncheckedCreateWithoutSessionInput = {
     id?: number
     first_name: string
+    last_name: string
     type: number
     email: string
     phone: string
@@ -29028,10 +31235,6 @@ export namespace Prisma {
     status?: number
     avatar_url?: string | null
     is_email_verified?: number
-    last_login_at?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    last_name: string
     is_phone_verified?: number
     tracking_id?: string | null
     org_id?: number | null
@@ -29042,6 +31245,15 @@ export namespace Prisma {
     city?: string | null
     state?: string | null
     country?: string | null
+    approved_by_collegepond_user_id?: number | null
+    lead_counsellor_id?: number | null
+    counsellor_id?: number | null
+    bdm_id?: number | null
+    notes?: string | null
+    tier?: number
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
     audit_log?: audit_logUncheckedCreateNestedManyWithoutUserInput
     document?: documentUncheckedCreateNestedManyWithoutUserInput
     event_registration?: event_registrationUncheckedCreateNestedManyWithoutUserInput
@@ -29067,6 +31279,7 @@ export namespace Prisma {
 
   export type userUpdateWithoutSessionInput = {
     first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
     type?: IntFieldUpdateOperationsInput | number
     email?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
@@ -29074,10 +31287,6 @@ export namespace Prisma {
     status?: IntFieldUpdateOperationsInput | number
     avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
     is_email_verified?: IntFieldUpdateOperationsInput | number
-    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    last_name?: StringFieldUpdateOperationsInput | string
     is_phone_verified?: IntFieldUpdateOperationsInput | number
     tracking_id?: NullableStringFieldUpdateOperationsInput | string | null
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -29087,17 +31296,27 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     country?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    tier?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     audit_log?: audit_logUpdateManyWithoutUserNestedInput
     document?: documentUpdateManyWithoutUserNestedInput
     event_registration?: event_registrationUpdateManyWithoutUserNestedInput
     notification_preference?: notification_preferenceUpdateManyWithoutUserNestedInput
     student?: studentUpdateManyWithoutUserNestedInput
+    collegepond_user_user_approved_by_collegepond_user_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userNestedInput
+    collegepond_user_user_bdm_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_bdm_idTocollegepond_userNestedInput
+    collegepond_user_user_counsellor_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_counsellor_idTocollegepond_userNestedInput
+    collegepond_user_user_lead_counsellor_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_lead_counsellor_idTocollegepond_userNestedInput
     organization?: organizationUpdateOneWithoutUserNestedInput
   }
 
   export type userUncheckedUpdateWithoutSessionInput = {
     id?: IntFieldUpdateOperationsInput | number
     first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
     type?: IntFieldUpdateOperationsInput | number
     email?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
@@ -29105,10 +31324,6 @@ export namespace Prisma {
     status?: IntFieldUpdateOperationsInput | number
     avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
     is_email_verified?: IntFieldUpdateOperationsInput | number
-    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    last_name?: StringFieldUpdateOperationsInput | string
     is_phone_verified?: IntFieldUpdateOperationsInput | number
     tracking_id?: NullableStringFieldUpdateOperationsInput | string | null
     org_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -29119,6 +31334,15 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     country?: NullableStringFieldUpdateOperationsInput | string | null
+    approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
+    lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    tier?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     audit_log?: audit_logUncheckedUpdateManyWithoutUserNestedInput
     document?: documentUncheckedUpdateManyWithoutUserNestedInput
     event_registration?: event_registrationUncheckedUpdateManyWithoutUserNestedInput
@@ -29221,6 +31445,7 @@ export namespace Prisma {
 
   export type userCreateWithoutStudentInput = {
     first_name: string
+    last_name: string
     type: number
     email: string
     phone: string
@@ -29228,10 +31453,6 @@ export namespace Prisma {
     status?: number
     avatar_url?: string | null
     is_email_verified?: number
-    last_login_at?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    last_name: string
     is_phone_verified?: number
     tracking_id?: string | null
     date_of_birth?: Date | string | null
@@ -29241,17 +31462,27 @@ export namespace Prisma {
     city?: string | null
     state?: string | null
     country?: string | null
+    notes?: string | null
+    tier?: number
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
     audit_log?: audit_logCreateNestedManyWithoutUserInput
     document?: documentCreateNestedManyWithoutUserInput
     event_registration?: event_registrationCreateNestedManyWithoutUserInput
     notification_preference?: notification_preferenceCreateNestedManyWithoutUserInput
     session?: sessionCreateNestedManyWithoutUserInput
+    collegepond_user_user_approved_by_collegepond_user_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput
+    collegepond_user_user_bdm_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_bdm_idTocollegepond_userInput
+    collegepond_user_user_counsellor_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_counsellor_idTocollegepond_userInput
+    collegepond_user_user_lead_counsellor_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_lead_counsellor_idTocollegepond_userInput
     organization?: organizationCreateNestedOneWithoutUserInput
   }
 
   export type userUncheckedCreateWithoutStudentInput = {
     id?: number
     first_name: string
+    last_name: string
     type: number
     email: string
     phone: string
@@ -29259,10 +31490,6 @@ export namespace Prisma {
     status?: number
     avatar_url?: string | null
     is_email_verified?: number
-    last_login_at?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    last_name: string
     is_phone_verified?: number
     tracking_id?: string | null
     org_id?: number | null
@@ -29273,6 +31500,15 @@ export namespace Prisma {
     city?: string | null
     state?: string | null
     country?: string | null
+    approved_by_collegepond_user_id?: number | null
+    lead_counsellor_id?: number | null
+    counsellor_id?: number | null
+    bdm_id?: number | null
+    notes?: string | null
+    tier?: number
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
     audit_log?: audit_logUncheckedCreateNestedManyWithoutUserInput
     document?: documentUncheckedCreateNestedManyWithoutUserInput
     event_registration?: event_registrationUncheckedCreateNestedManyWithoutUserInput
@@ -29374,6 +31610,7 @@ export namespace Prisma {
 
   export type userUpdateWithoutStudentInput = {
     first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
     type?: IntFieldUpdateOperationsInput | number
     email?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
@@ -29381,10 +31618,6 @@ export namespace Prisma {
     status?: IntFieldUpdateOperationsInput | number
     avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
     is_email_verified?: IntFieldUpdateOperationsInput | number
-    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    last_name?: StringFieldUpdateOperationsInput | string
     is_phone_verified?: IntFieldUpdateOperationsInput | number
     tracking_id?: NullableStringFieldUpdateOperationsInput | string | null
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -29394,17 +31627,27 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     country?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    tier?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     audit_log?: audit_logUpdateManyWithoutUserNestedInput
     document?: documentUpdateManyWithoutUserNestedInput
     event_registration?: event_registrationUpdateManyWithoutUserNestedInput
     notification_preference?: notification_preferenceUpdateManyWithoutUserNestedInput
     session?: sessionUpdateManyWithoutUserNestedInput
+    collegepond_user_user_approved_by_collegepond_user_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userNestedInput
+    collegepond_user_user_bdm_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_bdm_idTocollegepond_userNestedInput
+    collegepond_user_user_counsellor_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_counsellor_idTocollegepond_userNestedInput
+    collegepond_user_user_lead_counsellor_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_lead_counsellor_idTocollegepond_userNestedInput
     organization?: organizationUpdateOneWithoutUserNestedInput
   }
 
   export type userUncheckedUpdateWithoutStudentInput = {
     id?: IntFieldUpdateOperationsInput | number
     first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
     type?: IntFieldUpdateOperationsInput | number
     email?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
@@ -29412,10 +31655,6 @@ export namespace Prisma {
     status?: IntFieldUpdateOperationsInput | number
     avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
     is_email_verified?: IntFieldUpdateOperationsInput | number
-    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    last_name?: StringFieldUpdateOperationsInput | string
     is_phone_verified?: IntFieldUpdateOperationsInput | number
     tracking_id?: NullableStringFieldUpdateOperationsInput | string | null
     org_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -29426,6 +31665,15 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     country?: NullableStringFieldUpdateOperationsInput | string | null
+    approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
+    lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    tier?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     audit_log?: audit_logUncheckedUpdateManyWithoutUserNestedInput
     document?: documentUncheckedUpdateManyWithoutUserNestedInput
     event_registration?: event_registrationUncheckedUpdateManyWithoutUserNestedInput
@@ -29689,6 +31937,150 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type collegepond_userCreateWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput = {
+    created_at?: Date | string
+    updated_at?: Date | string
+    first_name: string
+    last_name: string
+    email: string
+    phone: string
+    role: number
+    status?: number
+    last_login_at?: Date | string | null
+    user_user_bdm_idTocollegepond_user?: userCreateNestedManyWithoutCollegepond_user_user_bdm_idTocollegepond_userInput
+    user_user_counsellor_idTocollegepond_user?: userCreateNestedManyWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput
+    user_user_lead_counsellor_idTocollegepond_user?: userCreateNestedManyWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput
+  }
+
+  export type collegepond_userUncheckedCreateWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput = {
+    id?: number
+    created_at?: Date | string
+    updated_at?: Date | string
+    first_name: string
+    last_name: string
+    email: string
+    phone: string
+    role: number
+    status?: number
+    last_login_at?: Date | string | null
+    user_user_bdm_idTocollegepond_user?: userUncheckedCreateNestedManyWithoutCollegepond_user_user_bdm_idTocollegepond_userInput
+    user_user_counsellor_idTocollegepond_user?: userUncheckedCreateNestedManyWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput
+    user_user_lead_counsellor_idTocollegepond_user?: userUncheckedCreateNestedManyWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput
+  }
+
+  export type collegepond_userCreateOrConnectWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput = {
+    where: collegepond_userWhereUniqueInput
+    create: XOR<collegepond_userCreateWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput, collegepond_userUncheckedCreateWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput>
+  }
+
+  export type collegepond_userCreateWithoutUser_user_bdm_idTocollegepond_userInput = {
+    created_at?: Date | string
+    updated_at?: Date | string
+    first_name: string
+    last_name: string
+    email: string
+    phone: string
+    role: number
+    status?: number
+    last_login_at?: Date | string | null
+    user_user_approved_by_collegepond_user_idTocollegepond_user?: userCreateNestedManyWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput
+    user_user_counsellor_idTocollegepond_user?: userCreateNestedManyWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput
+    user_user_lead_counsellor_idTocollegepond_user?: userCreateNestedManyWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput
+  }
+
+  export type collegepond_userUncheckedCreateWithoutUser_user_bdm_idTocollegepond_userInput = {
+    id?: number
+    created_at?: Date | string
+    updated_at?: Date | string
+    first_name: string
+    last_name: string
+    email: string
+    phone: string
+    role: number
+    status?: number
+    last_login_at?: Date | string | null
+    user_user_approved_by_collegepond_user_idTocollegepond_user?: userUncheckedCreateNestedManyWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput
+    user_user_counsellor_idTocollegepond_user?: userUncheckedCreateNestedManyWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput
+    user_user_lead_counsellor_idTocollegepond_user?: userUncheckedCreateNestedManyWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput
+  }
+
+  export type collegepond_userCreateOrConnectWithoutUser_user_bdm_idTocollegepond_userInput = {
+    where: collegepond_userWhereUniqueInput
+    create: XOR<collegepond_userCreateWithoutUser_user_bdm_idTocollegepond_userInput, collegepond_userUncheckedCreateWithoutUser_user_bdm_idTocollegepond_userInput>
+  }
+
+  export type collegepond_userCreateWithoutUser_user_counsellor_idTocollegepond_userInput = {
+    created_at?: Date | string
+    updated_at?: Date | string
+    first_name: string
+    last_name: string
+    email: string
+    phone: string
+    role: number
+    status?: number
+    last_login_at?: Date | string | null
+    user_user_approved_by_collegepond_user_idTocollegepond_user?: userCreateNestedManyWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput
+    user_user_bdm_idTocollegepond_user?: userCreateNestedManyWithoutCollegepond_user_user_bdm_idTocollegepond_userInput
+    user_user_lead_counsellor_idTocollegepond_user?: userCreateNestedManyWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput
+  }
+
+  export type collegepond_userUncheckedCreateWithoutUser_user_counsellor_idTocollegepond_userInput = {
+    id?: number
+    created_at?: Date | string
+    updated_at?: Date | string
+    first_name: string
+    last_name: string
+    email: string
+    phone: string
+    role: number
+    status?: number
+    last_login_at?: Date | string | null
+    user_user_approved_by_collegepond_user_idTocollegepond_user?: userUncheckedCreateNestedManyWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput
+    user_user_bdm_idTocollegepond_user?: userUncheckedCreateNestedManyWithoutCollegepond_user_user_bdm_idTocollegepond_userInput
+    user_user_lead_counsellor_idTocollegepond_user?: userUncheckedCreateNestedManyWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput
+  }
+
+  export type collegepond_userCreateOrConnectWithoutUser_user_counsellor_idTocollegepond_userInput = {
+    where: collegepond_userWhereUniqueInput
+    create: XOR<collegepond_userCreateWithoutUser_user_counsellor_idTocollegepond_userInput, collegepond_userUncheckedCreateWithoutUser_user_counsellor_idTocollegepond_userInput>
+  }
+
+  export type collegepond_userCreateWithoutUser_user_lead_counsellor_idTocollegepond_userInput = {
+    created_at?: Date | string
+    updated_at?: Date | string
+    first_name: string
+    last_name: string
+    email: string
+    phone: string
+    role: number
+    status?: number
+    last_login_at?: Date | string | null
+    user_user_approved_by_collegepond_user_idTocollegepond_user?: userCreateNestedManyWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput
+    user_user_bdm_idTocollegepond_user?: userCreateNestedManyWithoutCollegepond_user_user_bdm_idTocollegepond_userInput
+    user_user_counsellor_idTocollegepond_user?: userCreateNestedManyWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput
+  }
+
+  export type collegepond_userUncheckedCreateWithoutUser_user_lead_counsellor_idTocollegepond_userInput = {
+    id?: number
+    created_at?: Date | string
+    updated_at?: Date | string
+    first_name: string
+    last_name: string
+    email: string
+    phone: string
+    role: number
+    status?: number
+    last_login_at?: Date | string | null
+    user_user_approved_by_collegepond_user_idTocollegepond_user?: userUncheckedCreateNestedManyWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput
+    user_user_bdm_idTocollegepond_user?: userUncheckedCreateNestedManyWithoutCollegepond_user_user_bdm_idTocollegepond_userInput
+    user_user_counsellor_idTocollegepond_user?: userUncheckedCreateNestedManyWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput
+  }
+
+  export type collegepond_userCreateOrConnectWithoutUser_user_lead_counsellor_idTocollegepond_userInput = {
+    where: collegepond_userWhereUniqueInput
+    create: XOR<collegepond_userCreateWithoutUser_user_lead_counsellor_idTocollegepond_userInput, collegepond_userUncheckedCreateWithoutUser_user_lead_counsellor_idTocollegepond_userInput>
+  }
+
   export type organizationCreateWithoutUserInput = {
     name: string
     type: number
@@ -29863,6 +32255,174 @@ export namespace Prisma {
     data: XOR<studentUpdateManyMutationInput, studentUncheckedUpdateManyWithoutUserInput>
   }
 
+  export type collegepond_userUpsertWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput = {
+    update: XOR<collegepond_userUpdateWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput, collegepond_userUncheckedUpdateWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput>
+    create: XOR<collegepond_userCreateWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput, collegepond_userUncheckedCreateWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput>
+    where?: collegepond_userWhereInput
+  }
+
+  export type collegepond_userUpdateToOneWithWhereWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput = {
+    where?: collegepond_userWhereInput
+    data: XOR<collegepond_userUpdateWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput, collegepond_userUncheckedUpdateWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput>
+  }
+
+  export type collegepond_userUpdateWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput = {
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    role?: IntFieldUpdateOperationsInput | number
+    status?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user_user_bdm_idTocollegepond_user?: userUpdateManyWithoutCollegepond_user_user_bdm_idTocollegepond_userNestedInput
+    user_user_counsellor_idTocollegepond_user?: userUpdateManyWithoutCollegepond_user_user_counsellor_idTocollegepond_userNestedInput
+    user_user_lead_counsellor_idTocollegepond_user?: userUpdateManyWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userNestedInput
+  }
+
+  export type collegepond_userUncheckedUpdateWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    role?: IntFieldUpdateOperationsInput | number
+    status?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user_user_bdm_idTocollegepond_user?: userUncheckedUpdateManyWithoutCollegepond_user_user_bdm_idTocollegepond_userNestedInput
+    user_user_counsellor_idTocollegepond_user?: userUncheckedUpdateManyWithoutCollegepond_user_user_counsellor_idTocollegepond_userNestedInput
+    user_user_lead_counsellor_idTocollegepond_user?: userUncheckedUpdateManyWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userNestedInput
+  }
+
+  export type collegepond_userUpsertWithoutUser_user_bdm_idTocollegepond_userInput = {
+    update: XOR<collegepond_userUpdateWithoutUser_user_bdm_idTocollegepond_userInput, collegepond_userUncheckedUpdateWithoutUser_user_bdm_idTocollegepond_userInput>
+    create: XOR<collegepond_userCreateWithoutUser_user_bdm_idTocollegepond_userInput, collegepond_userUncheckedCreateWithoutUser_user_bdm_idTocollegepond_userInput>
+    where?: collegepond_userWhereInput
+  }
+
+  export type collegepond_userUpdateToOneWithWhereWithoutUser_user_bdm_idTocollegepond_userInput = {
+    where?: collegepond_userWhereInput
+    data: XOR<collegepond_userUpdateWithoutUser_user_bdm_idTocollegepond_userInput, collegepond_userUncheckedUpdateWithoutUser_user_bdm_idTocollegepond_userInput>
+  }
+
+  export type collegepond_userUpdateWithoutUser_user_bdm_idTocollegepond_userInput = {
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    role?: IntFieldUpdateOperationsInput | number
+    status?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user_user_approved_by_collegepond_user_idTocollegepond_user?: userUpdateManyWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userNestedInput
+    user_user_counsellor_idTocollegepond_user?: userUpdateManyWithoutCollegepond_user_user_counsellor_idTocollegepond_userNestedInput
+    user_user_lead_counsellor_idTocollegepond_user?: userUpdateManyWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userNestedInput
+  }
+
+  export type collegepond_userUncheckedUpdateWithoutUser_user_bdm_idTocollegepond_userInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    role?: IntFieldUpdateOperationsInput | number
+    status?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user_user_approved_by_collegepond_user_idTocollegepond_user?: userUncheckedUpdateManyWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userNestedInput
+    user_user_counsellor_idTocollegepond_user?: userUncheckedUpdateManyWithoutCollegepond_user_user_counsellor_idTocollegepond_userNestedInput
+    user_user_lead_counsellor_idTocollegepond_user?: userUncheckedUpdateManyWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userNestedInput
+  }
+
+  export type collegepond_userUpsertWithoutUser_user_counsellor_idTocollegepond_userInput = {
+    update: XOR<collegepond_userUpdateWithoutUser_user_counsellor_idTocollegepond_userInput, collegepond_userUncheckedUpdateWithoutUser_user_counsellor_idTocollegepond_userInput>
+    create: XOR<collegepond_userCreateWithoutUser_user_counsellor_idTocollegepond_userInput, collegepond_userUncheckedCreateWithoutUser_user_counsellor_idTocollegepond_userInput>
+    where?: collegepond_userWhereInput
+  }
+
+  export type collegepond_userUpdateToOneWithWhereWithoutUser_user_counsellor_idTocollegepond_userInput = {
+    where?: collegepond_userWhereInput
+    data: XOR<collegepond_userUpdateWithoutUser_user_counsellor_idTocollegepond_userInput, collegepond_userUncheckedUpdateWithoutUser_user_counsellor_idTocollegepond_userInput>
+  }
+
+  export type collegepond_userUpdateWithoutUser_user_counsellor_idTocollegepond_userInput = {
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    role?: IntFieldUpdateOperationsInput | number
+    status?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user_user_approved_by_collegepond_user_idTocollegepond_user?: userUpdateManyWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userNestedInput
+    user_user_bdm_idTocollegepond_user?: userUpdateManyWithoutCollegepond_user_user_bdm_idTocollegepond_userNestedInput
+    user_user_lead_counsellor_idTocollegepond_user?: userUpdateManyWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userNestedInput
+  }
+
+  export type collegepond_userUncheckedUpdateWithoutUser_user_counsellor_idTocollegepond_userInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    role?: IntFieldUpdateOperationsInput | number
+    status?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user_user_approved_by_collegepond_user_idTocollegepond_user?: userUncheckedUpdateManyWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userNestedInput
+    user_user_bdm_idTocollegepond_user?: userUncheckedUpdateManyWithoutCollegepond_user_user_bdm_idTocollegepond_userNestedInput
+    user_user_lead_counsellor_idTocollegepond_user?: userUncheckedUpdateManyWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userNestedInput
+  }
+
+  export type collegepond_userUpsertWithoutUser_user_lead_counsellor_idTocollegepond_userInput = {
+    update: XOR<collegepond_userUpdateWithoutUser_user_lead_counsellor_idTocollegepond_userInput, collegepond_userUncheckedUpdateWithoutUser_user_lead_counsellor_idTocollegepond_userInput>
+    create: XOR<collegepond_userCreateWithoutUser_user_lead_counsellor_idTocollegepond_userInput, collegepond_userUncheckedCreateWithoutUser_user_lead_counsellor_idTocollegepond_userInput>
+    where?: collegepond_userWhereInput
+  }
+
+  export type collegepond_userUpdateToOneWithWhereWithoutUser_user_lead_counsellor_idTocollegepond_userInput = {
+    where?: collegepond_userWhereInput
+    data: XOR<collegepond_userUpdateWithoutUser_user_lead_counsellor_idTocollegepond_userInput, collegepond_userUncheckedUpdateWithoutUser_user_lead_counsellor_idTocollegepond_userInput>
+  }
+
+  export type collegepond_userUpdateWithoutUser_user_lead_counsellor_idTocollegepond_userInput = {
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    role?: IntFieldUpdateOperationsInput | number
+    status?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user_user_approved_by_collegepond_user_idTocollegepond_user?: userUpdateManyWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userNestedInput
+    user_user_bdm_idTocollegepond_user?: userUpdateManyWithoutCollegepond_user_user_bdm_idTocollegepond_userNestedInput
+    user_user_counsellor_idTocollegepond_user?: userUpdateManyWithoutCollegepond_user_user_counsellor_idTocollegepond_userNestedInput
+  }
+
+  export type collegepond_userUncheckedUpdateWithoutUser_user_lead_counsellor_idTocollegepond_userInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    role?: IntFieldUpdateOperationsInput | number
+    status?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    user_user_approved_by_collegepond_user_idTocollegepond_user?: userUncheckedUpdateManyWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userNestedInput
+    user_user_bdm_idTocollegepond_user?: userUncheckedUpdateManyWithoutCollegepond_user_user_bdm_idTocollegepond_userNestedInput
+    user_user_counsellor_idTocollegepond_user?: userUncheckedUpdateManyWithoutCollegepond_user_user_counsellor_idTocollegepond_userNestedInput
+  }
+
   export type organizationUpsertWithoutUserInput = {
     update: XOR<organizationUpdateWithoutUserInput, organizationUncheckedUpdateWithoutUserInput>
     create: XOR<organizationCreateWithoutUserInput, organizationUncheckedCreateWithoutUserInput>
@@ -29921,6 +32481,402 @@ export namespace Prisma {
     document?: documentUncheckedUpdateManyWithoutOrganizationNestedInput
     invoice?: invoiceUncheckedUpdateManyWithoutOrganizationNestedInput
     student?: studentUncheckedUpdateManyWithoutOrganizationNestedInput
+  }
+
+  export type userCreateWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput = {
+    first_name: string
+    last_name: string
+    type: number
+    email: string
+    phone: string
+    is_owner?: number
+    status?: number
+    avatar_url?: string | null
+    is_email_verified?: number
+    is_phone_verified?: number
+    tracking_id?: string | null
+    date_of_birth?: Date | string | null
+    gender?: number | null
+    nationality?: string | null
+    address?: string | null
+    city?: string | null
+    state?: string | null
+    country?: string | null
+    notes?: string | null
+    tier?: number
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    audit_log?: audit_logCreateNestedManyWithoutUserInput
+    document?: documentCreateNestedManyWithoutUserInput
+    event_registration?: event_registrationCreateNestedManyWithoutUserInput
+    notification_preference?: notification_preferenceCreateNestedManyWithoutUserInput
+    session?: sessionCreateNestedManyWithoutUserInput
+    student?: studentCreateNestedManyWithoutUserInput
+    collegepond_user_user_bdm_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_bdm_idTocollegepond_userInput
+    collegepond_user_user_counsellor_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_counsellor_idTocollegepond_userInput
+    collegepond_user_user_lead_counsellor_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_lead_counsellor_idTocollegepond_userInput
+    organization?: organizationCreateNestedOneWithoutUserInput
+  }
+
+  export type userUncheckedCreateWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput = {
+    id?: number
+    first_name: string
+    last_name: string
+    type: number
+    email: string
+    phone: string
+    is_owner?: number
+    status?: number
+    avatar_url?: string | null
+    is_email_verified?: number
+    is_phone_verified?: number
+    tracking_id?: string | null
+    org_id?: number | null
+    date_of_birth?: Date | string | null
+    gender?: number | null
+    nationality?: string | null
+    address?: string | null
+    city?: string | null
+    state?: string | null
+    country?: string | null
+    lead_counsellor_id?: number | null
+    counsellor_id?: number | null
+    bdm_id?: number | null
+    notes?: string | null
+    tier?: number
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    audit_log?: audit_logUncheckedCreateNestedManyWithoutUserInput
+    document?: documentUncheckedCreateNestedManyWithoutUserInput
+    event_registration?: event_registrationUncheckedCreateNestedManyWithoutUserInput
+    notification_preference?: notification_preferenceUncheckedCreateNestedManyWithoutUserInput
+    session?: sessionUncheckedCreateNestedManyWithoutUserInput
+    student?: studentUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type userCreateOrConnectWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput = {
+    where: userWhereUniqueInput
+    create: XOR<userCreateWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput, userUncheckedCreateWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput>
+  }
+
+  export type userCreateManyCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInputEnvelope = {
+    data: userCreateManyCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput | userCreateManyCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type userCreateWithoutCollegepond_user_user_bdm_idTocollegepond_userInput = {
+    first_name: string
+    last_name: string
+    type: number
+    email: string
+    phone: string
+    is_owner?: number
+    status?: number
+    avatar_url?: string | null
+    is_email_verified?: number
+    is_phone_verified?: number
+    tracking_id?: string | null
+    date_of_birth?: Date | string | null
+    gender?: number | null
+    nationality?: string | null
+    address?: string | null
+    city?: string | null
+    state?: string | null
+    country?: string | null
+    notes?: string | null
+    tier?: number
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    audit_log?: audit_logCreateNestedManyWithoutUserInput
+    document?: documentCreateNestedManyWithoutUserInput
+    event_registration?: event_registrationCreateNestedManyWithoutUserInput
+    notification_preference?: notification_preferenceCreateNestedManyWithoutUserInput
+    session?: sessionCreateNestedManyWithoutUserInput
+    student?: studentCreateNestedManyWithoutUserInput
+    collegepond_user_user_approved_by_collegepond_user_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput
+    collegepond_user_user_counsellor_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_counsellor_idTocollegepond_userInput
+    collegepond_user_user_lead_counsellor_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_lead_counsellor_idTocollegepond_userInput
+    organization?: organizationCreateNestedOneWithoutUserInput
+  }
+
+  export type userUncheckedCreateWithoutCollegepond_user_user_bdm_idTocollegepond_userInput = {
+    id?: number
+    first_name: string
+    last_name: string
+    type: number
+    email: string
+    phone: string
+    is_owner?: number
+    status?: number
+    avatar_url?: string | null
+    is_email_verified?: number
+    is_phone_verified?: number
+    tracking_id?: string | null
+    org_id?: number | null
+    date_of_birth?: Date | string | null
+    gender?: number | null
+    nationality?: string | null
+    address?: string | null
+    city?: string | null
+    state?: string | null
+    country?: string | null
+    approved_by_collegepond_user_id?: number | null
+    lead_counsellor_id?: number | null
+    counsellor_id?: number | null
+    notes?: string | null
+    tier?: number
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    audit_log?: audit_logUncheckedCreateNestedManyWithoutUserInput
+    document?: documentUncheckedCreateNestedManyWithoutUserInput
+    event_registration?: event_registrationUncheckedCreateNestedManyWithoutUserInput
+    notification_preference?: notification_preferenceUncheckedCreateNestedManyWithoutUserInput
+    session?: sessionUncheckedCreateNestedManyWithoutUserInput
+    student?: studentUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type userCreateOrConnectWithoutCollegepond_user_user_bdm_idTocollegepond_userInput = {
+    where: userWhereUniqueInput
+    create: XOR<userCreateWithoutCollegepond_user_user_bdm_idTocollegepond_userInput, userUncheckedCreateWithoutCollegepond_user_user_bdm_idTocollegepond_userInput>
+  }
+
+  export type userCreateManyCollegepond_user_user_bdm_idTocollegepond_userInputEnvelope = {
+    data: userCreateManyCollegepond_user_user_bdm_idTocollegepond_userInput | userCreateManyCollegepond_user_user_bdm_idTocollegepond_userInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type userCreateWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput = {
+    first_name: string
+    last_name: string
+    type: number
+    email: string
+    phone: string
+    is_owner?: number
+    status?: number
+    avatar_url?: string | null
+    is_email_verified?: number
+    is_phone_verified?: number
+    tracking_id?: string | null
+    date_of_birth?: Date | string | null
+    gender?: number | null
+    nationality?: string | null
+    address?: string | null
+    city?: string | null
+    state?: string | null
+    country?: string | null
+    notes?: string | null
+    tier?: number
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    audit_log?: audit_logCreateNestedManyWithoutUserInput
+    document?: documentCreateNestedManyWithoutUserInput
+    event_registration?: event_registrationCreateNestedManyWithoutUserInput
+    notification_preference?: notification_preferenceCreateNestedManyWithoutUserInput
+    session?: sessionCreateNestedManyWithoutUserInput
+    student?: studentCreateNestedManyWithoutUserInput
+    collegepond_user_user_approved_by_collegepond_user_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput
+    collegepond_user_user_bdm_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_bdm_idTocollegepond_userInput
+    collegepond_user_user_lead_counsellor_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_lead_counsellor_idTocollegepond_userInput
+    organization?: organizationCreateNestedOneWithoutUserInput
+  }
+
+  export type userUncheckedCreateWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput = {
+    id?: number
+    first_name: string
+    last_name: string
+    type: number
+    email: string
+    phone: string
+    is_owner?: number
+    status?: number
+    avatar_url?: string | null
+    is_email_verified?: number
+    is_phone_verified?: number
+    tracking_id?: string | null
+    org_id?: number | null
+    date_of_birth?: Date | string | null
+    gender?: number | null
+    nationality?: string | null
+    address?: string | null
+    city?: string | null
+    state?: string | null
+    country?: string | null
+    approved_by_collegepond_user_id?: number | null
+    lead_counsellor_id?: number | null
+    bdm_id?: number | null
+    notes?: string | null
+    tier?: number
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    audit_log?: audit_logUncheckedCreateNestedManyWithoutUserInput
+    document?: documentUncheckedCreateNestedManyWithoutUserInput
+    event_registration?: event_registrationUncheckedCreateNestedManyWithoutUserInput
+    notification_preference?: notification_preferenceUncheckedCreateNestedManyWithoutUserInput
+    session?: sessionUncheckedCreateNestedManyWithoutUserInput
+    student?: studentUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type userCreateOrConnectWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput = {
+    where: userWhereUniqueInput
+    create: XOR<userCreateWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput, userUncheckedCreateWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput>
+  }
+
+  export type userCreateManyCollegepond_user_user_counsellor_idTocollegepond_userInputEnvelope = {
+    data: userCreateManyCollegepond_user_user_counsellor_idTocollegepond_userInput | userCreateManyCollegepond_user_user_counsellor_idTocollegepond_userInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type userCreateWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput = {
+    first_name: string
+    last_name: string
+    type: number
+    email: string
+    phone: string
+    is_owner?: number
+    status?: number
+    avatar_url?: string | null
+    is_email_verified?: number
+    is_phone_verified?: number
+    tracking_id?: string | null
+    date_of_birth?: Date | string | null
+    gender?: number | null
+    nationality?: string | null
+    address?: string | null
+    city?: string | null
+    state?: string | null
+    country?: string | null
+    notes?: string | null
+    tier?: number
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    audit_log?: audit_logCreateNestedManyWithoutUserInput
+    document?: documentCreateNestedManyWithoutUserInput
+    event_registration?: event_registrationCreateNestedManyWithoutUserInput
+    notification_preference?: notification_preferenceCreateNestedManyWithoutUserInput
+    session?: sessionCreateNestedManyWithoutUserInput
+    student?: studentCreateNestedManyWithoutUserInput
+    collegepond_user_user_approved_by_collegepond_user_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userInput
+    collegepond_user_user_bdm_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_bdm_idTocollegepond_userInput
+    collegepond_user_user_counsellor_idTocollegepond_user?: collegepond_userCreateNestedOneWithoutUser_user_counsellor_idTocollegepond_userInput
+    organization?: organizationCreateNestedOneWithoutUserInput
+  }
+
+  export type userUncheckedCreateWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput = {
+    id?: number
+    first_name: string
+    last_name: string
+    type: number
+    email: string
+    phone: string
+    is_owner?: number
+    status?: number
+    avatar_url?: string | null
+    is_email_verified?: number
+    is_phone_verified?: number
+    tracking_id?: string | null
+    org_id?: number | null
+    date_of_birth?: Date | string | null
+    gender?: number | null
+    nationality?: string | null
+    address?: string | null
+    city?: string | null
+    state?: string | null
+    country?: string | null
+    approved_by_collegepond_user_id?: number | null
+    counsellor_id?: number | null
+    bdm_id?: number | null
+    notes?: string | null
+    tier?: number
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+    audit_log?: audit_logUncheckedCreateNestedManyWithoutUserInput
+    document?: documentUncheckedCreateNestedManyWithoutUserInput
+    event_registration?: event_registrationUncheckedCreateNestedManyWithoutUserInput
+    notification_preference?: notification_preferenceUncheckedCreateNestedManyWithoutUserInput
+    session?: sessionUncheckedCreateNestedManyWithoutUserInput
+    student?: studentUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type userCreateOrConnectWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput = {
+    where: userWhereUniqueInput
+    create: XOR<userCreateWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput, userUncheckedCreateWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput>
+  }
+
+  export type userCreateManyCollegepond_user_user_lead_counsellor_idTocollegepond_userInputEnvelope = {
+    data: userCreateManyCollegepond_user_user_lead_counsellor_idTocollegepond_userInput | userCreateManyCollegepond_user_user_lead_counsellor_idTocollegepond_userInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type userUpsertWithWhereUniqueWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput = {
+    where: userWhereUniqueInput
+    update: XOR<userUpdateWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput, userUncheckedUpdateWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput>
+    create: XOR<userCreateWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput, userUncheckedCreateWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput>
+  }
+
+  export type userUpdateWithWhereUniqueWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput = {
+    where: userWhereUniqueInput
+    data: XOR<userUpdateWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput, userUncheckedUpdateWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput>
+  }
+
+  export type userUpdateManyWithWhereWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput = {
+    where: userScalarWhereInput
+    data: XOR<userUpdateManyMutationInput, userUncheckedUpdateManyWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput>
+  }
+
+  export type userUpsertWithWhereUniqueWithoutCollegepond_user_user_bdm_idTocollegepond_userInput = {
+    where: userWhereUniqueInput
+    update: XOR<userUpdateWithoutCollegepond_user_user_bdm_idTocollegepond_userInput, userUncheckedUpdateWithoutCollegepond_user_user_bdm_idTocollegepond_userInput>
+    create: XOR<userCreateWithoutCollegepond_user_user_bdm_idTocollegepond_userInput, userUncheckedCreateWithoutCollegepond_user_user_bdm_idTocollegepond_userInput>
+  }
+
+  export type userUpdateWithWhereUniqueWithoutCollegepond_user_user_bdm_idTocollegepond_userInput = {
+    where: userWhereUniqueInput
+    data: XOR<userUpdateWithoutCollegepond_user_user_bdm_idTocollegepond_userInput, userUncheckedUpdateWithoutCollegepond_user_user_bdm_idTocollegepond_userInput>
+  }
+
+  export type userUpdateManyWithWhereWithoutCollegepond_user_user_bdm_idTocollegepond_userInput = {
+    where: userScalarWhereInput
+    data: XOR<userUpdateManyMutationInput, userUncheckedUpdateManyWithoutCollegepond_user_user_bdm_idTocollegepond_userInput>
+  }
+
+  export type userUpsertWithWhereUniqueWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput = {
+    where: userWhereUniqueInput
+    update: XOR<userUpdateWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput, userUncheckedUpdateWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput>
+    create: XOR<userCreateWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput, userUncheckedCreateWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput>
+  }
+
+  export type userUpdateWithWhereUniqueWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput = {
+    where: userWhereUniqueInput
+    data: XOR<userUpdateWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput, userUncheckedUpdateWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput>
+  }
+
+  export type userUpdateManyWithWhereWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput = {
+    where: userScalarWhereInput
+    data: XOR<userUpdateManyMutationInput, userUncheckedUpdateManyWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput>
+  }
+
+  export type userUpsertWithWhereUniqueWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput = {
+    where: userWhereUniqueInput
+    update: XOR<userUpdateWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput, userUncheckedUpdateWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput>
+    create: XOR<userCreateWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput, userUncheckedCreateWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput>
+  }
+
+  export type userUpdateWithWhereUniqueWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput = {
+    where: userWhereUniqueInput
+    data: XOR<userUpdateWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput, userUncheckedUpdateWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput>
+  }
+
+  export type userUpdateManyWithWhereWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput = {
+    where: userScalarWhereInput
+    data: XOR<userUpdateManyMutationInput, userUncheckedUpdateManyWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput>
   }
 
   export type applicationCreateManyCourseInput = {
@@ -30041,8 +32997,8 @@ export namespace Prisma {
   }
 
   export type invoice_itemCreateManyInvoiceInput = {
-    commission_id: number
     id?: number
+    commission_id: number
     amount: Decimal | DecimalJsLike | number | string
     created_at?: Date | string
   }
@@ -30054,15 +33010,15 @@ export namespace Prisma {
   }
 
   export type invoice_itemUncheckedUpdateWithoutInvoiceInput = {
-    commission_id?: IntFieldUpdateOperationsInput | number
     id?: IntFieldUpdateOperationsInput | number
+    commission_id?: IntFieldUpdateOperationsInput | number
     amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type invoice_itemUncheckedUpdateManyWithoutInvoiceInput = {
-    commission_id?: IntFieldUpdateOperationsInput | number
     id?: IntFieldUpdateOperationsInput | number
+    commission_id?: IntFieldUpdateOperationsInput | number
     amount?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -30155,6 +33111,7 @@ export namespace Prisma {
   export type userCreateManyOrganizationInput = {
     id?: number
     first_name: string
+    last_name: string
     type: number
     email: string
     phone: string
@@ -30162,10 +33119,6 @@ export namespace Prisma {
     status?: number
     avatar_url?: string | null
     is_email_verified?: number
-    last_login_at?: Date | string | null
-    created_at?: Date | string
-    updated_at?: Date | string
-    last_name: string
     is_phone_verified?: number
     tracking_id?: string | null
     date_of_birth?: Date | string | null
@@ -30175,6 +33128,15 @@ export namespace Prisma {
     city?: string | null
     state?: string | null
     country?: string | null
+    approved_by_collegepond_user_id?: number | null
+    lead_counsellor_id?: number | null
+    counsellor_id?: number | null
+    bdm_id?: number | null
+    notes?: string | null
+    tier?: number
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
   }
 
   export type applicationUpdateWithoutOrganizationInput = {
@@ -30436,6 +33398,7 @@ export namespace Prisma {
 
   export type userUpdateWithoutOrganizationInput = {
     first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
     type?: IntFieldUpdateOperationsInput | number
     email?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
@@ -30443,10 +33406,6 @@ export namespace Prisma {
     status?: IntFieldUpdateOperationsInput | number
     avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
     is_email_verified?: IntFieldUpdateOperationsInput | number
-    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    last_name?: StringFieldUpdateOperationsInput | string
     is_phone_verified?: IntFieldUpdateOperationsInput | number
     tracking_id?: NullableStringFieldUpdateOperationsInput | string | null
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -30456,17 +33415,27 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     country?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    tier?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     audit_log?: audit_logUpdateManyWithoutUserNestedInput
     document?: documentUpdateManyWithoutUserNestedInput
     event_registration?: event_registrationUpdateManyWithoutUserNestedInput
     notification_preference?: notification_preferenceUpdateManyWithoutUserNestedInput
     session?: sessionUpdateManyWithoutUserNestedInput
     student?: studentUpdateManyWithoutUserNestedInput
+    collegepond_user_user_approved_by_collegepond_user_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userNestedInput
+    collegepond_user_user_bdm_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_bdm_idTocollegepond_userNestedInput
+    collegepond_user_user_counsellor_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_counsellor_idTocollegepond_userNestedInput
+    collegepond_user_user_lead_counsellor_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_lead_counsellor_idTocollegepond_userNestedInput
   }
 
   export type userUncheckedUpdateWithoutOrganizationInput = {
     id?: IntFieldUpdateOperationsInput | number
     first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
     type?: IntFieldUpdateOperationsInput | number
     email?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
@@ -30474,10 +33443,6 @@ export namespace Prisma {
     status?: IntFieldUpdateOperationsInput | number
     avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
     is_email_verified?: IntFieldUpdateOperationsInput | number
-    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    last_name?: StringFieldUpdateOperationsInput | string
     is_phone_verified?: IntFieldUpdateOperationsInput | number
     tracking_id?: NullableStringFieldUpdateOperationsInput | string | null
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -30487,6 +33452,15 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     country?: NullableStringFieldUpdateOperationsInput | string | null
+    approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
+    lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    tier?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     audit_log?: audit_logUncheckedUpdateManyWithoutUserNestedInput
     document?: documentUncheckedUpdateManyWithoutUserNestedInput
     event_registration?: event_registrationUncheckedUpdateManyWithoutUserNestedInput
@@ -30498,6 +33472,7 @@ export namespace Prisma {
   export type userUncheckedUpdateManyWithoutOrganizationInput = {
     id?: IntFieldUpdateOperationsInput | number
     first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
     type?: IntFieldUpdateOperationsInput | number
     email?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
@@ -30505,10 +33480,6 @@ export namespace Prisma {
     status?: IntFieldUpdateOperationsInput | number
     avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
     is_email_verified?: IntFieldUpdateOperationsInput | number
-    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    last_name?: StringFieldUpdateOperationsInput | string
     is_phone_verified?: IntFieldUpdateOperationsInput | number
     tracking_id?: NullableStringFieldUpdateOperationsInput | string | null
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -30518,6 +33489,15 @@ export namespace Prisma {
     city?: NullableStringFieldUpdateOperationsInput | string | null
     state?: NullableStringFieldUpdateOperationsInput | string | null
     country?: NullableStringFieldUpdateOperationsInput | string | null
+    approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
+    lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    tier?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type applicationCreateManyStudentInput = {
@@ -30882,6 +33862,546 @@ export namespace Prisma {
     org_id?: IntFieldUpdateOperationsInput | number
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type userCreateManyCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput = {
+    id?: number
+    first_name: string
+    last_name: string
+    type: number
+    email: string
+    phone: string
+    is_owner?: number
+    status?: number
+    avatar_url?: string | null
+    is_email_verified?: number
+    is_phone_verified?: number
+    tracking_id?: string | null
+    org_id?: number | null
+    date_of_birth?: Date | string | null
+    gender?: number | null
+    nationality?: string | null
+    address?: string | null
+    city?: string | null
+    state?: string | null
+    country?: string | null
+    lead_counsellor_id?: number | null
+    counsellor_id?: number | null
+    bdm_id?: number | null
+    notes?: string | null
+    tier?: number
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type userCreateManyCollegepond_user_user_bdm_idTocollegepond_userInput = {
+    id?: number
+    first_name: string
+    last_name: string
+    type: number
+    email: string
+    phone: string
+    is_owner?: number
+    status?: number
+    avatar_url?: string | null
+    is_email_verified?: number
+    is_phone_verified?: number
+    tracking_id?: string | null
+    org_id?: number | null
+    date_of_birth?: Date | string | null
+    gender?: number | null
+    nationality?: string | null
+    address?: string | null
+    city?: string | null
+    state?: string | null
+    country?: string | null
+    approved_by_collegepond_user_id?: number | null
+    lead_counsellor_id?: number | null
+    counsellor_id?: number | null
+    notes?: string | null
+    tier?: number
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type userCreateManyCollegepond_user_user_counsellor_idTocollegepond_userInput = {
+    id?: number
+    first_name: string
+    last_name: string
+    type: number
+    email: string
+    phone: string
+    is_owner?: number
+    status?: number
+    avatar_url?: string | null
+    is_email_verified?: number
+    is_phone_verified?: number
+    tracking_id?: string | null
+    org_id?: number | null
+    date_of_birth?: Date | string | null
+    gender?: number | null
+    nationality?: string | null
+    address?: string | null
+    city?: string | null
+    state?: string | null
+    country?: string | null
+    approved_by_collegepond_user_id?: number | null
+    lead_counsellor_id?: number | null
+    bdm_id?: number | null
+    notes?: string | null
+    tier?: number
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type userCreateManyCollegepond_user_user_lead_counsellor_idTocollegepond_userInput = {
+    id?: number
+    first_name: string
+    last_name: string
+    type: number
+    email: string
+    phone: string
+    is_owner?: number
+    status?: number
+    avatar_url?: string | null
+    is_email_verified?: number
+    is_phone_verified?: number
+    tracking_id?: string | null
+    org_id?: number | null
+    date_of_birth?: Date | string | null
+    gender?: number | null
+    nationality?: string | null
+    address?: string | null
+    city?: string | null
+    state?: string | null
+    country?: string | null
+    approved_by_collegepond_user_id?: number | null
+    counsellor_id?: number | null
+    bdm_id?: number | null
+    notes?: string | null
+    tier?: number
+    last_login_at?: Date | string | null
+    created_at?: Date | string
+    updated_at?: Date | string
+  }
+
+  export type userUpdateWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput = {
+    first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
+    type?: IntFieldUpdateOperationsInput | number
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    is_owner?: IntFieldUpdateOperationsInput | number
+    status?: IntFieldUpdateOperationsInput | number
+    avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
+    is_email_verified?: IntFieldUpdateOperationsInput | number
+    is_phone_verified?: IntFieldUpdateOperationsInput | number
+    tracking_id?: NullableStringFieldUpdateOperationsInput | string | null
+    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableIntFieldUpdateOperationsInput | number | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    tier?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    audit_log?: audit_logUpdateManyWithoutUserNestedInput
+    document?: documentUpdateManyWithoutUserNestedInput
+    event_registration?: event_registrationUpdateManyWithoutUserNestedInput
+    notification_preference?: notification_preferenceUpdateManyWithoutUserNestedInput
+    session?: sessionUpdateManyWithoutUserNestedInput
+    student?: studentUpdateManyWithoutUserNestedInput
+    collegepond_user_user_bdm_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_bdm_idTocollegepond_userNestedInput
+    collegepond_user_user_counsellor_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_counsellor_idTocollegepond_userNestedInput
+    collegepond_user_user_lead_counsellor_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_lead_counsellor_idTocollegepond_userNestedInput
+    organization?: organizationUpdateOneWithoutUserNestedInput
+  }
+
+  export type userUncheckedUpdateWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
+    type?: IntFieldUpdateOperationsInput | number
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    is_owner?: IntFieldUpdateOperationsInput | number
+    status?: IntFieldUpdateOperationsInput | number
+    avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
+    is_email_verified?: IntFieldUpdateOperationsInput | number
+    is_phone_verified?: IntFieldUpdateOperationsInput | number
+    tracking_id?: NullableStringFieldUpdateOperationsInput | string | null
+    org_id?: NullableIntFieldUpdateOperationsInput | number | null
+    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableIntFieldUpdateOperationsInput | number | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    tier?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    audit_log?: audit_logUncheckedUpdateManyWithoutUserNestedInput
+    document?: documentUncheckedUpdateManyWithoutUserNestedInput
+    event_registration?: event_registrationUncheckedUpdateManyWithoutUserNestedInput
+    notification_preference?: notification_preferenceUncheckedUpdateManyWithoutUserNestedInput
+    session?: sessionUncheckedUpdateManyWithoutUserNestedInput
+    student?: studentUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type userUncheckedUpdateManyWithoutCollegepond_user_user_approved_by_collegepond_user_idTocollegepond_userInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
+    type?: IntFieldUpdateOperationsInput | number
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    is_owner?: IntFieldUpdateOperationsInput | number
+    status?: IntFieldUpdateOperationsInput | number
+    avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
+    is_email_verified?: IntFieldUpdateOperationsInput | number
+    is_phone_verified?: IntFieldUpdateOperationsInput | number
+    tracking_id?: NullableStringFieldUpdateOperationsInput | string | null
+    org_id?: NullableIntFieldUpdateOperationsInput | number | null
+    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableIntFieldUpdateOperationsInput | number | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    tier?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type userUpdateWithoutCollegepond_user_user_bdm_idTocollegepond_userInput = {
+    first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
+    type?: IntFieldUpdateOperationsInput | number
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    is_owner?: IntFieldUpdateOperationsInput | number
+    status?: IntFieldUpdateOperationsInput | number
+    avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
+    is_email_verified?: IntFieldUpdateOperationsInput | number
+    is_phone_verified?: IntFieldUpdateOperationsInput | number
+    tracking_id?: NullableStringFieldUpdateOperationsInput | string | null
+    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableIntFieldUpdateOperationsInput | number | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    tier?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    audit_log?: audit_logUpdateManyWithoutUserNestedInput
+    document?: documentUpdateManyWithoutUserNestedInput
+    event_registration?: event_registrationUpdateManyWithoutUserNestedInput
+    notification_preference?: notification_preferenceUpdateManyWithoutUserNestedInput
+    session?: sessionUpdateManyWithoutUserNestedInput
+    student?: studentUpdateManyWithoutUserNestedInput
+    collegepond_user_user_approved_by_collegepond_user_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userNestedInput
+    collegepond_user_user_counsellor_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_counsellor_idTocollegepond_userNestedInput
+    collegepond_user_user_lead_counsellor_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_lead_counsellor_idTocollegepond_userNestedInput
+    organization?: organizationUpdateOneWithoutUserNestedInput
+  }
+
+  export type userUncheckedUpdateWithoutCollegepond_user_user_bdm_idTocollegepond_userInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
+    type?: IntFieldUpdateOperationsInput | number
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    is_owner?: IntFieldUpdateOperationsInput | number
+    status?: IntFieldUpdateOperationsInput | number
+    avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
+    is_email_verified?: IntFieldUpdateOperationsInput | number
+    is_phone_verified?: IntFieldUpdateOperationsInput | number
+    tracking_id?: NullableStringFieldUpdateOperationsInput | string | null
+    org_id?: NullableIntFieldUpdateOperationsInput | number | null
+    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableIntFieldUpdateOperationsInput | number | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
+    lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    tier?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    audit_log?: audit_logUncheckedUpdateManyWithoutUserNestedInput
+    document?: documentUncheckedUpdateManyWithoutUserNestedInput
+    event_registration?: event_registrationUncheckedUpdateManyWithoutUserNestedInput
+    notification_preference?: notification_preferenceUncheckedUpdateManyWithoutUserNestedInput
+    session?: sessionUncheckedUpdateManyWithoutUserNestedInput
+    student?: studentUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type userUncheckedUpdateManyWithoutCollegepond_user_user_bdm_idTocollegepond_userInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
+    type?: IntFieldUpdateOperationsInput | number
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    is_owner?: IntFieldUpdateOperationsInput | number
+    status?: IntFieldUpdateOperationsInput | number
+    avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
+    is_email_verified?: IntFieldUpdateOperationsInput | number
+    is_phone_verified?: IntFieldUpdateOperationsInput | number
+    tracking_id?: NullableStringFieldUpdateOperationsInput | string | null
+    org_id?: NullableIntFieldUpdateOperationsInput | number | null
+    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableIntFieldUpdateOperationsInput | number | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
+    lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    tier?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type userUpdateWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput = {
+    first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
+    type?: IntFieldUpdateOperationsInput | number
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    is_owner?: IntFieldUpdateOperationsInput | number
+    status?: IntFieldUpdateOperationsInput | number
+    avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
+    is_email_verified?: IntFieldUpdateOperationsInput | number
+    is_phone_verified?: IntFieldUpdateOperationsInput | number
+    tracking_id?: NullableStringFieldUpdateOperationsInput | string | null
+    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableIntFieldUpdateOperationsInput | number | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    tier?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    audit_log?: audit_logUpdateManyWithoutUserNestedInput
+    document?: documentUpdateManyWithoutUserNestedInput
+    event_registration?: event_registrationUpdateManyWithoutUserNestedInput
+    notification_preference?: notification_preferenceUpdateManyWithoutUserNestedInput
+    session?: sessionUpdateManyWithoutUserNestedInput
+    student?: studentUpdateManyWithoutUserNestedInput
+    collegepond_user_user_approved_by_collegepond_user_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userNestedInput
+    collegepond_user_user_bdm_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_bdm_idTocollegepond_userNestedInput
+    collegepond_user_user_lead_counsellor_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_lead_counsellor_idTocollegepond_userNestedInput
+    organization?: organizationUpdateOneWithoutUserNestedInput
+  }
+
+  export type userUncheckedUpdateWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
+    type?: IntFieldUpdateOperationsInput | number
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    is_owner?: IntFieldUpdateOperationsInput | number
+    status?: IntFieldUpdateOperationsInput | number
+    avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
+    is_email_verified?: IntFieldUpdateOperationsInput | number
+    is_phone_verified?: IntFieldUpdateOperationsInput | number
+    tracking_id?: NullableStringFieldUpdateOperationsInput | string | null
+    org_id?: NullableIntFieldUpdateOperationsInput | number | null
+    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableIntFieldUpdateOperationsInput | number | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
+    lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    tier?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    audit_log?: audit_logUncheckedUpdateManyWithoutUserNestedInput
+    document?: documentUncheckedUpdateManyWithoutUserNestedInput
+    event_registration?: event_registrationUncheckedUpdateManyWithoutUserNestedInput
+    notification_preference?: notification_preferenceUncheckedUpdateManyWithoutUserNestedInput
+    session?: sessionUncheckedUpdateManyWithoutUserNestedInput
+    student?: studentUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type userUncheckedUpdateManyWithoutCollegepond_user_user_counsellor_idTocollegepond_userInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
+    type?: IntFieldUpdateOperationsInput | number
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    is_owner?: IntFieldUpdateOperationsInput | number
+    status?: IntFieldUpdateOperationsInput | number
+    avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
+    is_email_verified?: IntFieldUpdateOperationsInput | number
+    is_phone_verified?: IntFieldUpdateOperationsInput | number
+    tracking_id?: NullableStringFieldUpdateOperationsInput | string | null
+    org_id?: NullableIntFieldUpdateOperationsInput | number | null
+    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableIntFieldUpdateOperationsInput | number | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
+    lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    tier?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type userUpdateWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput = {
+    first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
+    type?: IntFieldUpdateOperationsInput | number
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    is_owner?: IntFieldUpdateOperationsInput | number
+    status?: IntFieldUpdateOperationsInput | number
+    avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
+    is_email_verified?: IntFieldUpdateOperationsInput | number
+    is_phone_verified?: IntFieldUpdateOperationsInput | number
+    tracking_id?: NullableStringFieldUpdateOperationsInput | string | null
+    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableIntFieldUpdateOperationsInput | number | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    tier?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    audit_log?: audit_logUpdateManyWithoutUserNestedInput
+    document?: documentUpdateManyWithoutUserNestedInput
+    event_registration?: event_registrationUpdateManyWithoutUserNestedInput
+    notification_preference?: notification_preferenceUpdateManyWithoutUserNestedInput
+    session?: sessionUpdateManyWithoutUserNestedInput
+    student?: studentUpdateManyWithoutUserNestedInput
+    collegepond_user_user_approved_by_collegepond_user_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_approved_by_collegepond_user_idTocollegepond_userNestedInput
+    collegepond_user_user_bdm_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_bdm_idTocollegepond_userNestedInput
+    collegepond_user_user_counsellor_idTocollegepond_user?: collegepond_userUpdateOneWithoutUser_user_counsellor_idTocollegepond_userNestedInput
+    organization?: organizationUpdateOneWithoutUserNestedInput
+  }
+
+  export type userUncheckedUpdateWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
+    type?: IntFieldUpdateOperationsInput | number
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    is_owner?: IntFieldUpdateOperationsInput | number
+    status?: IntFieldUpdateOperationsInput | number
+    avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
+    is_email_verified?: IntFieldUpdateOperationsInput | number
+    is_phone_verified?: IntFieldUpdateOperationsInput | number
+    tracking_id?: NullableStringFieldUpdateOperationsInput | string | null
+    org_id?: NullableIntFieldUpdateOperationsInput | number | null
+    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableIntFieldUpdateOperationsInput | number | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
+    counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    tier?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    audit_log?: audit_logUncheckedUpdateManyWithoutUserNestedInput
+    document?: documentUncheckedUpdateManyWithoutUserNestedInput
+    event_registration?: event_registrationUncheckedUpdateManyWithoutUserNestedInput
+    notification_preference?: notification_preferenceUncheckedUpdateManyWithoutUserNestedInput
+    session?: sessionUncheckedUpdateManyWithoutUserNestedInput
+    student?: studentUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type userUncheckedUpdateManyWithoutCollegepond_user_user_lead_counsellor_idTocollegepond_userInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    first_name?: StringFieldUpdateOperationsInput | string
+    last_name?: StringFieldUpdateOperationsInput | string
+    type?: IntFieldUpdateOperationsInput | number
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    is_owner?: IntFieldUpdateOperationsInput | number
+    status?: IntFieldUpdateOperationsInput | number
+    avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
+    is_email_verified?: IntFieldUpdateOperationsInput | number
+    is_phone_verified?: IntFieldUpdateOperationsInput | number
+    tracking_id?: NullableStringFieldUpdateOperationsInput | string | null
+    org_id?: NullableIntFieldUpdateOperationsInput | number | null
+    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableIntFieldUpdateOperationsInput | number | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: NullableStringFieldUpdateOperationsInput | string | null
+    state?: NullableStringFieldUpdateOperationsInput | string | null
+    country?: NullableStringFieldUpdateOperationsInput | string | null
+    approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
+    counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
+    bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
+    notes?: NullableStringFieldUpdateOperationsInput | string | null
+    tier?: IntFieldUpdateOperationsInput | number
+    last_login_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

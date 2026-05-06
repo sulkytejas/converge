@@ -7,7 +7,10 @@ import { FormSelect } from "~/components/ui/form-select";
 import { PhoneInput } from "~/components/ui/phone-input";
 import { Toast } from "~/components/ui/toast";
 import { isValidEmail, isValidPhone, getExpectedPhoneDigits } from "~/lib/utils/validation";
+import { AdminRole, AdminRoleLabel } from "~/server/db/enums";
 import { api } from "~/trpc/react";
+
+const SUPER_ADMIN: number = AdminRole.SUPER_ADMIN;
 
 type AdminUser = {
   id: number;
@@ -16,10 +19,10 @@ type AdminUser = {
   email: string;
   phone: string;
   countryCode: string;
+  role: number;
   status: "active" | "inactive";
   lastLogin: string | null;
   createdAt: string;
-  trackingId: string;
 };
 
 type StatusFilter = "all" | "active" | "inactive";
@@ -35,25 +38,10 @@ const STATUS_FILTER_OPTIONS = [
   { value: "all", label: "All Statuses" },
 ];
 
-// Role and Department are not yet persisted to the DB — UI-only for now so the
-// form matches the mockup. Will wire up when the columns land.
-const ROLE_OPTIONS = [
-  { value: "super_admin", label: "Super Admin" },
-  { value: "finance_mgr", label: "Finance Manager" },
-  { value: "finance_exec", label: "Finance Executive" },
-  { value: "ops_team_lead", label: "Team Lead" },
-  { value: "ops_counselor", label: "Counselor" },
-  { value: "bdm", label: "BDM" },
-  { value: "content_mgr", label: "Content Manager" },
-];
-
-const DEPARTMENT_OPTIONS = [
-  { value: "Management", label: "Management" },
-  { value: "Finance", label: "Finance" },
-  { value: "Operations", label: "Operations" },
-  { value: "Business Development", label: "Business Development" },
-  { value: "Content", label: "Content" },
-];
+const ROLE_OPTIONS = (Object.values(AdminRole) as number[]).map((code) => ({
+  value: String(code),
+  label: AdminRoleLabel[code as AdminRole],
+}));
 
 function formatLastLogin(iso: string | null): string {
   if (!iso) return "Never";
@@ -77,14 +65,15 @@ const emptyForm = {
   email: "",
   phone: "",
   countryCode: "+91",
-  role: "ops_counselor",
-  department: "Operations",
+  role: String(AdminRole.COUNSELLOR),
   status: "active" as "active" | "inactive",
 };
 
 export default function UsersPage() {
   const utils = api.useUtils();
   const usersQuery = api.users.list.useQuery();
+  const meQuery = api.authSession.me.useQuery();
+  const isSuperAdmin = meQuery.data?.role === SUPER_ADMIN;
 
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("active");
   const [search, setSearch] = useState("");
@@ -162,8 +151,7 @@ export default function UsersPage() {
       email: u.email,
       phone: u.phone,
       countryCode: u.countryCode || "+91",
-      role: emptyForm.role,
-      department: emptyForm.department,
+      role: String(u.role),
       status: u.status,
     });
     setErrors({});
@@ -195,6 +183,8 @@ export default function UsersPage() {
   function handleSave() {
     if (!validate()) return;
 
+    const role = Number(form.role);
+
     if (modal.editing) {
       const editing = modal.editing;
       updateMut.mutate({
@@ -204,6 +194,7 @@ export default function UsersPage() {
         email: form.email.trim(),
         phone: form.phone.replace(/\s/g, ""),
         countryCode: form.countryCode,
+        role,
       });
 
       // Status changes apply via a separate mutation.
@@ -217,6 +208,7 @@ export default function UsersPage() {
         email: form.email.trim(),
         phone: form.phone.replace(/\s/g, ""),
         countryCode: form.countryCode,
+        role,
       });
     }
   }
@@ -232,19 +224,21 @@ export default function UsersPage() {
             Manage internal users and their access.
           </p>
         </div>
-        <Button onClick={openAdd} className="!h-[38px] !px-4">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            className="h-4 w-4"
-          >
-            <line x1="12" y1="5" x2="12" y2="19" />
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-          Add User
-        </Button>
+        {isSuperAdmin && (
+          <Button onClick={openAdd} className="!h-[38px] !px-4">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              className="h-4 w-4"
+            >
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Add User
+          </Button>
+        )}
       </div>
 
       {/* Stat cards */}
@@ -362,28 +356,34 @@ export default function UsersPage() {
                       <StatusBadge status={u.status} />
                     </td>
                     <td className="px-3.5 py-3 text-sm">
-                      <button
-                        onClick={() => openEdit(u)}
-                        className="cursor-pointer rounded px-2 py-1 text-xs font-semibold text-[#1570EF] hover:bg-[#F0F7FF]"
-                      >
-                        Edit
-                      </button>
-                      {u.status === "active" ? (
-                        <button
-                          onClick={() => setStatusMut.mutate({ id: u.id, active: false })}
-                          disabled={setStatusMut.isPending}
-                          className="ml-1 cursor-pointer rounded px-2 py-1 text-xs font-semibold text-[#F04438] hover:bg-[#FEF3F2] disabled:opacity-50"
-                        >
-                          Deactivate
-                        </button>
+                      {isSuperAdmin ? (
+                        <>
+                          <button
+                            onClick={() => openEdit(u)}
+                            className="cursor-pointer rounded px-2 py-1 text-xs font-semibold text-[#1570EF] hover:bg-[#F0F7FF]"
+                          >
+                            Edit
+                          </button>
+                          {u.status === "active" ? (
+                            <button
+                              onClick={() => setStatusMut.mutate({ id: u.id, active: false })}
+                              disabled={setStatusMut.isPending}
+                              className="ml-1 cursor-pointer rounded px-2 py-1 text-xs font-semibold text-[#F04438] hover:bg-[#FEF3F2] disabled:opacity-50"
+                            >
+                              Deactivate
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => setStatusMut.mutate({ id: u.id, active: true })}
+                              disabled={setStatusMut.isPending}
+                              className="ml-1 cursor-pointer rounded px-2 py-1 text-xs font-semibold text-[#F79009] hover:bg-[#FFFAEB] disabled:opacity-50"
+                            >
+                              Activate
+                            </button>
+                          )}
+                        </>
                       ) : (
-                        <button
-                          onClick={() => setStatusMut.mutate({ id: u.id, active: true })}
-                          disabled={setStatusMut.isPending}
-                          className="ml-1 cursor-pointer rounded px-2 py-1 text-xs font-semibold text-[#F79009] hover:bg-[#FFFAEB] disabled:opacity-50"
-                        >
-                          Activate
-                        </button>
+                        <span className="text-xs text-[#98A2B3]">—</span>
                       )}
                     </td>
                   </tr>
@@ -456,20 +456,13 @@ export default function UsersPage() {
                 error={!!errors.phone}
                 errorMessage={errors.phone}
               />
-              <div className="grid grid-cols-2 gap-3">
-                <FormSelect
-                  label="Role"
-                  options={ROLE_OPTIONS}
-                  value={form.role}
-                  onChange={(e) => setForm({ ...form, role: e.target.value })}
-                />
-                <FormSelect
-                  label="Department"
-                  options={DEPARTMENT_OPTIONS}
-                  value={form.department}
-                  onChange={(e) => setForm({ ...form, department: e.target.value })}
-                />
-              </div>
+              <FormSelect
+                label="Role"
+                options={ROLE_OPTIONS}
+                value={form.role}
+                onChange={(e) => setForm({ ...form, role: e.target.value })}
+              />
+
               {modal.editing && (
                 <FormSelect
                   label="Status"
