@@ -1,10 +1,23 @@
 import { z } from "zod";
-import { cookies } from "next/headers";
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
 import { sendPhoneOtp, toE164, verifyPhoneOtp } from "~/server/otp";
 import { SESSION_COOKIE_NAME, signSessionJwt } from "~/server/auth/jwt";
+
+const SESSION_MAX_AGE_SECONDS = 60 * 60 * 8; // matches the JWT TTL
+
+function buildSessionCookie(token: string): string {
+  const attrs = [
+    `${SESSION_COOKIE_NAME}=${token}`,
+    "HttpOnly",
+    "Path=/",
+    `Max-Age=${SESSION_MAX_AGE_SECONDS}`,
+    "SameSite=Lax",
+  ];
+  if (process.env.NODE_ENV === "production") attrs.push("Secure");
+  return attrs.join("; ");
+}
 
 // Phone is stored as `${countryCode}${phone}` (e.g. "+919876543210"). When the
 // country code starts with "+", we treat the trailing 10 chars as the local
@@ -71,7 +84,7 @@ export const adminAuthRouter = createTRPCRouter({
         otp: z.string().length(5),
       }),
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const user = await db.collegepond_user.findUnique({
         where: { email: input.email.toLowerCase() },
       });
@@ -109,15 +122,7 @@ export const adminAuthRouter = createTRPCRouter({
       });
 
       const token = await signSessionJwt({ id: user.id, role: user.role });
-      const jar = await cookies();
-      jar.set(SESSION_COOKIE_NAME, token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        path: "/",
-        // 8h, must match the JWT TTL.
-        maxAge: 60 * 60 * 8,
-      });
+      ctx.resHeaders.append("Set-Cookie", buildSessionCookie(token));
 
       // The admin login page expects status === "approved" for the success
       // redirect; collegepond_user has no pending state, so an active row

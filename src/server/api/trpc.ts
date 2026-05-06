@@ -30,7 +30,10 @@ function readSessionCookie(headers: Headers): string | null {
   return null;
 }
 
-export const createTRPCContext = async (opts: { headers: Headers }) => {
+export const createTRPCContext = async (opts: {
+  headers: Headers;
+  resHeaders: Headers;
+}) => {
   let cpUser: CpUser | null = null;
   const token = readSessionCookie(opts.headers);
   if (token) {

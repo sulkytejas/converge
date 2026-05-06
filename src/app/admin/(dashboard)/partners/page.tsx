@@ -467,7 +467,6 @@ export default function PartnersPage() {
         <AssignCounsellorsModal
           partnerEmail={assignModal.email}
           partnerName={assignModal.name}
-          onClose={() => setAssignModal(null)}
           onSave={(leadCounsellorId, counsellorId) =>
             assignCounsellorsMut.mutate({
               email: assignModal.email,
@@ -487,13 +486,11 @@ export default function PartnersPage() {
 function AssignCounsellorsModal({
   partnerEmail: _partnerEmail,
   partnerName,
-  onClose,
   onSave,
   saving,
 }: {
   partnerEmail: string;
   partnerName: string;
-  onClose: () => void;
   onSave: (leadCounsellorId: number | null, counsellorId: number | null) => void;
   saving: boolean;
 }) {
@@ -511,7 +508,7 @@ function AssignCounsellorsModal({
     })),
   ];
   const counsellorOptions = [
-    { value: "", label: "— Select counsellor —" },
+    { value: "", label: "— Select counsellor (optional) —" },
     ...(counsellorsQuery.data ?? []).map((u) => ({
       value: String(u.id),
       label: `${u.firstName} ${u.lastName}`.trim() || u.email,
@@ -519,39 +516,23 @@ function AssignCounsellorsModal({
   ];
 
   const handleSave = () => {
-    onSave(
-      leadId ? Number(leadId) : null,
-      counsellorId ? Number(counsellorId) : null,
-    );
+    if (!leadId) return;
+    onSave(Number(leadId), counsellorId ? Number(counsellorId) : null);
   };
 
+  // Required step: no close X, no overlay-dismiss, no Skip button. The
+  // partner is already approved by this point and must have a lead.
   return (
-    <div
-      className="fixed inset-0 z-[250] flex items-center justify-center bg-[rgba(16,24,40,0.55)]"
-      onClick={onClose}
-    >
-      <div
-        className="max-h-[90vh] w-[480px] overflow-y-auto rounded-xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.2)]"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between border-b border-[#E4E7EC] px-6 py-5">
-          <div>
-            <h3 className="text-base font-bold text-[#101828]">Assign Counsellors</h3>
-            <p className="mt-0.5 text-sm text-[#667085]">{partnerName}</p>
-          </div>
-          <button
-            onClick={onClose}
-            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-[#E4E7EC] bg-white"
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="#667085" strokeWidth="2" className="h-4 w-4">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
+    <div className="fixed inset-0 z-[250] flex items-center justify-center bg-[rgba(16,24,40,0.55)]">
+      <div className="max-h-[90vh] w-[480px] overflow-y-auto rounded-xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.2)]">
+        <div className="border-b border-[#E4E7EC] px-6 py-5">
+          <h3 className="text-base font-bold text-[#101828]">Assign Counsellors</h3>
+          <p className="mt-0.5 text-sm text-[#667085]">{partnerName}</p>
         </div>
         <div className="space-y-4 px-6 py-5">
           <FormSelect
             label="Counsellor Lead"
+            required
             options={leadOptions}
             value={leadId}
             onChange={(e) => setLeadId(e.target.value)}
@@ -564,10 +545,12 @@ function AssignCounsellorsModal({
           />
         </div>
         <div className="flex justify-end gap-2 border-t border-[#E4E7EC] px-6 py-4">
-          <Button variant="secondary" onClick={onClose} className="!h-[38px] !px-4">
-            Skip
-          </Button>
-          <Button onClick={handleSave} loading={saving} className="!h-[38px] !px-4">
+          <Button
+            onClick={handleSave}
+            loading={saving}
+            disabled={!leadId}
+            className="!h-[38px] !px-4"
+          >
             Save
           </Button>
         </div>

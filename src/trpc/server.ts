@@ -16,8 +16,11 @@ const createContext = cache(async () => {
   const heads = new Headers(await headers());
   heads.set("x-trpc-source", "rsc");
 
+  // RSC callers don't have an outgoing response — Set-Cookie writes from
+  // here would be dropped, so we hand procedures a throwaway Headers bag.
   return createTRPCContext({
     headers: heads,
+    resHeaders: new Headers(),
   });
 });
 
