@@ -1,9 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import { Sidebar } from "./sidebar";
 import { Topbar, type NotificationItem } from "./topbar";
 import { NAV_SECTIONS, ROLE_OPTIONS, type AdminRole } from "./nav-config";
+import { api } from "~/trpc/react";
 
 const STORAGE_KEY = "cp-sidebar-collapsed";
 
@@ -58,6 +60,10 @@ export function DashboardShell({
   notifications = DEFAULT_NOTIFICATIONS,
   taskCount = 0,
 }: DashboardShellProps) {
+  const router = useRouter();
+  const utils = api.useUtils();
+  const logout = api.authSession.logout.useMutation();
+
   const [collapsed, setCollapsed] = useState(false);
   const [role, setRole] = useState<AdminRole>(initialRole);
 
@@ -66,6 +72,16 @@ export function DashboardShell({
     const stored = window.localStorage.getItem(STORAGE_KEY);
     if (stored === "1") setCollapsed(true);
   }, []);
+
+  async function handleLogout() {
+    try {
+      await logout.mutateAsync();
+    } catch {
+      // Cookie may already be gone — keep going.
+    }
+    await utils.invalidate();
+    router.replace("/admin/login");
+  }
 
   const toggleSidebar = useCallback(() => {
     setCollapsed((prev) => {
@@ -122,6 +138,7 @@ export function DashboardShell({
         roleLabel={activeRole.label}
         notifications={notifications}
         taskCount={taskCount}
+        onLogout={handleLogout}
       />
       <main
         className={`min-h-screen pt-[60px] transition-[margin] duration-250 ${

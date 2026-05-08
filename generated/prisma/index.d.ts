@@ -5858,6 +5858,18 @@ export namespace Prisma {
     tuition_fee: Decimal | null
     is_open: number | null
     university_id: number | null
+    toefl: Decimal | null
+    ielts: Decimal | null
+    det: number | null
+    is_stem: number | null
+    intake_year: number | null
+    is_coop_available: number | null
+    has_app_fee_waiver: number | null
+    app_fee: Decimal | null
+    has_tuition_deposit: number | null
+    has_scholarship: number | null
+    scholarship_amount: Decimal | null
+    has_faster_tat: number | null
   }
 
   export type CourseSumAggregateOutputType = {
@@ -5867,6 +5879,18 @@ export namespace Prisma {
     tuition_fee: Decimal | null
     is_open: number | null
     university_id: number | null
+    toefl: Decimal | null
+    ielts: Decimal | null
+    det: number | null
+    is_stem: number | null
+    intake_year: number | null
+    is_coop_available: number | null
+    has_app_fee_waiver: number | null
+    app_fee: Decimal | null
+    has_tuition_deposit: number | null
+    has_scholarship: number | null
+    scholarship_amount: Decimal | null
+    has_faster_tat: number | null
   }
 
   export type CourseMinAggregateOutputType = {
@@ -5881,6 +5905,22 @@ export namespace Prisma {
     updated_at: Date | null
     university_id: number | null
     code: string | null
+    url: string | null
+    toefl: Decimal | null
+    ielts: Decimal | null
+    det: number | null
+    is_stem: number | null
+    intake_month: string | null
+    intake_year: number | null
+    is_coop_available: number | null
+    has_app_fee_waiver: number | null
+    app_fee: Decimal | null
+    has_tuition_deposit: number | null
+    has_scholarship: number | null
+    scholarship_amount: Decimal | null
+    min_entry_requirements: string | null
+    min_entry_requirements_scale: string | null
+    has_faster_tat: number | null
   }
 
   export type CourseMaxAggregateOutputType = {
@@ -5895,6 +5935,22 @@ export namespace Prisma {
     updated_at: Date | null
     university_id: number | null
     code: string | null
+    url: string | null
+    toefl: Decimal | null
+    ielts: Decimal | null
+    det: number | null
+    is_stem: number | null
+    intake_month: string | null
+    intake_year: number | null
+    is_coop_available: number | null
+    has_app_fee_waiver: number | null
+    app_fee: Decimal | null
+    has_tuition_deposit: number | null
+    has_scholarship: number | null
+    scholarship_amount: Decimal | null
+    min_entry_requirements: string | null
+    min_entry_requirements_scale: string | null
+    has_faster_tat: number | null
   }
 
   export type CourseCountAggregateOutputType = {
@@ -5909,6 +5965,22 @@ export namespace Prisma {
     updated_at: number
     university_id: number
     code: number
+    url: number
+    toefl: number
+    ielts: number
+    det: number
+    is_stem: number
+    intake_month: number
+    intake_year: number
+    is_coop_available: number
+    has_app_fee_waiver: number
+    app_fee: number
+    has_tuition_deposit: number
+    has_scholarship: number
+    scholarship_amount: number
+    min_entry_requirements: number
+    min_entry_requirements_scale: number
+    has_faster_tat: number
     _all: number
   }
 
@@ -5920,6 +5992,18 @@ export namespace Prisma {
     tuition_fee?: true
     is_open?: true
     university_id?: true
+    toefl?: true
+    ielts?: true
+    det?: true
+    is_stem?: true
+    intake_year?: true
+    is_coop_available?: true
+    has_app_fee_waiver?: true
+    app_fee?: true
+    has_tuition_deposit?: true
+    has_scholarship?: true
+    scholarship_amount?: true
+    has_faster_tat?: true
   }
 
   export type CourseSumAggregateInputType = {
@@ -5929,6 +6013,18 @@ export namespace Prisma {
     tuition_fee?: true
     is_open?: true
     university_id?: true
+    toefl?: true
+    ielts?: true
+    det?: true
+    is_stem?: true
+    intake_year?: true
+    is_coop_available?: true
+    has_app_fee_waiver?: true
+    app_fee?: true
+    has_tuition_deposit?: true
+    has_scholarship?: true
+    scholarship_amount?: true
+    has_faster_tat?: true
   }
 
   export type CourseMinAggregateInputType = {
@@ -5943,6 +6039,22 @@ export namespace Prisma {
     updated_at?: true
     university_id?: true
     code?: true
+    url?: true
+    toefl?: true
+    ielts?: true
+    det?: true
+    is_stem?: true
+    intake_month?: true
+    intake_year?: true
+    is_coop_available?: true
+    has_app_fee_waiver?: true
+    app_fee?: true
+    has_tuition_deposit?: true
+    has_scholarship?: true
+    scholarship_amount?: true
+    min_entry_requirements?: true
+    min_entry_requirements_scale?: true
+    has_faster_tat?: true
   }
 
   export type CourseMaxAggregateInputType = {
@@ -5957,6 +6069,22 @@ export namespace Prisma {
     updated_at?: true
     university_id?: true
     code?: true
+    url?: true
+    toefl?: true
+    ielts?: true
+    det?: true
+    is_stem?: true
+    intake_month?: true
+    intake_year?: true
+    is_coop_available?: true
+    has_app_fee_waiver?: true
+    app_fee?: true
+    has_tuition_deposit?: true
+    has_scholarship?: true
+    scholarship_amount?: true
+    min_entry_requirements?: true
+    min_entry_requirements_scale?: true
+    has_faster_tat?: true
   }
 
   export type CourseCountAggregateInputType = {
@@ -5971,6 +6099,22 @@ export namespace Prisma {
     updated_at?: true
     university_id?: true
     code?: true
+    url?: true
+    toefl?: true
+    ielts?: true
+    det?: true
+    is_stem?: true
+    intake_month?: true
+    intake_year?: true
+    is_coop_available?: true
+    has_app_fee_waiver?: true
+    app_fee?: true
+    has_tuition_deposit?: true
+    has_scholarship?: true
+    scholarship_amount?: true
+    min_entry_requirements?: true
+    min_entry_requirements_scale?: true
+    has_faster_tat?: true
     _all?: true
   }
 
@@ -6072,6 +6216,22 @@ export namespace Prisma {
     updated_at: Date
     university_id: number
     code: string | null
+    url: string | null
+    toefl: Decimal | null
+    ielts: Decimal | null
+    det: number | null
+    is_stem: number
+    intake_month: string | null
+    intake_year: number | null
+    is_coop_available: number
+    has_app_fee_waiver: number
+    app_fee: Decimal | null
+    has_tuition_deposit: number
+    has_scholarship: number
+    scholarship_amount: Decimal | null
+    min_entry_requirements: string | null
+    min_entry_requirements_scale: string | null
+    has_faster_tat: number
     _count: CourseCountAggregateOutputType | null
     _avg: CourseAvgAggregateOutputType | null
     _sum: CourseSumAggregateOutputType | null
@@ -6105,6 +6265,22 @@ export namespace Prisma {
     updated_at?: boolean
     university_id?: boolean
     code?: boolean
+    url?: boolean
+    toefl?: boolean
+    ielts?: boolean
+    det?: boolean
+    is_stem?: boolean
+    intake_month?: boolean
+    intake_year?: boolean
+    is_coop_available?: boolean
+    has_app_fee_waiver?: boolean
+    app_fee?: boolean
+    has_tuition_deposit?: boolean
+    has_scholarship?: boolean
+    scholarship_amount?: boolean
+    min_entry_requirements?: boolean
+    min_entry_requirements_scale?: boolean
+    has_faster_tat?: boolean
     application?: boolean | course$applicationArgs<ExtArgs>
     university?: boolean | universityDefaultArgs<ExtArgs>
     _count?: boolean | CourseCountOutputTypeDefaultArgs<ExtArgs>
@@ -6124,9 +6300,25 @@ export namespace Prisma {
     updated_at?: boolean
     university_id?: boolean
     code?: boolean
+    url?: boolean
+    toefl?: boolean
+    ielts?: boolean
+    det?: boolean
+    is_stem?: boolean
+    intake_month?: boolean
+    intake_year?: boolean
+    is_coop_available?: boolean
+    has_app_fee_waiver?: boolean
+    app_fee?: boolean
+    has_tuition_deposit?: boolean
+    has_scholarship?: boolean
+    scholarship_amount?: boolean
+    min_entry_requirements?: boolean
+    min_entry_requirements_scale?: boolean
+    has_faster_tat?: boolean
   }
 
-  export type courseOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "degree_level" | "duration_months" | "tuition_fee" | "currency" | "is_open" | "created_at" | "updated_at" | "university_id" | "code", ExtArgs["result"]["course"]>
+  export type courseOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "degree_level" | "duration_months" | "tuition_fee" | "currency" | "is_open" | "created_at" | "updated_at" | "university_id" | "code" | "url" | "toefl" | "ielts" | "det" | "is_stem" | "intake_month" | "intake_year" | "is_coop_available" | "has_app_fee_waiver" | "app_fee" | "has_tuition_deposit" | "has_scholarship" | "scholarship_amount" | "min_entry_requirements" | "min_entry_requirements_scale" | "has_faster_tat", ExtArgs["result"]["course"]>
   export type courseInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     application?: boolean | course$applicationArgs<ExtArgs>
     university?: boolean | universityDefaultArgs<ExtArgs>
@@ -6151,6 +6343,22 @@ export namespace Prisma {
       updated_at: Date
       university_id: number
       code: string | null
+      url: string | null
+      toefl: Prisma.Decimal | null
+      ielts: Prisma.Decimal | null
+      det: number | null
+      is_stem: number
+      intake_month: string | null
+      intake_year: number | null
+      is_coop_available: number
+      has_app_fee_waiver: number
+      app_fee: Prisma.Decimal | null
+      has_tuition_deposit: number
+      has_scholarship: number
+      scholarship_amount: Prisma.Decimal | null
+      min_entry_requirements: string | null
+      min_entry_requirements_scale: string | null
+      has_faster_tat: number
     }, ExtArgs["result"]["course"]>
     composites: {}
   }
@@ -6533,6 +6741,22 @@ export namespace Prisma {
     readonly updated_at: FieldRef<"course", 'DateTime'>
     readonly university_id: FieldRef<"course", 'Int'>
     readonly code: FieldRef<"course", 'String'>
+    readonly url: FieldRef<"course", 'String'>
+    readonly toefl: FieldRef<"course", 'Decimal'>
+    readonly ielts: FieldRef<"course", 'Decimal'>
+    readonly det: FieldRef<"course", 'Int'>
+    readonly is_stem: FieldRef<"course", 'Int'>
+    readonly intake_month: FieldRef<"course", 'String'>
+    readonly intake_year: FieldRef<"course", 'Int'>
+    readonly is_coop_available: FieldRef<"course", 'Int'>
+    readonly has_app_fee_waiver: FieldRef<"course", 'Int'>
+    readonly app_fee: FieldRef<"course", 'Decimal'>
+    readonly has_tuition_deposit: FieldRef<"course", 'Int'>
+    readonly has_scholarship: FieldRef<"course", 'Int'>
+    readonly scholarship_amount: FieldRef<"course", 'Decimal'>
+    readonly min_entry_requirements: FieldRef<"course", 'String'>
+    readonly min_entry_requirements_scale: FieldRef<"course", 'String'>
+    readonly has_faster_tat: FieldRef<"course", 'Int'>
   }
     
 
@@ -17613,11 +17837,15 @@ export namespace Prisma {
 
   export type UniversityAvgAggregateOutputType = {
     id: number | null
+    type: number | null
+    ranking: number | null
     is_open: number | null
   }
 
   export type UniversitySumAggregateOutputType = {
     id: number | null
+    type: number | null
+    ranking: number | null
     is_open: number | null
   }
 
@@ -17626,6 +17854,9 @@ export namespace Prisma {
     name: string | null
     city: string | null
     country: string | null
+    type: number | null
+    ranking: number | null
+    app_source: string | null
     website: string | null
     logo_url: string | null
     is_open: number | null
@@ -17638,6 +17869,9 @@ export namespace Prisma {
     name: string | null
     city: string | null
     country: string | null
+    type: number | null
+    ranking: number | null
+    app_source: string | null
     website: string | null
     logo_url: string | null
     is_open: number | null
@@ -17650,6 +17884,9 @@ export namespace Prisma {
     name: number
     city: number
     country: number
+    type: number
+    ranking: number
+    app_source: number
     website: number
     logo_url: number
     is_open: number
@@ -17661,11 +17898,15 @@ export namespace Prisma {
 
   export type UniversityAvgAggregateInputType = {
     id?: true
+    type?: true
+    ranking?: true
     is_open?: true
   }
 
   export type UniversitySumAggregateInputType = {
     id?: true
+    type?: true
+    ranking?: true
     is_open?: true
   }
 
@@ -17674,6 +17915,9 @@ export namespace Prisma {
     name?: true
     city?: true
     country?: true
+    type?: true
+    ranking?: true
+    app_source?: true
     website?: true
     logo_url?: true
     is_open?: true
@@ -17686,6 +17930,9 @@ export namespace Prisma {
     name?: true
     city?: true
     country?: true
+    type?: true
+    ranking?: true
+    app_source?: true
     website?: true
     logo_url?: true
     is_open?: true
@@ -17698,6 +17945,9 @@ export namespace Prisma {
     name?: true
     city?: true
     country?: true
+    type?: true
+    ranking?: true
+    app_source?: true
     website?: true
     logo_url?: true
     is_open?: true
@@ -17797,6 +18047,9 @@ export namespace Prisma {
     name: string
     city: string | null
     country: string
+    type: number
+    ranking: number | null
+    app_source: string | null
     website: string | null
     logo_url: string | null
     is_open: number
@@ -17828,6 +18081,9 @@ export namespace Prisma {
     name?: boolean
     city?: boolean
     country?: boolean
+    type?: boolean
+    ranking?: boolean
+    app_source?: boolean
     website?: boolean
     logo_url?: boolean
     is_open?: boolean
@@ -17844,6 +18100,9 @@ export namespace Prisma {
     name?: boolean
     city?: boolean
     country?: boolean
+    type?: boolean
+    ranking?: boolean
+    app_source?: boolean
     website?: boolean
     logo_url?: boolean
     is_open?: boolean
@@ -17851,7 +18110,7 @@ export namespace Prisma {
     updated_at?: boolean
   }
 
-  export type universityOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "city" | "country" | "website" | "logo_url" | "is_open" | "created_at" | "updated_at", ExtArgs["result"]["university"]>
+  export type universityOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "city" | "country" | "type" | "ranking" | "app_source" | "website" | "logo_url" | "is_open" | "created_at" | "updated_at", ExtArgs["result"]["university"]>
   export type universityInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     course?: boolean | university$courseArgs<ExtArgs>
     _count?: boolean | UniversityCountOutputTypeDefaultArgs<ExtArgs>
@@ -17867,6 +18126,9 @@ export namespace Prisma {
       name: string
       city: string | null
       country: string
+      type: number
+      ranking: number | null
+      app_source: string | null
       website: string | null
       logo_url: string | null
       is_open: number
@@ -18246,6 +18508,9 @@ export namespace Prisma {
     readonly name: FieldRef<"university", 'String'>
     readonly city: FieldRef<"university", 'String'>
     readonly country: FieldRef<"university", 'String'>
+    readonly type: FieldRef<"university", 'Int'>
+    readonly ranking: FieldRef<"university", 'Int'>
+    readonly app_source: FieldRef<"university", 'String'>
     readonly website: FieldRef<"university", 'String'>
     readonly logo_url: FieldRef<"university", 'String'>
     readonly is_open: FieldRef<"university", 'Int'>
@@ -21416,7 +21681,23 @@ export namespace Prisma {
     created_at: 'created_at',
     updated_at: 'updated_at',
     university_id: 'university_id',
-    code: 'code'
+    code: 'code',
+    url: 'url',
+    toefl: 'toefl',
+    ielts: 'ielts',
+    det: 'det',
+    is_stem: 'is_stem',
+    intake_month: 'intake_month',
+    intake_year: 'intake_year',
+    is_coop_available: 'is_coop_available',
+    has_app_fee_waiver: 'has_app_fee_waiver',
+    app_fee: 'app_fee',
+    has_tuition_deposit: 'has_tuition_deposit',
+    has_scholarship: 'has_scholarship',
+    scholarship_amount: 'scholarship_amount',
+    min_entry_requirements: 'min_entry_requirements',
+    min_entry_requirements_scale: 'min_entry_requirements_scale',
+    has_faster_tat: 'has_faster_tat'
   };
 
   export type CourseScalarFieldEnum = (typeof CourseScalarFieldEnum)[keyof typeof CourseScalarFieldEnum]
@@ -21585,6 +21866,9 @@ export namespace Prisma {
     name: 'name',
     city: 'city',
     country: 'country',
+    type: 'type',
+    ranking: 'ranking',
+    app_source: 'app_source',
     website: 'website',
     logo_url: 'logo_url',
     is_open: 'is_open',
@@ -21714,7 +21998,11 @@ export namespace Prisma {
   export const courseOrderByRelevanceFieldEnum: {
     name: 'name',
     currency: 'currency',
-    code: 'code'
+    code: 'code',
+    url: 'url',
+    intake_month: 'intake_month',
+    min_entry_requirements: 'min_entry_requirements',
+    min_entry_requirements_scale: 'min_entry_requirements_scale'
   };
 
   export type courseOrderByRelevanceFieldEnum = (typeof courseOrderByRelevanceFieldEnum)[keyof typeof courseOrderByRelevanceFieldEnum]
@@ -21794,6 +22082,7 @@ export namespace Prisma {
     name: 'name',
     city: 'city',
     country: 'country',
+    app_source: 'app_source',
     website: 'website',
     logo_url: 'logo_url'
   };
@@ -22188,6 +22477,22 @@ export namespace Prisma {
     updated_at?: DateTimeFilter<"course"> | Date | string
     university_id?: IntFilter<"course"> | number
     code?: StringNullableFilter<"course"> | string | null
+    url?: StringNullableFilter<"course"> | string | null
+    toefl?: DecimalNullableFilter<"course"> | Decimal | DecimalJsLike | number | string | null
+    ielts?: DecimalNullableFilter<"course"> | Decimal | DecimalJsLike | number | string | null
+    det?: IntNullableFilter<"course"> | number | null
+    is_stem?: IntFilter<"course"> | number
+    intake_month?: StringNullableFilter<"course"> | string | null
+    intake_year?: IntNullableFilter<"course"> | number | null
+    is_coop_available?: IntFilter<"course"> | number
+    has_app_fee_waiver?: IntFilter<"course"> | number
+    app_fee?: DecimalNullableFilter<"course"> | Decimal | DecimalJsLike | number | string | null
+    has_tuition_deposit?: IntFilter<"course"> | number
+    has_scholarship?: IntFilter<"course"> | number
+    scholarship_amount?: DecimalNullableFilter<"course"> | Decimal | DecimalJsLike | number | string | null
+    min_entry_requirements?: StringNullableFilter<"course"> | string | null
+    min_entry_requirements_scale?: StringNullableFilter<"course"> | string | null
+    has_faster_tat?: IntFilter<"course"> | number
     application?: ApplicationListRelationFilter
     university?: XOR<UniversityScalarRelationFilter, universityWhereInput>
   }
@@ -22204,6 +22509,22 @@ export namespace Prisma {
     updated_at?: SortOrder
     university_id?: SortOrder
     code?: SortOrderInput | SortOrder
+    url?: SortOrderInput | SortOrder
+    toefl?: SortOrderInput | SortOrder
+    ielts?: SortOrderInput | SortOrder
+    det?: SortOrderInput | SortOrder
+    is_stem?: SortOrder
+    intake_month?: SortOrderInput | SortOrder
+    intake_year?: SortOrderInput | SortOrder
+    is_coop_available?: SortOrder
+    has_app_fee_waiver?: SortOrder
+    app_fee?: SortOrderInput | SortOrder
+    has_tuition_deposit?: SortOrder
+    has_scholarship?: SortOrder
+    scholarship_amount?: SortOrderInput | SortOrder
+    min_entry_requirements?: SortOrderInput | SortOrder
+    min_entry_requirements_scale?: SortOrderInput | SortOrder
+    has_faster_tat?: SortOrder
     application?: applicationOrderByRelationAggregateInput
     university?: universityOrderByWithRelationInput
     _relevance?: courseOrderByRelevanceInput
@@ -22224,6 +22545,22 @@ export namespace Prisma {
     created_at?: DateTimeFilter<"course"> | Date | string
     updated_at?: DateTimeFilter<"course"> | Date | string
     university_id?: IntFilter<"course"> | number
+    url?: StringNullableFilter<"course"> | string | null
+    toefl?: DecimalNullableFilter<"course"> | Decimal | DecimalJsLike | number | string | null
+    ielts?: DecimalNullableFilter<"course"> | Decimal | DecimalJsLike | number | string | null
+    det?: IntNullableFilter<"course"> | number | null
+    is_stem?: IntFilter<"course"> | number
+    intake_month?: StringNullableFilter<"course"> | string | null
+    intake_year?: IntNullableFilter<"course"> | number | null
+    is_coop_available?: IntFilter<"course"> | number
+    has_app_fee_waiver?: IntFilter<"course"> | number
+    app_fee?: DecimalNullableFilter<"course"> | Decimal | DecimalJsLike | number | string | null
+    has_tuition_deposit?: IntFilter<"course"> | number
+    has_scholarship?: IntFilter<"course"> | number
+    scholarship_amount?: DecimalNullableFilter<"course"> | Decimal | DecimalJsLike | number | string | null
+    min_entry_requirements?: StringNullableFilter<"course"> | string | null
+    min_entry_requirements_scale?: StringNullableFilter<"course"> | string | null
+    has_faster_tat?: IntFilter<"course"> | number
     application?: ApplicationListRelationFilter
     university?: XOR<UniversityScalarRelationFilter, universityWhereInput>
   }, "id" | "code">
@@ -22240,6 +22577,22 @@ export namespace Prisma {
     updated_at?: SortOrder
     university_id?: SortOrder
     code?: SortOrderInput | SortOrder
+    url?: SortOrderInput | SortOrder
+    toefl?: SortOrderInput | SortOrder
+    ielts?: SortOrderInput | SortOrder
+    det?: SortOrderInput | SortOrder
+    is_stem?: SortOrder
+    intake_month?: SortOrderInput | SortOrder
+    intake_year?: SortOrderInput | SortOrder
+    is_coop_available?: SortOrder
+    has_app_fee_waiver?: SortOrder
+    app_fee?: SortOrderInput | SortOrder
+    has_tuition_deposit?: SortOrder
+    has_scholarship?: SortOrder
+    scholarship_amount?: SortOrderInput | SortOrder
+    min_entry_requirements?: SortOrderInput | SortOrder
+    min_entry_requirements_scale?: SortOrderInput | SortOrder
+    has_faster_tat?: SortOrder
     _count?: courseCountOrderByAggregateInput
     _avg?: courseAvgOrderByAggregateInput
     _max?: courseMaxOrderByAggregateInput
@@ -22262,6 +22615,22 @@ export namespace Prisma {
     updated_at?: DateTimeWithAggregatesFilter<"course"> | Date | string
     university_id?: IntWithAggregatesFilter<"course"> | number
     code?: StringNullableWithAggregatesFilter<"course"> | string | null
+    url?: StringNullableWithAggregatesFilter<"course"> | string | null
+    toefl?: DecimalNullableWithAggregatesFilter<"course"> | Decimal | DecimalJsLike | number | string | null
+    ielts?: DecimalNullableWithAggregatesFilter<"course"> | Decimal | DecimalJsLike | number | string | null
+    det?: IntNullableWithAggregatesFilter<"course"> | number | null
+    is_stem?: IntWithAggregatesFilter<"course"> | number
+    intake_month?: StringNullableWithAggregatesFilter<"course"> | string | null
+    intake_year?: IntNullableWithAggregatesFilter<"course"> | number | null
+    is_coop_available?: IntWithAggregatesFilter<"course"> | number
+    has_app_fee_waiver?: IntWithAggregatesFilter<"course"> | number
+    app_fee?: DecimalNullableWithAggregatesFilter<"course"> | Decimal | DecimalJsLike | number | string | null
+    has_tuition_deposit?: IntWithAggregatesFilter<"course"> | number
+    has_scholarship?: IntWithAggregatesFilter<"course"> | number
+    scholarship_amount?: DecimalNullableWithAggregatesFilter<"course"> | Decimal | DecimalJsLike | number | string | null
+    min_entry_requirements?: StringNullableWithAggregatesFilter<"course"> | string | null
+    min_entry_requirements_scale?: StringNullableWithAggregatesFilter<"course"> | string | null
+    has_faster_tat?: IntWithAggregatesFilter<"course"> | number
   }
 
   export type documentWhereInput = {
@@ -23127,6 +23496,9 @@ export namespace Prisma {
     name?: StringFilter<"university"> | string
     city?: StringNullableFilter<"university"> | string | null
     country?: StringFilter<"university"> | string
+    type?: IntFilter<"university"> | number
+    ranking?: IntNullableFilter<"university"> | number | null
+    app_source?: StringNullableFilter<"university"> | string | null
     website?: StringNullableFilter<"university"> | string | null
     logo_url?: StringNullableFilter<"university"> | string | null
     is_open?: IntFilter<"university"> | number
@@ -23140,6 +23512,9 @@ export namespace Prisma {
     name?: SortOrder
     city?: SortOrderInput | SortOrder
     country?: SortOrder
+    type?: SortOrder
+    ranking?: SortOrderInput | SortOrder
+    app_source?: SortOrderInput | SortOrder
     website?: SortOrderInput | SortOrder
     logo_url?: SortOrderInput | SortOrder
     is_open?: SortOrder
@@ -23157,6 +23532,9 @@ export namespace Prisma {
     name?: StringFilter<"university"> | string
     city?: StringNullableFilter<"university"> | string | null
     country?: StringFilter<"university"> | string
+    type?: IntFilter<"university"> | number
+    ranking?: IntNullableFilter<"university"> | number | null
+    app_source?: StringNullableFilter<"university"> | string | null
     website?: StringNullableFilter<"university"> | string | null
     logo_url?: StringNullableFilter<"university"> | string | null
     is_open?: IntFilter<"university"> | number
@@ -23170,6 +23548,9 @@ export namespace Prisma {
     name?: SortOrder
     city?: SortOrderInput | SortOrder
     country?: SortOrder
+    type?: SortOrder
+    ranking?: SortOrderInput | SortOrder
+    app_source?: SortOrderInput | SortOrder
     website?: SortOrderInput | SortOrder
     logo_url?: SortOrderInput | SortOrder
     is_open?: SortOrder
@@ -23190,6 +23571,9 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"university"> | string
     city?: StringNullableWithAggregatesFilter<"university"> | string | null
     country?: StringWithAggregatesFilter<"university"> | string
+    type?: IntWithAggregatesFilter<"university"> | number
+    ranking?: IntNullableWithAggregatesFilter<"university"> | number | null
+    app_source?: StringNullableWithAggregatesFilter<"university"> | string | null
     website?: StringNullableWithAggregatesFilter<"university"> | string | null
     logo_url?: StringNullableWithAggregatesFilter<"university"> | string | null
     is_open?: IntWithAggregatesFilter<"university"> | number
@@ -23805,6 +24189,22 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     code?: string | null
+    url?: string | null
+    toefl?: Decimal | DecimalJsLike | number | string | null
+    ielts?: Decimal | DecimalJsLike | number | string | null
+    det?: number | null
+    is_stem?: number
+    intake_month?: string | null
+    intake_year?: number | null
+    is_coop_available?: number
+    has_app_fee_waiver?: number
+    app_fee?: Decimal | DecimalJsLike | number | string | null
+    has_tuition_deposit?: number
+    has_scholarship?: number
+    scholarship_amount?: Decimal | DecimalJsLike | number | string | null
+    min_entry_requirements?: string | null
+    min_entry_requirements_scale?: string | null
+    has_faster_tat?: number
     application?: applicationCreateNestedManyWithoutCourseInput
     university: universityCreateNestedOneWithoutCourseInput
   }
@@ -23821,6 +24221,22 @@ export namespace Prisma {
     updated_at?: Date | string
     university_id: number
     code?: string | null
+    url?: string | null
+    toefl?: Decimal | DecimalJsLike | number | string | null
+    ielts?: Decimal | DecimalJsLike | number | string | null
+    det?: number | null
+    is_stem?: number
+    intake_month?: string | null
+    intake_year?: number | null
+    is_coop_available?: number
+    has_app_fee_waiver?: number
+    app_fee?: Decimal | DecimalJsLike | number | string | null
+    has_tuition_deposit?: number
+    has_scholarship?: number
+    scholarship_amount?: Decimal | DecimalJsLike | number | string | null
+    min_entry_requirements?: string | null
+    min_entry_requirements_scale?: string | null
+    has_faster_tat?: number
     application?: applicationUncheckedCreateNestedManyWithoutCourseInput
   }
 
@@ -23834,6 +24250,22 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    toefl?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    ielts?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    det?: NullableIntFieldUpdateOperationsInput | number | null
+    is_stem?: IntFieldUpdateOperationsInput | number
+    intake_month?: NullableStringFieldUpdateOperationsInput | string | null
+    intake_year?: NullableIntFieldUpdateOperationsInput | number | null
+    is_coop_available?: IntFieldUpdateOperationsInput | number
+    has_app_fee_waiver?: IntFieldUpdateOperationsInput | number
+    app_fee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    has_tuition_deposit?: IntFieldUpdateOperationsInput | number
+    has_scholarship?: IntFieldUpdateOperationsInput | number
+    scholarship_amount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    min_entry_requirements?: NullableStringFieldUpdateOperationsInput | string | null
+    min_entry_requirements_scale?: NullableStringFieldUpdateOperationsInput | string | null
+    has_faster_tat?: IntFieldUpdateOperationsInput | number
     application?: applicationUpdateManyWithoutCourseNestedInput
     university?: universityUpdateOneRequiredWithoutCourseNestedInput
   }
@@ -23850,6 +24282,22 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     university_id?: IntFieldUpdateOperationsInput | number
     code?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    toefl?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    ielts?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    det?: NullableIntFieldUpdateOperationsInput | number | null
+    is_stem?: IntFieldUpdateOperationsInput | number
+    intake_month?: NullableStringFieldUpdateOperationsInput | string | null
+    intake_year?: NullableIntFieldUpdateOperationsInput | number | null
+    is_coop_available?: IntFieldUpdateOperationsInput | number
+    has_app_fee_waiver?: IntFieldUpdateOperationsInput | number
+    app_fee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    has_tuition_deposit?: IntFieldUpdateOperationsInput | number
+    has_scholarship?: IntFieldUpdateOperationsInput | number
+    scholarship_amount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    min_entry_requirements?: NullableStringFieldUpdateOperationsInput | string | null
+    min_entry_requirements_scale?: NullableStringFieldUpdateOperationsInput | string | null
+    has_faster_tat?: IntFieldUpdateOperationsInput | number
     application?: applicationUncheckedUpdateManyWithoutCourseNestedInput
   }
 
@@ -23865,6 +24313,22 @@ export namespace Prisma {
     updated_at?: Date | string
     university_id: number
     code?: string | null
+    url?: string | null
+    toefl?: Decimal | DecimalJsLike | number | string | null
+    ielts?: Decimal | DecimalJsLike | number | string | null
+    det?: number | null
+    is_stem?: number
+    intake_month?: string | null
+    intake_year?: number | null
+    is_coop_available?: number
+    has_app_fee_waiver?: number
+    app_fee?: Decimal | DecimalJsLike | number | string | null
+    has_tuition_deposit?: number
+    has_scholarship?: number
+    scholarship_amount?: Decimal | DecimalJsLike | number | string | null
+    min_entry_requirements?: string | null
+    min_entry_requirements_scale?: string | null
+    has_faster_tat?: number
   }
 
   export type courseUpdateManyMutationInput = {
@@ -23877,6 +24341,22 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    toefl?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    ielts?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    det?: NullableIntFieldUpdateOperationsInput | number | null
+    is_stem?: IntFieldUpdateOperationsInput | number
+    intake_month?: NullableStringFieldUpdateOperationsInput | string | null
+    intake_year?: NullableIntFieldUpdateOperationsInput | number | null
+    is_coop_available?: IntFieldUpdateOperationsInput | number
+    has_app_fee_waiver?: IntFieldUpdateOperationsInput | number
+    app_fee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    has_tuition_deposit?: IntFieldUpdateOperationsInput | number
+    has_scholarship?: IntFieldUpdateOperationsInput | number
+    scholarship_amount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    min_entry_requirements?: NullableStringFieldUpdateOperationsInput | string | null
+    min_entry_requirements_scale?: NullableStringFieldUpdateOperationsInput | string | null
+    has_faster_tat?: IntFieldUpdateOperationsInput | number
   }
 
   export type courseUncheckedUpdateManyInput = {
@@ -23891,6 +24371,22 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     university_id?: IntFieldUpdateOperationsInput | number
     code?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    toefl?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    ielts?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    det?: NullableIntFieldUpdateOperationsInput | number | null
+    is_stem?: IntFieldUpdateOperationsInput | number
+    intake_month?: NullableStringFieldUpdateOperationsInput | string | null
+    intake_year?: NullableIntFieldUpdateOperationsInput | number | null
+    is_coop_available?: IntFieldUpdateOperationsInput | number
+    has_app_fee_waiver?: IntFieldUpdateOperationsInput | number
+    app_fee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    has_tuition_deposit?: IntFieldUpdateOperationsInput | number
+    has_scholarship?: IntFieldUpdateOperationsInput | number
+    scholarship_amount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    min_entry_requirements?: NullableStringFieldUpdateOperationsInput | string | null
+    min_entry_requirements_scale?: NullableStringFieldUpdateOperationsInput | string | null
+    has_faster_tat?: IntFieldUpdateOperationsInput | number
   }
 
   export type documentCreateInput = {
@@ -24795,6 +25291,9 @@ export namespace Prisma {
     name: string
     city?: string | null
     country: string
+    type?: number
+    ranking?: number | null
+    app_source?: string | null
     website?: string | null
     logo_url?: string | null
     is_open?: number
@@ -24808,6 +25307,9 @@ export namespace Prisma {
     name: string
     city?: string | null
     country: string
+    type?: number
+    ranking?: number | null
+    app_source?: string | null
     website?: string | null
     logo_url?: string | null
     is_open?: number
@@ -24820,6 +25322,9 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     city?: NullableStringFieldUpdateOperationsInput | string | null
     country?: StringFieldUpdateOperationsInput | string
+    type?: IntFieldUpdateOperationsInput | number
+    ranking?: NullableIntFieldUpdateOperationsInput | number | null
+    app_source?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     logo_url?: NullableStringFieldUpdateOperationsInput | string | null
     is_open?: IntFieldUpdateOperationsInput | number
@@ -24833,6 +25338,9 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     city?: NullableStringFieldUpdateOperationsInput | string | null
     country?: StringFieldUpdateOperationsInput | string
+    type?: IntFieldUpdateOperationsInput | number
+    ranking?: NullableIntFieldUpdateOperationsInput | number | null
+    app_source?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     logo_url?: NullableStringFieldUpdateOperationsInput | string | null
     is_open?: IntFieldUpdateOperationsInput | number
@@ -24846,6 +25354,9 @@ export namespace Prisma {
     name: string
     city?: string | null
     country: string
+    type?: number
+    ranking?: number | null
+    app_source?: string | null
     website?: string | null
     logo_url?: string | null
     is_open?: number
@@ -24857,6 +25368,9 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     city?: NullableStringFieldUpdateOperationsInput | string | null
     country?: StringFieldUpdateOperationsInput | string
+    type?: IntFieldUpdateOperationsInput | number
+    ranking?: NullableIntFieldUpdateOperationsInput | number | null
+    app_source?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     logo_url?: NullableStringFieldUpdateOperationsInput | string | null
     is_open?: IntFieldUpdateOperationsInput | number
@@ -24869,6 +25383,9 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     city?: NullableStringFieldUpdateOperationsInput | string | null
     country?: StringFieldUpdateOperationsInput | string
+    type?: IntFieldUpdateOperationsInput | number
+    ranking?: NullableIntFieldUpdateOperationsInput | number | null
+    app_source?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     logo_url?: NullableStringFieldUpdateOperationsInput | string | null
     is_open?: IntFieldUpdateOperationsInput | number
@@ -25761,6 +26278,22 @@ export namespace Prisma {
     updated_at?: SortOrder
     university_id?: SortOrder
     code?: SortOrder
+    url?: SortOrder
+    toefl?: SortOrder
+    ielts?: SortOrder
+    det?: SortOrder
+    is_stem?: SortOrder
+    intake_month?: SortOrder
+    intake_year?: SortOrder
+    is_coop_available?: SortOrder
+    has_app_fee_waiver?: SortOrder
+    app_fee?: SortOrder
+    has_tuition_deposit?: SortOrder
+    has_scholarship?: SortOrder
+    scholarship_amount?: SortOrder
+    min_entry_requirements?: SortOrder
+    min_entry_requirements_scale?: SortOrder
+    has_faster_tat?: SortOrder
   }
 
   export type courseAvgOrderByAggregateInput = {
@@ -25770,6 +26303,18 @@ export namespace Prisma {
     tuition_fee?: SortOrder
     is_open?: SortOrder
     university_id?: SortOrder
+    toefl?: SortOrder
+    ielts?: SortOrder
+    det?: SortOrder
+    is_stem?: SortOrder
+    intake_year?: SortOrder
+    is_coop_available?: SortOrder
+    has_app_fee_waiver?: SortOrder
+    app_fee?: SortOrder
+    has_tuition_deposit?: SortOrder
+    has_scholarship?: SortOrder
+    scholarship_amount?: SortOrder
+    has_faster_tat?: SortOrder
   }
 
   export type courseMaxOrderByAggregateInput = {
@@ -25784,6 +26329,22 @@ export namespace Prisma {
     updated_at?: SortOrder
     university_id?: SortOrder
     code?: SortOrder
+    url?: SortOrder
+    toefl?: SortOrder
+    ielts?: SortOrder
+    det?: SortOrder
+    is_stem?: SortOrder
+    intake_month?: SortOrder
+    intake_year?: SortOrder
+    is_coop_available?: SortOrder
+    has_app_fee_waiver?: SortOrder
+    app_fee?: SortOrder
+    has_tuition_deposit?: SortOrder
+    has_scholarship?: SortOrder
+    scholarship_amount?: SortOrder
+    min_entry_requirements?: SortOrder
+    min_entry_requirements_scale?: SortOrder
+    has_faster_tat?: SortOrder
   }
 
   export type courseMinOrderByAggregateInput = {
@@ -25798,6 +26359,22 @@ export namespace Prisma {
     updated_at?: SortOrder
     university_id?: SortOrder
     code?: SortOrder
+    url?: SortOrder
+    toefl?: SortOrder
+    ielts?: SortOrder
+    det?: SortOrder
+    is_stem?: SortOrder
+    intake_month?: SortOrder
+    intake_year?: SortOrder
+    is_coop_available?: SortOrder
+    has_app_fee_waiver?: SortOrder
+    app_fee?: SortOrder
+    has_tuition_deposit?: SortOrder
+    has_scholarship?: SortOrder
+    scholarship_amount?: SortOrder
+    min_entry_requirements?: SortOrder
+    min_entry_requirements_scale?: SortOrder
+    has_faster_tat?: SortOrder
   }
 
   export type courseSumOrderByAggregateInput = {
@@ -25807,6 +26384,18 @@ export namespace Prisma {
     tuition_fee?: SortOrder
     is_open?: SortOrder
     university_id?: SortOrder
+    toefl?: SortOrder
+    ielts?: SortOrder
+    det?: SortOrder
+    is_stem?: SortOrder
+    intake_year?: SortOrder
+    is_coop_available?: SortOrder
+    has_app_fee_waiver?: SortOrder
+    app_fee?: SortOrder
+    has_tuition_deposit?: SortOrder
+    has_scholarship?: SortOrder
+    scholarship_amount?: SortOrder
+    has_faster_tat?: SortOrder
   }
 
   export type DecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -26531,6 +27120,9 @@ export namespace Prisma {
     name?: SortOrder
     city?: SortOrder
     country?: SortOrder
+    type?: SortOrder
+    ranking?: SortOrder
+    app_source?: SortOrder
     website?: SortOrder
     logo_url?: SortOrder
     is_open?: SortOrder
@@ -26540,6 +27132,8 @@ export namespace Prisma {
 
   export type universityAvgOrderByAggregateInput = {
     id?: SortOrder
+    type?: SortOrder
+    ranking?: SortOrder
     is_open?: SortOrder
   }
 
@@ -26548,6 +27142,9 @@ export namespace Prisma {
     name?: SortOrder
     city?: SortOrder
     country?: SortOrder
+    type?: SortOrder
+    ranking?: SortOrder
+    app_source?: SortOrder
     website?: SortOrder
     logo_url?: SortOrder
     is_open?: SortOrder
@@ -26560,6 +27157,9 @@ export namespace Prisma {
     name?: SortOrder
     city?: SortOrder
     country?: SortOrder
+    type?: SortOrder
+    ranking?: SortOrder
+    app_source?: SortOrder
     website?: SortOrder
     logo_url?: SortOrder
     is_open?: SortOrder
@@ -26569,6 +27169,8 @@ export namespace Prisma {
 
   export type universitySumOrderByAggregateInput = {
     id?: SortOrder
+    type?: SortOrder
+    ranking?: SortOrder
     is_open?: SortOrder
   }
 
@@ -28518,6 +29120,22 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     code?: string | null
+    url?: string | null
+    toefl?: Decimal | DecimalJsLike | number | string | null
+    ielts?: Decimal | DecimalJsLike | number | string | null
+    det?: number | null
+    is_stem?: number
+    intake_month?: string | null
+    intake_year?: number | null
+    is_coop_available?: number
+    has_app_fee_waiver?: number
+    app_fee?: Decimal | DecimalJsLike | number | string | null
+    has_tuition_deposit?: number
+    has_scholarship?: number
+    scholarship_amount?: Decimal | DecimalJsLike | number | string | null
+    min_entry_requirements?: string | null
+    min_entry_requirements_scale?: string | null
+    has_faster_tat?: number
     university: universityCreateNestedOneWithoutCourseInput
   }
 
@@ -28533,6 +29151,22 @@ export namespace Prisma {
     updated_at?: Date | string
     university_id: number
     code?: string | null
+    url?: string | null
+    toefl?: Decimal | DecimalJsLike | number | string | null
+    ielts?: Decimal | DecimalJsLike | number | string | null
+    det?: number | null
+    is_stem?: number
+    intake_month?: string | null
+    intake_year?: number | null
+    is_coop_available?: number
+    has_app_fee_waiver?: number
+    app_fee?: Decimal | DecimalJsLike | number | string | null
+    has_tuition_deposit?: number
+    has_scholarship?: number
+    scholarship_amount?: Decimal | DecimalJsLike | number | string | null
+    min_entry_requirements?: string | null
+    min_entry_requirements_scale?: string | null
+    has_faster_tat?: number
   }
 
   export type courseCreateOrConnectWithoutApplicationInput = {
@@ -28691,6 +29325,22 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    toefl?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    ielts?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    det?: NullableIntFieldUpdateOperationsInput | number | null
+    is_stem?: IntFieldUpdateOperationsInput | number
+    intake_month?: NullableStringFieldUpdateOperationsInput | string | null
+    intake_year?: NullableIntFieldUpdateOperationsInput | number | null
+    is_coop_available?: IntFieldUpdateOperationsInput | number
+    has_app_fee_waiver?: IntFieldUpdateOperationsInput | number
+    app_fee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    has_tuition_deposit?: IntFieldUpdateOperationsInput | number
+    has_scholarship?: IntFieldUpdateOperationsInput | number
+    scholarship_amount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    min_entry_requirements?: NullableStringFieldUpdateOperationsInput | string | null
+    min_entry_requirements_scale?: NullableStringFieldUpdateOperationsInput | string | null
+    has_faster_tat?: IntFieldUpdateOperationsInput | number
     university?: universityUpdateOneRequiredWithoutCourseNestedInput
   }
 
@@ -28706,6 +29356,22 @@ export namespace Prisma {
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     university_id?: IntFieldUpdateOperationsInput | number
     code?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    toefl?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    ielts?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    det?: NullableIntFieldUpdateOperationsInput | number | null
+    is_stem?: IntFieldUpdateOperationsInput | number
+    intake_month?: NullableStringFieldUpdateOperationsInput | string | null
+    intake_year?: NullableIntFieldUpdateOperationsInput | number | null
+    is_coop_available?: IntFieldUpdateOperationsInput | number
+    has_app_fee_waiver?: IntFieldUpdateOperationsInput | number
+    app_fee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    has_tuition_deposit?: IntFieldUpdateOperationsInput | number
+    has_scholarship?: IntFieldUpdateOperationsInput | number
+    scholarship_amount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    min_entry_requirements?: NullableStringFieldUpdateOperationsInput | string | null
+    min_entry_requirements_scale?: NullableStringFieldUpdateOperationsInput | string | null
+    has_faster_tat?: IntFieldUpdateOperationsInput | number
   }
 
   export type organizationUpsertWithoutApplicationInput = {
@@ -29409,6 +30075,9 @@ export namespace Prisma {
     name: string
     city?: string | null
     country: string
+    type?: number
+    ranking?: number | null
+    app_source?: string | null
     website?: string | null
     logo_url?: string | null
     is_open?: number
@@ -29421,6 +30090,9 @@ export namespace Prisma {
     name: string
     city?: string | null
     country: string
+    type?: number
+    ranking?: number | null
+    app_source?: string | null
     website?: string | null
     logo_url?: string | null
     is_open?: number
@@ -29482,6 +30154,9 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     city?: NullableStringFieldUpdateOperationsInput | string | null
     country?: StringFieldUpdateOperationsInput | string
+    type?: IntFieldUpdateOperationsInput | number
+    ranking?: NullableIntFieldUpdateOperationsInput | number | null
+    app_source?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     logo_url?: NullableStringFieldUpdateOperationsInput | string | null
     is_open?: IntFieldUpdateOperationsInput | number
@@ -29494,6 +30169,9 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     city?: NullableStringFieldUpdateOperationsInput | string | null
     country?: StringFieldUpdateOperationsInput | string
+    type?: IntFieldUpdateOperationsInput | number
+    ranking?: NullableIntFieldUpdateOperationsInput | number | null
+    app_source?: NullableStringFieldUpdateOperationsInput | string | null
     website?: NullableStringFieldUpdateOperationsInput | string | null
     logo_url?: NullableStringFieldUpdateOperationsInput | string | null
     is_open?: IntFieldUpdateOperationsInput | number
@@ -31745,6 +32423,22 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     code?: string | null
+    url?: string | null
+    toefl?: Decimal | DecimalJsLike | number | string | null
+    ielts?: Decimal | DecimalJsLike | number | string | null
+    det?: number | null
+    is_stem?: number
+    intake_month?: string | null
+    intake_year?: number | null
+    is_coop_available?: number
+    has_app_fee_waiver?: number
+    app_fee?: Decimal | DecimalJsLike | number | string | null
+    has_tuition_deposit?: number
+    has_scholarship?: number
+    scholarship_amount?: Decimal | DecimalJsLike | number | string | null
+    min_entry_requirements?: string | null
+    min_entry_requirements_scale?: string | null
+    has_faster_tat?: number
     application?: applicationCreateNestedManyWithoutCourseInput
   }
 
@@ -31759,6 +32453,22 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     code?: string | null
+    url?: string | null
+    toefl?: Decimal | DecimalJsLike | number | string | null
+    ielts?: Decimal | DecimalJsLike | number | string | null
+    det?: number | null
+    is_stem?: number
+    intake_month?: string | null
+    intake_year?: number | null
+    is_coop_available?: number
+    has_app_fee_waiver?: number
+    app_fee?: Decimal | DecimalJsLike | number | string | null
+    has_tuition_deposit?: number
+    has_scholarship?: number
+    scholarship_amount?: Decimal | DecimalJsLike | number | string | null
+    min_entry_requirements?: string | null
+    min_entry_requirements_scale?: string | null
+    has_faster_tat?: number
     application?: applicationUncheckedCreateNestedManyWithoutCourseInput
   }
 
@@ -31803,6 +32513,22 @@ export namespace Prisma {
     updated_at?: DateTimeFilter<"course"> | Date | string
     university_id?: IntFilter<"course"> | number
     code?: StringNullableFilter<"course"> | string | null
+    url?: StringNullableFilter<"course"> | string | null
+    toefl?: DecimalNullableFilter<"course"> | Decimal | DecimalJsLike | number | string | null
+    ielts?: DecimalNullableFilter<"course"> | Decimal | DecimalJsLike | number | string | null
+    det?: IntNullableFilter<"course"> | number | null
+    is_stem?: IntFilter<"course"> | number
+    intake_month?: StringNullableFilter<"course"> | string | null
+    intake_year?: IntNullableFilter<"course"> | number | null
+    is_coop_available?: IntFilter<"course"> | number
+    has_app_fee_waiver?: IntFilter<"course"> | number
+    app_fee?: DecimalNullableFilter<"course"> | Decimal | DecimalJsLike | number | string | null
+    has_tuition_deposit?: IntFilter<"course"> | number
+    has_scholarship?: IntFilter<"course"> | number
+    scholarship_amount?: DecimalNullableFilter<"course"> | Decimal | DecimalJsLike | number | string | null
+    min_entry_requirements?: StringNullableFilter<"course"> | string | null
+    min_entry_requirements_scale?: StringNullableFilter<"course"> | string | null
+    has_faster_tat?: IntFilter<"course"> | number
   }
 
   export type audit_logCreateWithoutUserInput = {
@@ -33634,6 +34360,22 @@ export namespace Prisma {
     created_at?: Date | string
     updated_at?: Date | string
     code?: string | null
+    url?: string | null
+    toefl?: Decimal | DecimalJsLike | number | string | null
+    ielts?: Decimal | DecimalJsLike | number | string | null
+    det?: number | null
+    is_stem?: number
+    intake_month?: string | null
+    intake_year?: number | null
+    is_coop_available?: number
+    has_app_fee_waiver?: number
+    app_fee?: Decimal | DecimalJsLike | number | string | null
+    has_tuition_deposit?: number
+    has_scholarship?: number
+    scholarship_amount?: Decimal | DecimalJsLike | number | string | null
+    min_entry_requirements?: string | null
+    min_entry_requirements_scale?: string | null
+    has_faster_tat?: number
   }
 
   export type courseUpdateWithoutUniversityInput = {
@@ -33646,6 +34388,22 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    toefl?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    ielts?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    det?: NullableIntFieldUpdateOperationsInput | number | null
+    is_stem?: IntFieldUpdateOperationsInput | number
+    intake_month?: NullableStringFieldUpdateOperationsInput | string | null
+    intake_year?: NullableIntFieldUpdateOperationsInput | number | null
+    is_coop_available?: IntFieldUpdateOperationsInput | number
+    has_app_fee_waiver?: IntFieldUpdateOperationsInput | number
+    app_fee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    has_tuition_deposit?: IntFieldUpdateOperationsInput | number
+    has_scholarship?: IntFieldUpdateOperationsInput | number
+    scholarship_amount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    min_entry_requirements?: NullableStringFieldUpdateOperationsInput | string | null
+    min_entry_requirements_scale?: NullableStringFieldUpdateOperationsInput | string | null
+    has_faster_tat?: IntFieldUpdateOperationsInput | number
     application?: applicationUpdateManyWithoutCourseNestedInput
   }
 
@@ -33660,6 +34418,22 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    toefl?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    ielts?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    det?: NullableIntFieldUpdateOperationsInput | number | null
+    is_stem?: IntFieldUpdateOperationsInput | number
+    intake_month?: NullableStringFieldUpdateOperationsInput | string | null
+    intake_year?: NullableIntFieldUpdateOperationsInput | number | null
+    is_coop_available?: IntFieldUpdateOperationsInput | number
+    has_app_fee_waiver?: IntFieldUpdateOperationsInput | number
+    app_fee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    has_tuition_deposit?: IntFieldUpdateOperationsInput | number
+    has_scholarship?: IntFieldUpdateOperationsInput | number
+    scholarship_amount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    min_entry_requirements?: NullableStringFieldUpdateOperationsInput | string | null
+    min_entry_requirements_scale?: NullableStringFieldUpdateOperationsInput | string | null
+    has_faster_tat?: IntFieldUpdateOperationsInput | number
     application?: applicationUncheckedUpdateManyWithoutCourseNestedInput
   }
 
@@ -33674,6 +34448,22 @@ export namespace Prisma {
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    toefl?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    ielts?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    det?: NullableIntFieldUpdateOperationsInput | number | null
+    is_stem?: IntFieldUpdateOperationsInput | number
+    intake_month?: NullableStringFieldUpdateOperationsInput | string | null
+    intake_year?: NullableIntFieldUpdateOperationsInput | number | null
+    is_coop_available?: IntFieldUpdateOperationsInput | number
+    has_app_fee_waiver?: IntFieldUpdateOperationsInput | number
+    app_fee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    has_tuition_deposit?: IntFieldUpdateOperationsInput | number
+    has_scholarship?: IntFieldUpdateOperationsInput | number
+    scholarship_amount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    min_entry_requirements?: NullableStringFieldUpdateOperationsInput | string | null
+    min_entry_requirements_scale?: NullableStringFieldUpdateOperationsInput | string | null
+    has_faster_tat?: IntFieldUpdateOperationsInput | number
   }
 
   export type audit_logCreateManyUserInput = {

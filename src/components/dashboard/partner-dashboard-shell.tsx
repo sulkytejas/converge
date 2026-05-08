@@ -12,6 +12,8 @@ const STORAGE_KEY = "cp-partner-sidebar-collapsed";
 export function PartnerDashboardShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const me = api.auth.me.useQuery(undefined, { retry: false });
+  const utils = api.useUtils();
+  const logout = api.auth.logout.useMutation();
 
   const [collapsed, setCollapsed] = useState(false);
 
@@ -41,10 +43,16 @@ export function PartnerDashboardShell({ children }: { children: ReactNode }) {
     .join("")
     .toUpperCase();
 
-  function handleLogout() {
-    // Clearing the cookie cleanly will need a backend endpoint; for now we
-    // just bounce to /login and rely on TTL expiry.
-    router.push("/login");
+  async function handleLogout() {
+    try {
+      await logout.mutateAsync();
+    } catch {
+      // Even if the server call fails (e.g. cookie already gone), continue
+      // with the bounce — clearing the client cache + navigating to /login is
+      // the user-visible part.
+    }
+    await utils.invalidate();
+    router.replace("/login");
   }
 
   return (
@@ -62,6 +70,7 @@ export function PartnerDashboardShell({ children }: { children: ReactNode }) {
         userInitials={initials}
         roleLabel="Partner"
         searchPlaceholder="Search students, applications…"
+        accountHref="/partner/account"
         onLogout={handleLogout}
       />
       <main

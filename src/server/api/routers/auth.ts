@@ -16,6 +16,7 @@ import {
   markMouSigned,
   recordPartnerLogin,
 } from "~/server/applications/store";
+import { cookies } from "next/headers";
 import {
   PARTNER_SESSION_COOKIE_NAME,
   signPartnerSessionJwt,
@@ -186,6 +187,14 @@ export const authRouter = createTRPCRouter({
   // Touched by /partner/dashboard on every mount.
   recordDashboardVisit: protectedPartnerProcedure.mutation(async ({ ctx }) => {
     await recordPartnerLogin(ctx.cpPartner.id);
+    return { success: true as const };
+  }),
+
+  // Clears the partner session cookie. Public on purpose so a stale/missing
+  // cookie doesn't 401 the logout itself.
+  logout: publicProcedure.mutation(async () => {
+    const jar = await cookies();
+    jar.delete(PARTNER_SESSION_COOKIE_NAME);
     return { success: true as const };
   }),
 });

@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import {
   BellIcon,
   ChevronDownIcon,
   HamburgerIcon,
   ProfileIcon,
   SearchIcon,
-  SettingsIcon,
   TasksIcon,
 } from "./nav-icons";
 
@@ -28,6 +28,11 @@ interface TopbarProps {
   taskCount?: number;
   notifications?: NotificationItem[];
   searchPlaceholder?: string;
+  /**
+   * If provided, the profile dropdown shows a "My Account" link pointing here.
+   * Omit (admin shells) to hide account-level entries entirely.
+   */
+  accountHref?: string;
   onSearch?: (value: string) => void;
   onTasksClick?: () => void;
   onMarkAllRead?: () => void;
@@ -51,6 +56,7 @@ export function Topbar({
   taskCount = 0,
   notifications = [],
   searchPlaceholder = "Search partners, students, applications...",
+  accountHref,
   onSearch,
   onTasksClick,
   onMarkAllRead,
@@ -226,23 +232,20 @@ export function Topbar({
             role="menu"
             className="absolute top-12 right-0 z-[100] min-w-[200px] rounded-[10px] border border-[#E4E7EC] bg-white p-1.5 shadow-[0_12px_40px_rgba(0,0,0,0.12)]"
           >
-            <a
-              href="#"
-              role="menuitem"
-              className="flex cursor-pointer items-center gap-2.5 rounded-md px-3 py-2 text-sm text-[#344054] no-underline transition-colors hover:bg-[#F0F7FF] hover:text-[#1570EF] [&:hover_svg]:stroke-[#1570EF]"
-            >
-              <ProfileIcon className="h-4 w-4 stroke-[#667085]" />
-              My Profile
-            </a>
-            <a
-              href="#"
-              role="menuitem"
-              className="flex cursor-pointer items-center gap-2.5 rounded-md px-3 py-2 text-sm text-[#344054] no-underline transition-colors hover:bg-[#F0F7FF] hover:text-[#1570EF] [&:hover_svg]:stroke-[#1570EF]"
-            >
-              <SettingsIcon className="h-4 w-4 stroke-[#667085]" />
-              Account Settings
-            </a>
-            <div className="my-1 h-px bg-[#E4E7EC]" />
+            {accountHref && (
+              <>
+                <Link
+                  href={accountHref}
+                  role="menuitem"
+                  onClick={() => setProfileOpen(false)}
+                  className="flex cursor-pointer items-center gap-2.5 rounded-md px-3 py-2 text-sm text-[#344054] no-underline transition-colors hover:bg-[#F0F7FF] hover:text-[#1570EF] [&:hover_svg]:stroke-[#1570EF]"
+                >
+                  <ProfileIcon className="h-4 w-4 stroke-[#667085]" />
+                  My Account
+                </Link>
+                <div className="my-1 h-px bg-[#E4E7EC]" />
+              </>
+            )}
             <button
               type="button"
               role="menuitem"

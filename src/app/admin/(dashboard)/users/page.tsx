@@ -4,7 +4,10 @@ import { useMemo, useState } from "react";
 import { Button } from "~/components/ui/button";
 import { FormInput } from "~/components/ui/form-input";
 import { FormSelect } from "~/components/ui/form-select";
+import { Modal } from "~/components/ui/modal";
 import { PhoneInput } from "~/components/ui/phone-input";
+import { StatCard } from "~/components/ui/stat-card";
+import { StatusBadge } from "~/components/ui/status-badge";
 import { Toast } from "~/components/ui/toast";
 import { isValidEmail, isValidPhone, getExpectedPhoneDigits } from "~/lib/utils/validation";
 import { AdminRole, AdminRoleLabel } from "~/server/db/enums";
@@ -395,140 +398,83 @@ export default function UsersPage() {
       </div>
 
       {/* Add/Edit modal */}
-      {modal.open && (
-        <div
-          className="fixed inset-0 z-[250] flex items-center justify-center bg-[rgba(16,24,40,0.55)]"
-          onClick={closeModal}
-        >
-          <div
-            className="max-h-[90vh] w-[520px] overflow-y-auto rounded-xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.2)]"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between border-b border-[#E4E7EC] px-6 py-5">
-              <h3 className="text-base font-bold text-[#101828]">
-                {modal.editing ? "Edit User" : "Add User"}
-              </h3>
-              <button
-                onClick={closeModal}
-                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-[#E4E7EC] bg-white"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="#667085" strokeWidth="2" className="h-4 w-4">
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </button>
-            </div>
-            <div className="space-y-4 px-6 py-5">
-              <div className="grid grid-cols-2 gap-3">
-                <FormInput
-                  label="First Name"
-                  required
-                  value={form.firstName}
-                  onChange={(e) => setForm({ ...form, firstName: e.target.value })}
-                  error={!!errors.firstName}
-                  errorMessage={errors.firstName}
-                />
-                <FormInput
-                  label="Last Name"
-                  required
-                  value={form.lastName}
-                  onChange={(e) => setForm({ ...form, lastName: e.target.value })}
-                  error={!!errors.lastName}
-                  errorMessage={errors.lastName}
-                />
-              </div>
-              <FormInput
-                label="Email"
-                required
-                type="email"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                error={!!errors.email}
-                errorMessage={errors.email}
-              />
-              <PhoneInput
-                label="Phone"
-                required
-                countryCode={form.countryCode}
-                phone={form.phone}
-                onCountryCodeChange={(code) => setForm({ ...form, countryCode: code })}
-                onPhoneChange={(phone) => setForm({ ...form, phone })}
-                error={!!errors.phone}
-                errorMessage={errors.phone}
-              />
-              <FormSelect
-                label="Role"
-                options={ROLE_OPTIONS}
-                value={form.role}
-                onChange={(e) => setForm({ ...form, role: e.target.value })}
-              />
-
-              {modal.editing && (
-                <FormSelect
-                  label="Status"
-                  options={STATUS_OPTIONS}
-                  value={form.status}
-                  onChange={(e) =>
-                    setForm({ ...form, status: e.target.value as "active" | "inactive" })
-                  }
-                />
-              )}
-              {errors.form && (
-                <div className="rounded-lg border border-[#FECDCA] bg-[#FEF3F2] px-3 py-2 text-sm text-[#B42318]">
-                  {errors.form}
-                </div>
-              )}
-            </div>
-            <div className="flex justify-end gap-2 border-t border-[#E4E7EC] px-6 py-4">
-              <Button variant="secondary" onClick={closeModal} className="!h-[38px] !px-4">
-                Cancel
-              </Button>
-              <Button onClick={handleSave} loading={isSaving} className="!h-[38px] !px-4">
-                Save User
-              </Button>
-            </div>
-          </div>
+      <Modal
+        open={modal.open}
+        title={modal.editing ? "Edit User" : "Add User"}
+        onClose={closeModal}
+        footer={
+          <>
+            <Button variant="secondary" onClick={closeModal} className="!h-[38px] !px-4">
+              Cancel
+            </Button>
+            <Button onClick={handleSave} loading={isSaving} className="!h-[38px] !px-4">
+              Save User
+            </Button>
+          </>
+        }
+      >
+        <div className="grid grid-cols-2 gap-3">
+          <FormInput
+            label="First Name"
+            required
+            value={form.firstName}
+            onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+            error={!!errors.firstName}
+            errorMessage={errors.firstName}
+          />
+          <FormInput
+            label="Last Name"
+            required
+            value={form.lastName}
+            onChange={(e) => setForm({ ...form, lastName: e.target.value })}
+            error={!!errors.lastName}
+            errorMessage={errors.lastName}
+          />
         </div>
-      )}
+        <FormInput
+          label="Email"
+          required
+          type="email"
+          value={form.email}
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
+          error={!!errors.email}
+          errorMessage={errors.email}
+        />
+        <PhoneInput
+          label="Phone"
+          required
+          countryCode={form.countryCode}
+          phone={form.phone}
+          onCountryCodeChange={(code) => setForm({ ...form, countryCode: code })}
+          onPhoneChange={(phone) => setForm({ ...form, phone })}
+          error={!!errors.phone}
+          errorMessage={errors.phone}
+        />
+        <FormSelect
+          label="Role"
+          options={ROLE_OPTIONS}
+          value={form.role}
+          onChange={(e) => setForm({ ...form, role: e.target.value })}
+        />
+
+        {modal.editing && (
+          <FormSelect
+            label="Status"
+            options={STATUS_OPTIONS}
+            value={form.status}
+            onChange={(e) =>
+              setForm({ ...form, status: e.target.value as "active" | "inactive" })
+            }
+          />
+        )}
+        {errors.form && (
+          <div className="rounded-lg border border-[#FECDCA] bg-[#FEF3F2] px-3 py-2 text-sm text-[#B42318]">
+            {errors.form}
+          </div>
+        )}
+      </Modal>
 
       <Toast message={toastMsg} open={toastOpen} onClose={() => setToastOpen(false)} />
     </>
-  );
-}
-
-function StatCard({
-  label,
-  value,
-  sub,
-  valueClassName,
-}: {
-  label: string;
-  value: number;
-  sub: string;
-  valueClassName?: string;
-}) {
-  return (
-    <div className="rounded-xl border border-[#E4E7EC] bg-white p-5">
-      <div className="mb-2 text-sm font-medium text-[#667085]">{label}</div>
-      <div className={`text-[28px] font-bold text-[#101828] ${valueClassName ?? ""}`}>
-        {value}
-      </div>
-      <div className="mt-1 text-xs text-[#98A2B3]">{sub}</div>
-    </div>
-  );
-}
-
-function StatusBadge({ status }: { status: "active" | "inactive" }) {
-  if (status === "active") {
-    return (
-      <span className="rounded-[10px] bg-[#ECFDF3] px-2.5 py-0.5 text-[11px] font-semibold text-[#067647]">
-        Active
-      </span>
-    );
-  }
-  return (
-    <span className="rounded-[10px] bg-[#F2F4F7] px-2.5 py-0.5 text-[11px] font-semibold text-[#667085]">
-      Inactive
-    </span>
   );
 }

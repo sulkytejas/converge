@@ -175,7 +175,23 @@ exports.Prisma.CourseScalarFieldEnum = {
   created_at: 'created_at',
   updated_at: 'updated_at',
   university_id: 'university_id',
-  code: 'code'
+  code: 'code',
+  url: 'url',
+  toefl: 'toefl',
+  ielts: 'ielts',
+  det: 'det',
+  is_stem: 'is_stem',
+  intake_month: 'intake_month',
+  intake_year: 'intake_year',
+  is_coop_available: 'is_coop_available',
+  has_app_fee_waiver: 'has_app_fee_waiver',
+  app_fee: 'app_fee',
+  has_tuition_deposit: 'has_tuition_deposit',
+  has_scholarship: 'has_scholarship',
+  scholarship_amount: 'scholarship_amount',
+  min_entry_requirements: 'min_entry_requirements',
+  min_entry_requirements_scale: 'min_entry_requirements_scale',
+  has_faster_tat: 'has_faster_tat'
 };
 
 exports.Prisma.DocumentScalarFieldEnum = {
@@ -311,6 +327,9 @@ exports.Prisma.UniversityScalarFieldEnum = {
   name: 'name',
   city: 'city',
   country: 'country',
+  type: 'type',
+  ranking: 'ranking',
+  app_source: 'app_source',
   website: 'website',
   logo_url: 'logo_url',
   is_open: 'is_open',
@@ -407,7 +426,11 @@ exports.Prisma.commissionOrderByRelevanceFieldEnum = {
 exports.Prisma.courseOrderByRelevanceFieldEnum = {
   name: 'name',
   currency: 'currency',
-  code: 'code'
+  code: 'code',
+  url: 'url',
+  intake_month: 'intake_month',
+  min_entry_requirements: 'min_entry_requirements',
+  min_entry_requirements_scale: 'min_entry_requirements_scale'
 };
 
 exports.Prisma.documentOrderByRelevanceFieldEnum = {
@@ -466,6 +489,7 @@ exports.Prisma.universityOrderByRelevanceFieldEnum = {
   name: 'name',
   city: 'city',
   country: 'country',
+  app_source: 'app_source',
   website: 'website',
   logo_url: 'logo_url'
 };
