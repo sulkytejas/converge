@@ -17852,6 +17852,7 @@ export namespace Prisma {
   export type UniversityMinAggregateOutputType = {
     id: number | null
     name: string | null
+    code: string | null
     city: string | null
     country: string | null
     type: number | null
@@ -17867,6 +17868,7 @@ export namespace Prisma {
   export type UniversityMaxAggregateOutputType = {
     id: number | null
     name: string | null
+    code: string | null
     city: string | null
     country: string | null
     type: number | null
@@ -17882,6 +17884,7 @@ export namespace Prisma {
   export type UniversityCountAggregateOutputType = {
     id: number
     name: number
+    code: number
     city: number
     country: number
     type: number
@@ -17913,6 +17916,7 @@ export namespace Prisma {
   export type UniversityMinAggregateInputType = {
     id?: true
     name?: true
+    code?: true
     city?: true
     country?: true
     type?: true
@@ -17928,6 +17932,7 @@ export namespace Prisma {
   export type UniversityMaxAggregateInputType = {
     id?: true
     name?: true
+    code?: true
     city?: true
     country?: true
     type?: true
@@ -17943,6 +17948,7 @@ export namespace Prisma {
   export type UniversityCountAggregateInputType = {
     id?: true
     name?: true
+    code?: true
     city?: true
     country?: true
     type?: true
@@ -18045,6 +18051,7 @@ export namespace Prisma {
   export type UniversityGroupByOutputType = {
     id: number
     name: string
+    code: string | null
     city: string | null
     country: string
     type: number
@@ -18079,6 +18086,7 @@ export namespace Prisma {
   export type universitySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     name?: boolean
+    code?: boolean
     city?: boolean
     country?: boolean
     type?: boolean
@@ -18098,6 +18106,7 @@ export namespace Prisma {
   export type universitySelectScalar = {
     id?: boolean
     name?: boolean
+    code?: boolean
     city?: boolean
     country?: boolean
     type?: boolean
@@ -18110,7 +18119,7 @@ export namespace Prisma {
     updated_at?: boolean
   }
 
-  export type universityOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "city" | "country" | "type" | "ranking" | "app_source" | "website" | "logo_url" | "is_open" | "created_at" | "updated_at", ExtArgs["result"]["university"]>
+  export type universityOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "code" | "city" | "country" | "type" | "ranking" | "app_source" | "website" | "logo_url" | "is_open" | "created_at" | "updated_at", ExtArgs["result"]["university"]>
   export type universityInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     course?: boolean | university$courseArgs<ExtArgs>
     _count?: boolean | UniversityCountOutputTypeDefaultArgs<ExtArgs>
@@ -18124,6 +18133,7 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: number
       name: string
+      code: string | null
       city: string | null
       country: string
       type: number
@@ -18506,6 +18516,7 @@ export namespace Prisma {
   interface universityFieldRefs {
     readonly id: FieldRef<"university", 'Int'>
     readonly name: FieldRef<"university", 'String'>
+    readonly code: FieldRef<"university", 'String'>
     readonly city: FieldRef<"university", 'String'>
     readonly country: FieldRef<"university", 'String'>
     readonly type: FieldRef<"university", 'Int'>
@@ -21864,6 +21875,7 @@ export namespace Prisma {
   export const UniversityScalarFieldEnum: {
     id: 'id',
     name: 'name',
+    code: 'code',
     city: 'city',
     country: 'country',
     type: 'type',
@@ -22080,6 +22092,7 @@ export namespace Prisma {
 
   export const universityOrderByRelevanceFieldEnum: {
     name: 'name',
+    code: 'code',
     city: 'city',
     country: 'country',
     app_source: 'app_source',
@@ -23494,6 +23507,7 @@ export namespace Prisma {
     NOT?: universityWhereInput | universityWhereInput[]
     id?: IntFilter<"university"> | number
     name?: StringFilter<"university"> | string
+    code?: StringNullableFilter<"university"> | string | null
     city?: StringNullableFilter<"university"> | string | null
     country?: StringFilter<"university"> | string
     type?: IntFilter<"university"> | number
@@ -23510,6 +23524,7 @@ export namespace Prisma {
   export type universityOrderByWithRelationInput = {
     id?: SortOrder
     name?: SortOrder
+    code?: SortOrderInput | SortOrder
     city?: SortOrderInput | SortOrder
     country?: SortOrder
     type?: SortOrder
@@ -23526,6 +23541,7 @@ export namespace Prisma {
 
   export type universityWhereUniqueInput = Prisma.AtLeast<{
     id?: number
+    code?: string
     AND?: universityWhereInput | universityWhereInput[]
     OR?: universityWhereInput[]
     NOT?: universityWhereInput | universityWhereInput[]
@@ -23541,11 +23557,12 @@ export namespace Prisma {
     created_at?: DateTimeFilter<"university"> | Date | string
     updated_at?: DateTimeFilter<"university"> | Date | string
     course?: CourseListRelationFilter
-  }, "id">
+  }, "id" | "code">
 
   export type universityOrderByWithAggregationInput = {
     id?: SortOrder
     name?: SortOrder
+    code?: SortOrderInput | SortOrder
     city?: SortOrderInput | SortOrder
     country?: SortOrder
     type?: SortOrder
@@ -23569,6 +23586,7 @@ export namespace Prisma {
     NOT?: universityScalarWhereWithAggregatesInput | universityScalarWhereWithAggregatesInput[]
     id?: IntWithAggregatesFilter<"university"> | number
     name?: StringWithAggregatesFilter<"university"> | string
+    code?: StringNullableWithAggregatesFilter<"university"> | string | null
     city?: StringNullableWithAggregatesFilter<"university"> | string | null
     country?: StringWithAggregatesFilter<"university"> | string
     type?: IntWithAggregatesFilter<"university"> | number
@@ -25289,6 +25307,7 @@ export namespace Prisma {
 
   export type universityCreateInput = {
     name: string
+    code?: string | null
     city?: string | null
     country: string
     type?: number
@@ -25305,6 +25324,7 @@ export namespace Prisma {
   export type universityUncheckedCreateInput = {
     id?: number
     name: string
+    code?: string | null
     city?: string | null
     country: string
     type?: number
@@ -25320,6 +25340,7 @@ export namespace Prisma {
 
   export type universityUpdateInput = {
     name?: StringFieldUpdateOperationsInput | string
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     country?: StringFieldUpdateOperationsInput | string
     type?: IntFieldUpdateOperationsInput | number
@@ -25336,6 +25357,7 @@ export namespace Prisma {
   export type universityUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     country?: StringFieldUpdateOperationsInput | string
     type?: IntFieldUpdateOperationsInput | number
@@ -25352,6 +25374,7 @@ export namespace Prisma {
   export type universityCreateManyInput = {
     id?: number
     name: string
+    code?: string | null
     city?: string | null
     country: string
     type?: number
@@ -25366,6 +25389,7 @@ export namespace Prisma {
 
   export type universityUpdateManyMutationInput = {
     name?: StringFieldUpdateOperationsInput | string
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     country?: StringFieldUpdateOperationsInput | string
     type?: IntFieldUpdateOperationsInput | number
@@ -25381,6 +25405,7 @@ export namespace Prisma {
   export type universityUncheckedUpdateManyInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     country?: StringFieldUpdateOperationsInput | string
     type?: IntFieldUpdateOperationsInput | number
@@ -27118,6 +27143,7 @@ export namespace Prisma {
   export type universityCountOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
+    code?: SortOrder
     city?: SortOrder
     country?: SortOrder
     type?: SortOrder
@@ -27140,6 +27166,7 @@ export namespace Prisma {
   export type universityMaxOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
+    code?: SortOrder
     city?: SortOrder
     country?: SortOrder
     type?: SortOrder
@@ -27155,6 +27182,7 @@ export namespace Prisma {
   export type universityMinOrderByAggregateInput = {
     id?: SortOrder
     name?: SortOrder
+    code?: SortOrder
     city?: SortOrder
     country?: SortOrder
     type?: SortOrder
@@ -30073,6 +30101,7 @@ export namespace Prisma {
 
   export type universityCreateWithoutCourseInput = {
     name: string
+    code?: string | null
     city?: string | null
     country: string
     type?: number
@@ -30088,6 +30117,7 @@ export namespace Prisma {
   export type universityUncheckedCreateWithoutCourseInput = {
     id?: number
     name: string
+    code?: string | null
     city?: string | null
     country: string
     type?: number
@@ -30152,6 +30182,7 @@ export namespace Prisma {
 
   export type universityUpdateWithoutCourseInput = {
     name?: StringFieldUpdateOperationsInput | string
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     country?: StringFieldUpdateOperationsInput | string
     type?: IntFieldUpdateOperationsInput | number
@@ -30167,6 +30198,7 @@ export namespace Prisma {
   export type universityUncheckedUpdateWithoutCourseInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
+    code?: NullableStringFieldUpdateOperationsInput | string | null
     city?: NullableStringFieldUpdateOperationsInput | string | null
     country?: StringFieldUpdateOperationsInput | string
     type?: IntFieldUpdateOperationsInput | number

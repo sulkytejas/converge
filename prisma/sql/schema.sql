@@ -203,6 +203,7 @@ CREATE TABLE IF NOT EXISTS `student` (
 CREATE TABLE IF NOT EXISTS `university` (
   `id`         INT NOT NULL AUTO_INCREMENT,
   `name`       VARCHAR(150) NOT NULL,
+  `code`       VARCHAR(50) NULL DEFAULT NULL,             -- Admin-chosen identifier; used by bulk imports + ZIP logo matching
   `city`       VARCHAR(100) NULL DEFAULT NULL,
   `country`    VARCHAR(2)   NOT NULL,
   `type`       TINYINT NOT NULL DEFAULT 0,                -- 0=Public, 1=Private
@@ -213,7 +214,8 @@ CREATE TABLE IF NOT EXISTS `university` (
   `is_open`    TINYINT NOT NULL DEFAULT 1,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `uni_code_UNIQUE` (`code` ASC)
 ) ENGINE = InnoDB;
 
 

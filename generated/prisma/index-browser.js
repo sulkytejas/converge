@@ -325,6 +325,7 @@ exports.Prisma.StudentScalarFieldEnum = {
 exports.Prisma.UniversityScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  code: 'code',
   city: 'city',
   country: 'country',
   type: 'type',
@@ -487,6 +488,7 @@ exports.Prisma.studentOrderByRelevanceFieldEnum = {
 
 exports.Prisma.universityOrderByRelevanceFieldEnum = {
   name: 'name',
+  code: 'code',
   city: 'city',
   country: 'country',
   app_source: 'app_source',

@@ -3,6 +3,7 @@ import { TRPCError } from "@trpc/server";
 import {
   createTRPCRouter,
   protectedAdminProcedure,
+  protectedPartnerProcedure,
 } from "~/server/api/trpc";
 
 // Two-letter ISO code for the university's country. We accept either an ISO2
@@ -10,8 +11,19 @@ import {
 // expected to send ISO2 directly.
 const ISO2 = z.string().min(2).max(2).transform((v) => v.toUpperCase());
 
+// Codes are now required and standardised to a fixed length so admins can
+// rely on `<code>.png` for ZIP logo matching without having to remember
+// per-uni length quirks.
+const UNI_CODE_REGEX = /^[a-zA-Z0-9]{3}$/;
+
 const universityInput = z.object({
   name: z.string().trim().min(1).max(150),
+  // Admin-chosen identifier (e.g. "MIT"). UNIQUE, exactly 3 alphanumeric chars.
+  // Used to match ZIP logo filenames and to upsert via bulk import.
+  code: z
+    .string()
+    .trim()
+    .regex(UNI_CODE_REGEX, "Code must be exactly 3 alphanumeric characters"),
   city: z.string().trim().max(100).nullable().optional(),
   country: ISO2,
   // 0 = Public, 1 = Private. Defaults to public.
@@ -57,6 +69,7 @@ function bool(v: boolean): number {
 function toUniversityApi(u: {
   id: number;
   name: string;
+  code: string | null;
   city: string | null;
   country: string;
   type: number;
@@ -71,6 +84,7 @@ function toUniversityApi(u: {
   return {
     id: u.id,
     name: u.name,
+    code: u.code,
     city: u.city,
     country: u.country,
     type: u.type === 1 ? ("private" as const) : ("public" as const),
@@ -110,7 +124,13 @@ function toCourseApi(c: {
   min_entry_requirements: string | null;
   min_entry_requirements_scale: string | null;
   has_faster_tat: number;
-  university?: { id: number; name: string; country: string } | null;
+  university?: {
+    id: number;
+    name: string;
+    country: string;
+    city: string | null;
+    logo_url: string | null;
+  } | null;
 }) {
   return {
     id: c.id,
@@ -139,7 +159,13 @@ function toCourseApi(c: {
     minEntryRequirementsScale: c.min_entry_requirements_scale,
     hasFasterTat: c.has_faster_tat === 1,
     university: c.university
-      ? { id: c.university.id, name: c.university.name, country: c.university.country }
+      ? {
+          id: c.university.id,
+          name: c.university.name,
+          country: c.university.country,
+          city: c.university.city,
+          logoUrl: c.university.logo_url,
+        }
       : null,
   };
 }
@@ -165,6 +191,7 @@ export const universitiesRouter = createTRPCRouter({
       const created = await ctx.db.university.create({
         data: {
           name: input.name,
+          code: input.code,
           city: input.city ?? null,
           country: input.country,
           type: input.type,
@@ -185,6 +212,7 @@ export const universitiesRouter = createTRPCRouter({
         where: { id: input.id },
         data: {
           name: input.name,
+          code: input.code,
           city: input.city ?? null,
           country: input.country,
           type: input.type,
@@ -245,7 +273,15 @@ export const universitiesRouter = createTRPCRouter({
           : undefined,
         orderBy: [{ university_id: "asc" }, { name: "asc" }],
         include: {
-          university: { select: { id: true, name: true, country: true } },
+          university: {
+            select: {
+              id: true,
+              name: true,
+              country: true,
+              city: true,
+              logo_url: true,
+            },
+          },
         },
       });
       return rows.map(toCourseApi);
@@ -268,7 +304,7 @@ export const universitiesRouter = createTRPCRouter({
         data: {
           university_id: input.universityId,
           name: input.name,
-          code: input.code ?? null,
+          code: input.code,
           degree_level: input.degreeLevel ?? null,
           duration_months: input.durationMonths ?? null,
           tuition_fee: input.tuitionFee ?? null,
@@ -292,11 +328,111 @@ export const universitiesRouter = createTRPCRouter({
           has_faster_tat: bool(input.hasFasterTat),
         },
         include: {
-          university: { select: { id: true, name: true, country: true } },
+          university: {
+            select: {
+              id: true,
+              name: true,
+              country: true,
+              city: true,
+              logo_url: true,
+            },
+          },
         },
       });
       return toCourseApi(created);
     }),
+
+  // -------------------------------------------------------------------------
+  // Partner-facing search (powers /partner/uni-assist)
+  // -------------------------------------------------------------------------
+  searchPrograms: protectedPartnerProcedure
+    .input(
+      z
+        .object({
+          query: z.string().trim().max(200).optional(),
+          country: z.string().trim().length(2).optional(),
+          intakeYear: z.number().int().min(2000).max(2099).optional(),
+          // Three-letter month abbreviation, e.g. "Sep". We LIKE-match against
+          // the comma-separated intake_month string.
+          intakeMonth: z.string().trim().max(20).optional(),
+          degreeLevel: z.number().int().min(0).max(255).optional(),
+          // Sort key. "relevance" is the default order (university then name).
+          sortBy: z
+            .enum(["relevance", "tuition-asc", "tuition-desc", "uni-az"])
+            .default("relevance"),
+        })
+        .default({ sortBy: "relevance" }),
+    )
+    .query(async ({ ctx, input }) => {
+      const where: Record<string, unknown> = {};
+      if (input.query) {
+        // Match either the program name or the parent university's name.
+        where.OR = [
+          { name: { contains: input.query } },
+          { university: { name: { contains: input.query } } },
+        ];
+      }
+      if (input.country) {
+        where.university = { country: input.country.toUpperCase() };
+      }
+      if (input.intakeYear) where.intake_year = input.intakeYear;
+      if (input.intakeMonth) {
+        where.intake_month = { contains: input.intakeMonth };
+      }
+      if (input.degreeLevel !== undefined) where.degree_level = input.degreeLevel;
+
+      const orderBy =
+        input.sortBy === "tuition-asc"
+          ? [{ tuition_fee: "asc" as const }, { name: "asc" as const }]
+          : input.sortBy === "tuition-desc"
+            ? [{ tuition_fee: "desc" as const }, { name: "asc" as const }]
+            : input.sortBy === "uni-az"
+              ? [
+                  { university: { name: "asc" as const } },
+                  { name: "asc" as const },
+                ]
+              : [
+                  { university: { name: "asc" as const } },
+                  { name: "asc" as const },
+                ];
+
+      const rows = await ctx.db.course.findMany({
+        where,
+        orderBy,
+        include: {
+          university: {
+            select: {
+              id: true,
+              name: true,
+              country: true,
+              city: true,
+              logo_url: true,
+            },
+          },
+        },
+      });
+      return rows.map(toCourseApi);
+    }),
+
+  // List of distinct ISO2 countries that currently have universities — used
+  // to populate the partner-side Country filter without a separate endpoint.
+  listSearchFilters: protectedPartnerProcedure.query(async ({ ctx }) => {
+    const unis = await ctx.db.university.findMany({
+      select: { country: true },
+      distinct: ["country"],
+      orderBy: { country: "asc" },
+    });
+    const years = await ctx.db.course.findMany({
+      where: { intake_year: { not: null } },
+      select: { intake_year: true },
+      distinct: ["intake_year"],
+      orderBy: { intake_year: "asc" },
+    });
+    return {
+      countries: unis.map((u) => u.country),
+      years: years.map((y) => y.intake_year).filter((y): y is number => y !== null),
+    };
+  }),
 
   deleteCourse: protectedAdminProcedure
     .input(z.object({ id: z.number().int().positive() }))

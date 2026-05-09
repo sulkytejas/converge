@@ -278,6 +278,7 @@ model student {
 model university {
   id         Int      @id @default(autoincrement())
   name       String   @db.VarChar(150)
+  code       String?  @unique(map: "uni_code_UNIQUE") @db.VarChar(50)
   city       String?  @db.VarChar(100)
   country    String   @db.VarChar(2)
   type       Int      @default(0) @db.TinyInt

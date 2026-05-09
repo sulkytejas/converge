@@ -8,7 +8,12 @@ import { Modal } from "~/components/ui/modal";
 import { StatCard } from "~/components/ui/stat-card";
 import { StatusBadge } from "~/components/ui/status-badge";
 import { Toast } from "~/components/ui/toast";
+import { UniLogo } from "~/components/ui/uni-logo";
 import { api, type RouterOutputs } from "~/trpc/react";
+import {
+  ImportPreviewModal,
+  type ImportPreview,
+} from "./import-preview-modal";
 
 type CourseRow = RouterOutputs["universities"]["listCourses"][number];
 
@@ -72,12 +77,14 @@ type TypeFilter = "all" | "public" | "private";
 type UniversityRow = {
   id: number;
   name: string;
+  code: string | null;
   city: string | null;
   country: string;
   type: "public" | "private";
   ranking: number | null;
   appSource: string | null;
   website: string | null;
+  logoUrl: string | null;
   isOpen: boolean;
   courseCount: number;
 };
@@ -86,6 +93,7 @@ type UniversityRow = {
 
 interface UniFormState {
   name: string;
+  code: string;
   country: string;
   city: string;
   type: "public" | "private";
@@ -98,6 +106,7 @@ interface UniFormState {
 
 const emptyUniForm = (): UniFormState => ({
   name: "",
+  code: "",
   country: "US",
   city: "",
   type: "public",
@@ -108,8 +117,9 @@ const emptyUniForm = (): UniFormState => ({
   isOpen: true,
 });
 
-const fromUni = (u: UniversityRow & { logoUrl?: string | null }): UniFormState => ({
+const fromUni = (u: UniversityRow): UniFormState => ({
   name: u.name,
+  code: u.code ?? "",
   country: u.country,
   city: u.city ?? "",
   type: u.type,
@@ -314,6 +324,7 @@ export default function AdminUniversitiesPage() {
         (u) =>
           u.name.toLowerCase().includes(q) ||
           (u.city ?? "").toLowerCase().includes(q) ||
+          (u.code ?? "").toLowerCase().includes(q) ||
           formatUniId(u.id).toLowerCase().includes(q),
       );
     }
@@ -374,6 +385,12 @@ export default function AdminUniversitiesPage() {
   function handleSubmitUni() {
     const errs: Record<string, string> = {};
     if (!uniForm.name.trim()) errs.name = "Name is required";
+    const code = uniForm.code.trim();
+    if (!code) {
+      errs.code = "Code is required";
+    } else if (!/^[a-zA-Z0-9]{3}$/.test(code)) {
+      errs.code = "Code must be exactly 3 alphanumeric characters";
+    }
     if (!uniForm.country.trim() || uniForm.country.length !== 2)
       errs.country = "Country is required";
     setUniErrors(errs);
@@ -381,6 +398,7 @@ export default function AdminUniversitiesPage() {
 
     const payload = {
       name: uniForm.name.trim(),
+      code,
       country: uniForm.country,
       city: uniForm.city.trim() || null,
       type: uniForm.type === "private" ? 1 : 0,
@@ -708,6 +726,23 @@ export default function AdminUniversitiesPage() {
           error={!!uniErrors.name}
           errorMessage={uniErrors.name}
         />
+        <div>
+          <FormInput
+            label="Code (3 chars, unique)"
+            required
+            maxLength={3}
+            placeholder="e.g. MIT, NUS, ICL"
+            value={uniForm.code}
+            onChange={(e) => setUniForm({ ...uniForm, code: e.target.value })}
+            error={!!uniErrors.code}
+            errorMessage={uniErrors.code}
+          />
+          {!uniErrors.code && (
+            <div className="mt-1 text-xs text-[#98A2B3]">
+              Exactly 3 alphanumeric chars. Used for ZIP logo matching and bulk import upserts.
+            </div>
+          )}
+        </div>
         <FormSelect
           label="Country"
           required
@@ -766,11 +801,11 @@ export default function AdminUniversitiesPage() {
           value={uniForm.appSource}
           onChange={(e) => setUniForm({ ...uniForm, appSource: e.target.value })}
         />
-        <FormInput
-          label="Logo URL"
-          placeholder="https://…/logo.png"
-          value={uniForm.logoUrl}
-          onChange={(e) => setUniForm({ ...uniForm, logoUrl: e.target.value })}
+        <LogoUploader
+          name={uniForm.name || "Logo"}
+          logoUrl={uniForm.logoUrl}
+          onChange={(url) => setUniForm({ ...uniForm, logoUrl: url })}
+          onError={showToast}
         />
         <FormSelect
           label="Status"
@@ -1161,10 +1196,15 @@ function UniversitiesCard({
                       <span className="font-mono text-[12px] font-semibold text-[#1570EF]">
                         {formatUniId(u.id)}
                       </span>
+                      {u.code && (
+                        <div className="font-mono text-[10px] text-[#98A2B3]">
+                          {u.code}
+                        </div>
+                      )}
                     </Td>
                     <Td>
                       <div className="flex items-center gap-2.5">
-                        <UniAvatar name={u.name} />
+                        <UniLogo name={u.name} logoUrl={u.logoUrl} size={32} />
                         <span className="font-semibold text-[#101828]">{u.name}</span>
                       </div>
                     </Td>
@@ -1384,42 +1424,59 @@ function ProgramsCard({
 // ----- Bulk upload tab ----------------------------------------------------
 
 interface ImportSummary {
-  universities: { created: number; matchedExisting: number };
+  universities: { created: number; updated: number };
   courses: { created: number; updated: number };
   errors: Array<{ sheet: "University" | "Course"; row: number; message: string }>;
 }
 
 function BulkUploadTab({ onComplete }: { onComplete: () => Promise<void> }) {
-  const [file, setFile] = useState<File | null>(null);
-  const [uploading, setUploading] = useState(false);
-  const [summary, setSummary] = useState<ImportSummary | null>(null);
+  const [csvFile, setCsvFile] = useState<File | null>(null);
+  const [zipFile, setZipFile] = useState<File | null>(null);
+  const [parsing, setParsing] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [preview, setPreview] = useState<ImportPreview | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [summary, setSummary] = useState<ImportSummary | null>(null);
   const [dragOver, setDragOver] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
+  const csvInputRef = useRef<HTMLInputElement>(null);
+  const zipInputRef = useRef<HTMLInputElement>(null);
 
-  const submit = async (f: File) => {
-    setUploading(true);
+  const handlePreview = async () => {
+    if (!csvFile) return;
+    setParsing(true);
     setErrorMsg(null);
     setSummary(null);
     try {
       const fd = new FormData();
-      fd.append("file", f);
+      fd.append("file", csvFile);
+      if (zipFile) fd.append("zip", zipFile);
       const res = await fetch("/api/admin/uni-import", {
         method: "POST",
         body: fd,
       });
-      const json = (await res.json()) as ImportSummary | { error: string };
+      const json = (await res.json()) as ImportPreview | { error: string };
       if (!res.ok || "error" in json) {
         setErrorMsg(("error" in json && json.error) || `HTTP ${res.status}`);
       } else {
-        setSummary(json);
-        await onComplete();
+        setPreview(json);
+        setModalOpen(true);
       }
     } catch (e) {
-      setErrorMsg(e instanceof Error ? e.message : "Upload failed");
+      setErrorMsg(e instanceof Error ? e.message : "Parse failed");
     } finally {
-      setUploading(false);
+      setParsing(false);
     }
+  };
+
+  const handleCommitted = async (s: ImportSummary) => {
+    setSummary(s);
+    setModalOpen(false);
+    setPreview(null);
+    setCsvFile(null);
+    setZipFile(null);
+    if (csvInputRef.current) csvInputRef.current.value = "";
+    if (zipInputRef.current) zipInputRef.current.value = "";
+    await onComplete();
   };
 
   return (
@@ -1429,15 +1486,24 @@ function BulkUploadTab({ onComplete }: { onComplete: () => Promise<void> }) {
           Bulk import universities &amp; programs
         </h3>
         <p className="mt-1 text-sm text-[#667085]">
-          Upload an XLSX or CSV file with sheets named{" "}
+          Upload an XLSX/CSV with sheets named{" "}
           <code className="rounded bg-[#F2F4F7] px-1 py-0.5 text-xs">University</code> and{" "}
-          <code className="rounded bg-[#F2F4F7] px-1 py-0.5 text-xs">Course</code>. Course rows
-          reference the University by its{" "}
+          <code className="rounded bg-[#F2F4F7] px-1 py-0.5 text-xs">Course</code>.
+          Each university row needs a unique{" "}
+          <code className="rounded bg-[#F2F4F7] px-1 py-0.5 text-xs">code</code> (exactly 3
+          alphanumeric chars, e.g. <code className="rounded bg-[#F2F4F7] px-1 py-0.5 text-xs">MIT</code>).
+          Courses reference universities by the spreadsheet&apos;s{" "}
           <code className="rounded bg-[#F2F4F7] px-1 py-0.5 text-xs">id</code> column.
-          Universities are matched by name + country on re-import; programs upsert by code.
+        </p>
+        <p className="mt-2 text-sm text-[#667085]">
+          Optionally attach a ZIP of logos. Each file&apos;s name (without extension) must
+          match a university&apos;s <code className="rounded bg-[#F2F4F7] px-1 py-0.5 text-xs">code</code>.
+          Example: <code className="rounded bg-[#F2F4F7] px-1 py-0.5 text-xs">mit.png</code>{" "}
+          attaches to the university with code <code className="rounded bg-[#F2F4F7] px-1 py-0.5 text-xs">MIT</code>.
         </p>
       </div>
 
+      {/* CSV drop zone */}
       <div
         onDragOver={(e) => {
           e.preventDefault();
@@ -1449,12 +1515,12 @@ function BulkUploadTab({ onComplete }: { onComplete: () => Promise<void> }) {
           setDragOver(false);
           const f = e.dataTransfer.files?.[0];
           if (f) {
-            setFile(f);
-            setSummary(null);
+            setCsvFile(f);
             setErrorMsg(null);
+            setSummary(null);
           }
         }}
-        onClick={() => fileRef.current?.click()}
+        onClick={() => csvInputRef.current?.click()}
         className={`cursor-pointer rounded-xl border-2 border-dashed px-6 py-10 text-center transition-colors ${
           dragOver
             ? "border-[#1570EF] bg-[#EFF8FF]"
@@ -1462,15 +1528,15 @@ function BulkUploadTab({ onComplete }: { onComplete: () => Promise<void> }) {
         }`}
       >
         <input
-          ref={fileRef}
+          ref={csvInputRef}
           type="file"
           accept=".xlsx,.xls,.csv"
           className="hidden"
           onChange={(e) => {
             const f = e.target.files?.[0] ?? null;
-            setFile(f);
-            setSummary(null);
+            setCsvFile(f);
             setErrorMsg(null);
+            setSummary(null);
           }}
         />
         <svg
@@ -1485,33 +1551,84 @@ function BulkUploadTab({ onComplete }: { onComplete: () => Promise<void> }) {
           <line x1="12" y1="3" x2="12" y2="15" />
         </svg>
         <div className="text-[15px] font-semibold text-[#344054]">
-          {file ? file.name : "Drop file here or click to browse"}
+          {csvFile ? csvFile.name : "Drop CSV/XLSX here or click to browse"}
         </div>
         <div className="mt-1 text-[13px] text-[#98A2B3]">
           XLSX or CSV — <span className="font-semibold text-[#1570EF]">max 10 MB</span>
         </div>
       </div>
 
+      {/* Optional ZIP */}
+      <div className="mt-3 flex items-center gap-3 rounded-lg border border-[#E4E7EC] bg-[#FAFBFC] px-4 py-3">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#98A2B3"
+          strokeWidth={1.6}
+          className="h-5 w-5 shrink-0"
+        >
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+          <polyline points="17 8 12 3 7 8" />
+          <line x1="12" y1="3" x2="12" y2="15" />
+        </svg>
+        <div className="min-w-0 flex-1">
+          <div className="text-sm font-semibold text-[#344054]">
+            Logo ZIP (optional)
+          </div>
+          <div className="truncate text-xs text-[#667085]">
+            {zipFile ? zipFile.name : "Filenames matched to university codes (e.g. mit.png)"}
+          </div>
+        </div>
+        <input
+          ref={zipInputRef}
+          type="file"
+          accept=".zip,application/zip"
+          className="hidden"
+          onChange={(e) => setZipFile(e.target.files?.[0] ?? null)}
+        />
+        <button
+          type="button"
+          onClick={() => zipInputRef.current?.click()}
+          className="rounded-lg border border-[#D0D5DD] bg-white px-3 py-1.5 text-xs font-semibold text-[#344054] hover:bg-white"
+        >
+          {zipFile ? "Change ZIP" : "Choose ZIP"}
+        </button>
+        {zipFile && (
+          <button
+            type="button"
+            onClick={() => {
+              setZipFile(null);
+              if (zipInputRef.current) zipInputRef.current.value = "";
+            }}
+            className="text-xs font-medium text-[#F04438] hover:underline"
+          >
+            Remove
+          </button>
+        )}
+      </div>
+
       <div className="mt-5 flex justify-end gap-2">
         <Button
           variant="secondary"
           onClick={() => {
-            setFile(null);
-            setSummary(null);
+            setCsvFile(null);
+            setZipFile(null);
             setErrorMsg(null);
-            if (fileRef.current) fileRef.current.value = "";
+            setSummary(null);
+            if (csvInputRef.current) csvInputRef.current.value = "";
+            if (zipInputRef.current) zipInputRef.current.value = "";
           }}
           className="!h-[38px] !px-4"
         >
           Reset
         </Button>
         <Button
-          onClick={() => file && submit(file)}
-          disabled={!file || uploading}
-          loading={uploading}
+          onClick={handlePreview}
+          disabled={!csvFile || parsing}
+          loading={parsing}
           className="!h-[38px] !px-4"
         >
-          Import
+          Preview Import
         </Button>
       </div>
 
@@ -1525,11 +1642,7 @@ function BulkUploadTab({ onComplete }: { onComplete: () => Promise<void> }) {
         <div className="mt-5 space-y-3">
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
             <SummaryStat label="Universities created" value={summary.universities.created} tone="green" />
-            <SummaryStat
-              label="Universities matched"
-              value={summary.universities.matchedExisting}
-              tone="blue"
-            />
+            <SummaryStat label="Universities updated" value={summary.universities.updated} tone="blue" />
             <SummaryStat label="Programs created" value={summary.courses.created} tone="green" />
             <SummaryStat label="Programs updated" value={summary.courses.updated} tone="blue" />
           </div>
@@ -1549,6 +1662,13 @@ function BulkUploadTab({ onComplete }: { onComplete: () => Promise<void> }) {
           )}
         </div>
       )}
+
+      <ImportPreviewModal
+        open={modalOpen}
+        preview={preview}
+        onClose={() => setModalOpen(false)}
+        onCommitted={handleCommitted}
+      />
     </div>
   );
 }
@@ -1583,20 +1703,6 @@ function DownloadIcon() {
       <polyline points="7 10 12 15 17 10" />
       <line x1="12" y1="15" x2="12" y2="3" />
     </svg>
-  );
-}
-
-function UniAvatar({ name }: { name: string }) {
-  const initials = name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0]?.toUpperCase() ?? "")
-    .join("");
-  return (
-    <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-[#1570EF] to-[#0b4ea2] text-[11px] font-bold text-white">
-      {initials || "?"}
-    </span>
   );
 }
 
@@ -1685,6 +1791,97 @@ function ActionBtn({
     >
       {children}
     </button>
+  );
+}
+
+function LogoUploader({
+  name,
+  logoUrl,
+  onChange,
+  onError,
+}: {
+  name: string;
+  logoUrl: string;
+  onChange: (url: string) => void;
+  onError: (msg: string) => void;
+}) {
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handlePick = async (file: File) => {
+    if (!["image/jpeg", "image/png"].includes(file.type)) {
+      onError("Please upload a JPG or PNG file");
+      return;
+    }
+    if (file.size > 200 * 1024) {
+      onError("Logo must be under 200 KB");
+      return;
+    }
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("folder", "uni-logos");
+      const res = await fetch("/api/upload", { method: "POST", body: fd });
+      if (!res.ok) {
+        const err = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(err.error ?? "Upload failed");
+      }
+      const json = (await res.json()) as { url: string };
+      onChange(json.url);
+    } catch (e) {
+      onError(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  return (
+    <div>
+      <div className="mb-1.5 text-[13px] font-medium text-[#344054]">Logo</div>
+      <div className="flex items-center gap-3">
+        <UniLogo name={name} logoUrl={logoUrl || null} size={56} />
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/jpeg,image/png"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) void handlePick(f);
+              }}
+            />
+            <button
+              type="button"
+              disabled={uploading}
+              onClick={() => fileRef.current?.click()}
+              className="cursor-pointer rounded-lg border border-[#1570EF] bg-white px-3 py-1.5 text-xs font-semibold text-[#1570EF] transition-colors hover:bg-[#1570EF] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {uploading
+                ? "Uploading…"
+                : logoUrl
+                  ? "Change logo"
+                  : "Upload logo"}
+            </button>
+            {logoUrl && (
+              <button
+                type="button"
+                onClick={() => onChange("")}
+                className="cursor-pointer border-none bg-transparent text-xs font-medium text-[#F04438] hover:underline"
+              >
+                Remove
+              </button>
+            )}
+          </div>
+          <div className="text-[11px] text-[#98A2B3]">
+            Square (1:1), ≥256×256 px, PNG (transparent bg) or JPG, ≤200 KB.
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
