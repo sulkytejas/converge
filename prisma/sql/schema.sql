@@ -135,15 +135,22 @@ CREATE TABLE IF NOT EXISTS `document` (
   `org_id`          INT NULL DEFAULT NULL,
   `user_id`         INT NULL DEFAULT NULL,
   `is_org_document` TINYINT NOT NULL DEFAULT 0,
+  `student_id`      INT NULL DEFAULT NULL,           -- student-profile documents
+  `size_bytes`      INT NULL DEFAULT NULL,
+  `description`     VARCHAR(255) NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_document_organization1_idx` (`org_id` ASC) VISIBLE,
   INDEX `fk_document_user1_idx`         (`user_id` ASC) VISIBLE,
+  INDEX `fk_document_student_idx`       (`student_id` ASC) VISIBLE,
   CONSTRAINT `fk_document_organization`
     FOREIGN KEY (`org_id`) REFERENCES `organization` (`id`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_document_user`
     FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
-    ON DELETE SET NULL ON UPDATE NO ACTION
+    ON DELETE SET NULL ON UPDATE NO ACTION,
+  CONSTRAINT `fk_document_student`
+    FOREIGN KEY (`student_id`) REFERENCES `student` (`id`)
+    ON DELETE CASCADE
 ) ENGINE = InnoDB;
 
 
@@ -168,33 +175,76 @@ CREATE TABLE IF NOT EXISTS `session` (
 
 
 -- -----------------------------------------------------
--- student  (FK -> organization, user)
+-- student  (FK -> organization, user, collegepond_user)
+-- AUTO_INCREMENT starts at 10001 so display IDs read CP-10001+ (mockup style).
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `student` (
-  `id`            INT NOT NULL AUTO_INCREMENT,
-  `first_name`    VARCHAR(50)  NOT NULL,
-  `last_name`     VARCHAR(50)  NOT NULL,
-  `email`         VARCHAR(255) NULL DEFAULT NULL,
-  `phone`         VARCHAR(20)  NULL DEFAULT NULL,
-  `country`       VARCHAR(2)   NULL DEFAULT NULL,
-  `intake`        VARCHAR(20)  NULL DEFAULT NULL,
-  `created_at`    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at`    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `gender`        TINYINT(3) UNSIGNED NULL DEFAULT NULL,
-  `org_id`        INT NOT NULL,
-  `counsellor_id` INT NULL,
-  `date_of_birth` DATE NULL DEFAULT NULL,
-  `nationality`   VARCHAR(2)  NULL DEFAULT NULL,
+  `id`                 INT NOT NULL AUTO_INCREMENT,
+  `first_name`         VARCHAR(50)  NOT NULL,
+  `last_name`          VARCHAR(50)  NOT NULL,
+  `email`              VARCHAR(255) NULL DEFAULT NULL,
+  `phone`              VARCHAR(20)  NULL DEFAULT NULL,
+  `country`            VARCHAR(2)   NULL DEFAULT NULL,  -- destination interest, not nationality
+  `intake`             VARCHAR(20)  NULL DEFAULT NULL,
+  `created_at`         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at`         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `gender`             TINYINT(3) UNSIGNED NULL DEFAULT NULL,
+  `org_id`             INT NULL,                        -- NULL for independent counsellors
+  `counsellor_id`      INT NULL,                        -- partner-side counsellor (scoping)
+  `date_of_birth`      DATE NULL DEFAULT NULL,
+  `nationality`        VARCHAR(2)  NULL DEFAULT NULL,
+  `status`             TINYINT UNSIGNED NOT NULL DEFAULT 0,  -- StudentStatus enum (enums.ts)
+  `course_level`       TINYINT UNSIGNED NULL DEFAULT NULL,   -- CourseLevel enum
+  `interested_program` VARCHAR(100) NULL DEFAULT NULL,
+  `education_loan`     TINYINT(1) NULL DEFAULT NULL,
+  `apply_through_cp`   TINYINT(1) NULL DEFAULT NULL,
+  `cp_counsellor_id`   INT NULL DEFAULT NULL,           -- CP-side assigned counsellor
+  `created_by_user_id` INT NULL DEFAULT NULL,           -- partner user who created the record
+  -- Profile-page personal information (cp-student-profile mock)
+  `middle_name`               VARCHAR(50)  NULL DEFAULT NULL,
+  `marital_status`            TINYINT UNSIGNED NULL DEFAULT NULL,  -- 0 Single … 4 Prefer not to say
+  `mailing_address1`          VARCHAR(255) NULL DEFAULT NULL,
+  `mailing_address2`          VARCHAR(255) NULL DEFAULT NULL,
+  `mailing_city`              VARCHAR(100) NULL DEFAULT NULL,
+  `mailing_state`             VARCHAR(100) NULL DEFAULT NULL,
+  `mailing_country`           VARCHAR(50)  NULL DEFAULT NULL,
+  `mailing_postal`            VARCHAR(20)  NULL DEFAULT NULL,
+  `permanent_same_as_mailing` TINYINT NOT NULL DEFAULT 0,
+  `permanent_address1`        VARCHAR(255) NULL DEFAULT NULL,
+  `permanent_address2`        VARCHAR(255) NULL DEFAULT NULL,
+  `permanent_city`            VARCHAR(100) NULL DEFAULT NULL,
+  `permanent_state`           VARCHAR(100) NULL DEFAULT NULL,
+  `permanent_country`         VARCHAR(50)  NULL DEFAULT NULL,
+  `permanent_postal`          VARCHAR(20)  NULL DEFAULT NULL,
+  `dual_citizenship`          TINYINT NULL DEFAULT NULL,
+  `passport_number`           VARCHAR(20)  NULL DEFAULT NULL,
+  `passport_expiry`           DATE NULL DEFAULT NULL,
+  `visa_refused`              TINYINT NULL DEFAULT NULL,
+  `visa_refused_details`      VARCHAR(500) NULL DEFAULT NULL,
+  `criminal_record`           TINYINT NULL DEFAULT NULL,
+  `criminal_record_details`   VARCHAR(500) NULL DEFAULT NULL,
+  `medical_condition`         TINYINT NULL DEFAULT NULL,
+  `medical_condition_details` VARCHAR(500) NULL DEFAULT NULL,
+  `highest_education_level`   TINYINT UNSIGNED NULL DEFAULT NULL,  -- EducationLevel enum
   PRIMARY KEY (`id`),
   INDEX `fk_student_organization1_idx` (`org_id` ASC) VISIBLE,
   INDEX `fk_student_user1_idx`         (`counsellor_id` ASC) VISIBLE,
+  INDEX `idx_student_status`           (`status` ASC) VISIBLE,
+  INDEX `idx_student_cp_counsellor`    (`cp_counsellor_id` ASC) VISIBLE,
+  INDEX `idx_student_created_by`       (`created_by_user_id` ASC) VISIBLE,
   CONSTRAINT `fk_student_organization`
     FOREIGN KEY (`org_id`) REFERENCES `organization` (`id`)
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_student_user`
     FOREIGN KEY (`counsellor_id`) REFERENCES `user` (`id`)
-    ON DELETE SET NULL ON UPDATE NO ACTION
-) ENGINE = InnoDB;
+    ON DELETE SET NULL ON UPDATE NO ACTION,
+  CONSTRAINT `fk_student_cp_counsellor`
+    FOREIGN KEY (`cp_counsellor_id`) REFERENCES `collegepond_user` (`id`)
+    ON DELETE SET NULL,
+  CONSTRAINT `fk_student_created_by`
+    FOREIGN KEY (`created_by_user_id`) REFERENCES `user` (`id`)
+    ON DELETE SET NULL
+) ENGINE = InnoDB AUTO_INCREMENT = 10001;
 
 
 -- -----------------------------------------------------
@@ -276,6 +326,12 @@ CREATE TABLE IF NOT EXISTS `application` (
   `org_id`             INT NOT NULL,
   `offer_letter_url`   VARCHAR(255) NULL DEFAULT NULL,
   `program_start_date` DATE NULL DEFAULT NULL,
+  `university_app_id`  VARCHAR(100) NULL DEFAULT NULL,
+  `counsellor_vendor`  VARCHAR(100) NULL DEFAULT NULL,
+  `conditional_docs`   JSON NULL DEFAULT NULL,
+  `deposit_deadline`   DATE NULL DEFAULT NULL,
+  `deposit_amount`     DECIMAL(12,2) NULL DEFAULT NULL,
+  `deposit_currency`   CHAR(3) NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_application_student1_idx`      (`student_id` ASC) VISIBLE,
   INDEX `fk_application_course1_idx`       (`course_id` ASC) VISIBLE,
@@ -471,6 +527,213 @@ CREATE TABLE IF NOT EXISTS `audit_log` (
   CONSTRAINT `fk_audit_log_user1`
     FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
     ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- uni_assist_template  (FK -> collegepond_user)
+-- Saved Uni Assist filter sets, shared team-wide.
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `uni_assist_template` (
+  `id`                  INT NOT NULL AUTO_INCREMENT,
+  `name`                VARCHAR(100) NOT NULL,
+  `filters`             JSON NOT NULL,
+  `collegepond_user_id` INT NOT NULL,
+  `created_at`          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `fk_uni_assist_template_cp_user_idx` (`collegepond_user_id` ASC) VISIBLE,
+  CONSTRAINT `fk_uni_assist_template_cp_user`
+    FOREIGN KEY (`collegepond_user_id`) REFERENCES `collegepond_user` (`id`)
+    ON DELETE CASCADE
+) ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- student_note  (FK -> student, collegepond_user)
+-- Tasks & Notes tab: is_task 0 = note, 1 = task (due
+-- date / priority / done). Converting flips is_task.
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `student_note` (
+  `id`                  INT NOT NULL AUTO_INCREMENT,
+  `student_id`          INT NOT NULL,
+  `body`                VARCHAR(1000) NOT NULL,
+  `is_task`             TINYINT NOT NULL DEFAULT 0,
+  `due_date`            DATE NULL DEFAULT NULL,
+  `priority`            TINYINT UNSIGNED NULL DEFAULT NULL,  -- 0 Low, 1 Medium, 2 High
+  `is_done`             TINYINT NOT NULL DEFAULT 0,
+  `created_at`          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at`          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `collegepond_user_id` INT NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_note_student_idx` (`student_id` ASC) VISIBLE,
+  INDEX `fk_note_cp_user_idx` (`collegepond_user_id` ASC) VISIBLE,
+  CONSTRAINT `fk_note_student`
+    FOREIGN KEY (`student_id`) REFERENCES `student` (`id`)
+    ON DELETE CASCADE,
+  CONSTRAINT `fk_note_cp_user`
+    FOREIGN KEY (`collegepond_user_id`) REFERENCES `collegepond_user` (`id`)
+    ON DELETE SET NULL
+) ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- student_emergency_contact  (FK -> student)
+-- relationship: 0 Parent, 1 Sibling, 2 Spouse, 3 Friend, 4 Other
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `student_emergency_contact` (
+  `id`           INT NOT NULL AUTO_INCREMENT,
+  `student_id`   INT NOT NULL,
+  `relationship` TINYINT UNSIGNED NOT NULL,
+  `name`         VARCHAR(100) NOT NULL,
+  `email`        VARCHAR(255) NULL DEFAULT NULL,
+  `phone`        VARCHAR(45)  NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_emergency_contact_student_idx` (`student_id` ASC) VISIBLE,
+  CONSTRAINT `fk_emergency_contact_student`
+    FOREIGN KEY (`student_id`) REFERENCES `student` (`id`)
+    ON DELETE CASCADE
+) ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- student_education  (FK -> student)
+-- One row per education level (0 10th … 4 PhD).
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `student_education` (
+  `id`              INT NOT NULL AUTO_INCREMENT,
+  `student_id`      INT NOT NULL,
+  `level`           TINYINT UNSIGNED NOT NULL,
+  `country`         VARCHAR(50)  NULL DEFAULT NULL,
+  `board`           VARCHAR(100) NULL DEFAULT NULL,
+  `state`           VARCHAR(50)  NULL DEFAULT NULL,
+  `qualification`   VARCHAR(100) NULL DEFAULT NULL,
+  `institution`     VARCHAR(150) NULL DEFAULT NULL,
+  `city`            VARCHAR(100) NULL DEFAULT NULL,
+  `grading_system`  VARCHAR(20)  NULL DEFAULT NULL,
+  `scale`           VARCHAR(50)  NULL DEFAULT NULL,
+  `score`           VARCHAR(20)  NULL DEFAULT NULL,
+  `language`        VARCHAR(30)  NULL DEFAULT NULL,
+  `pass_month`      TINYINT UNSIGNED NULL DEFAULT NULL,
+  `pass_year`       SMALLINT UNSIGNED NULL DEFAULT NULL,
+  `major`           VARCHAR(100) NULL DEFAULT NULL,
+  `research_topic`  VARCHAR(255) NULL DEFAULT NULL,
+  `predicted_score` VARCHAR(20)  NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `uq_education_student_level` (`student_id` ASC, `level` ASC) VISIBLE,
+  CONSTRAINT `fk_education_student`
+    FOREIGN KEY (`student_id`) REFERENCES `student` (`id`)
+    ON DELETE CASCADE
+) ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- student_work_experience  (FK -> student)
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `student_work_experience` (
+  `id`                INT NOT NULL AUTO_INCREMENT,
+  `student_id`        INT NOT NULL,
+  `company`           VARCHAR(150) NOT NULL,
+  `job_title`         VARCHAR(100) NULL DEFAULT NULL,
+  `employment_type`   VARCHAR(20)  NULL DEFAULT NULL,
+  `industry`          VARCHAR(50)  NULL DEFAULT NULL,
+  `start_month`       TINYINT UNSIGNED NOT NULL,
+  `start_year`        SMALLINT UNSIGNED NOT NULL,
+  `end_month`         TINYINT UNSIGNED NULL DEFAULT NULL,
+  `end_year`          SMALLINT UNSIGNED NULL DEFAULT NULL,
+  `currently_working` TINYINT NOT NULL DEFAULT 0,
+  `city`              VARCHAR(100) NULL DEFAULT NULL,
+  `country`           VARCHAR(50)  NULL DEFAULT NULL,
+  `description`       VARCHAR(1000) NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_work_experience_student_idx` (`student_id` ASC) VISIBLE,
+  CONSTRAINT `fk_work_experience_student`
+    FOREIGN KEY (`student_id`) REFERENCES `student` (`id`)
+    ON DELETE CASCADE
+) ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- student_test_score  (FK -> student)
+-- One row per attempt; `scores` holds the test's field
+-- map (e.g. {"verbal":165,"quant":168,"total":333}).
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `student_test_score` (
+  `id`         INT NOT NULL AUTO_INCREMENT,
+  `student_id` INT NOT NULL,
+  `test`       VARCHAR(20) NOT NULL,
+  `attempt`    TINYINT UNSIGNED NOT NULL,
+  `scores`     JSON NOT NULL,
+  `test_date`  DATE NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `uq_test_score_student_test_attempt` (`student_id` ASC, `test` ASC, `attempt` ASC) VISIBLE,
+  CONSTRAINT `fk_test_score_student`
+    FOREIGN KEY (`student_id`) REFERENCES `student` (`id`)
+    ON DELETE CASCADE
+) ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- application_portal_credential  (FK -> application)
+-- University-portal login per application. password_enc
+-- is AES-256-GCM ciphertext (src/server/crypto.ts).
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `application_portal_credential` (
+  `id`             INT NOT NULL AUTO_INCREMENT,
+  `application_id` INT NOT NULL,
+  `username`       VARCHAR(255) NOT NULL,
+  `password_enc`   VARCHAR(1024) NOT NULL,
+  `created_at`     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at`     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `uq_portal_credential_application` (`application_id` ASC) VISIBLE,
+  CONSTRAINT `fk_portal_credential_application`
+    FOREIGN KEY (`application_id`) REFERENCES `application` (`id`)
+    ON DELETE CASCADE
+) ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- application_stage_history  (FK -> application)
+-- One row per happy-path stage (0-7) an application has
+-- reached; powers stepper dates and keeps the stage
+-- position when status holds a terminal outcome (>= 20).
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `application_stage_history` (
+  `id`             INT NOT NULL AUTO_INCREMENT,
+  `application_id` INT NOT NULL,
+  `stage`          TINYINT UNSIGNED NOT NULL,
+  `occurred_at`    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `uq_stage_history_app_stage` (`application_id` ASC, `stage` ASC) VISIBLE,
+  CONSTRAINT `fk_stage_history_application`
+    FOREIGN KEY (`application_id`) REFERENCES `application` (`id`)
+    ON DELETE CASCADE
+) ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- shortlist  (FK -> student, course, collegepond_user)
+-- Uni Assist shortlists; precursor to an application.
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `shortlist` (
+  `id`                  INT NOT NULL AUTO_INCREMENT,
+  `student_id`          INT NOT NULL,
+  `course_id`           INT NOT NULL,
+  `collegepond_user_id` INT NULL DEFAULT NULL,
+  `created_at`          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `uq_shortlist_student_course` (`student_id` ASC, `course_id` ASC) VISIBLE,
+  INDEX `fk_shortlist_course_idx` (`course_id` ASC) VISIBLE,
+  INDEX `fk_shortlist_cp_user_idx` (`collegepond_user_id` ASC) VISIBLE,
+  CONSTRAINT `fk_shortlist_student`
+    FOREIGN KEY (`student_id`) REFERENCES `student` (`id`)
+    ON DELETE CASCADE,
+  CONSTRAINT `fk_shortlist_course`
+    FOREIGN KEY (`course_id`) REFERENCES `course` (`id`)
+    ON DELETE CASCADE,
+  CONSTRAINT `fk_shortlist_cp_user`
+    FOREIGN KEY (`collegepond_user_id`) REFERENCES `collegepond_user` (`id`)
+    ON DELETE SET NULL
 ) ENGINE = InnoDB;
 
 

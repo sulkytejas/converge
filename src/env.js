@@ -18,6 +18,9 @@ export const env = createEnv({
     MSG91_EMAIL_DOMAIN: z.string().optional(),
     ADMIN_EMAIL: z.string().email().optional(),
     AUTH_SECRET: z.string().min(32),
+    // Encrypts portal credentials at rest; falls back to AUTH_SECRET when
+    // unset so existing environments keep working.
+    CREDENTIAL_ENCRYPTION_KEY: z.string().min(32).optional(),
   },
 
   /**
@@ -43,6 +46,7 @@ export const env = createEnv({
     MSG91_EMAIL_DOMAIN: process.env.MSG91_EMAIL_DOMAIN,
     ADMIN_EMAIL: process.env.ADMIN_EMAIL,
     AUTH_SECRET: process.env.AUTH_SECRET,
+    CREDENTIAL_ENCRYPTION_KEY: process.env.CREDENTIAL_ENCRYPTION_KEY,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

@@ -1,10 +1,12 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { type Prisma } from "generated/prisma";
 import {
   createTRPCRouter,
   protectedAdminProcedure,
   protectedPartnerProcedure,
 } from "~/server/api/trpc";
+import { AdminRole } from "~/server/db/enums";
 
 // Two-letter ISO code for the university's country. We accept either an ISO2
 // code or a longer name and normalize to ISO2 server-side, but the form is
@@ -60,6 +62,28 @@ const courseInput = z.object({
   minEntryRequirements: z.string().trim().max(50).nullable().optional(),
   minEntryRequirementsScale: z.string().trim().max(20).nullable().optional(),
   hasFasterTat: z.boolean().default(false),
+});
+
+// Shape of a saved Uni Assist filter set (mirrors the page's FilterState).
+// Validated on write so junk can't land in the JSON column; kept permissive
+// on values since the page re-merges over defaults when loading.
+const triState = z.object({ yes: z.boolean(), no: z.boolean() });
+const templateFilters = z.object({
+  query: z.string().max(200),
+  intakeMonths: z.array(z.string().max(10)).max(12),
+  intakeYear: z.string().max(4),
+  degreeLevel: z.string().max(3),
+  countries: z.array(z.string().max(2)).max(60),
+  duration: z.string().max(3),
+  engTest: z.string().max(10),
+  engScore: z.string().max(10),
+  stem: triState,
+  feeWaiver: triState,
+  scholarship: triState,
+  open: triState,
+  tuitionCurrency: z.string().max(3),
+  tuitionMin: z.string().max(20),
+  tuitionMax: z.string().max(20),
 });
 
 function bool(v: boolean): number {
@@ -448,6 +472,67 @@ export const universitiesRouter = createTRPCRouter({
         });
       }
       await ctx.db.course.delete({ where: { id: input.id } });
+      return { success: true as const };
+    }),
+
+  // -------------------------------------------------------------------------
+  // Uni Assist saved search templates (team-wide)
+  // -------------------------------------------------------------------------
+  listSearchTemplates: protectedAdminProcedure.query(async ({ ctx }) => {
+    const rows = await ctx.db.uni_assist_template.findMany({
+      orderBy: { created_at: "desc" },
+      include: {
+        collegepond_user: { select: { first_name: true, last_name: true } },
+      },
+    });
+    const isSuperAdmin = ctx.cpUser.role === AdminRole.SUPER_ADMIN;
+    return rows.map((t) => ({
+      id: t.id,
+      name: t.name,
+      filters: t.filters,
+      createdBy:
+        `${t.collegepond_user.first_name} ${t.collegepond_user.last_name}`.trim(),
+      createdAt: t.created_at.toISOString(),
+      canDelete: isSuperAdmin || t.collegepond_user_id === ctx.cpUser.id,
+    }));
+  }),
+
+  createSearchTemplate: protectedAdminProcedure
+    .input(
+      z.object({
+        name: z.string().trim().min(1).max(100),
+        filters: templateFilters,
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const created = await ctx.db.uni_assist_template.create({
+        data: {
+          name: input.name,
+          filters: input.filters as Prisma.InputJsonValue,
+          collegepond_user_id: ctx.cpUser.id,
+        },
+      });
+      return { id: created.id };
+    }),
+
+  deleteSearchTemplate: protectedAdminProcedure
+    .input(z.object({ id: z.number().int().positive() }))
+    .mutation(async ({ ctx, input }) => {
+      const row = await ctx.db.uni_assist_template.findUnique({
+        where: { id: input.id },
+        select: { collegepond_user_id: true },
+      });
+      if (!row) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Template not found" });
+      }
+      const isSuperAdmin = ctx.cpUser.role === AdminRole.SUPER_ADMIN;
+      if (!isSuperAdmin && row.collegepond_user_id !== ctx.cpUser.id) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Only the template's creator or a super admin can delete it",
+        });
+      }
+      await ctx.db.uni_assist_template.delete({ where: { id: input.id } });
       return { success: true as const };
     }),
 });

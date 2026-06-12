@@ -46,3 +46,19 @@ export async function sendEmailOtp(email: string): Promise<void> {
 export async function verifyEmailOtp(email: string, code: string): Promise<boolean> {
   return take(`email:${email.toLowerCase()}`, code);
 }
+
+// Dev-only peeks (see devPeek* in ./index.ts): read the live code without
+// consuming it so the login UI can autopilot through the real verify flow.
+function peek(key: string): string | null {
+  const entry = store.get(key);
+  if (!entry || entry.expiresAt < Date.now()) return null;
+  return entry.code;
+}
+
+export function peekPhoneOtp(phoneE164: string): string | null {
+  return peek(`sms:${phoneE164}`);
+}
+
+export function peekEmailOtp(email: string): string | null {
+  return peek(`email:${email.toLowerCase()}`);
+}

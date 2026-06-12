@@ -6,6 +6,7 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 import {
+  devPeekEmailOtp,
   sendEmailOtp,
   sendPhoneOtp,
   toE164,
@@ -21,6 +22,7 @@ import {
   PARTNER_SESSION_COOKIE_NAME,
   signPartnerSessionJwt,
 } from "~/server/auth/jwt";
+import { UserType } from "~/server/db/enums";
 
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 8;
 
@@ -40,12 +42,15 @@ function buildPartnerSessionCookie(token: string): string {
 //   under_review / rejected / inactive → /pending-verification
 //   approved + MOU not signed           → /mou-signing
 //   approved + MOU signed               → /partner/dashboard
+// Agency counsellors never sign the MOU — only the account owner does — so
+// they skip straight to the dashboard once approved.
 function partnerRedirectFor(
   status: "under_review" | "approved" | "rejected" | "inactive",
   mouSignedAt: string | null | undefined,
+  mouExempt = false,
 ): string {
   if (status !== "approved") return "/pending-verification";
-  if (!mouSignedAt) return "/mou-signing";
+  if (!mouSignedAt && !mouExempt) return "/mou-signing";
   return "/partner/dashboard";
 }
 
@@ -80,7 +85,9 @@ export const authRouter = createTRPCRouter({
         });
       }
 
-      return { success: true as const };
+      // Verification checks the email code, so that's the one autopilot needs.
+      // Always null outside dev/sandbox.
+      return { success: true as const, devOtp: devPeekEmailOtp(input.email) };
     }),
 
   verifyLoginOtp: publicProcedure
@@ -108,7 +115,7 @@ export const authRouter = createTRPCRouter({
       // Look up the row again to grab the user id for the JWT subject.
       const row = await ctx.db.user.findUnique({
         where: { email: input.email.toLowerCase() },
-        select: { id: true },
+        select: { id: true, type: true },
       });
       if (!row) {
         throw new TRPCError({ code: "NOT_FOUND", message: "No account found" });
@@ -125,7 +132,11 @@ export const authRouter = createTRPCRouter({
         status: app.status,
         applicationId: app.applicationId,
         mouSigned: !!app.mouSignedAt,
-        redirectUrl: partnerRedirectFor(app.status, app.mouSignedAt),
+        redirectUrl: partnerRedirectFor(
+          app.status,
+          app.mouSignedAt,
+          row.type === UserType.AGENCY_COUNSELLOR,
+        ),
       };
     }),
 
@@ -140,6 +151,7 @@ export const authRouter = createTRPCRouter({
         first_name: true,
         last_name: true,
         status: true,
+        type: true,
         mou_signed_at: true,
         tracking_id: true,
       },
@@ -164,7 +176,11 @@ export const authRouter = createTRPCRouter({
       applicationId: user.tracking_id ?? "",
       status,
       mouSigned: !!mouSignedAt,
-      redirectUrl: partnerRedirectFor(status, mouSignedAt),
+      redirectUrl: partnerRedirectFor(
+        status,
+        mouSignedAt,
+        user.type === UserType.AGENCY_COUNSELLOR,
+      ),
     };
   }),
 

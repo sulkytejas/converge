@@ -10,6 +10,13 @@ import { OtpInput } from "~/components/ui/otp-input";
 import { isValidEmail, isValidPhone, getExpectedPhoneDigits } from "~/lib/utils/validation";
 import { maskEmail, maskPhone } from "~/lib/utils/masking";
 import { api } from "~/trpc/react";
+import {
+  DevAutopilotBadge,
+  DevQuickLogin,
+  DEV_PARTNER_ACCOUNTS,
+  useOtpAutopilot,
+  type DevAccount,
+} from "~/components/dev/dev-login";
 
 type Screen = "email" | "otp" | "recovery" | "success";
 
@@ -95,6 +102,9 @@ export default function LoginPage() {
   const sendOtp = api.auth.sendLoginOtp.useMutation();
   const verifyOtp = api.auth.verifyLoginOtp.useMutation();
 
+  // Dev autopilot: sandbox code returned by sendLoginOtp (null in prod).
+  const [devOtp, setDevOtp] = useState<string | null>(null);
+
   const startResendTimer = useCallback(() => {
     setResendSeconds(30);
     if (timerRef.current) clearInterval(timerRef.current);
@@ -144,9 +154,10 @@ export default function LoginPage() {
     sendOtp.mutate(
       { email, phone: phone.replace(/\s/g, ""), countryCode },
       {
-        onSuccess: () => {
+        onSuccess: (data) => {
           setOtp(["", "", "", "", ""]);
           setOtpError("");
+          setDevOtp(data.devOtp ?? null);
           setScreen("otp");
           startResendTimer();
         },
@@ -154,12 +165,11 @@ export default function LoginPage() {
     );
   };
 
-  const handleVerifyOtp = () => {
-    const otpValue = otp.join("");
+  const submitOtp = (otpValue: string, creds = { email, phone }) => {
     if (otpValue.length !== 5) return;
 
     verifyOtp.mutate(
-      { email, phone: phone.replace(/\s/g, ""), otp: otpValue },
+      { email: creds.email, phone: creds.phone.replace(/\s/g, ""), otp: otpValue },
       {
         onSuccess: (data) => {
           setUserName(data.name);
@@ -175,12 +185,50 @@ export default function LoginPage() {
     );
   };
 
+  const handleVerifyOtp = () => submitOtp(otp.join(""));
+
   const handleResendOtp = () => {
     setOtp(["", "", "", "", ""]);
     setOtpError("");
     startResendTimer();
-    sendOtp.mutate({ email, phone: phone.replace(/\s/g, ""), countryCode });
+    sendOtp.mutate(
+      { email, phone: phone.replace(/\s/g, ""), countryCode },
+      { onSuccess: (data) => setDevOtp(data.devOtp ?? null) },
+    );
   };
+
+  // Dev quick login: fill the form from a seed account and fire the real
+  // Send OTP path — autopilot finishes the rest.
+  const handleDevPick = (account: DevAccount) => {
+    setEmail(account.email);
+    setPhone(account.phone);
+    setCountryCode("+91");
+    setEmailError("");
+    setPhoneError("");
+    sendOtp.mutate(
+      { email: account.email, phone: account.phone, countryCode: "+91" },
+      {
+        onSuccess: (data) => {
+          setOtp(["", "", "", "", ""]);
+          setOtpError("");
+          setDevOtp(data.devOtp ?? null);
+          setScreen("otp");
+          startResendTimer();
+        },
+      },
+    );
+  };
+
+  const autopilotRunning = useOtpAutopilot({
+    code: devOtp,
+    active: screen === "otp" && !verifyOtp.isPending,
+    length: 5,
+    onDigits: setOtp,
+    onSubmit: (code) => {
+      setDevOtp(null);
+      submitOtp(code);
+    },
+  });
 
   const allOtpFilled = otp.every((d) => d.length === 1);
 
@@ -303,6 +351,12 @@ export default function LoginPage() {
                 Can&apos;t access your account?
               </button>
             </div>
+
+            <DevQuickLogin
+              accounts={DEV_PARTNER_ACCOUNTS}
+              onPick={handleDevPick}
+              busy={sendOtp.isPending}
+            />
           </div>
         )}
 
@@ -395,6 +449,7 @@ export default function LoginPage() {
               </span>
             </div>
 
+            <DevAutopilotBadge visible={autopilotRunning} />
             <label className="mb-1.5 block text-[13px] font-medium text-[#344054]">
               Enter 5-digit OTP *
             </label>

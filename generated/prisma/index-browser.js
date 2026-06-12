@@ -133,7 +133,29 @@ exports.Prisma.ApplicationScalarFieldEnum = {
   course_id: 'course_id',
   org_id: 'org_id',
   offer_letter_url: 'offer_letter_url',
-  program_start_date: 'program_start_date'
+  program_start_date: 'program_start_date',
+  university_app_id: 'university_app_id',
+  counsellor_vendor: 'counsellor_vendor',
+  conditional_docs: 'conditional_docs',
+  deposit_deadline: 'deposit_deadline',
+  deposit_amount: 'deposit_amount',
+  deposit_currency: 'deposit_currency'
+};
+
+exports.Prisma.Application_portal_credentialScalarFieldEnum = {
+  id: 'id',
+  application_id: 'application_id',
+  username: 'username',
+  password_enc: 'password_enc',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.Application_stage_historyScalarFieldEnum = {
+  id: 'id',
+  application_id: 'application_id',
+  stage: 'stage',
+  occurred_at: 'occurred_at'
 };
 
 exports.Prisma.Audit_logScalarFieldEnum = {
@@ -206,7 +228,10 @@ exports.Prisma.DocumentScalarFieldEnum = {
   updated_at: 'updated_at',
   org_id: 'org_id',
   user_id: 'user_id',
-  is_org_document: 'is_org_document'
+  is_org_document: 'is_org_document',
+  student_id: 'student_id',
+  size_bytes: 'size_bytes',
+  description: 'description'
 };
 
 exports.Prisma.EventScalarFieldEnum = {
@@ -319,7 +344,39 @@ exports.Prisma.StudentScalarFieldEnum = {
   org_id: 'org_id',
   counsellor_id: 'counsellor_id',
   date_of_birth: 'date_of_birth',
-  nationality: 'nationality'
+  nationality: 'nationality',
+  status: 'status',
+  course_level: 'course_level',
+  interested_program: 'interested_program',
+  education_loan: 'education_loan',
+  apply_through_cp: 'apply_through_cp',
+  cp_counsellor_id: 'cp_counsellor_id',
+  created_by_user_id: 'created_by_user_id',
+  middle_name: 'middle_name',
+  marital_status: 'marital_status',
+  mailing_address1: 'mailing_address1',
+  mailing_address2: 'mailing_address2',
+  mailing_city: 'mailing_city',
+  mailing_state: 'mailing_state',
+  mailing_country: 'mailing_country',
+  mailing_postal: 'mailing_postal',
+  permanent_same_as_mailing: 'permanent_same_as_mailing',
+  permanent_address1: 'permanent_address1',
+  permanent_address2: 'permanent_address2',
+  permanent_city: 'permanent_city',
+  permanent_state: 'permanent_state',
+  permanent_country: 'permanent_country',
+  permanent_postal: 'permanent_postal',
+  dual_citizenship: 'dual_citizenship',
+  passport_number: 'passport_number',
+  passport_expiry: 'passport_expiry',
+  visa_refused: 'visa_refused',
+  visa_refused_details: 'visa_refused_details',
+  criminal_record: 'criminal_record',
+  criminal_record_details: 'criminal_record_details',
+  medical_condition: 'medical_condition',
+  medical_condition_details: 'medical_condition_details',
+  highest_education_level: 'highest_education_level'
 };
 
 exports.Prisma.UniversityScalarFieldEnum = {
@@ -384,6 +441,91 @@ exports.Prisma.Collegepond_userScalarFieldEnum = {
   last_login_at: 'last_login_at'
 };
 
+exports.Prisma.Student_noteScalarFieldEnum = {
+  id: 'id',
+  student_id: 'student_id',
+  body: 'body',
+  is_task: 'is_task',
+  due_date: 'due_date',
+  priority: 'priority',
+  is_done: 'is_done',
+  created_at: 'created_at',
+  updated_at: 'updated_at',
+  collegepond_user_id: 'collegepond_user_id'
+};
+
+exports.Prisma.Student_emergency_contactScalarFieldEnum = {
+  id: 'id',
+  student_id: 'student_id',
+  relationship: 'relationship',
+  name: 'name',
+  email: 'email',
+  phone: 'phone'
+};
+
+exports.Prisma.Student_educationScalarFieldEnum = {
+  id: 'id',
+  student_id: 'student_id',
+  level: 'level',
+  country: 'country',
+  board: 'board',
+  state: 'state',
+  qualification: 'qualification',
+  institution: 'institution',
+  city: 'city',
+  grading_system: 'grading_system',
+  scale: 'scale',
+  score: 'score',
+  language: 'language',
+  pass_month: 'pass_month',
+  pass_year: 'pass_year',
+  major: 'major',
+  research_topic: 'research_topic',
+  predicted_score: 'predicted_score'
+};
+
+exports.Prisma.Student_work_experienceScalarFieldEnum = {
+  id: 'id',
+  student_id: 'student_id',
+  company: 'company',
+  job_title: 'job_title',
+  employment_type: 'employment_type',
+  industry: 'industry',
+  start_month: 'start_month',
+  start_year: 'start_year',
+  end_month: 'end_month',
+  end_year: 'end_year',
+  currently_working: 'currently_working',
+  city: 'city',
+  country: 'country',
+  description: 'description'
+};
+
+exports.Prisma.Student_test_scoreScalarFieldEnum = {
+  id: 'id',
+  student_id: 'student_id',
+  test: 'test',
+  attempt: 'attempt',
+  scores: 'scores',
+  test_date: 'test_date'
+};
+
+exports.Prisma.ShortlistScalarFieldEnum = {
+  id: 'id',
+  student_id: 'student_id',
+  course_id: 'course_id',
+  collegepond_user_id: 'collegepond_user_id',
+  created_at: 'created_at'
+};
+
+exports.Prisma.Uni_assist_templateScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  filters: 'filters',
+  collegepond_user_id: 'collegepond_user_id',
+  created_at: 'created_at'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -394,14 +536,8 @@ exports.Prisma.NullableJsonNullValueInput = {
   JsonNull: Prisma.JsonNull
 };
 
-exports.Prisma.NullsOrder = {
-  first: 'first',
-  last: 'last'
-};
-
-exports.Prisma.applicationOrderByRelevanceFieldEnum = {
-  notes: 'notes',
-  offer_letter_url: 'offer_letter_url'
+exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.JsonNullValueFilter = {
@@ -413,6 +549,24 @@ exports.Prisma.JsonNullValueFilter = {
 exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
+};
+
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
+
+exports.Prisma.applicationOrderByRelevanceFieldEnum = {
+  notes: 'notes',
+  offer_letter_url: 'offer_letter_url',
+  university_app_id: 'university_app_id',
+  counsellor_vendor: 'counsellor_vendor',
+  deposit_currency: 'deposit_currency'
+};
+
+exports.Prisma.application_portal_credentialOrderByRelevanceFieldEnum = {
+  username: 'username',
+  password_enc: 'password_enc'
 };
 
 exports.Prisma.audit_logOrderByRelevanceFieldEnum = {
@@ -438,7 +592,8 @@ exports.Prisma.documentOrderByRelevanceFieldEnum = {
   file_name: 'file_name',
   file_url: 'file_url',
   mime_type: 'mime_type',
-  doc_type: 'doc_type'
+  doc_type: 'doc_type',
+  description: 'description'
 };
 
 exports.Prisma.eventOrderByRelevanceFieldEnum = {
@@ -483,7 +638,25 @@ exports.Prisma.studentOrderByRelevanceFieldEnum = {
   phone: 'phone',
   country: 'country',
   intake: 'intake',
-  nationality: 'nationality'
+  nationality: 'nationality',
+  interested_program: 'interested_program',
+  middle_name: 'middle_name',
+  mailing_address1: 'mailing_address1',
+  mailing_address2: 'mailing_address2',
+  mailing_city: 'mailing_city',
+  mailing_state: 'mailing_state',
+  mailing_country: 'mailing_country',
+  mailing_postal: 'mailing_postal',
+  permanent_address1: 'permanent_address1',
+  permanent_address2: 'permanent_address2',
+  permanent_city: 'permanent_city',
+  permanent_state: 'permanent_state',
+  permanent_country: 'permanent_country',
+  permanent_postal: 'permanent_postal',
+  passport_number: 'passport_number',
+  visa_refused_details: 'visa_refused_details',
+  criminal_record_details: 'criminal_record_details',
+  medical_condition_details: 'medical_condition_details'
 };
 
 exports.Prisma.universityOrderByRelevanceFieldEnum = {
@@ -518,9 +691,55 @@ exports.Prisma.collegepond_userOrderByRelevanceFieldEnum = {
   phone: 'phone'
 };
 
+exports.Prisma.student_noteOrderByRelevanceFieldEnum = {
+  body: 'body'
+};
+
+exports.Prisma.student_emergency_contactOrderByRelevanceFieldEnum = {
+  name: 'name',
+  email: 'email',
+  phone: 'phone'
+};
+
+exports.Prisma.student_educationOrderByRelevanceFieldEnum = {
+  country: 'country',
+  board: 'board',
+  state: 'state',
+  qualification: 'qualification',
+  institution: 'institution',
+  city: 'city',
+  grading_system: 'grading_system',
+  scale: 'scale',
+  score: 'score',
+  language: 'language',
+  major: 'major',
+  research_topic: 'research_topic',
+  predicted_score: 'predicted_score'
+};
+
+exports.Prisma.student_work_experienceOrderByRelevanceFieldEnum = {
+  company: 'company',
+  job_title: 'job_title',
+  employment_type: 'employment_type',
+  industry: 'industry',
+  city: 'city',
+  country: 'country',
+  description: 'description'
+};
+
+exports.Prisma.student_test_scoreOrderByRelevanceFieldEnum = {
+  test: 'test'
+};
+
+exports.Prisma.uni_assist_templateOrderByRelevanceFieldEnum = {
+  name: 'name'
+};
+
 
 exports.Prisma.ModelName = {
   application: 'application',
+  application_portal_credential: 'application_portal_credential',
+  application_stage_history: 'application_stage_history',
   audit_log: 'audit_log',
   commission: 'commission',
   course: 'course',
@@ -536,7 +755,14 @@ exports.Prisma.ModelName = {
   student: 'student',
   university: 'university',
   user: 'user',
-  collegepond_user: 'collegepond_user'
+  collegepond_user: 'collegepond_user',
+  student_note: 'student_note',
+  student_emergency_contact: 'student_emergency_contact',
+  student_education: 'student_education',
+  student_work_experience: 'student_work_experience',
+  student_test_score: 'student_test_score',
+  shortlist: 'shortlist',
+  uni_assist_template: 'uni_assist_template'
 };
 
 /**

@@ -11,6 +11,13 @@ import { Button } from "~/components/ui/button";
 import { isValidEmail, isValidPhone, getExpectedPhoneDigits } from "~/lib/utils/validation";
 import { maskPhone } from "~/lib/utils/masking";
 import { api } from "~/trpc/react";
+import {
+  DevAutopilotBadge,
+  DevQuickLogin,
+  DEV_ADMIN_ACCOUNTS,
+  useOtpAutopilot,
+  type DevAccount,
+} from "~/components/dev/dev-login";
 
 type Screen = "email" | "otp" | "recovery" | "success";
 
@@ -106,6 +113,9 @@ export default function AdminLoginPage() {
   const [resendSeconds, setResendSeconds] = useState(30);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Dev autopilot: sandbox code returned by sendLoginOtp (null in prod).
+  const [devOtp, setDevOtp] = useState<string | null>(null);
+
   // tRPC mutations
   const sendOtp = api.adminAuth.sendLoginOtp.useMutation();
   const verifyOtp = api.adminAuth.verifyLoginOtp.useMutation();
@@ -159,9 +169,10 @@ export default function AdminLoginPage() {
     sendOtp.mutate(
       { email, phone: phone.replace(/\s/g, ""), countryCode },
       {
-        onSuccess: () => {
+        onSuccess: (data) => {
           setOtp(["", "", "", "", ""]);
           setOtpError("");
+          setDevOtp(data.devOtp ?? null);
           setScreen("otp");
           startResendTimer();
         },
@@ -169,12 +180,16 @@ export default function AdminLoginPage() {
     );
   };
 
-  const handleVerifyOtp = () => {
-    const otpValue = otp.join("");
+  const submitOtp = (otpValue: string, creds = { email, phone, countryCode }) => {
     if (otpValue.length !== 5) return;
 
     verifyOtp.mutate(
-      { email, phone: phone.replace(/\s/g, ""), countryCode, otp: otpValue },
+      {
+        email: creds.email,
+        phone: creds.phone.replace(/\s/g, ""),
+        countryCode: creds.countryCode,
+        otp: otpValue,
+      },
       {
         onSuccess: (data) => {
           setUserName(data.name);
@@ -184,7 +199,7 @@ export default function AdminLoginPage() {
               router.push("/admin/dashboard");
             } else {
               const qs = new URLSearchParams({
-                email,
+                email: creds.email,
                 name: data.name,
                 applicationId: data.applicationId,
               });
@@ -199,12 +214,50 @@ export default function AdminLoginPage() {
     );
   };
 
+  const handleVerifyOtp = () => submitOtp(otp.join(""));
+
   const handleResendOtp = () => {
     setOtp(["", "", "", "", ""]);
     setOtpError("");
     startResendTimer();
-    sendOtp.mutate({ email, phone: phone.replace(/\s/g, ""), countryCode });
+    sendOtp.mutate(
+      { email, phone: phone.replace(/\s/g, ""), countryCode },
+      { onSuccess: (data) => setDevOtp(data.devOtp ?? null) },
+    );
   };
+
+  // Dev quick login: fill the form from a seed account and fire the real
+  // Send OTP path — autopilot finishes the rest.
+  const handleDevPick = (account: DevAccount) => {
+    setEmail(account.email);
+    setPhone(account.phone);
+    setCountryCode("+91");
+    setEmailError("");
+    setPhoneError("");
+    sendOtp.mutate(
+      { email: account.email, phone: account.phone, countryCode: "+91" },
+      {
+        onSuccess: (data) => {
+          setOtp(["", "", "", "", ""]);
+          setOtpError("");
+          setDevOtp(data.devOtp ?? null);
+          setScreen("otp");
+          startResendTimer();
+        },
+      },
+    );
+  };
+
+  const autopilotRunning = useOtpAutopilot({
+    code: devOtp,
+    active: screen === "otp" && !verifyOtp.isPending,
+    length: 5,
+    onDigits: setOtp,
+    onSubmit: (code) => {
+      setDevOtp(null);
+      submitOtp(code);
+    },
+  });
 
   const allOtpFilled = otp.every((d) => d.length === 1);
 
@@ -288,6 +341,12 @@ export default function AdminLoginPage() {
                   </svg>
                   Sessions expire after 8 hours of inactivity
                 </div>
+
+                <DevQuickLogin
+                  accounts={DEV_ADMIN_ACCOUNTS}
+                  onPick={handleDevPick}
+                  busy={sendOtp.isPending}
+                />
               </div>
             )}
 
@@ -305,6 +364,7 @@ export default function AdminLoginPage() {
                   <strong className="text-[#344054]">{maskPhone(phone, countryCode)}</strong>
                 </div>
 
+                <DevAutopilotBadge visible={autopilotRunning} />
                 <div className="mb-2 flex justify-center">
                   <OtpInput
                     length={5}

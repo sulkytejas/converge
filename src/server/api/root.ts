@@ -6,6 +6,7 @@ import { adminAuthRouter } from "~/server/api/routers/admin-auth";
 import { usersRouter } from "~/server/api/routers/users";
 import { partnersRouter } from "~/server/api/routers/partners";
 import { universitiesRouter } from "~/server/api/routers/universities";
+import { studentsRouter } from "~/server/api/routers/students";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 
 export const appRouter = createTRPCRouter({
@@ -17,6 +18,7 @@ export const appRouter = createTRPCRouter({
   users: usersRouter,
   partners: partnersRouter,
   universities: universitiesRouter,
+  students: studentsRouter,
 });
 
 export type AppRouter = typeof appRouter;

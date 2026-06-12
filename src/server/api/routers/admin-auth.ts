@@ -2,7 +2,12 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
-import { sendPhoneOtp, toE164, verifyPhoneOtp } from "~/server/otp";
+import {
+  devPeekPhoneOtp,
+  sendPhoneOtp,
+  toE164,
+  verifyPhoneOtp,
+} from "~/server/otp";
 import { SESSION_COOKIE_NAME, signSessionJwt } from "~/server/auth/jwt";
 
 const SESSION_MAX_AGE_SECONDS = 60 * 60 * 8; // matches the JWT TTL
@@ -72,7 +77,8 @@ export const adminAuthRouter = createTRPCRouter({
         });
       }
 
-      return { success: true as const };
+      // Dev autopilot fuel — always null outside dev/sandbox.
+      return { success: true as const, devOtp: devPeekPhoneOtp(providedE164) };
     }),
 
   verifyLoginOtp: publicProcedure
