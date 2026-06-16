@@ -1,7 +1,20 @@
+import "server-only";
 import { randomUUID } from "node:crypto";
-import { saveLocal, type StoredFile } from "./local";
+import { env } from "~/env";
+import { saveLocal } from "./local";
+import { publicUrl, putObject, spacesConfigured } from "./spaces";
 
-export type { StoredFile };
+export interface StoredFile {
+  /**
+   * The value to persist in the DB and later pass to `resolveStorageUrl`.
+   * - Spaces (private): the object key, e.g. "student-docs/5/uuid-name.pdf".
+   * - Spaces (public): the permanent public/CDN URL.
+   * - Local dev: "/uploads/...".
+   */
+  url: string;
+  /** Raw storage key (no host), e.g. "student-docs/5/uuid-name.pdf". */
+  key: string;
+}
 
 function sanitizeFilename(name: string): string {
   const base = name.replace(/\\/g, "/").split("/").pop() ?? "file";
@@ -17,15 +30,59 @@ function sanitizeFolder(folder: string): string {
     .join("/");
 }
 
+// Persist a raw buffer at an explicit key (callers that build their own key,
+// e.g. the student-doc route and the logo importer). Public objects get a
+// permanent URL; private objects store the key and are served via /api/files.
+export async function saveBuffer(
+  buffer: Buffer,
+  key: string,
+  opts: { contentType?: string; public?: boolean } = {},
+): Promise<StoredFile> {
+  if (spacesConfigured()) {
+    await putObject(key, buffer, {
+      contentType: opts.contentType,
+      public: opts.public,
+    });
+    return { key, url: opts.public ? publicUrl(key) : key };
+  }
+  // App Platform's filesystem is ephemeral — never silently write uploads there
+  // in production (they'd vanish on the next deploy/restart).
+  if (env.NODE_ENV === "production") {
+    throw new Error(
+      "Spaces is not configured (SPACES_*); refusing to write uploads to the ephemeral local disk in production.",
+    );
+  }
+  const local = await saveLocal(buffer, key);
+  return { key, url: local.url };
+}
+
 export async function saveUpload(
   file: File,
-  opts: { folder?: string } = {},
+  opts: { folder?: string; public?: boolean } = {},
 ): Promise<StoredFile> {
   const buffer = Buffer.from(await file.arrayBuffer());
   const now = new Date();
   const yyyyMm = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
   const folder = opts.folder ? sanitizeFolder(opts.folder) || yyyyMm : yyyyMm;
   const key = `${folder}/${randomUUID()}-${sanitizeFilename(file.name)}`;
+  return saveBuffer(buffer, key, {
+    contentType: file.type || undefined,
+    public: opts.public,
+  });
+}
 
-  return saveLocal(buffer, key);
+// Turns a stored value into a browser-usable URL. Full URLs (public Spaces
+// objects, legacy values) and local "/uploads/..." paths pass through
+// untouched; a bare Spaces key routes through the gated /api/files proxy.
+export function resolveStorageUrl(ref: string): string;
+export function resolveStorageUrl(ref: string | null | undefined): string | null;
+export function resolveStorageUrl(ref: string | null | undefined): string | null {
+  if (!ref) return null;
+  if (/^https?:\/\//i.test(ref) || ref.startsWith("/")) return ref;
+  return `/api/files/${ref}`;
+}
+
+// Whether a stored value is a private Spaces object served via /api/files.
+export function isPrivateKey(ref: string | null | undefined): boolean {
+  return Boolean(ref && !/^https?:\/\//i.test(ref) && !ref.startsWith("/"));
 }

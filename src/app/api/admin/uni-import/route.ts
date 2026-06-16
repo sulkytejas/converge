@@ -3,6 +3,10 @@ import { NextResponse } from "next/server";
 import { SESSION_COOKIE_NAME, verifySessionJwt } from "~/server/auth/jwt";
 import { parseAndValidate } from "~/server/universities/import";
 
+export const runtime = "nodejs";
+// Bound a large/zip-bomb import so it can't hold an instance hostage.
+export const maxDuration = 60;
+
 const MAX_CSV_BYTES = 10 * 1024 * 1024; // 10 MB
 const MAX_ZIP_BYTES = 50 * 1024 * 1024; // 50 MB
 

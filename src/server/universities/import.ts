@@ -2,7 +2,7 @@ import path from "node:path";
 import JSZip from "jszip";
 import * as XLSX from "xlsx";
 import { db } from "~/server/db";
-import { saveLocal } from "~/server/storage/local";
+import { saveBuffer } from "~/server/storage";
 
 // Sheet names in the Master_B2B template. Anything else is ignored.
 const SHEET_UNIVERSITY = "University";
@@ -234,10 +234,27 @@ interface ExtractedLogo {
   url: string;
 }
 
+function mimeForExt(ext: string): string | undefined {
+  switch (ext.toLowerCase()) {
+    case ".png":
+      return "image/png";
+    case ".jpg":
+    case ".jpeg":
+      return "image/jpeg";
+    case ".webp":
+      return "image/webp";
+    case ".svg":
+      return "image/svg+xml";
+    default:
+      return undefined;
+  }
+}
+
 async function extractLogos(zipBuffer: Buffer): Promise<ExtractedLogo[]> {
   const zip = await JSZip.loadAsync(zipBuffer);
   const out: ExtractedLogo[] = [];
   const entries = Object.entries(zip.files);
+  let totalBytes = 0; // zip-bomb guard: cap cumulative decompressed size
   for (const [name, file] of entries) {
     if (file.dir) continue;
     const base = path.basename(name);
@@ -251,9 +268,15 @@ async function extractLogos(zipBuffer: Buffer): Promise<ExtractedLogo[]> {
     const content = await file.async("nodebuffer");
     if (content.length === 0) continue;
     if (content.length > 1024 * 1024) continue; // skip oversized images (>1MB)
+    totalBytes += content.length;
+    if (totalBytes > 50 * 1024 * 1024) break; // stop if total decompressed > 50MB
 
     const safeName = stem.replace(/[^a-z0-9._-]/gi, "_");
-    const stored = await saveLocal(content, `uni-logos/${safeName}${ext}`);
+    // Logos are non-sensitive → public object with a permanent URL.
+    const stored = await saveBuffer(content, `uni-logos/${safeName}${ext}`, {
+      contentType: mimeForExt(ext),
+      public: true,
+    });
     out.push({ key: stem, url: stored.url });
   }
   return out;
@@ -330,6 +353,7 @@ export async function parseAndValidate(
       if (!name) errors.push("name is required");
       if (country?.length !== 2)
         errors.push("country must be a 2-letter ISO code (e.g. US, GB, IN)");
+      if (!asString(r[UNI_HEADERS.city], 100)) errors.push("city is required");
 
       // Code is required + must be exactly 3 alphanumeric chars.
       if (!code) {
@@ -420,6 +444,15 @@ export async function parseAndValidate(
 
       if (!name) errors.push("name is required");
       if (xlsxUniversityId === null) errors.push("university_Id is required");
+      if (asInt(r[COURSE_HEADERS.degree_level]) === null)
+        errors.push("degree_level is required");
+      if (asInt(r[COURSE_HEADERS.duration_months]) === null)
+        errors.push("duration_months is required");
+      if (asDecimal(r[COURSE_HEADERS.tuition_fee]) === null)
+        errors.push("tuition_fee is required");
+      if (!asString(r[COURSE_HEADERS.currency], 3))
+        errors.push("currency is required");
+      if (!asString(r[COURSE_HEADERS.url], 255)) errors.push("url is required");
 
       if (code) {
         const codeKey = code.toLowerCase();
@@ -453,7 +486,7 @@ export async function parseAndValidate(
           tuitionFee: asDecimal(r[COURSE_HEADERS.tuition_fee]),
           currency: asString(r[COURSE_HEADERS.currency], 3),
           isOpen: asBool(r[COURSE_HEADERS.is_open], true),
-          url: asString(r[COURSE_HEADERS.url], 500),
+          url: asString(r[COURSE_HEADERS.url], 255),
           toefl: asDecimal(r[COURSE_HEADERS.toefl]),
           ielts: asDecimal(r[COURSE_HEADERS.ielts]),
           det: asInt(r[COURSE_HEADERS.det]),
@@ -521,6 +554,14 @@ export async function commitImport(
       });
       continue;
     }
+    if (row.data.city === null) {
+      errors.push({
+        sheet: "University",
+        row: row.rowNum,
+        message: "city is required",
+      });
+      continue;
+    }
     const data = {
       name: row.data.name,
       code: row.data.code,
@@ -582,16 +623,32 @@ export async function commitImport(
       });
       continue;
     }
+    const { degreeLevel, durationMonths, tuitionFee, currency, url } = row.data;
+    if (
+      degreeLevel === null ||
+      durationMonths === null ||
+      tuitionFee === null ||
+      currency === null ||
+      url === null
+    ) {
+      errors.push({
+        sheet: "Course",
+        row: row.rowNum,
+        message:
+          "Missing required field (degree level, duration, tuition, currency, or url)",
+      });
+      continue;
+    }
     const data = {
       university_id: universityId,
       name: row.data.name,
       code: row.data.code,
-      degree_level: row.data.degreeLevel,
-      duration_months: row.data.durationMonths,
-      tuition_fee: row.data.tuitionFee,
-      currency: row.data.currency,
+      degree_level: degreeLevel,
+      duration_months: durationMonths,
+      tuition_fee: tuitionFee,
+      currency: currency,
       is_open: row.data.isOpen ? 1 : 0,
-      url: row.data.url,
+      url: url,
       toefl: row.data.toefl,
       ielts: row.data.ielts,
       det: row.data.det,

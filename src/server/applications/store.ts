@@ -1,4 +1,5 @@
 import { db } from "~/server/db";
+import { resolveStorageUrl } from "~/server/storage";
 import {
   DocumentStatus,
   OrganizationType,
@@ -149,10 +150,14 @@ export async function saveApplication(input: ApplicationInput): Promise<Applicat
       type: userType,
       is_owner: input.role === "agency" ? 1 : 0,
       org_id: orgId,
-      country: toISO2(input.country),
-      state: input.state ?? null,
-      city: input.city ?? null,
-      address: input.role === "independent" ? (input.companyAddress ?? null) : null,
+      // user.address/city/state/country are NOT NULL. Agencies collect these in
+      // the company step; the independent signup flow does NOT capture an address
+      // yet, so those fall back to "" to satisfy the constraint. TODO: add an
+      // address step to the independent flow to store real values.
+      country: toISO2(input.country) ?? "",
+      state: input.state ?? "",
+      city: input.city ?? "",
+      address: input.companyAddress ?? "",
       bdm_id: input.bdmId ?? null,
     };
 
@@ -222,14 +227,14 @@ export async function getApplicationByEmail(
   if (!user) return null;
 
   const docs: Record<string, string> = {};
-  for (const d of user.document) docs[d.doc_type] = d.file_url;
+  for (const d of user.document) docs[d.doc_type] = resolveStorageUrl(d.file_url);
 
   // Also pull documents linked to the org (for agencies)
   if (user.org_id) {
     const orgDocs = await db.document.findMany({
       where: { org_id: user.org_id },
     });
-    for (const d of orgDocs) docs[d.doc_type] = d.file_url;
+    for (const d of orgDocs) docs[d.doc_type] = resolveStorageUrl(d.file_url);
   }
 
   const role: "agency" | "independent" =
@@ -317,6 +322,7 @@ export async function listApplications(): Promise<PartnerListing[]> {
   const users = await db.user.findMany({
     where: { type: { not: UserType.ADMIN } },
     orderBy: { created_at: "desc" },
+    take: 500, // M6: defensive cap until cursor pagination lands
     include: { organization: true, document: true },
   });
 
@@ -341,7 +347,7 @@ export async function listApplications(): Promise<PartnerListing[]> {
       documents.push({
         id: d.id,
         type: d.doc_type,
-        url: d.file_url,
+        url: resolveStorageUrl(d.file_url),
         fileName: d.file_name,
         status: mapDocStatus(d.status),
       });
@@ -351,7 +357,7 @@ export async function listApplications(): Promise<PartnerListing[]> {
         documents.push({
           id: d.id,
           type: d.doc_type,
-          url: d.file_url,
+          url: resolveStorageUrl(d.file_url),
           fileName: d.file_name,
           status: mapDocStatus(d.status),
         });

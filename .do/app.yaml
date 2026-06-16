@@ -1,0 +1,104 @@
+# =============================================================================
+# DigitalOcean App Platform spec for Converge
+# Docs: https://docs.digitalocean.com/products/app-platform/reference/app-spec/
+#
+# Apply with:  doctl apps create --spec .do/app.yaml   (or update --spec)
+#
+# SECRETS: values marked `type: SECRET` MUST be set to real values in the DO
+# dashboard (or via doctl) — do NOT commit real secrets here. Generate:
+#   AUTH_SECRET / CREDENTIAL_ENCRYPTION_KEY:  openssl rand -base64 48
+# (use a DISTINCT value for each — see audit H3).
+# =============================================================================
+name: converge
+region: blr1 # match your Managed MySQL + Spaces region
+
+databases:
+  - name: converge-db
+    engine: MYSQL
+    version: "8"
+    production: true
+    # cluster_name: <existing-cluster>   # uncomment to attach an existing cluster
+
+services:
+  - name: web
+    github:
+      repo: sulkytejas/converge
+      branch: main
+      deploy_on_push: true
+    environment_slug: node-js
+    instance_size_slug: basic-xs
+    instance_count: 1 # in-process rate limiters assume 1 instance (see audit H1/H6)
+    http_port: 3000
+    # Env validation is skipped at build (secrets/DB are injected at run time);
+    # `npm run build` runs `prisma generate && next build`.
+    build_command: SKIP_ENV_VALIDATION=1 npm run build
+    run_command: npm run start
+    health_check:
+      http_path: /api/health
+      initial_delay_seconds: 20
+      period_seconds: 30
+    envs:
+      - key: NODE_ENV
+        scope: RUN_AND_BUILD_TIME
+        value: production
+
+      # --- Managed MySQL bindings (from the `databases` block above) ---
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        value: ${converge-db.DATABASE_URL}
+      - key: DATABASE_CA_CERT # consumed by src/server/db.ts for strict TLS
+        scope: RUN_TIME
+        value: ${converge-db.CA_CERT}
+
+      # --- App secrets (set real values in the dashboard) ---
+      - key: AUTH_SECRET
+        scope: RUN_TIME
+        type: SECRET
+        value: REPLACE_IN_DASHBOARD
+      - key: CREDENTIAL_ENCRYPTION_KEY
+        scope: RUN_TIME
+        type: SECRET
+        value: REPLACE_IN_DASHBOARD
+      - key: ADMIN_EMAIL
+        scope: RUN_TIME
+        value: ""
+
+      # --- MSG91 (OTP) — required in production (app refuses sandbox fallback) ---
+      - key: MSG91_AUTH_KEY
+        scope: RUN_TIME
+        type: SECRET
+        value: REPLACE_IN_DASHBOARD
+      - key: MSG91_SMS_TEMPLATE_ID
+        scope: RUN_TIME
+        value: ""
+      - key: MSG91_EMAIL_TEMPLATE_ID
+        scope: RUN_TIME
+        value: ""
+      - key: MSG91_EMAIL_FROM
+        scope: RUN_TIME
+        value: ""
+      - key: MSG91_EMAIL_DOMAIN
+        scope: RUN_TIME
+        value: ""
+
+      # --- DigitalOcean Spaces (file uploads) — required in production ---
+      - key: SPACES_KEY
+        scope: RUN_TIME
+        type: SECRET
+        value: REPLACE_IN_DASHBOARD
+      - key: SPACES_SECRET
+        scope: RUN_TIME
+        type: SECRET
+        value: REPLACE_IN_DASHBOARD
+      - key: SPACES_BUCKET
+        scope: RUN_TIME
+        value: ""
+      - key: SPACES_REGION
+        scope: RUN_TIME
+        value: "" # e.g. blr1
+      - key: SPACES_ENDPOINT
+        scope: RUN_TIME
+        value: "" # e.g. https://blr1.digitaloceanspaces.com
+      - key: SPACES_CDN_URL
+        scope: RUN_TIME
+        value: ""

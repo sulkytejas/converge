@@ -6,6 +6,42 @@ Converge is a B2B Partner Portal for the recruitment partner ecosystem of intern
 
 ---
 
+## ⚠️ DigitalOcean migration — WIP notes (read me first)
+
+> Running log captured during the AWS→DigitalOcean migration. **The sections
+> below this one are stale** and will be rewritten from scratch using these
+> notes once the migration lands. Treat this section as the current truth.
+
+**Target:** DigitalOcean App Platform (Next.js) + Managed MySQL 8 + Spaces (S3-compatible storage).
+
+### Done so far
+- **DB model changes** — renames done via Prisma `@map`/`@@map` (DB names `cp_user`, `approved_by_cp_user_id`, `duolingo`, `min_entry_req`, `needs_edu_loan`; the Prisma/code names are unchanged), `tinyint(1)` flag conversions, NOT NULL tightenings, `unsigned`/`decimal` adjustments. **`prisma/sql/schema.sql` stays the source of truth.**
+- **File storage → Spaces** — `src/server/storage/` auto-selects Spaces (prod) vs local disk (dev). Public university logos → permanent CDN URL; private docs/avatars/org-logos → object key served only through the gated **`/api/files/[...key]`** proxy (admins: any; partners: own org). Throws in prod if `SPACES_*` unset (no silent ephemeral-disk writes).
+- **Security** — partners admin router now requires admin auth; OTP fails loudly in prod if MSG91 unset (no sandbox/code-logging fallback); email OTP moved to a DB table (`otp_code`) with attempt cap + resend cooldown + hashing; login no longer leaks account existence; **`/api/upload`** gated (folder allowlist + per-folder session + magic-byte MIME + per-IP rate limit).
+- **Build** — all ESLint build-blockers fixed.
+- **Schema-apply tooling (B2)** — `npm run db:diff` (generate a reviewable delta) + `npm run db:apply` (apply pending deltas, tracked in `schema_migrations`; idempotent, localhost-guarded, TLS for remote). Verified end-to-end (apply → re-run skips).
+- **DB connectivity** — `src/server/db.ts` handles Managed MySQL TLS (B4); Prisma `binaryTargets` include the Linux engine; connection-pool cap.
+- **Transactional email** — **MSG91** for non-OTP mail too (admin signup notify, partner more-info) via `src/server/email.ts`; gated on per-email template IDs, degrades to a minimal non-PII log until set.
+- **Hardening** — account-status re-checked on every protected request (deactivation is immediate), upload/zip DoS guards, no PII in logs, list queries bounded (cap 500 — cursor pagination is the follow-up), `/api/health` DB ping.
+
+### Schema-change workflow (SQL-first; Prisma generated downstream)
+1. Riana edits the model in **MySQL Workbench** → **Forward Engineer → SQL** → commits it over `prisma/sql/schema.sql` (optionally commit the `.mwb` under `prisma/sql/workbench/` for history), then regenerate the Prisma client.
+2. `npm run db:diff [name]` — diffs the current DB against `schema.sql`, writes a reviewable delta to `prisma/sql/migrations/`. Whoever opens the PR runs this and commits the generated delta **alongside** the `schema.sql` change in the **same PR**, so the schema change and its migration are reviewed together.
+3. **Review the delta** — diff tools render a rename as `DROP`+`ADD` (data loss). Convert those to `RENAME`/`CHANGE` by hand before applying.
+4. `npm run db:apply` — applies pending deltas in order, tracked in `schema_migrations`; idempotent, localhost-guarded, TLS for remote hosts (`MYSQL_SSL_CA`). Fresh DBs: load full `schema.sql` first (`npm run db:reset` in dev; one-time TLS load for the prod bootstrap).
+
+### New env vars (see `.env.example`)
+`SPACES_*` (storage), `DATABASE_CA_CERT` (Managed MySQL TLS), `MSG91_ADMIN_NOTIFY_TEMPLATE_ID` / `MSG91_MOREINFO_TEMPLATE_ID` (transactional email). **Email provider = MSG91** for OTP *and* transactional mail (not AWS SES). In production the app fails loud if `MSG91_*` or `SPACES_*` are missing (no silent fallback).
+
+### Still TODO before prod testing
+- **B4** — Managed MySQL TLS (`?sslaccept` + CA) in `DATABASE_URL` + `src/server/db.ts`.
+- **H5** — commit `.do/app.yaml` (build/run commands, `http_port`, instance size, env→secrets, MySQL attachment).
+- **H3/H4** — set a distinct `CREDENTIAL_ENCRYPTION_KEY` + fresh `AUTH_SECRET` on DO; never ship the local `.env`.
+- **M2** Prisma `binaryTargets` (Linux); **M3** `/api/health` DB ping.
+- Plug in real `SPACES_*` + `MSG91_*` creds and smoke-test uploads, OTP delivery, DB connectivity.
+
+---
+
 ## Tech Stack
 
 | Layer            | Technology                | Notes                                              |

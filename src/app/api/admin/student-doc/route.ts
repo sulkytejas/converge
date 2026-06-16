@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { SESSION_COOKIE_NAME, verifySessionJwt } from "~/server/auth/jwt";
 import { db } from "~/server/db";
 import { STUDENT_DOC_TYPES } from "~/server/db/enums";
-import { saveLocal } from "~/server/storage/local";
+import { resolveStorageUrl, saveBuffer } from "~/server/storage";
 
 const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
 
@@ -91,9 +91,11 @@ export async function POST(req: Request) {
 
   const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_").slice(-100);
   const buffer = Buffer.from(await file.arrayBuffer());
-  const stored = await saveLocal(
+  // Student documents are sensitive PII → private object, served via /api/files.
+  const stored = await saveBuffer(
     buffer,
     `student-docs/${studentId}/${Date.now()}-${safeName}`,
+    { contentType: file.type || undefined, public: false },
   );
 
   // Replace semantics for single-slot types: prior uploads stay in the
@@ -132,7 +134,7 @@ export async function POST(req: Request) {
     id: doc.id,
     docType: doc.doc_type,
     fileName: doc.file_name,
-    fileUrl: doc.file_url,
+    fileUrl: resolveStorageUrl(doc.file_url),
     sizeBytes: doc.size_bytes,
   });
 }

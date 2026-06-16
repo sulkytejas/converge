@@ -5,6 +5,7 @@ import {
   protectedPartnerProcedure,
 } from "~/server/api/trpc";
 import { DocumentStatus, UserType } from "~/server/db/enums";
+import { resolveStorageUrl } from "~/server/storage";
 
 // Slot key (as stored in document.doc_type) → human label for the docs tab.
 const DOC_TYPE_LABELS: Record<string, string> = {
@@ -61,7 +62,7 @@ export const accountRouter = createTRPCRouter({
       slot: d.doc_type,
       label: DOC_TYPE_LABELS[d.doc_type] ?? d.doc_type,
       fileName: d.file_name,
-      fileUrl: d.file_url,
+      fileUrl: resolveStorageUrl(d.file_url),
       status: docStatusLabel(d.status),
       uploadedAt: d.created_at.toISOString(),
     }));
@@ -76,7 +77,7 @@ export const accountRouter = createTRPCRouter({
         slot: d.doc_type,
         label: DOC_TYPE_LABELS[d.doc_type] ?? d.doc_type,
         fileName: d.file_name,
-        fileUrl: d.file_url,
+        fileUrl: resolveStorageUrl(d.file_url),
         status: docStatusLabel(d.status),
         uploadedAt: d.created_at.toISOString(),
       }));
@@ -94,7 +95,7 @@ export const accountRouter = createTRPCRouter({
         email: user.email,
         countryCode: phone.countryCode,
         phone: phone.number,
-        avatarUrl: user.avatar_url,
+        avatarUrl: resolveStorageUrl(user.avatar_url),
         isEmailVerified: user.is_email_verified === 1,
         isPhoneVerified: user.is_phone_verified === 1,
         roleLabel:

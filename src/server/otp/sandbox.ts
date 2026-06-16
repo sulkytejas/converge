@@ -27,10 +27,16 @@ function take(key: string, code: string): boolean {
   return true;
 }
 
+// Never print live OTP codes in production — the index.ts provider guard
+// should prevent sandbox from running there at all, but gate logging too.
+function logCode(line: string): void {
+  if (process.env.NODE_ENV !== "production") console.log(line);
+}
+
 export async function sendPhoneOtp(phoneE164: string): Promise<void> {
   const code = generate();
   put(`sms:${phoneE164}`, code);
-  console.log(`[OTP:sandbox] SMS to ${phoneE164} => ${code}`);
+  logCode(`[OTP:sandbox] SMS to ${phoneE164} => ${code}`);
 }
 
 export async function verifyPhoneOtp(phoneE164: string, code: string): Promise<boolean> {
@@ -40,7 +46,7 @@ export async function verifyPhoneOtp(phoneE164: string, code: string): Promise<b
 export async function sendEmailOtp(email: string): Promise<void> {
   const code = generate();
   put(`email:${email.toLowerCase()}`, code);
-  console.log(`[OTP:sandbox] email to ${email} => ${code}`);
+  logCode(`[OTP:sandbox] email to ${email} => ${code}`);
 }
 
 export async function verifyEmailOtp(email: string, code: string): Promise<boolean> {

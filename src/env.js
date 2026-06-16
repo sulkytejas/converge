@@ -16,11 +16,31 @@ export const env = createEnv({
     MSG91_EMAIL_TEMPLATE_ID: z.string().optional(),
     MSG91_EMAIL_FROM: z.string().optional(),
     MSG91_EMAIL_DOMAIN: z.string().optional(),
+    // MSG91 email templates for transactional (non-OTP) mail. Optional — the
+    // sender degrades to a minimal log until the template exists.
+    MSG91_ADMIN_NOTIFY_TEMPLATE_ID: z.string().optional(),
+    MSG91_MOREINFO_TEMPLATE_ID: z.string().optional(),
     ADMIN_EMAIL: z.string().email().optional(),
     AUTH_SECRET: z.string().min(32),
     // Encrypts portal credentials at rest; falls back to AUTH_SECRET when
     // unset so existing environments keep working.
     CREDENTIAL_ENCRYPTION_KEY: z.string().min(32).optional(),
+    // DigitalOcean Spaces (S3-compatible) for file uploads in production.
+    // When unset, uploads fall back to the local-disk backend (dev only).
+    SPACES_KEY: z.string().optional(),
+    SPACES_SECRET: z.string().optional(),
+    SPACES_BUCKET: z.string().optional(),
+    SPACES_REGION: z.string().optional(),
+    // Regional S3 endpoint, e.g. https://blr1.digitaloceanspaces.com
+    SPACES_ENDPOINT: z.string().url().optional(),
+    // Optional CDN/origin base for PUBLIC objects (logos). Falls back to the
+    // bucket origin URL derived from SPACES_ENDPOINT when unset.
+    SPACES_CDN_URL: z.string().url().optional(),
+    // DigitalOcean Managed MySQL CA certificate (PEM contents). When set, the DB
+    // connection verifies TLS strictly (the cert is written to a temp file at
+    // boot since App Platform's filesystem is ephemeral). Unset → local/dev, or
+    // encrypted-but-unverified for a remote host.
+    DATABASE_CA_CERT: z.string().optional(),
   },
 
   /**
@@ -44,9 +64,18 @@ export const env = createEnv({
     MSG91_EMAIL_TEMPLATE_ID: process.env.MSG91_EMAIL_TEMPLATE_ID,
     MSG91_EMAIL_FROM: process.env.MSG91_EMAIL_FROM,
     MSG91_EMAIL_DOMAIN: process.env.MSG91_EMAIL_DOMAIN,
+    MSG91_ADMIN_NOTIFY_TEMPLATE_ID: process.env.MSG91_ADMIN_NOTIFY_TEMPLATE_ID,
+    MSG91_MOREINFO_TEMPLATE_ID: process.env.MSG91_MOREINFO_TEMPLATE_ID,
     ADMIN_EMAIL: process.env.ADMIN_EMAIL,
     AUTH_SECRET: process.env.AUTH_SECRET,
     CREDENTIAL_ENCRYPTION_KEY: process.env.CREDENTIAL_ENCRYPTION_KEY,
+    SPACES_KEY: process.env.SPACES_KEY,
+    SPACES_SECRET: process.env.SPACES_SECRET,
+    SPACES_BUCKET: process.env.SPACES_BUCKET,
+    SPACES_REGION: process.env.SPACES_REGION,
+    SPACES_ENDPOINT: process.env.SPACES_ENDPOINT,
+    SPACES_CDN_URL: process.env.SPACES_CDN_URL,
+    DATABASE_CA_CERT: process.env.DATABASE_CA_CERT,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

@@ -1,7 +1,9 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, protectedAdminProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
+import { env } from "~/env";
+import { emailConfigured, sendTemplatedEmail } from "~/server/email";
 import {
   listApplications,
   setApplicationStatus,
@@ -18,11 +20,11 @@ const partnerStatus = z.enum([
 const docStatus = z.enum(["pending", "approved", "rejected"]);
 
 export const partnersRouter = createTRPCRouter({
-  list: publicProcedure.query(async () => {
+  list: protectedAdminProcedure.query(async () => {
     return listApplications();
   }),
 
-  setStatus: publicProcedure
+  setStatus: protectedAdminProcedure
     .input(
       z.object({
         email: z.string().email(),
@@ -43,7 +45,7 @@ export const partnersRouter = createTRPCRouter({
   // After approval, assign a lead counsellor + counsellor (both rows from
   // collegepond_user) onto the partner's user row. Either side can be null
   // if the admin wants to skip and assign later.
-  assignCounsellors: publicProcedure
+  assignCounsellors: protectedAdminProcedure
     .input(
       z.object({
         email: z.string().email(),
@@ -72,7 +74,7 @@ export const partnersRouter = createTRPCRouter({
       return { success: true as const };
     }),
 
-  setDocumentStatus: publicProcedure
+  setDocumentStatus: protectedAdminProcedure
     .input(
       z.object({
         documentId: z.number().int().positive(),
@@ -87,7 +89,7 @@ export const partnersRouter = createTRPCRouter({
   // Email delivery is intentionally not wired yet — the admin UI lets you
   // compose the request; we log it server-side until the email provider is
   // hooked up. Partner status is left unchanged.
-  requestMoreInfo: publicProcedure
+  requestMoreInfo: protectedAdminProcedure
     .input(
       z
         .object({
@@ -99,20 +101,36 @@ export const partnersRouter = createTRPCRouter({
         .refine(
           (v) =>
             v.items.length > 0 ||
-            (v.otherText && v.otherText.trim().length > 0) ||
-            (v.additionalMessage && v.additionalMessage.trim().length > 0),
+            (v.otherText?.trim().length ?? 0) > 0 ||
+            (v.additionalMessage?.trim().length ?? 0) > 0,
           { message: "Pick at least one item or add a message" },
         ),
     )
     .mutation(async ({ input }) => {
-      const lines: string[] = [
-        `[Partners] Request more info → ${input.email}`,
-        `Items: ${input.items.length ? input.items.join(", ") : "(none)"}`,
-      ];
-      if (input.otherText?.trim()) lines.push(`Other: ${input.otherText.trim()}`);
-      if (input.additionalMessage?.trim())
-        lines.push(`Message: ${input.additionalMessage.trim()}`);
-      console.log(lines.join("\n"));
+      // Email the partner via MSG91 when a template is configured; otherwise log
+      // a MINIMAL, non-PII event (never the email/message body).
+      if (env.MSG91_MOREINFO_TEMPLATE_ID && emailConfigured()) {
+        try {
+          await sendTemplatedEmail({
+            to: input.email,
+            templateId: env.MSG91_MOREINFO_TEMPLATE_ID,
+            variables: {
+              items: input.items.join(", "),
+              other: input.otherText?.trim() ?? "",
+              message: input.additionalMessage?.trim() ?? "",
+            },
+          });
+          return { success: true as const };
+        } catch {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to send the request email.",
+          });
+        }
+      }
+      console.log(
+        `[Partners] More-info request queued (${input.items.length} item(s)); set MSG91_MOREINFO_TEMPLATE_ID to email partners.`,
+      );
       return { success: true as const };
     }),
 });

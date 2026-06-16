@@ -53,8 +53,8 @@ export const signupRouter = createTRPCRouter({
 
       return {
         success: true as const,
-        emailSent: results[0]!.status === "fulfilled",
-        phoneSent: results[1]!.status === "fulfilled",
+        emailSent: results[0].status === "fulfilled",
+        phoneSent: results[1].status === "fulfilled",
       };
     }),
 

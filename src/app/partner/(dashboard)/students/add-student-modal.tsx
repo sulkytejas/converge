@@ -92,6 +92,7 @@ interface FormState {
   countryCode: string;
   phone: string;
   email: string;
+  dateOfBirth: string;
   country: string;
   intake: string;
   courseLevel: string;
@@ -108,6 +109,7 @@ const emptyForm = (): FormState => ({
   countryCode: "+91",
   phone: "",
   email: "",
+  dateOfBirth: "",
   country: "",
   intake: "",
   courseLevel: "",
@@ -130,6 +132,8 @@ function validate(form: FormState): FormErrors {
   if (!form.email.trim()) errors.email = "Email is required";
   else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim()))
     errors.email = "Enter a valid email address";
+
+  if (!form.dateOfBirth) errors.dateOfBirth = "Date of birth is required";
 
   if (!form.country) errors.country = "Country preference is required";
   if (!form.intake) errors.intake = "Intake is required";
@@ -188,6 +192,7 @@ export function AddStudentModal({
         email: form.email.trim(),
         countryCode: form.countryCode,
         phone: form.phone.replace(/\s+/g, " ").trim(),
+        dateOfBirth: form.dateOfBirth,
         country: form.country,
         intake: form.intake,
         courseLevel: Number(form.courseLevel),
@@ -308,6 +313,15 @@ export function AddStudentModal({
               placeholder="student@example.com"
               error={Boolean(errors.email)}
               errorMessage={errors.email}
+            />
+            <FormInput
+              label="Date of Birth"
+              required
+              type="date"
+              value={form.dateOfBirth}
+              onChange={(e) => set("dateOfBirth", e.target.value)}
+              error={Boolean(errors.dateOfBirth)}
+              errorMessage={errors.dateOfBirth}
             />
           </Section>
 

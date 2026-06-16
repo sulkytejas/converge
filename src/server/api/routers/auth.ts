@@ -66,10 +66,10 @@ export const authRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       const app = await getApplicationByEmail(input.email);
       if (!app) {
-        throw new TRPCError({
-          code: "NOT_FOUND",
-          message: "No account found for this email. Please sign up first.",
-        });
+        // Don't reveal whether an account exists (no enumeration oracle):
+        // return the same generic success without sending anything. A wrong
+        // email simply fails at the verify step.
+        return { success: true as const, devOtp: null };
       }
 
       const phoneE164 = toE164(input.phone, input.countryCode);

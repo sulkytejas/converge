@@ -247,6 +247,7 @@ interface AddForm {
   phoneCode: string;
   phone: string;
   email: string;
+  dateOfBirth: string;
   country: string;
   intake: string;
   courseLevel: string;
@@ -263,6 +264,7 @@ const emptyAddForm: AddForm = {
   phoneCode: "+91",
   phone: "",
   email: "",
+  dateOfBirth: "",
   country: "",
   intake: "",
   courseLevel: "",
@@ -330,6 +332,7 @@ export function AddStudentModal({
       form.lastName,
       form.phone,
       form.email,
+      form.dateOfBirth,
       form.country,
       form.intake,
       form.courseLevel,
@@ -356,6 +359,7 @@ export function AddStudentModal({
       email: form.email.trim(),
       countryCode: form.phoneCode,
       phone: form.phone.trim(),
+      dateOfBirth: form.dateOfBirth,
       country: form.country,
       intake: form.intake,
       courseLevel: Number(form.courseLevel),
@@ -448,6 +452,13 @@ export function AddStudentModal({
               placeholder="student@email.com"
               value={form.email}
               onChange={(e) => set({ email: e.target.value })}
+            />
+            <FormInput
+              label="Date of Birth"
+              required
+              type="date"
+              value={form.dateOfBirth}
+              onChange={(e) => set({ dateOfBirth: e.target.value })}
             />
           </div>
         </Section>

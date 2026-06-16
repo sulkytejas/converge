@@ -727,7 +727,7 @@ function RequestInfoModal({
           )}
 
           <div className="mt-4 rounded-lg border border-[#FEDF89] bg-[#FFFAEB] px-3 py-2 text-xs text-[#B54708]">
-            Email delivery isn't wired up yet — this will log the request
+            Email delivery isn&apos;t wired up yet — this will log the request
             server-side until the provider lands.
           </div>
         </div>

@@ -150,7 +150,7 @@ async function uploadFile(file: File, folder: string): Promise<string> {
     };
     throw new Error(body.error ?? "Upload failed");
   }
-  const data = (await res.json()) as { path: string; url: string };
+  const data = (await res.json()) as { url: string };
   return data.url;
 }
 

@@ -18,7 +18,7 @@ import {
   verifyPartnerSessionJwt,
   verifySessionJwt,
 } from "~/server/auth/jwt";
-import { AdminRole } from "~/server/db/enums";
+import { AdminRole, UserStatus } from "~/server/db/enums";
 
 interface CpUser {
   id: number;
@@ -92,7 +92,9 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
   const result = await next();
 
   const end = Date.now();
-  console.log(`[TRPC] ${path} took ${end - start}ms to execute`);
+  if (t._config.isDev) {
+    console.log(`[TRPC] ${path} took ${end - start}ms to execute`);
+  }
 
   return result;
 });
@@ -100,9 +102,21 @@ const timingMiddleware = t.middleware(async ({ next, path }) => {
 export const publicProcedure = t.procedure.use(timingMiddleware);
 
 // Requires a valid admin (collegepond_user) session cookie.
-export const protectedAdminProcedure = publicProcedure.use(({ ctx, next }) => {
+export const protectedAdminProcedure = publicProcedure.use(async ({ ctx, next }) => {
   if (!ctx.cpUser) {
     throw new TRPCError({ code: "UNAUTHORIZED", message: "Not signed in" });
+  }
+  // Re-check the account is still active so a deactivated admin loses access
+  // immediately, not at JWT expiry (8h).
+  const row = await ctx.db.collegepond_user.findUnique({
+    where: { id: ctx.cpUser.id },
+    select: { status: true },
+  });
+  if (row?.status !== 1) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "This account is no longer active.",
+    });
   }
   return next({ ctx: { ...ctx, cpUser: ctx.cpUser } });
 });
@@ -119,9 +133,23 @@ export const superAdminProcedure = protectedAdminProcedure.use(({ ctx, next }) =
 });
 
 // Requires a valid partner (user table) session cookie.
-export const protectedPartnerProcedure = publicProcedure.use(({ ctx, next }) => {
+export const protectedPartnerProcedure = publicProcedure.use(async ({ ctx, next }) => {
   if (!ctx.cpPartner) {
     throw new TRPCError({ code: "UNAUTHORIZED", message: "Not signed in" });
+  }
+  // Block immediately if the partner was deactivated/rejected mid-session.
+  const row = await ctx.db.user.findUnique({
+    where: { id: ctx.cpPartner.id },
+    select: { status: true },
+  });
+  if (
+    row?.status === UserStatus.REJECTED ||
+    row?.status === UserStatus.INACTIVE
+  ) {
+    throw new TRPCError({
+      code: "UNAUTHORIZED",
+      message: "This account is no longer active.",
+    });
   }
   return next({ ctx: { ...ctx, cpPartner: ctx.cpPartner } });
 });

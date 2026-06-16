@@ -143,6 +143,16 @@ export type shortlist = $Result.DefaultSelection<Prisma.$shortlistPayload>
  * 
  */
 export type uni_assist_template = $Result.DefaultSelection<Prisma.$uni_assist_templatePayload>
+/**
+ * Model otp_code
+ * 
+ */
+export type otp_code = $Result.DefaultSelection<Prisma.$otp_codePayload>
+/**
+ * Model schema_migrations
+ * 
+ */
+export type schema_migrations = $Result.DefaultSelection<Prisma.$schema_migrationsPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -521,6 +531,26 @@ export class PrismaClient<
     * ```
     */
   get uni_assist_template(): Prisma.uni_assist_templateDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.otp_code`: Exposes CRUD operations for the **otp_code** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Otp_codes
+    * const otp_codes = await prisma.otp_code.findMany()
+    * ```
+    */
+  get otp_code(): Prisma.otp_codeDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.schema_migrations`: Exposes CRUD operations for the **schema_migrations** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Schema_migrations
+    * const schema_migrations = await prisma.schema_migrations.findMany()
+    * ```
+    */
+  get schema_migrations(): Prisma.schema_migrationsDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -987,7 +1017,9 @@ export namespace Prisma {
     student_work_experience: 'student_work_experience',
     student_test_score: 'student_test_score',
     shortlist: 'shortlist',
-    uni_assist_template: 'uni_assist_template'
+    uni_assist_template: 'uni_assist_template',
+    otp_code: 'otp_code',
+    schema_migrations: 'schema_migrations'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1006,7 +1038,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "application" | "application_portal_credential" | "application_stage_history" | "audit_log" | "commission" | "course" | "document" | "event" | "event_registration" | "event_reminder" | "invoice" | "invoice_item" | "notification_preference" | "organization" | "session" | "student" | "university" | "user" | "collegepond_user" | "student_note" | "student_emergency_contact" | "student_education" | "student_work_experience" | "student_test_score" | "shortlist" | "uni_assist_template"
+      modelProps: "application" | "application_portal_credential" | "application_stage_history" | "audit_log" | "commission" | "course" | "document" | "event" | "event_registration" | "event_reminder" | "invoice" | "invoice_item" | "notification_preference" | "organization" | "session" | "student" | "university" | "user" | "collegepond_user" | "student_note" | "student_emergency_contact" | "student_education" | "student_work_experience" | "student_test_score" | "shortlist" | "uni_assist_template" | "otp_code" | "schema_migrations"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2726,6 +2758,138 @@ export namespace Prisma {
           }
         }
       }
+      otp_code: {
+        payload: Prisma.$otp_codePayload<ExtArgs>
+        fields: Prisma.otp_codeFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.otp_codeFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$otp_codePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.otp_codeFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$otp_codePayload>
+          }
+          findFirst: {
+            args: Prisma.otp_codeFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$otp_codePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.otp_codeFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$otp_codePayload>
+          }
+          findMany: {
+            args: Prisma.otp_codeFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$otp_codePayload>[]
+          }
+          create: {
+            args: Prisma.otp_codeCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$otp_codePayload>
+          }
+          createMany: {
+            args: Prisma.otp_codeCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.otp_codeDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$otp_codePayload>
+          }
+          update: {
+            args: Prisma.otp_codeUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$otp_codePayload>
+          }
+          deleteMany: {
+            args: Prisma.otp_codeDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.otp_codeUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.otp_codeUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$otp_codePayload>
+          }
+          aggregate: {
+            args: Prisma.Otp_codeAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateOtp_code>
+          }
+          groupBy: {
+            args: Prisma.otp_codeGroupByArgs<ExtArgs>
+            result: $Utils.Optional<Otp_codeGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.otp_codeCountArgs<ExtArgs>
+            result: $Utils.Optional<Otp_codeCountAggregateOutputType> | number
+          }
+        }
+      }
+      schema_migrations: {
+        payload: Prisma.$schema_migrationsPayload<ExtArgs>
+        fields: Prisma.schema_migrationsFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.schema_migrationsFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$schema_migrationsPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.schema_migrationsFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$schema_migrationsPayload>
+          }
+          findFirst: {
+            args: Prisma.schema_migrationsFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$schema_migrationsPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.schema_migrationsFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$schema_migrationsPayload>
+          }
+          findMany: {
+            args: Prisma.schema_migrationsFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$schema_migrationsPayload>[]
+          }
+          create: {
+            args: Prisma.schema_migrationsCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$schema_migrationsPayload>
+          }
+          createMany: {
+            args: Prisma.schema_migrationsCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.schema_migrationsDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$schema_migrationsPayload>
+          }
+          update: {
+            args: Prisma.schema_migrationsUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$schema_migrationsPayload>
+          }
+          deleteMany: {
+            args: Prisma.schema_migrationsDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.schema_migrationsUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.schema_migrationsUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$schema_migrationsPayload>
+          }
+          aggregate: {
+            args: Prisma.Schema_migrationsAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSchema_migrations>
+          }
+          groupBy: {
+            args: Prisma.schema_migrationsGroupByArgs<ExtArgs>
+            result: $Utils.Optional<Schema_migrationsGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.schema_migrationsCountArgs<ExtArgs>
+            result: $Utils.Optional<Schema_migrationsCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -2848,6 +3012,8 @@ export namespace Prisma {
     student_test_score?: student_test_scoreOmit
     shortlist?: shortlistOmit
     uni_assist_template?: uni_assist_templateOmit
+    otp_code?: otp_codeOmit
+    schema_migrations?: schema_migrationsOmit
   }
 
   /* Types for Logging */
@@ -9159,31 +9325,31 @@ export namespace Prisma {
   export type CourseGroupByOutputType = {
     id: number
     name: string
-    degree_level: number | null
-    duration_months: number | null
-    tuition_fee: Decimal | null
-    currency: string | null
+    degree_level: number
+    duration_months: number
+    tuition_fee: Decimal
+    currency: string
     is_open: number
     created_at: Date
     updated_at: Date
     university_id: number
     code: string | null
-    url: string | null
+    url: string
     toefl: Decimal | null
     ielts: Decimal | null
     det: number | null
-    is_stem: number
+    is_stem: number | null
     intake_month: string | null
     intake_year: number | null
-    is_coop_available: number
-    has_app_fee_waiver: number
+    is_coop_available: number | null
+    has_app_fee_waiver: number | null
     app_fee: Decimal | null
     has_tuition_deposit: number
     has_scholarship: number
     scholarship_amount: Decimal | null
     min_entry_requirements: string | null
     min_entry_requirements_scale: string | null
-    has_faster_tat: number
+    has_faster_tat: number | null
     _count: CourseCountAggregateOutputType | null
     _avg: CourseAvgAggregateOutputType | null
     _sum: CourseSumAggregateOutputType | null
@@ -9289,31 +9455,31 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: number
       name: string
-      degree_level: number | null
-      duration_months: number | null
-      tuition_fee: Prisma.Decimal | null
-      currency: string | null
+      degree_level: number
+      duration_months: number
+      tuition_fee: Prisma.Decimal
+      currency: string
       is_open: number
       created_at: Date
       updated_at: Date
       university_id: number
       code: string | null
-      url: string | null
+      url: string
       toefl: Prisma.Decimal | null
       ielts: Prisma.Decimal | null
       det: number | null
-      is_stem: number
+      is_stem: number | null
       intake_month: string | null
       intake_year: number | null
-      is_coop_available: number
-      has_app_fee_waiver: number
+      is_coop_available: number | null
+      has_app_fee_waiver: number | null
       app_fee: Prisma.Decimal | null
       has_tuition_deposit: number
       has_scholarship: number
       scholarship_amount: Prisma.Decimal | null
       min_entry_requirements: string | null
       min_entry_requirements_scale: string | null
-      has_faster_tat: number
+      has_faster_tat: number | null
     }, ExtArgs["result"]["course"]>
     composites: {}
   }
@@ -20219,16 +20385,16 @@ export namespace Prisma {
     id: number
     first_name: string
     last_name: string
-    email: string | null
-    phone: string | null
-    country: string | null
-    intake: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at: Date
     updated_at: Date
     gender: number | null
     org_id: number | null
     counsellor_id: number | null
-    date_of_birth: Date | null
+    date_of_birth: Date
     nationality: string | null
     status: number
     course_level: number | null
@@ -20433,16 +20599,16 @@ export namespace Prisma {
       id: number
       first_name: string
       last_name: string
-      email: string | null
-      phone: string | null
-      country: string | null
-      intake: string | null
+      email: string
+      phone: string
+      country: string
+      intake: string
       created_at: Date
       updated_at: Date
       gender: number | null
       org_id: number | null
       counsellor_id: number | null
-      date_of_birth: Date | null
+      date_of_birth: Date
       nationality: string | null
       status: number
       course_level: number | null
@@ -21761,7 +21927,7 @@ export namespace Prisma {
     id: number
     name: string
     code: string | null
-    city: string | null
+    city: string
     country: string
     type: number
     ranking: number | null
@@ -21843,7 +22009,7 @@ export namespace Prisma {
       id: number
       name: string
       code: string | null
-      city: string | null
+      city: string
       country: string
       type: number
       ranking: number | null
@@ -23001,10 +23167,10 @@ export namespace Prisma {
     date_of_birth: Date | null
     gender: number | null
     nationality: string | null
-    address: string | null
-    city: string | null
-    state: string | null
-    country: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     approved_by_collegepond_user_id: number | null
     lead_counsellor_id: number | null
     counsellor_id: number | null
@@ -23167,10 +23333,10 @@ export namespace Prisma {
       date_of_birth: Date | null
       gender: number | null
       nationality: string | null
-      address: string | null
-      city: string | null
-      state: string | null
-      country: string | null
+      address: string
+      city: string
+      state: string
+      country: string
       approved_by_collegepond_user_id: number | null
       lead_counsellor_id: number | null
       counsellor_id: number | null
@@ -32659,6 +32825,1786 @@ export namespace Prisma {
 
 
   /**
+   * Model otp_code
+   */
+
+  export type AggregateOtp_code = {
+    _count: Otp_codeCountAggregateOutputType | null
+    _avg: Otp_codeAvgAggregateOutputType | null
+    _sum: Otp_codeSumAggregateOutputType | null
+    _min: Otp_codeMinAggregateOutputType | null
+    _max: Otp_codeMaxAggregateOutputType | null
+  }
+
+  export type Otp_codeAvgAggregateOutputType = {
+    id: number | null
+    attempts: number | null
+  }
+
+  export type Otp_codeSumAggregateOutputType = {
+    id: number | null
+    attempts: number | null
+  }
+
+  export type Otp_codeMinAggregateOutputType = {
+    id: number | null
+    identifier: string | null
+    code_hash: string | null
+    expires_at: Date | null
+    attempts: number | null
+    created_at: Date | null
+  }
+
+  export type Otp_codeMaxAggregateOutputType = {
+    id: number | null
+    identifier: string | null
+    code_hash: string | null
+    expires_at: Date | null
+    attempts: number | null
+    created_at: Date | null
+  }
+
+  export type Otp_codeCountAggregateOutputType = {
+    id: number
+    identifier: number
+    code_hash: number
+    expires_at: number
+    attempts: number
+    created_at: number
+    _all: number
+  }
+
+
+  export type Otp_codeAvgAggregateInputType = {
+    id?: true
+    attempts?: true
+  }
+
+  export type Otp_codeSumAggregateInputType = {
+    id?: true
+    attempts?: true
+  }
+
+  export type Otp_codeMinAggregateInputType = {
+    id?: true
+    identifier?: true
+    code_hash?: true
+    expires_at?: true
+    attempts?: true
+    created_at?: true
+  }
+
+  export type Otp_codeMaxAggregateInputType = {
+    id?: true
+    identifier?: true
+    code_hash?: true
+    expires_at?: true
+    attempts?: true
+    created_at?: true
+  }
+
+  export type Otp_codeCountAggregateInputType = {
+    id?: true
+    identifier?: true
+    code_hash?: true
+    expires_at?: true
+    attempts?: true
+    created_at?: true
+    _all?: true
+  }
+
+  export type Otp_codeAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which otp_code to aggregate.
+     */
+    where?: otp_codeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of otp_codes to fetch.
+     */
+    orderBy?: otp_codeOrderByWithRelationInput | otp_codeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: otp_codeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` otp_codes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` otp_codes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned otp_codes
+    **/
+    _count?: true | Otp_codeCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: Otp_codeAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: Otp_codeSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: Otp_codeMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: Otp_codeMaxAggregateInputType
+  }
+
+  export type GetOtp_codeAggregateType<T extends Otp_codeAggregateArgs> = {
+        [P in keyof T & keyof AggregateOtp_code]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOtp_code[P]>
+      : GetScalarType<T[P], AggregateOtp_code[P]>
+  }
+
+
+
+
+  export type otp_codeGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: otp_codeWhereInput
+    orderBy?: otp_codeOrderByWithAggregationInput | otp_codeOrderByWithAggregationInput[]
+    by: Otp_codeScalarFieldEnum[] | Otp_codeScalarFieldEnum
+    having?: otp_codeScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: Otp_codeCountAggregateInputType | true
+    _avg?: Otp_codeAvgAggregateInputType
+    _sum?: Otp_codeSumAggregateInputType
+    _min?: Otp_codeMinAggregateInputType
+    _max?: Otp_codeMaxAggregateInputType
+  }
+
+  export type Otp_codeGroupByOutputType = {
+    id: number
+    identifier: string
+    code_hash: string
+    expires_at: Date
+    attempts: number
+    created_at: Date
+    _count: Otp_codeCountAggregateOutputType | null
+    _avg: Otp_codeAvgAggregateOutputType | null
+    _sum: Otp_codeSumAggregateOutputType | null
+    _min: Otp_codeMinAggregateOutputType | null
+    _max: Otp_codeMaxAggregateOutputType | null
+  }
+
+  type GetOtp_codeGroupByPayload<T extends otp_codeGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<Otp_codeGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof Otp_codeGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], Otp_codeGroupByOutputType[P]>
+            : GetScalarType<T[P], Otp_codeGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type otp_codeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    identifier?: boolean
+    code_hash?: boolean
+    expires_at?: boolean
+    attempts?: boolean
+    created_at?: boolean
+  }, ExtArgs["result"]["otp_code"]>
+
+
+
+  export type otp_codeSelectScalar = {
+    id?: boolean
+    identifier?: boolean
+    code_hash?: boolean
+    expires_at?: boolean
+    attempts?: boolean
+    created_at?: boolean
+  }
+
+  export type otp_codeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "identifier" | "code_hash" | "expires_at" | "attempts" | "created_at", ExtArgs["result"]["otp_code"]>
+
+  export type $otp_codePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "otp_code"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: number
+      identifier: string
+      code_hash: string
+      expires_at: Date
+      attempts: number
+      created_at: Date
+    }, ExtArgs["result"]["otp_code"]>
+    composites: {}
+  }
+
+  type otp_codeGetPayload<S extends boolean | null | undefined | otp_codeDefaultArgs> = $Result.GetResult<Prisma.$otp_codePayload, S>
+
+  type otp_codeCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<otp_codeFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: Otp_codeCountAggregateInputType | true
+    }
+
+  export interface otp_codeDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['otp_code'], meta: { name: 'otp_code' } }
+    /**
+     * Find zero or one Otp_code that matches the filter.
+     * @param {otp_codeFindUniqueArgs} args - Arguments to find a Otp_code
+     * @example
+     * // Get one Otp_code
+     * const otp_code = await prisma.otp_code.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends otp_codeFindUniqueArgs>(args: SelectSubset<T, otp_codeFindUniqueArgs<ExtArgs>>): Prisma__otp_codeClient<$Result.GetResult<Prisma.$otp_codePayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Otp_code that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {otp_codeFindUniqueOrThrowArgs} args - Arguments to find a Otp_code
+     * @example
+     * // Get one Otp_code
+     * const otp_code = await prisma.otp_code.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends otp_codeFindUniqueOrThrowArgs>(args: SelectSubset<T, otp_codeFindUniqueOrThrowArgs<ExtArgs>>): Prisma__otp_codeClient<$Result.GetResult<Prisma.$otp_codePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Otp_code that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {otp_codeFindFirstArgs} args - Arguments to find a Otp_code
+     * @example
+     * // Get one Otp_code
+     * const otp_code = await prisma.otp_code.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends otp_codeFindFirstArgs>(args?: SelectSubset<T, otp_codeFindFirstArgs<ExtArgs>>): Prisma__otp_codeClient<$Result.GetResult<Prisma.$otp_codePayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Otp_code that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {otp_codeFindFirstOrThrowArgs} args - Arguments to find a Otp_code
+     * @example
+     * // Get one Otp_code
+     * const otp_code = await prisma.otp_code.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends otp_codeFindFirstOrThrowArgs>(args?: SelectSubset<T, otp_codeFindFirstOrThrowArgs<ExtArgs>>): Prisma__otp_codeClient<$Result.GetResult<Prisma.$otp_codePayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Otp_codes that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {otp_codeFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Otp_codes
+     * const otp_codes = await prisma.otp_code.findMany()
+     * 
+     * // Get first 10 Otp_codes
+     * const otp_codes = await prisma.otp_code.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const otp_codeWithIdOnly = await prisma.otp_code.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends otp_codeFindManyArgs>(args?: SelectSubset<T, otp_codeFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$otp_codePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Otp_code.
+     * @param {otp_codeCreateArgs} args - Arguments to create a Otp_code.
+     * @example
+     * // Create one Otp_code
+     * const Otp_code = await prisma.otp_code.create({
+     *   data: {
+     *     // ... data to create a Otp_code
+     *   }
+     * })
+     * 
+     */
+    create<T extends otp_codeCreateArgs>(args: SelectSubset<T, otp_codeCreateArgs<ExtArgs>>): Prisma__otp_codeClient<$Result.GetResult<Prisma.$otp_codePayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Otp_codes.
+     * @param {otp_codeCreateManyArgs} args - Arguments to create many Otp_codes.
+     * @example
+     * // Create many Otp_codes
+     * const otp_code = await prisma.otp_code.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends otp_codeCreateManyArgs>(args?: SelectSubset<T, otp_codeCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a Otp_code.
+     * @param {otp_codeDeleteArgs} args - Arguments to delete one Otp_code.
+     * @example
+     * // Delete one Otp_code
+     * const Otp_code = await prisma.otp_code.delete({
+     *   where: {
+     *     // ... filter to delete one Otp_code
+     *   }
+     * })
+     * 
+     */
+    delete<T extends otp_codeDeleteArgs>(args: SelectSubset<T, otp_codeDeleteArgs<ExtArgs>>): Prisma__otp_codeClient<$Result.GetResult<Prisma.$otp_codePayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Otp_code.
+     * @param {otp_codeUpdateArgs} args - Arguments to update one Otp_code.
+     * @example
+     * // Update one Otp_code
+     * const otp_code = await prisma.otp_code.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends otp_codeUpdateArgs>(args: SelectSubset<T, otp_codeUpdateArgs<ExtArgs>>): Prisma__otp_codeClient<$Result.GetResult<Prisma.$otp_codePayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Otp_codes.
+     * @param {otp_codeDeleteManyArgs} args - Arguments to filter Otp_codes to delete.
+     * @example
+     * // Delete a few Otp_codes
+     * const { count } = await prisma.otp_code.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends otp_codeDeleteManyArgs>(args?: SelectSubset<T, otp_codeDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Otp_codes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {otp_codeUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Otp_codes
+     * const otp_code = await prisma.otp_code.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends otp_codeUpdateManyArgs>(args: SelectSubset<T, otp_codeUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Otp_code.
+     * @param {otp_codeUpsertArgs} args - Arguments to update or create a Otp_code.
+     * @example
+     * // Update or create a Otp_code
+     * const otp_code = await prisma.otp_code.upsert({
+     *   create: {
+     *     // ... data to create a Otp_code
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Otp_code we want to update
+     *   }
+     * })
+     */
+    upsert<T extends otp_codeUpsertArgs>(args: SelectSubset<T, otp_codeUpsertArgs<ExtArgs>>): Prisma__otp_codeClient<$Result.GetResult<Prisma.$otp_codePayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Otp_codes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {otp_codeCountArgs} args - Arguments to filter Otp_codes to count.
+     * @example
+     * // Count the number of Otp_codes
+     * const count = await prisma.otp_code.count({
+     *   where: {
+     *     // ... the filter for the Otp_codes we want to count
+     *   }
+     * })
+    **/
+    count<T extends otp_codeCountArgs>(
+      args?: Subset<T, otp_codeCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], Otp_codeCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Otp_code.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Otp_codeAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends Otp_codeAggregateArgs>(args: Subset<T, Otp_codeAggregateArgs>): Prisma.PrismaPromise<GetOtp_codeAggregateType<T>>
+
+    /**
+     * Group by Otp_code.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {otp_codeGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends otp_codeGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: otp_codeGroupByArgs['orderBy'] }
+        : { orderBy?: otp_codeGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, otp_codeGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOtp_codeGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the otp_code model
+   */
+  readonly fields: otp_codeFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for otp_code.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__otp_codeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the otp_code model
+   */
+  interface otp_codeFieldRefs {
+    readonly id: FieldRef<"otp_code", 'Int'>
+    readonly identifier: FieldRef<"otp_code", 'String'>
+    readonly code_hash: FieldRef<"otp_code", 'String'>
+    readonly expires_at: FieldRef<"otp_code", 'DateTime'>
+    readonly attempts: FieldRef<"otp_code", 'Int'>
+    readonly created_at: FieldRef<"otp_code", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * otp_code findUnique
+   */
+  export type otp_codeFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the otp_code
+     */
+    select?: otp_codeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the otp_code
+     */
+    omit?: otp_codeOmit<ExtArgs> | null
+    /**
+     * Filter, which otp_code to fetch.
+     */
+    where: otp_codeWhereUniqueInput
+  }
+
+  /**
+   * otp_code findUniqueOrThrow
+   */
+  export type otp_codeFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the otp_code
+     */
+    select?: otp_codeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the otp_code
+     */
+    omit?: otp_codeOmit<ExtArgs> | null
+    /**
+     * Filter, which otp_code to fetch.
+     */
+    where: otp_codeWhereUniqueInput
+  }
+
+  /**
+   * otp_code findFirst
+   */
+  export type otp_codeFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the otp_code
+     */
+    select?: otp_codeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the otp_code
+     */
+    omit?: otp_codeOmit<ExtArgs> | null
+    /**
+     * Filter, which otp_code to fetch.
+     */
+    where?: otp_codeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of otp_codes to fetch.
+     */
+    orderBy?: otp_codeOrderByWithRelationInput | otp_codeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for otp_codes.
+     */
+    cursor?: otp_codeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` otp_codes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` otp_codes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of otp_codes.
+     */
+    distinct?: Otp_codeScalarFieldEnum | Otp_codeScalarFieldEnum[]
+  }
+
+  /**
+   * otp_code findFirstOrThrow
+   */
+  export type otp_codeFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the otp_code
+     */
+    select?: otp_codeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the otp_code
+     */
+    omit?: otp_codeOmit<ExtArgs> | null
+    /**
+     * Filter, which otp_code to fetch.
+     */
+    where?: otp_codeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of otp_codes to fetch.
+     */
+    orderBy?: otp_codeOrderByWithRelationInput | otp_codeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for otp_codes.
+     */
+    cursor?: otp_codeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` otp_codes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` otp_codes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of otp_codes.
+     */
+    distinct?: Otp_codeScalarFieldEnum | Otp_codeScalarFieldEnum[]
+  }
+
+  /**
+   * otp_code findMany
+   */
+  export type otp_codeFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the otp_code
+     */
+    select?: otp_codeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the otp_code
+     */
+    omit?: otp_codeOmit<ExtArgs> | null
+    /**
+     * Filter, which otp_codes to fetch.
+     */
+    where?: otp_codeWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of otp_codes to fetch.
+     */
+    orderBy?: otp_codeOrderByWithRelationInput | otp_codeOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing otp_codes.
+     */
+    cursor?: otp_codeWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` otp_codes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` otp_codes.
+     */
+    skip?: number
+    distinct?: Otp_codeScalarFieldEnum | Otp_codeScalarFieldEnum[]
+  }
+
+  /**
+   * otp_code create
+   */
+  export type otp_codeCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the otp_code
+     */
+    select?: otp_codeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the otp_code
+     */
+    omit?: otp_codeOmit<ExtArgs> | null
+    /**
+     * The data needed to create a otp_code.
+     */
+    data: XOR<otp_codeCreateInput, otp_codeUncheckedCreateInput>
+  }
+
+  /**
+   * otp_code createMany
+   */
+  export type otp_codeCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many otp_codes.
+     */
+    data: otp_codeCreateManyInput | otp_codeCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * otp_code update
+   */
+  export type otp_codeUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the otp_code
+     */
+    select?: otp_codeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the otp_code
+     */
+    omit?: otp_codeOmit<ExtArgs> | null
+    /**
+     * The data needed to update a otp_code.
+     */
+    data: XOR<otp_codeUpdateInput, otp_codeUncheckedUpdateInput>
+    /**
+     * Choose, which otp_code to update.
+     */
+    where: otp_codeWhereUniqueInput
+  }
+
+  /**
+   * otp_code updateMany
+   */
+  export type otp_codeUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update otp_codes.
+     */
+    data: XOR<otp_codeUpdateManyMutationInput, otp_codeUncheckedUpdateManyInput>
+    /**
+     * Filter which otp_codes to update
+     */
+    where?: otp_codeWhereInput
+    /**
+     * Limit how many otp_codes to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * otp_code upsert
+   */
+  export type otp_codeUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the otp_code
+     */
+    select?: otp_codeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the otp_code
+     */
+    omit?: otp_codeOmit<ExtArgs> | null
+    /**
+     * The filter to search for the otp_code to update in case it exists.
+     */
+    where: otp_codeWhereUniqueInput
+    /**
+     * In case the otp_code found by the `where` argument doesn't exist, create a new otp_code with this data.
+     */
+    create: XOR<otp_codeCreateInput, otp_codeUncheckedCreateInput>
+    /**
+     * In case the otp_code was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<otp_codeUpdateInput, otp_codeUncheckedUpdateInput>
+  }
+
+  /**
+   * otp_code delete
+   */
+  export type otp_codeDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the otp_code
+     */
+    select?: otp_codeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the otp_code
+     */
+    omit?: otp_codeOmit<ExtArgs> | null
+    /**
+     * Filter which otp_code to delete.
+     */
+    where: otp_codeWhereUniqueInput
+  }
+
+  /**
+   * otp_code deleteMany
+   */
+  export type otp_codeDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which otp_codes to delete
+     */
+    where?: otp_codeWhereInput
+    /**
+     * Limit how many otp_codes to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * otp_code without action
+   */
+  export type otp_codeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the otp_code
+     */
+    select?: otp_codeSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the otp_code
+     */
+    omit?: otp_codeOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model schema_migrations
+   */
+
+  export type AggregateSchema_migrations = {
+    _count: Schema_migrationsCountAggregateOutputType | null
+    _min: Schema_migrationsMinAggregateOutputType | null
+    _max: Schema_migrationsMaxAggregateOutputType | null
+  }
+
+  export type Schema_migrationsMinAggregateOutputType = {
+    version: string | null
+    applied_at: Date | null
+  }
+
+  export type Schema_migrationsMaxAggregateOutputType = {
+    version: string | null
+    applied_at: Date | null
+  }
+
+  export type Schema_migrationsCountAggregateOutputType = {
+    version: number
+    applied_at: number
+    _all: number
+  }
+
+
+  export type Schema_migrationsMinAggregateInputType = {
+    version?: true
+    applied_at?: true
+  }
+
+  export type Schema_migrationsMaxAggregateInputType = {
+    version?: true
+    applied_at?: true
+  }
+
+  export type Schema_migrationsCountAggregateInputType = {
+    version?: true
+    applied_at?: true
+    _all?: true
+  }
+
+  export type Schema_migrationsAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which schema_migrations to aggregate.
+     */
+    where?: schema_migrationsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of schema_migrations to fetch.
+     */
+    orderBy?: schema_migrationsOrderByWithRelationInput | schema_migrationsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: schema_migrationsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` schema_migrations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` schema_migrations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned schema_migrations
+    **/
+    _count?: true | Schema_migrationsCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: Schema_migrationsMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: Schema_migrationsMaxAggregateInputType
+  }
+
+  export type GetSchema_migrationsAggregateType<T extends Schema_migrationsAggregateArgs> = {
+        [P in keyof T & keyof AggregateSchema_migrations]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSchema_migrations[P]>
+      : GetScalarType<T[P], AggregateSchema_migrations[P]>
+  }
+
+
+
+
+  export type schema_migrationsGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: schema_migrationsWhereInput
+    orderBy?: schema_migrationsOrderByWithAggregationInput | schema_migrationsOrderByWithAggregationInput[]
+    by: Schema_migrationsScalarFieldEnum[] | Schema_migrationsScalarFieldEnum
+    having?: schema_migrationsScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: Schema_migrationsCountAggregateInputType | true
+    _min?: Schema_migrationsMinAggregateInputType
+    _max?: Schema_migrationsMaxAggregateInputType
+  }
+
+  export type Schema_migrationsGroupByOutputType = {
+    version: string
+    applied_at: Date
+    _count: Schema_migrationsCountAggregateOutputType | null
+    _min: Schema_migrationsMinAggregateOutputType | null
+    _max: Schema_migrationsMaxAggregateOutputType | null
+  }
+
+  type GetSchema_migrationsGroupByPayload<T extends schema_migrationsGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<Schema_migrationsGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof Schema_migrationsGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], Schema_migrationsGroupByOutputType[P]>
+            : GetScalarType<T[P], Schema_migrationsGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type schema_migrationsSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    version?: boolean
+    applied_at?: boolean
+  }, ExtArgs["result"]["schema_migrations"]>
+
+
+
+  export type schema_migrationsSelectScalar = {
+    version?: boolean
+    applied_at?: boolean
+  }
+
+  export type schema_migrationsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"version" | "applied_at", ExtArgs["result"]["schema_migrations"]>
+
+  export type $schema_migrationsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "schema_migrations"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      version: string
+      applied_at: Date
+    }, ExtArgs["result"]["schema_migrations"]>
+    composites: {}
+  }
+
+  type schema_migrationsGetPayload<S extends boolean | null | undefined | schema_migrationsDefaultArgs> = $Result.GetResult<Prisma.$schema_migrationsPayload, S>
+
+  type schema_migrationsCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<schema_migrationsFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: Schema_migrationsCountAggregateInputType | true
+    }
+
+  export interface schema_migrationsDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['schema_migrations'], meta: { name: 'schema_migrations' } }
+    /**
+     * Find zero or one Schema_migrations that matches the filter.
+     * @param {schema_migrationsFindUniqueArgs} args - Arguments to find a Schema_migrations
+     * @example
+     * // Get one Schema_migrations
+     * const schema_migrations = await prisma.schema_migrations.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends schema_migrationsFindUniqueArgs>(args: SelectSubset<T, schema_migrationsFindUniqueArgs<ExtArgs>>): Prisma__schema_migrationsClient<$Result.GetResult<Prisma.$schema_migrationsPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Schema_migrations that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {schema_migrationsFindUniqueOrThrowArgs} args - Arguments to find a Schema_migrations
+     * @example
+     * // Get one Schema_migrations
+     * const schema_migrations = await prisma.schema_migrations.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends schema_migrationsFindUniqueOrThrowArgs>(args: SelectSubset<T, schema_migrationsFindUniqueOrThrowArgs<ExtArgs>>): Prisma__schema_migrationsClient<$Result.GetResult<Prisma.$schema_migrationsPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Schema_migrations that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {schema_migrationsFindFirstArgs} args - Arguments to find a Schema_migrations
+     * @example
+     * // Get one Schema_migrations
+     * const schema_migrations = await prisma.schema_migrations.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends schema_migrationsFindFirstArgs>(args?: SelectSubset<T, schema_migrationsFindFirstArgs<ExtArgs>>): Prisma__schema_migrationsClient<$Result.GetResult<Prisma.$schema_migrationsPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Schema_migrations that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {schema_migrationsFindFirstOrThrowArgs} args - Arguments to find a Schema_migrations
+     * @example
+     * // Get one Schema_migrations
+     * const schema_migrations = await prisma.schema_migrations.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends schema_migrationsFindFirstOrThrowArgs>(args?: SelectSubset<T, schema_migrationsFindFirstOrThrowArgs<ExtArgs>>): Prisma__schema_migrationsClient<$Result.GetResult<Prisma.$schema_migrationsPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Schema_migrations that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {schema_migrationsFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Schema_migrations
+     * const schema_migrations = await prisma.schema_migrations.findMany()
+     * 
+     * // Get first 10 Schema_migrations
+     * const schema_migrations = await prisma.schema_migrations.findMany({ take: 10 })
+     * 
+     * // Only select the `version`
+     * const schema_migrationsWithVersionOnly = await prisma.schema_migrations.findMany({ select: { version: true } })
+     * 
+     */
+    findMany<T extends schema_migrationsFindManyArgs>(args?: SelectSubset<T, schema_migrationsFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$schema_migrationsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Schema_migrations.
+     * @param {schema_migrationsCreateArgs} args - Arguments to create a Schema_migrations.
+     * @example
+     * // Create one Schema_migrations
+     * const Schema_migrations = await prisma.schema_migrations.create({
+     *   data: {
+     *     // ... data to create a Schema_migrations
+     *   }
+     * })
+     * 
+     */
+    create<T extends schema_migrationsCreateArgs>(args: SelectSubset<T, schema_migrationsCreateArgs<ExtArgs>>): Prisma__schema_migrationsClient<$Result.GetResult<Prisma.$schema_migrationsPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Schema_migrations.
+     * @param {schema_migrationsCreateManyArgs} args - Arguments to create many Schema_migrations.
+     * @example
+     * // Create many Schema_migrations
+     * const schema_migrations = await prisma.schema_migrations.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends schema_migrationsCreateManyArgs>(args?: SelectSubset<T, schema_migrationsCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a Schema_migrations.
+     * @param {schema_migrationsDeleteArgs} args - Arguments to delete one Schema_migrations.
+     * @example
+     * // Delete one Schema_migrations
+     * const Schema_migrations = await prisma.schema_migrations.delete({
+     *   where: {
+     *     // ... filter to delete one Schema_migrations
+     *   }
+     * })
+     * 
+     */
+    delete<T extends schema_migrationsDeleteArgs>(args: SelectSubset<T, schema_migrationsDeleteArgs<ExtArgs>>): Prisma__schema_migrationsClient<$Result.GetResult<Prisma.$schema_migrationsPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Schema_migrations.
+     * @param {schema_migrationsUpdateArgs} args - Arguments to update one Schema_migrations.
+     * @example
+     * // Update one Schema_migrations
+     * const schema_migrations = await prisma.schema_migrations.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends schema_migrationsUpdateArgs>(args: SelectSubset<T, schema_migrationsUpdateArgs<ExtArgs>>): Prisma__schema_migrationsClient<$Result.GetResult<Prisma.$schema_migrationsPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Schema_migrations.
+     * @param {schema_migrationsDeleteManyArgs} args - Arguments to filter Schema_migrations to delete.
+     * @example
+     * // Delete a few Schema_migrations
+     * const { count } = await prisma.schema_migrations.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends schema_migrationsDeleteManyArgs>(args?: SelectSubset<T, schema_migrationsDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Schema_migrations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {schema_migrationsUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Schema_migrations
+     * const schema_migrations = await prisma.schema_migrations.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends schema_migrationsUpdateManyArgs>(args: SelectSubset<T, schema_migrationsUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Schema_migrations.
+     * @param {schema_migrationsUpsertArgs} args - Arguments to update or create a Schema_migrations.
+     * @example
+     * // Update or create a Schema_migrations
+     * const schema_migrations = await prisma.schema_migrations.upsert({
+     *   create: {
+     *     // ... data to create a Schema_migrations
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Schema_migrations we want to update
+     *   }
+     * })
+     */
+    upsert<T extends schema_migrationsUpsertArgs>(args: SelectSubset<T, schema_migrationsUpsertArgs<ExtArgs>>): Prisma__schema_migrationsClient<$Result.GetResult<Prisma.$schema_migrationsPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Schema_migrations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {schema_migrationsCountArgs} args - Arguments to filter Schema_migrations to count.
+     * @example
+     * // Count the number of Schema_migrations
+     * const count = await prisma.schema_migrations.count({
+     *   where: {
+     *     // ... the filter for the Schema_migrations we want to count
+     *   }
+     * })
+    **/
+    count<T extends schema_migrationsCountArgs>(
+      args?: Subset<T, schema_migrationsCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], Schema_migrationsCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Schema_migrations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Schema_migrationsAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends Schema_migrationsAggregateArgs>(args: Subset<T, Schema_migrationsAggregateArgs>): Prisma.PrismaPromise<GetSchema_migrationsAggregateType<T>>
+
+    /**
+     * Group by Schema_migrations.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {schema_migrationsGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends schema_migrationsGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: schema_migrationsGroupByArgs['orderBy'] }
+        : { orderBy?: schema_migrationsGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, schema_migrationsGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSchema_migrationsGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the schema_migrations model
+   */
+  readonly fields: schema_migrationsFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for schema_migrations.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__schema_migrationsClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the schema_migrations model
+   */
+  interface schema_migrationsFieldRefs {
+    readonly version: FieldRef<"schema_migrations", 'String'>
+    readonly applied_at: FieldRef<"schema_migrations", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * schema_migrations findUnique
+   */
+  export type schema_migrationsFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the schema_migrations
+     */
+    select?: schema_migrationsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the schema_migrations
+     */
+    omit?: schema_migrationsOmit<ExtArgs> | null
+    /**
+     * Filter, which schema_migrations to fetch.
+     */
+    where: schema_migrationsWhereUniqueInput
+  }
+
+  /**
+   * schema_migrations findUniqueOrThrow
+   */
+  export type schema_migrationsFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the schema_migrations
+     */
+    select?: schema_migrationsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the schema_migrations
+     */
+    omit?: schema_migrationsOmit<ExtArgs> | null
+    /**
+     * Filter, which schema_migrations to fetch.
+     */
+    where: schema_migrationsWhereUniqueInput
+  }
+
+  /**
+   * schema_migrations findFirst
+   */
+  export type schema_migrationsFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the schema_migrations
+     */
+    select?: schema_migrationsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the schema_migrations
+     */
+    omit?: schema_migrationsOmit<ExtArgs> | null
+    /**
+     * Filter, which schema_migrations to fetch.
+     */
+    where?: schema_migrationsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of schema_migrations to fetch.
+     */
+    orderBy?: schema_migrationsOrderByWithRelationInput | schema_migrationsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for schema_migrations.
+     */
+    cursor?: schema_migrationsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` schema_migrations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` schema_migrations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of schema_migrations.
+     */
+    distinct?: Schema_migrationsScalarFieldEnum | Schema_migrationsScalarFieldEnum[]
+  }
+
+  /**
+   * schema_migrations findFirstOrThrow
+   */
+  export type schema_migrationsFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the schema_migrations
+     */
+    select?: schema_migrationsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the schema_migrations
+     */
+    omit?: schema_migrationsOmit<ExtArgs> | null
+    /**
+     * Filter, which schema_migrations to fetch.
+     */
+    where?: schema_migrationsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of schema_migrations to fetch.
+     */
+    orderBy?: schema_migrationsOrderByWithRelationInput | schema_migrationsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for schema_migrations.
+     */
+    cursor?: schema_migrationsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` schema_migrations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` schema_migrations.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of schema_migrations.
+     */
+    distinct?: Schema_migrationsScalarFieldEnum | Schema_migrationsScalarFieldEnum[]
+  }
+
+  /**
+   * schema_migrations findMany
+   */
+  export type schema_migrationsFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the schema_migrations
+     */
+    select?: schema_migrationsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the schema_migrations
+     */
+    omit?: schema_migrationsOmit<ExtArgs> | null
+    /**
+     * Filter, which schema_migrations to fetch.
+     */
+    where?: schema_migrationsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of schema_migrations to fetch.
+     */
+    orderBy?: schema_migrationsOrderByWithRelationInput | schema_migrationsOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing schema_migrations.
+     */
+    cursor?: schema_migrationsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` schema_migrations from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` schema_migrations.
+     */
+    skip?: number
+    distinct?: Schema_migrationsScalarFieldEnum | Schema_migrationsScalarFieldEnum[]
+  }
+
+  /**
+   * schema_migrations create
+   */
+  export type schema_migrationsCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the schema_migrations
+     */
+    select?: schema_migrationsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the schema_migrations
+     */
+    omit?: schema_migrationsOmit<ExtArgs> | null
+    /**
+     * The data needed to create a schema_migrations.
+     */
+    data: XOR<schema_migrationsCreateInput, schema_migrationsUncheckedCreateInput>
+  }
+
+  /**
+   * schema_migrations createMany
+   */
+  export type schema_migrationsCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many schema_migrations.
+     */
+    data: schema_migrationsCreateManyInput | schema_migrationsCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * schema_migrations update
+   */
+  export type schema_migrationsUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the schema_migrations
+     */
+    select?: schema_migrationsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the schema_migrations
+     */
+    omit?: schema_migrationsOmit<ExtArgs> | null
+    /**
+     * The data needed to update a schema_migrations.
+     */
+    data: XOR<schema_migrationsUpdateInput, schema_migrationsUncheckedUpdateInput>
+    /**
+     * Choose, which schema_migrations to update.
+     */
+    where: schema_migrationsWhereUniqueInput
+  }
+
+  /**
+   * schema_migrations updateMany
+   */
+  export type schema_migrationsUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update schema_migrations.
+     */
+    data: XOR<schema_migrationsUpdateManyMutationInput, schema_migrationsUncheckedUpdateManyInput>
+    /**
+     * Filter which schema_migrations to update
+     */
+    where?: schema_migrationsWhereInput
+    /**
+     * Limit how many schema_migrations to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * schema_migrations upsert
+   */
+  export type schema_migrationsUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the schema_migrations
+     */
+    select?: schema_migrationsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the schema_migrations
+     */
+    omit?: schema_migrationsOmit<ExtArgs> | null
+    /**
+     * The filter to search for the schema_migrations to update in case it exists.
+     */
+    where: schema_migrationsWhereUniqueInput
+    /**
+     * In case the schema_migrations found by the `where` argument doesn't exist, create a new schema_migrations with this data.
+     */
+    create: XOR<schema_migrationsCreateInput, schema_migrationsUncheckedCreateInput>
+    /**
+     * In case the schema_migrations was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<schema_migrationsUpdateInput, schema_migrationsUncheckedUpdateInput>
+  }
+
+  /**
+   * schema_migrations delete
+   */
+  export type schema_migrationsDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the schema_migrations
+     */
+    select?: schema_migrationsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the schema_migrations
+     */
+    omit?: schema_migrationsOmit<ExtArgs> | null
+    /**
+     * Filter which schema_migrations to delete.
+     */
+    where: schema_migrationsWhereUniqueInput
+  }
+
+  /**
+   * schema_migrations deleteMany
+   */
+  export type schema_migrationsDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which schema_migrations to delete
+     */
+    where?: schema_migrationsWhereInput
+    /**
+     * Limit how many schema_migrations to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * schema_migrations without action
+   */
+  export type schema_migrationsDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the schema_migrations
+     */
+    select?: schema_migrationsSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the schema_migrations
+     */
+    omit?: schema_migrationsOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -33155,6 +35101,26 @@ export namespace Prisma {
   export type Uni_assist_templateScalarFieldEnum = (typeof Uni_assist_templateScalarFieldEnum)[keyof typeof Uni_assist_templateScalarFieldEnum]
 
 
+  export const Otp_codeScalarFieldEnum: {
+    id: 'id',
+    identifier: 'identifier',
+    code_hash: 'code_hash',
+    expires_at: 'expires_at',
+    attempts: 'attempts',
+    created_at: 'created_at'
+  };
+
+  export type Otp_codeScalarFieldEnum = (typeof Otp_codeScalarFieldEnum)[keyof typeof Otp_codeScalarFieldEnum]
+
+
+  export const Schema_migrationsScalarFieldEnum: {
+    version: 'version',
+    applied_at: 'applied_at'
+  };
+
+  export type Schema_migrationsScalarFieldEnum = (typeof Schema_migrationsScalarFieldEnum)[keyof typeof Schema_migrationsScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -33440,6 +35406,21 @@ export namespace Prisma {
   };
 
   export type uni_assist_templateOrderByRelevanceFieldEnum = (typeof uni_assist_templateOrderByRelevanceFieldEnum)[keyof typeof uni_assist_templateOrderByRelevanceFieldEnum]
+
+
+  export const otp_codeOrderByRelevanceFieldEnum: {
+    identifier: 'identifier',
+    code_hash: 'code_hash'
+  };
+
+  export type otp_codeOrderByRelevanceFieldEnum = (typeof otp_codeOrderByRelevanceFieldEnum)[keyof typeof otp_codeOrderByRelevanceFieldEnum]
+
+
+  export const schema_migrationsOrderByRelevanceFieldEnum: {
+    version: 'version'
+  };
+
+  export type schema_migrationsOrderByRelevanceFieldEnum = (typeof schema_migrationsOrderByRelevanceFieldEnum)[keyof typeof schema_migrationsOrderByRelevanceFieldEnum]
 
 
   /**
@@ -33944,31 +35925,31 @@ export namespace Prisma {
     NOT?: courseWhereInput | courseWhereInput[]
     id?: IntFilter<"course"> | number
     name?: StringFilter<"course"> | string
-    degree_level?: IntNullableFilter<"course"> | number | null
-    duration_months?: IntNullableFilter<"course"> | number | null
-    tuition_fee?: DecimalNullableFilter<"course"> | Decimal | DecimalJsLike | number | string | null
-    currency?: StringNullableFilter<"course"> | string | null
+    degree_level?: IntFilter<"course"> | number
+    duration_months?: IntFilter<"course"> | number
+    tuition_fee?: DecimalFilter<"course"> | Decimal | DecimalJsLike | number | string
+    currency?: StringFilter<"course"> | string
     is_open?: IntFilter<"course"> | number
     created_at?: DateTimeFilter<"course"> | Date | string
     updated_at?: DateTimeFilter<"course"> | Date | string
     university_id?: IntFilter<"course"> | number
     code?: StringNullableFilter<"course"> | string | null
-    url?: StringNullableFilter<"course"> | string | null
+    url?: StringFilter<"course"> | string
     toefl?: DecimalNullableFilter<"course"> | Decimal | DecimalJsLike | number | string | null
     ielts?: DecimalNullableFilter<"course"> | Decimal | DecimalJsLike | number | string | null
     det?: IntNullableFilter<"course"> | number | null
-    is_stem?: IntFilter<"course"> | number
+    is_stem?: IntNullableFilter<"course"> | number | null
     intake_month?: StringNullableFilter<"course"> | string | null
     intake_year?: IntNullableFilter<"course"> | number | null
-    is_coop_available?: IntFilter<"course"> | number
-    has_app_fee_waiver?: IntFilter<"course"> | number
+    is_coop_available?: IntNullableFilter<"course"> | number | null
+    has_app_fee_waiver?: IntNullableFilter<"course"> | number | null
     app_fee?: DecimalNullableFilter<"course"> | Decimal | DecimalJsLike | number | string | null
     has_tuition_deposit?: IntFilter<"course"> | number
     has_scholarship?: IntFilter<"course"> | number
     scholarship_amount?: DecimalNullableFilter<"course"> | Decimal | DecimalJsLike | number | string | null
     min_entry_requirements?: StringNullableFilter<"course"> | string | null
     min_entry_requirements_scale?: StringNullableFilter<"course"> | string | null
-    has_faster_tat?: IntFilter<"course"> | number
+    has_faster_tat?: IntNullableFilter<"course"> | number | null
     application?: ApplicationListRelationFilter
     shortlist?: ShortlistListRelationFilter
     university?: XOR<UniversityScalarRelationFilter, universityWhereInput>
@@ -33977,31 +35958,31 @@ export namespace Prisma {
   export type courseOrderByWithRelationInput = {
     id?: SortOrder
     name?: SortOrder
-    degree_level?: SortOrderInput | SortOrder
-    duration_months?: SortOrderInput | SortOrder
-    tuition_fee?: SortOrderInput | SortOrder
-    currency?: SortOrderInput | SortOrder
+    degree_level?: SortOrder
+    duration_months?: SortOrder
+    tuition_fee?: SortOrder
+    currency?: SortOrder
     is_open?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
     university_id?: SortOrder
     code?: SortOrderInput | SortOrder
-    url?: SortOrderInput | SortOrder
+    url?: SortOrder
     toefl?: SortOrderInput | SortOrder
     ielts?: SortOrderInput | SortOrder
     det?: SortOrderInput | SortOrder
-    is_stem?: SortOrder
+    is_stem?: SortOrderInput | SortOrder
     intake_month?: SortOrderInput | SortOrder
     intake_year?: SortOrderInput | SortOrder
-    is_coop_available?: SortOrder
-    has_app_fee_waiver?: SortOrder
+    is_coop_available?: SortOrderInput | SortOrder
+    has_app_fee_waiver?: SortOrderInput | SortOrder
     app_fee?: SortOrderInput | SortOrder
     has_tuition_deposit?: SortOrder
     has_scholarship?: SortOrder
     scholarship_amount?: SortOrderInput | SortOrder
     min_entry_requirements?: SortOrderInput | SortOrder
     min_entry_requirements_scale?: SortOrderInput | SortOrder
-    has_faster_tat?: SortOrder
+    has_faster_tat?: SortOrderInput | SortOrder
     application?: applicationOrderByRelationAggregateInput
     shortlist?: shortlistOrderByRelationAggregateInput
     university?: universityOrderByWithRelationInput
@@ -34015,30 +35996,30 @@ export namespace Prisma {
     OR?: courseWhereInput[]
     NOT?: courseWhereInput | courseWhereInput[]
     name?: StringFilter<"course"> | string
-    degree_level?: IntNullableFilter<"course"> | number | null
-    duration_months?: IntNullableFilter<"course"> | number | null
-    tuition_fee?: DecimalNullableFilter<"course"> | Decimal | DecimalJsLike | number | string | null
-    currency?: StringNullableFilter<"course"> | string | null
+    degree_level?: IntFilter<"course"> | number
+    duration_months?: IntFilter<"course"> | number
+    tuition_fee?: DecimalFilter<"course"> | Decimal | DecimalJsLike | number | string
+    currency?: StringFilter<"course"> | string
     is_open?: IntFilter<"course"> | number
     created_at?: DateTimeFilter<"course"> | Date | string
     updated_at?: DateTimeFilter<"course"> | Date | string
     university_id?: IntFilter<"course"> | number
-    url?: StringNullableFilter<"course"> | string | null
+    url?: StringFilter<"course"> | string
     toefl?: DecimalNullableFilter<"course"> | Decimal | DecimalJsLike | number | string | null
     ielts?: DecimalNullableFilter<"course"> | Decimal | DecimalJsLike | number | string | null
     det?: IntNullableFilter<"course"> | number | null
-    is_stem?: IntFilter<"course"> | number
+    is_stem?: IntNullableFilter<"course"> | number | null
     intake_month?: StringNullableFilter<"course"> | string | null
     intake_year?: IntNullableFilter<"course"> | number | null
-    is_coop_available?: IntFilter<"course"> | number
-    has_app_fee_waiver?: IntFilter<"course"> | number
+    is_coop_available?: IntNullableFilter<"course"> | number | null
+    has_app_fee_waiver?: IntNullableFilter<"course"> | number | null
     app_fee?: DecimalNullableFilter<"course"> | Decimal | DecimalJsLike | number | string | null
     has_tuition_deposit?: IntFilter<"course"> | number
     has_scholarship?: IntFilter<"course"> | number
     scholarship_amount?: DecimalNullableFilter<"course"> | Decimal | DecimalJsLike | number | string | null
     min_entry_requirements?: StringNullableFilter<"course"> | string | null
     min_entry_requirements_scale?: StringNullableFilter<"course"> | string | null
-    has_faster_tat?: IntFilter<"course"> | number
+    has_faster_tat?: IntNullableFilter<"course"> | number | null
     application?: ApplicationListRelationFilter
     shortlist?: ShortlistListRelationFilter
     university?: XOR<UniversityScalarRelationFilter, universityWhereInput>
@@ -34047,31 +36028,31 @@ export namespace Prisma {
   export type courseOrderByWithAggregationInput = {
     id?: SortOrder
     name?: SortOrder
-    degree_level?: SortOrderInput | SortOrder
-    duration_months?: SortOrderInput | SortOrder
-    tuition_fee?: SortOrderInput | SortOrder
-    currency?: SortOrderInput | SortOrder
+    degree_level?: SortOrder
+    duration_months?: SortOrder
+    tuition_fee?: SortOrder
+    currency?: SortOrder
     is_open?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
     university_id?: SortOrder
     code?: SortOrderInput | SortOrder
-    url?: SortOrderInput | SortOrder
+    url?: SortOrder
     toefl?: SortOrderInput | SortOrder
     ielts?: SortOrderInput | SortOrder
     det?: SortOrderInput | SortOrder
-    is_stem?: SortOrder
+    is_stem?: SortOrderInput | SortOrder
     intake_month?: SortOrderInput | SortOrder
     intake_year?: SortOrderInput | SortOrder
-    is_coop_available?: SortOrder
-    has_app_fee_waiver?: SortOrder
+    is_coop_available?: SortOrderInput | SortOrder
+    has_app_fee_waiver?: SortOrderInput | SortOrder
     app_fee?: SortOrderInput | SortOrder
     has_tuition_deposit?: SortOrder
     has_scholarship?: SortOrder
     scholarship_amount?: SortOrderInput | SortOrder
     min_entry_requirements?: SortOrderInput | SortOrder
     min_entry_requirements_scale?: SortOrderInput | SortOrder
-    has_faster_tat?: SortOrder
+    has_faster_tat?: SortOrderInput | SortOrder
     _count?: courseCountOrderByAggregateInput
     _avg?: courseAvgOrderByAggregateInput
     _max?: courseMaxOrderByAggregateInput
@@ -34085,31 +36066,31 @@ export namespace Prisma {
     NOT?: courseScalarWhereWithAggregatesInput | courseScalarWhereWithAggregatesInput[]
     id?: IntWithAggregatesFilter<"course"> | number
     name?: StringWithAggregatesFilter<"course"> | string
-    degree_level?: IntNullableWithAggregatesFilter<"course"> | number | null
-    duration_months?: IntNullableWithAggregatesFilter<"course"> | number | null
-    tuition_fee?: DecimalNullableWithAggregatesFilter<"course"> | Decimal | DecimalJsLike | number | string | null
-    currency?: StringNullableWithAggregatesFilter<"course"> | string | null
+    degree_level?: IntWithAggregatesFilter<"course"> | number
+    duration_months?: IntWithAggregatesFilter<"course"> | number
+    tuition_fee?: DecimalWithAggregatesFilter<"course"> | Decimal | DecimalJsLike | number | string
+    currency?: StringWithAggregatesFilter<"course"> | string
     is_open?: IntWithAggregatesFilter<"course"> | number
     created_at?: DateTimeWithAggregatesFilter<"course"> | Date | string
     updated_at?: DateTimeWithAggregatesFilter<"course"> | Date | string
     university_id?: IntWithAggregatesFilter<"course"> | number
     code?: StringNullableWithAggregatesFilter<"course"> | string | null
-    url?: StringNullableWithAggregatesFilter<"course"> | string | null
+    url?: StringWithAggregatesFilter<"course"> | string
     toefl?: DecimalNullableWithAggregatesFilter<"course"> | Decimal | DecimalJsLike | number | string | null
     ielts?: DecimalNullableWithAggregatesFilter<"course"> | Decimal | DecimalJsLike | number | string | null
     det?: IntNullableWithAggregatesFilter<"course"> | number | null
-    is_stem?: IntWithAggregatesFilter<"course"> | number
+    is_stem?: IntNullableWithAggregatesFilter<"course"> | number | null
     intake_month?: StringNullableWithAggregatesFilter<"course"> | string | null
     intake_year?: IntNullableWithAggregatesFilter<"course"> | number | null
-    is_coop_available?: IntWithAggregatesFilter<"course"> | number
-    has_app_fee_waiver?: IntWithAggregatesFilter<"course"> | number
+    is_coop_available?: IntNullableWithAggregatesFilter<"course"> | number | null
+    has_app_fee_waiver?: IntNullableWithAggregatesFilter<"course"> | number | null
     app_fee?: DecimalNullableWithAggregatesFilter<"course"> | Decimal | DecimalJsLike | number | string | null
     has_tuition_deposit?: IntWithAggregatesFilter<"course"> | number
     has_scholarship?: IntWithAggregatesFilter<"course"> | number
     scholarship_amount?: DecimalNullableWithAggregatesFilter<"course"> | Decimal | DecimalJsLike | number | string | null
     min_entry_requirements?: StringNullableWithAggregatesFilter<"course"> | string | null
     min_entry_requirements_scale?: StringNullableWithAggregatesFilter<"course"> | string | null
-    has_faster_tat?: IntWithAggregatesFilter<"course"> | number
+    has_faster_tat?: IntNullableWithAggregatesFilter<"course"> | number | null
   }
 
   export type documentWhereInput = {
@@ -34883,16 +36864,16 @@ export namespace Prisma {
     id?: IntFilter<"student"> | number
     first_name?: StringFilter<"student"> | string
     last_name?: StringFilter<"student"> | string
-    email?: StringNullableFilter<"student"> | string | null
-    phone?: StringNullableFilter<"student"> | string | null
-    country?: StringNullableFilter<"student"> | string | null
-    intake?: StringNullableFilter<"student"> | string | null
+    email?: StringFilter<"student"> | string
+    phone?: StringFilter<"student"> | string
+    country?: StringFilter<"student"> | string
+    intake?: StringFilter<"student"> | string
     created_at?: DateTimeFilter<"student"> | Date | string
     updated_at?: DateTimeFilter<"student"> | Date | string
     gender?: IntNullableFilter<"student"> | number | null
     org_id?: IntNullableFilter<"student"> | number | null
     counsellor_id?: IntNullableFilter<"student"> | number | null
-    date_of_birth?: DateTimeNullableFilter<"student"> | Date | string | null
+    date_of_birth?: DateTimeFilter<"student"> | Date | string
     nationality?: StringNullableFilter<"student"> | string | null
     status?: IntFilter<"student"> | number
     course_level?: IntNullableFilter<"student"> | number | null
@@ -34944,16 +36925,16 @@ export namespace Prisma {
     id?: SortOrder
     first_name?: SortOrder
     last_name?: SortOrder
-    email?: SortOrderInput | SortOrder
-    phone?: SortOrderInput | SortOrder
-    country?: SortOrderInput | SortOrder
-    intake?: SortOrderInput | SortOrder
+    email?: SortOrder
+    phone?: SortOrder
+    country?: SortOrder
+    intake?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
     gender?: SortOrderInput | SortOrder
     org_id?: SortOrderInput | SortOrder
     counsellor_id?: SortOrderInput | SortOrder
-    date_of_birth?: SortOrderInput | SortOrder
+    date_of_birth?: SortOrder
     nationality?: SortOrderInput | SortOrder
     status?: SortOrder
     course_level?: SortOrderInput | SortOrder
@@ -35004,21 +36985,21 @@ export namespace Prisma {
 
   export type studentWhereUniqueInput = Prisma.AtLeast<{
     id?: number
+    email?: string
     AND?: studentWhereInput | studentWhereInput[]
     OR?: studentWhereInput[]
     NOT?: studentWhereInput | studentWhereInput[]
     first_name?: StringFilter<"student"> | string
     last_name?: StringFilter<"student"> | string
-    email?: StringNullableFilter<"student"> | string | null
-    phone?: StringNullableFilter<"student"> | string | null
-    country?: StringNullableFilter<"student"> | string | null
-    intake?: StringNullableFilter<"student"> | string | null
+    phone?: StringFilter<"student"> | string
+    country?: StringFilter<"student"> | string
+    intake?: StringFilter<"student"> | string
     created_at?: DateTimeFilter<"student"> | Date | string
     updated_at?: DateTimeFilter<"student"> | Date | string
     gender?: IntNullableFilter<"student"> | number | null
     org_id?: IntNullableFilter<"student"> | number | null
     counsellor_id?: IntNullableFilter<"student"> | number | null
-    date_of_birth?: DateTimeNullableFilter<"student"> | Date | string | null
+    date_of_birth?: DateTimeFilter<"student"> | Date | string
     nationality?: StringNullableFilter<"student"> | string | null
     status?: IntFilter<"student"> | number
     course_level?: IntNullableFilter<"student"> | number | null
@@ -35064,22 +37045,22 @@ export namespace Prisma {
     user?: XOR<UserNullableScalarRelationFilter, userWhereInput> | null
     cp_counsellor?: XOR<Collegepond_userNullableScalarRelationFilter, collegepond_userWhereInput> | null
     created_by?: XOR<UserNullableScalarRelationFilter, userWhereInput> | null
-  }, "id">
+  }, "id" | "email">
 
   export type studentOrderByWithAggregationInput = {
     id?: SortOrder
     first_name?: SortOrder
     last_name?: SortOrder
-    email?: SortOrderInput | SortOrder
-    phone?: SortOrderInput | SortOrder
-    country?: SortOrderInput | SortOrder
-    intake?: SortOrderInput | SortOrder
+    email?: SortOrder
+    phone?: SortOrder
+    country?: SortOrder
+    intake?: SortOrder
     created_at?: SortOrder
     updated_at?: SortOrder
     gender?: SortOrderInput | SortOrder
     org_id?: SortOrderInput | SortOrder
     counsellor_id?: SortOrderInput | SortOrder
-    date_of_birth?: SortOrderInput | SortOrder
+    date_of_birth?: SortOrder
     nationality?: SortOrderInput | SortOrder
     status?: SortOrder
     course_level?: SortOrderInput | SortOrder
@@ -35127,16 +37108,16 @@ export namespace Prisma {
     id?: IntWithAggregatesFilter<"student"> | number
     first_name?: StringWithAggregatesFilter<"student"> | string
     last_name?: StringWithAggregatesFilter<"student"> | string
-    email?: StringNullableWithAggregatesFilter<"student"> | string | null
-    phone?: StringNullableWithAggregatesFilter<"student"> | string | null
-    country?: StringNullableWithAggregatesFilter<"student"> | string | null
-    intake?: StringNullableWithAggregatesFilter<"student"> | string | null
+    email?: StringWithAggregatesFilter<"student"> | string
+    phone?: StringWithAggregatesFilter<"student"> | string
+    country?: StringWithAggregatesFilter<"student"> | string
+    intake?: StringWithAggregatesFilter<"student"> | string
     created_at?: DateTimeWithAggregatesFilter<"student"> | Date | string
     updated_at?: DateTimeWithAggregatesFilter<"student"> | Date | string
     gender?: IntNullableWithAggregatesFilter<"student"> | number | null
     org_id?: IntNullableWithAggregatesFilter<"student"> | number | null
     counsellor_id?: IntNullableWithAggregatesFilter<"student"> | number | null
-    date_of_birth?: DateTimeNullableWithAggregatesFilter<"student"> | Date | string | null
+    date_of_birth?: DateTimeWithAggregatesFilter<"student"> | Date | string
     nationality?: StringNullableWithAggregatesFilter<"student"> | string | null
     status?: IntWithAggregatesFilter<"student"> | number
     course_level?: IntNullableWithAggregatesFilter<"student"> | number | null
@@ -35179,7 +37160,7 @@ export namespace Prisma {
     id?: IntFilter<"university"> | number
     name?: StringFilter<"university"> | string
     code?: StringNullableFilter<"university"> | string | null
-    city?: StringNullableFilter<"university"> | string | null
+    city?: StringFilter<"university"> | string
     country?: StringFilter<"university"> | string
     type?: IntFilter<"university"> | number
     ranking?: IntNullableFilter<"university"> | number | null
@@ -35196,7 +37177,7 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     code?: SortOrderInput | SortOrder
-    city?: SortOrderInput | SortOrder
+    city?: SortOrder
     country?: SortOrder
     type?: SortOrder
     ranking?: SortOrderInput | SortOrder
@@ -35217,7 +37198,7 @@ export namespace Prisma {
     OR?: universityWhereInput[]
     NOT?: universityWhereInput | universityWhereInput[]
     name?: StringFilter<"university"> | string
-    city?: StringNullableFilter<"university"> | string | null
+    city?: StringFilter<"university"> | string
     country?: StringFilter<"university"> | string
     type?: IntFilter<"university"> | number
     ranking?: IntNullableFilter<"university"> | number | null
@@ -35234,7 +37215,7 @@ export namespace Prisma {
     id?: SortOrder
     name?: SortOrder
     code?: SortOrderInput | SortOrder
-    city?: SortOrderInput | SortOrder
+    city?: SortOrder
     country?: SortOrder
     type?: SortOrder
     ranking?: SortOrderInput | SortOrder
@@ -35258,7 +37239,7 @@ export namespace Prisma {
     id?: IntWithAggregatesFilter<"university"> | number
     name?: StringWithAggregatesFilter<"university"> | string
     code?: StringNullableWithAggregatesFilter<"university"> | string | null
-    city?: StringNullableWithAggregatesFilter<"university"> | string | null
+    city?: StringWithAggregatesFilter<"university"> | string
     country?: StringWithAggregatesFilter<"university"> | string
     type?: IntWithAggregatesFilter<"university"> | number
     ranking?: IntNullableWithAggregatesFilter<"university"> | number | null
@@ -35290,10 +37271,10 @@ export namespace Prisma {
     date_of_birth?: DateTimeNullableFilter<"user"> | Date | string | null
     gender?: IntNullableFilter<"user"> | number | null
     nationality?: StringNullableFilter<"user"> | string | null
-    address?: StringNullableFilter<"user"> | string | null
-    city?: StringNullableFilter<"user"> | string | null
-    state?: StringNullableFilter<"user"> | string | null
-    country?: StringNullableFilter<"user"> | string | null
+    address?: StringFilter<"user"> | string
+    city?: StringFilter<"user"> | string
+    state?: StringFilter<"user"> | string
+    country?: StringFilter<"user"> | string
     approved_by_collegepond_user_id?: IntNullableFilter<"user"> | number | null
     lead_counsellor_id?: IntNullableFilter<"user"> | number | null
     counsellor_id?: IntNullableFilter<"user"> | number | null
@@ -35335,10 +37316,10 @@ export namespace Prisma {
     date_of_birth?: SortOrderInput | SortOrder
     gender?: SortOrderInput | SortOrder
     nationality?: SortOrderInput | SortOrder
-    address?: SortOrderInput | SortOrder
-    city?: SortOrderInput | SortOrder
-    state?: SortOrderInput | SortOrder
-    country?: SortOrderInput | SortOrder
+    address?: SortOrder
+    city?: SortOrder
+    state?: SortOrder
+    country?: SortOrder
     approved_by_collegepond_user_id?: SortOrderInput | SortOrder
     lead_counsellor_id?: SortOrderInput | SortOrder
     counsellor_id?: SortOrderInput | SortOrder
@@ -35384,10 +37365,10 @@ export namespace Prisma {
     date_of_birth?: DateTimeNullableFilter<"user"> | Date | string | null
     gender?: IntNullableFilter<"user"> | number | null
     nationality?: StringNullableFilter<"user"> | string | null
-    address?: StringNullableFilter<"user"> | string | null
-    city?: StringNullableFilter<"user"> | string | null
-    state?: StringNullableFilter<"user"> | string | null
-    country?: StringNullableFilter<"user"> | string | null
+    address?: StringFilter<"user"> | string
+    city?: StringFilter<"user"> | string
+    state?: StringFilter<"user"> | string
+    country?: StringFilter<"user"> | string
     approved_by_collegepond_user_id?: IntNullableFilter<"user"> | number | null
     lead_counsellor_id?: IntNullableFilter<"user"> | number | null
     counsellor_id?: IntNullableFilter<"user"> | number | null
@@ -35429,10 +37410,10 @@ export namespace Prisma {
     date_of_birth?: SortOrderInput | SortOrder
     gender?: SortOrderInput | SortOrder
     nationality?: SortOrderInput | SortOrder
-    address?: SortOrderInput | SortOrder
-    city?: SortOrderInput | SortOrder
-    state?: SortOrderInput | SortOrder
-    country?: SortOrderInput | SortOrder
+    address?: SortOrder
+    city?: SortOrder
+    state?: SortOrder
+    country?: SortOrder
     approved_by_collegepond_user_id?: SortOrderInput | SortOrder
     lead_counsellor_id?: SortOrderInput | SortOrder
     counsellor_id?: SortOrderInput | SortOrder
@@ -35470,10 +37451,10 @@ export namespace Prisma {
     date_of_birth?: DateTimeNullableWithAggregatesFilter<"user"> | Date | string | null
     gender?: IntNullableWithAggregatesFilter<"user"> | number | null
     nationality?: StringNullableWithAggregatesFilter<"user"> | string | null
-    address?: StringNullableWithAggregatesFilter<"user"> | string | null
-    city?: StringNullableWithAggregatesFilter<"user"> | string | null
-    state?: StringNullableWithAggregatesFilter<"user"> | string | null
-    country?: StringNullableWithAggregatesFilter<"user"> | string | null
+    address?: StringWithAggregatesFilter<"user"> | string
+    city?: StringWithAggregatesFilter<"user"> | string
+    state?: StringWithAggregatesFilter<"user"> | string
+    country?: StringWithAggregatesFilter<"user"> | string
     approved_by_collegepond_user_id?: IntNullableWithAggregatesFilter<"user"> | number | null
     lead_counsellor_id?: IntNullableWithAggregatesFilter<"user"> | number | null
     counsellor_id?: IntNullableWithAggregatesFilter<"user"> | number | null
@@ -36152,6 +38133,104 @@ export namespace Prisma {
     created_at?: DateTimeWithAggregatesFilter<"uni_assist_template"> | Date | string
   }
 
+  export type otp_codeWhereInput = {
+    AND?: otp_codeWhereInput | otp_codeWhereInput[]
+    OR?: otp_codeWhereInput[]
+    NOT?: otp_codeWhereInput | otp_codeWhereInput[]
+    id?: IntFilter<"otp_code"> | number
+    identifier?: StringFilter<"otp_code"> | string
+    code_hash?: StringFilter<"otp_code"> | string
+    expires_at?: DateTimeFilter<"otp_code"> | Date | string
+    attempts?: IntFilter<"otp_code"> | number
+    created_at?: DateTimeFilter<"otp_code"> | Date | string
+  }
+
+  export type otp_codeOrderByWithRelationInput = {
+    id?: SortOrder
+    identifier?: SortOrder
+    code_hash?: SortOrder
+    expires_at?: SortOrder
+    attempts?: SortOrder
+    created_at?: SortOrder
+    _relevance?: otp_codeOrderByRelevanceInput
+  }
+
+  export type otp_codeWhereUniqueInput = Prisma.AtLeast<{
+    id?: number
+    identifier?: string
+    AND?: otp_codeWhereInput | otp_codeWhereInput[]
+    OR?: otp_codeWhereInput[]
+    NOT?: otp_codeWhereInput | otp_codeWhereInput[]
+    code_hash?: StringFilter<"otp_code"> | string
+    expires_at?: DateTimeFilter<"otp_code"> | Date | string
+    attempts?: IntFilter<"otp_code"> | number
+    created_at?: DateTimeFilter<"otp_code"> | Date | string
+  }, "id" | "identifier">
+
+  export type otp_codeOrderByWithAggregationInput = {
+    id?: SortOrder
+    identifier?: SortOrder
+    code_hash?: SortOrder
+    expires_at?: SortOrder
+    attempts?: SortOrder
+    created_at?: SortOrder
+    _count?: otp_codeCountOrderByAggregateInput
+    _avg?: otp_codeAvgOrderByAggregateInput
+    _max?: otp_codeMaxOrderByAggregateInput
+    _min?: otp_codeMinOrderByAggregateInput
+    _sum?: otp_codeSumOrderByAggregateInput
+  }
+
+  export type otp_codeScalarWhereWithAggregatesInput = {
+    AND?: otp_codeScalarWhereWithAggregatesInput | otp_codeScalarWhereWithAggregatesInput[]
+    OR?: otp_codeScalarWhereWithAggregatesInput[]
+    NOT?: otp_codeScalarWhereWithAggregatesInput | otp_codeScalarWhereWithAggregatesInput[]
+    id?: IntWithAggregatesFilter<"otp_code"> | number
+    identifier?: StringWithAggregatesFilter<"otp_code"> | string
+    code_hash?: StringWithAggregatesFilter<"otp_code"> | string
+    expires_at?: DateTimeWithAggregatesFilter<"otp_code"> | Date | string
+    attempts?: IntWithAggregatesFilter<"otp_code"> | number
+    created_at?: DateTimeWithAggregatesFilter<"otp_code"> | Date | string
+  }
+
+  export type schema_migrationsWhereInput = {
+    AND?: schema_migrationsWhereInput | schema_migrationsWhereInput[]
+    OR?: schema_migrationsWhereInput[]
+    NOT?: schema_migrationsWhereInput | schema_migrationsWhereInput[]
+    version?: StringFilter<"schema_migrations"> | string
+    applied_at?: DateTimeFilter<"schema_migrations"> | Date | string
+  }
+
+  export type schema_migrationsOrderByWithRelationInput = {
+    version?: SortOrder
+    applied_at?: SortOrder
+    _relevance?: schema_migrationsOrderByRelevanceInput
+  }
+
+  export type schema_migrationsWhereUniqueInput = Prisma.AtLeast<{
+    version?: string
+    AND?: schema_migrationsWhereInput | schema_migrationsWhereInput[]
+    OR?: schema_migrationsWhereInput[]
+    NOT?: schema_migrationsWhereInput | schema_migrationsWhereInput[]
+    applied_at?: DateTimeFilter<"schema_migrations"> | Date | string
+  }, "version">
+
+  export type schema_migrationsOrderByWithAggregationInput = {
+    version?: SortOrder
+    applied_at?: SortOrder
+    _count?: schema_migrationsCountOrderByAggregateInput
+    _max?: schema_migrationsMaxOrderByAggregateInput
+    _min?: schema_migrationsMinOrderByAggregateInput
+  }
+
+  export type schema_migrationsScalarWhereWithAggregatesInput = {
+    AND?: schema_migrationsScalarWhereWithAggregatesInput | schema_migrationsScalarWhereWithAggregatesInput[]
+    OR?: schema_migrationsScalarWhereWithAggregatesInput[]
+    NOT?: schema_migrationsScalarWhereWithAggregatesInput | schema_migrationsScalarWhereWithAggregatesInput[]
+    version?: StringWithAggregatesFilter<"schema_migrations"> | string
+    applied_at?: DateTimeWithAggregatesFilter<"schema_migrations"> | Date | string
+  }
+
   export type applicationCreateInput = {
     status?: number
     submitted_at?: Date | string | null
@@ -36601,30 +38680,30 @@ export namespace Prisma {
 
   export type courseCreateInput = {
     name: string
-    degree_level?: number | null
-    duration_months?: number | null
-    tuition_fee?: Decimal | DecimalJsLike | number | string | null
-    currency?: string | null
+    degree_level: number
+    duration_months: number
+    tuition_fee: Decimal | DecimalJsLike | number | string
+    currency: string
     is_open?: number
     created_at?: Date | string
     updated_at?: Date | string
     code?: string | null
-    url?: string | null
+    url: string
     toefl?: Decimal | DecimalJsLike | number | string | null
     ielts?: Decimal | DecimalJsLike | number | string | null
     det?: number | null
-    is_stem?: number
+    is_stem?: number | null
     intake_month?: string | null
     intake_year?: number | null
-    is_coop_available?: number
-    has_app_fee_waiver?: number
+    is_coop_available?: number | null
+    has_app_fee_waiver?: number | null
     app_fee?: Decimal | DecimalJsLike | number | string | null
     has_tuition_deposit?: number
     has_scholarship?: number
     scholarship_amount?: Decimal | DecimalJsLike | number | string | null
     min_entry_requirements?: string | null
     min_entry_requirements_scale?: string | null
-    has_faster_tat?: number
+    has_faster_tat?: number | null
     application?: applicationCreateNestedManyWithoutCourseInput
     shortlist?: shortlistCreateNestedManyWithoutCourseInput
     university: universityCreateNestedOneWithoutCourseInput
@@ -36633,61 +38712,61 @@ export namespace Prisma {
   export type courseUncheckedCreateInput = {
     id?: number
     name: string
-    degree_level?: number | null
-    duration_months?: number | null
-    tuition_fee?: Decimal | DecimalJsLike | number | string | null
-    currency?: string | null
+    degree_level: number
+    duration_months: number
+    tuition_fee: Decimal | DecimalJsLike | number | string
+    currency: string
     is_open?: number
     created_at?: Date | string
     updated_at?: Date | string
     university_id: number
     code?: string | null
-    url?: string | null
+    url: string
     toefl?: Decimal | DecimalJsLike | number | string | null
     ielts?: Decimal | DecimalJsLike | number | string | null
     det?: number | null
-    is_stem?: number
+    is_stem?: number | null
     intake_month?: string | null
     intake_year?: number | null
-    is_coop_available?: number
-    has_app_fee_waiver?: number
+    is_coop_available?: number | null
+    has_app_fee_waiver?: number | null
     app_fee?: Decimal | DecimalJsLike | number | string | null
     has_tuition_deposit?: number
     has_scholarship?: number
     scholarship_amount?: Decimal | DecimalJsLike | number | string | null
     min_entry_requirements?: string | null
     min_entry_requirements_scale?: string | null
-    has_faster_tat?: number
+    has_faster_tat?: number | null
     application?: applicationUncheckedCreateNestedManyWithoutCourseInput
     shortlist?: shortlistUncheckedCreateNestedManyWithoutCourseInput
   }
 
   export type courseUpdateInput = {
     name?: StringFieldUpdateOperationsInput | string
-    degree_level?: NullableIntFieldUpdateOperationsInput | number | null
-    duration_months?: NullableIntFieldUpdateOperationsInput | number | null
-    tuition_fee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    degree_level?: IntFieldUpdateOperationsInput | number
+    duration_months?: IntFieldUpdateOperationsInput | number
+    tuition_fee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
     is_open?: IntFieldUpdateOperationsInput | number
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
-    url?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: StringFieldUpdateOperationsInput | string
     toefl?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     ielts?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     det?: NullableIntFieldUpdateOperationsInput | number | null
-    is_stem?: IntFieldUpdateOperationsInput | number
+    is_stem?: NullableIntFieldUpdateOperationsInput | number | null
     intake_month?: NullableStringFieldUpdateOperationsInput | string | null
     intake_year?: NullableIntFieldUpdateOperationsInput | number | null
-    is_coop_available?: IntFieldUpdateOperationsInput | number
-    has_app_fee_waiver?: IntFieldUpdateOperationsInput | number
+    is_coop_available?: NullableIntFieldUpdateOperationsInput | number | null
+    has_app_fee_waiver?: NullableIntFieldUpdateOperationsInput | number | null
     app_fee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     has_tuition_deposit?: IntFieldUpdateOperationsInput | number
     has_scholarship?: IntFieldUpdateOperationsInput | number
     scholarship_amount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     min_entry_requirements?: NullableStringFieldUpdateOperationsInput | string | null
     min_entry_requirements_scale?: NullableStringFieldUpdateOperationsInput | string | null
-    has_faster_tat?: IntFieldUpdateOperationsInput | number
+    has_faster_tat?: NullableIntFieldUpdateOperationsInput | number | null
     application?: applicationUpdateManyWithoutCourseNestedInput
     shortlist?: shortlistUpdateManyWithoutCourseNestedInput
     university?: universityUpdateOneRequiredWithoutCourseNestedInput
@@ -36696,31 +38775,31 @@ export namespace Prisma {
   export type courseUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
-    degree_level?: NullableIntFieldUpdateOperationsInput | number | null
-    duration_months?: NullableIntFieldUpdateOperationsInput | number | null
-    tuition_fee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    degree_level?: IntFieldUpdateOperationsInput | number
+    duration_months?: IntFieldUpdateOperationsInput | number
+    tuition_fee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
     is_open?: IntFieldUpdateOperationsInput | number
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     university_id?: IntFieldUpdateOperationsInput | number
     code?: NullableStringFieldUpdateOperationsInput | string | null
-    url?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: StringFieldUpdateOperationsInput | string
     toefl?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     ielts?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     det?: NullableIntFieldUpdateOperationsInput | number | null
-    is_stem?: IntFieldUpdateOperationsInput | number
+    is_stem?: NullableIntFieldUpdateOperationsInput | number | null
     intake_month?: NullableStringFieldUpdateOperationsInput | string | null
     intake_year?: NullableIntFieldUpdateOperationsInput | number | null
-    is_coop_available?: IntFieldUpdateOperationsInput | number
-    has_app_fee_waiver?: IntFieldUpdateOperationsInput | number
+    is_coop_available?: NullableIntFieldUpdateOperationsInput | number | null
+    has_app_fee_waiver?: NullableIntFieldUpdateOperationsInput | number | null
     app_fee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     has_tuition_deposit?: IntFieldUpdateOperationsInput | number
     has_scholarship?: IntFieldUpdateOperationsInput | number
     scholarship_amount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     min_entry_requirements?: NullableStringFieldUpdateOperationsInput | string | null
     min_entry_requirements_scale?: NullableStringFieldUpdateOperationsInput | string | null
-    has_faster_tat?: IntFieldUpdateOperationsInput | number
+    has_faster_tat?: NullableIntFieldUpdateOperationsInput | number | null
     application?: applicationUncheckedUpdateManyWithoutCourseNestedInput
     shortlist?: shortlistUncheckedUpdateManyWithoutCourseNestedInput
   }
@@ -36728,89 +38807,89 @@ export namespace Prisma {
   export type courseCreateManyInput = {
     id?: number
     name: string
-    degree_level?: number | null
-    duration_months?: number | null
-    tuition_fee?: Decimal | DecimalJsLike | number | string | null
-    currency?: string | null
+    degree_level: number
+    duration_months: number
+    tuition_fee: Decimal | DecimalJsLike | number | string
+    currency: string
     is_open?: number
     created_at?: Date | string
     updated_at?: Date | string
     university_id: number
     code?: string | null
-    url?: string | null
+    url: string
     toefl?: Decimal | DecimalJsLike | number | string | null
     ielts?: Decimal | DecimalJsLike | number | string | null
     det?: number | null
-    is_stem?: number
+    is_stem?: number | null
     intake_month?: string | null
     intake_year?: number | null
-    is_coop_available?: number
-    has_app_fee_waiver?: number
+    is_coop_available?: number | null
+    has_app_fee_waiver?: number | null
     app_fee?: Decimal | DecimalJsLike | number | string | null
     has_tuition_deposit?: number
     has_scholarship?: number
     scholarship_amount?: Decimal | DecimalJsLike | number | string | null
     min_entry_requirements?: string | null
     min_entry_requirements_scale?: string | null
-    has_faster_tat?: number
+    has_faster_tat?: number | null
   }
 
   export type courseUpdateManyMutationInput = {
     name?: StringFieldUpdateOperationsInput | string
-    degree_level?: NullableIntFieldUpdateOperationsInput | number | null
-    duration_months?: NullableIntFieldUpdateOperationsInput | number | null
-    tuition_fee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    degree_level?: IntFieldUpdateOperationsInput | number
+    duration_months?: IntFieldUpdateOperationsInput | number
+    tuition_fee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
     is_open?: IntFieldUpdateOperationsInput | number
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
-    url?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: StringFieldUpdateOperationsInput | string
     toefl?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     ielts?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     det?: NullableIntFieldUpdateOperationsInput | number | null
-    is_stem?: IntFieldUpdateOperationsInput | number
+    is_stem?: NullableIntFieldUpdateOperationsInput | number | null
     intake_month?: NullableStringFieldUpdateOperationsInput | string | null
     intake_year?: NullableIntFieldUpdateOperationsInput | number | null
-    is_coop_available?: IntFieldUpdateOperationsInput | number
-    has_app_fee_waiver?: IntFieldUpdateOperationsInput | number
+    is_coop_available?: NullableIntFieldUpdateOperationsInput | number | null
+    has_app_fee_waiver?: NullableIntFieldUpdateOperationsInput | number | null
     app_fee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     has_tuition_deposit?: IntFieldUpdateOperationsInput | number
     has_scholarship?: IntFieldUpdateOperationsInput | number
     scholarship_amount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     min_entry_requirements?: NullableStringFieldUpdateOperationsInput | string | null
     min_entry_requirements_scale?: NullableStringFieldUpdateOperationsInput | string | null
-    has_faster_tat?: IntFieldUpdateOperationsInput | number
+    has_faster_tat?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type courseUncheckedUpdateManyInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
-    degree_level?: NullableIntFieldUpdateOperationsInput | number | null
-    duration_months?: NullableIntFieldUpdateOperationsInput | number | null
-    tuition_fee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    degree_level?: IntFieldUpdateOperationsInput | number
+    duration_months?: IntFieldUpdateOperationsInput | number
+    tuition_fee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
     is_open?: IntFieldUpdateOperationsInput | number
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     university_id?: IntFieldUpdateOperationsInput | number
     code?: NullableStringFieldUpdateOperationsInput | string | null
-    url?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: StringFieldUpdateOperationsInput | string
     toefl?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     ielts?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     det?: NullableIntFieldUpdateOperationsInput | number | null
-    is_stem?: IntFieldUpdateOperationsInput | number
+    is_stem?: NullableIntFieldUpdateOperationsInput | number | null
     intake_month?: NullableStringFieldUpdateOperationsInput | string | null
     intake_year?: NullableIntFieldUpdateOperationsInput | number | null
-    is_coop_available?: IntFieldUpdateOperationsInput | number
-    has_app_fee_waiver?: IntFieldUpdateOperationsInput | number
+    is_coop_available?: NullableIntFieldUpdateOperationsInput | number | null
+    has_app_fee_waiver?: NullableIntFieldUpdateOperationsInput | number | null
     app_fee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     has_tuition_deposit?: IntFieldUpdateOperationsInput | number
     has_scholarship?: IntFieldUpdateOperationsInput | number
     scholarship_amount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     min_entry_requirements?: NullableStringFieldUpdateOperationsInput | string | null
     min_entry_requirements_scale?: NullableStringFieldUpdateOperationsInput | string | null
-    has_faster_tat?: IntFieldUpdateOperationsInput | number
+    has_faster_tat?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type documentCreateInput = {
@@ -37616,14 +39695,14 @@ export namespace Prisma {
   export type studentCreateInput = {
     first_name: string
     last_name: string
-    email?: string | null
-    phone?: string | null
-    country?: string | null
-    intake?: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at?: Date | string
     updated_at?: Date | string
     gender?: number | null
-    date_of_birth?: Date | string | null
+    date_of_birth: Date | string
     nationality?: string | null
     status?: number
     course_level?: number | null
@@ -37673,16 +39752,16 @@ export namespace Prisma {
     id?: number
     first_name: string
     last_name: string
-    email?: string | null
-    phone?: string | null
-    country?: string | null
-    intake?: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at?: Date | string
     updated_at?: Date | string
     gender?: number | null
     org_id?: number | null
     counsellor_id?: number | null
-    date_of_birth?: Date | string | null
+    date_of_birth: Date | string
     nationality?: string | null
     status?: number
     course_level?: number | null
@@ -37729,14 +39808,14 @@ export namespace Prisma {
   export type studentUpdateInput = {
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null
@@ -37786,16 +39865,16 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     org_id?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null
@@ -37843,16 +39922,16 @@ export namespace Prisma {
     id?: number
     first_name: string
     last_name: string
-    email?: string | null
-    phone?: string | null
-    country?: string | null
-    intake?: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at?: Date | string
     updated_at?: Date | string
     gender?: number | null
     org_id?: number | null
     counsellor_id?: number | null
-    date_of_birth?: Date | string | null
+    date_of_birth: Date | string
     nationality?: string | null
     status?: number
     course_level?: number | null
@@ -37891,14 +39970,14 @@ export namespace Prisma {
   export type studentUpdateManyMutationInput = {
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null
@@ -37936,16 +40015,16 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     org_id?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null
@@ -37984,7 +40063,7 @@ export namespace Prisma {
   export type universityCreateInput = {
     name: string
     code?: string | null
-    city?: string | null
+    city: string
     country: string
     type?: number
     ranking?: number | null
@@ -38001,7 +40080,7 @@ export namespace Prisma {
     id?: number
     name: string
     code?: string | null
-    city?: string | null
+    city: string
     country: string
     type?: number
     ranking?: number | null
@@ -38017,7 +40096,7 @@ export namespace Prisma {
   export type universityUpdateInput = {
     name?: StringFieldUpdateOperationsInput | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: StringFieldUpdateOperationsInput | string
     country?: StringFieldUpdateOperationsInput | string
     type?: IntFieldUpdateOperationsInput | number
     ranking?: NullableIntFieldUpdateOperationsInput | number | null
@@ -38034,7 +40113,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: StringFieldUpdateOperationsInput | string
     country?: StringFieldUpdateOperationsInput | string
     type?: IntFieldUpdateOperationsInput | number
     ranking?: NullableIntFieldUpdateOperationsInput | number | null
@@ -38051,7 +40130,7 @@ export namespace Prisma {
     id?: number
     name: string
     code?: string | null
-    city?: string | null
+    city: string
     country: string
     type?: number
     ranking?: number | null
@@ -38066,7 +40145,7 @@ export namespace Prisma {
   export type universityUpdateManyMutationInput = {
     name?: StringFieldUpdateOperationsInput | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: StringFieldUpdateOperationsInput | string
     country?: StringFieldUpdateOperationsInput | string
     type?: IntFieldUpdateOperationsInput | number
     ranking?: NullableIntFieldUpdateOperationsInput | number | null
@@ -38082,7 +40161,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: StringFieldUpdateOperationsInput | string
     country?: StringFieldUpdateOperationsInput | string
     type?: IntFieldUpdateOperationsInput | number
     ranking?: NullableIntFieldUpdateOperationsInput | number | null
@@ -38109,10 +40188,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     notes?: string | null
     tier?: number
     mou_signed_at?: Date | string | null
@@ -38150,10 +40229,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     approved_by_collegepond_user_id?: number | null
     lead_counsellor_id?: number | null
     counsellor_id?: number | null
@@ -38188,10 +40267,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
     mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -38229,10 +40308,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
     lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -38269,10 +40348,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     approved_by_collegepond_user_id?: number | null
     lead_counsellor_id?: number | null
     counsellor_id?: number | null
@@ -38300,10 +40379,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
     mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -38329,10 +40408,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
     lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -39027,6 +41106,101 @@ export namespace Prisma {
     filters?: JsonNullValueInput | InputJsonValue
     collegepond_user_id?: IntFieldUpdateOperationsInput | number
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type otp_codeCreateInput = {
+    identifier: string
+    code_hash: string
+    expires_at: Date | string
+    attempts?: number
+    created_at?: Date | string
+  }
+
+  export type otp_codeUncheckedCreateInput = {
+    id?: number
+    identifier: string
+    code_hash: string
+    expires_at: Date | string
+    attempts?: number
+    created_at?: Date | string
+  }
+
+  export type otp_codeUpdateInput = {
+    identifier?: StringFieldUpdateOperationsInput | string
+    code_hash?: StringFieldUpdateOperationsInput | string
+    expires_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    attempts?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type otp_codeUncheckedUpdateInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    identifier?: StringFieldUpdateOperationsInput | string
+    code_hash?: StringFieldUpdateOperationsInput | string
+    expires_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    attempts?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type otp_codeCreateManyInput = {
+    id?: number
+    identifier: string
+    code_hash: string
+    expires_at: Date | string
+    attempts?: number
+    created_at?: Date | string
+  }
+
+  export type otp_codeUpdateManyMutationInput = {
+    identifier?: StringFieldUpdateOperationsInput | string
+    code_hash?: StringFieldUpdateOperationsInput | string
+    expires_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    attempts?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type otp_codeUncheckedUpdateManyInput = {
+    id?: IntFieldUpdateOperationsInput | number
+    identifier?: StringFieldUpdateOperationsInput | string
+    code_hash?: StringFieldUpdateOperationsInput | string
+    expires_at?: DateTimeFieldUpdateOperationsInput | Date | string
+    attempts?: IntFieldUpdateOperationsInput | number
+    created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type schema_migrationsCreateInput = {
+    version: string
+    applied_at?: Date | string
+  }
+
+  export type schema_migrationsUncheckedCreateInput = {
+    version: string
+    applied_at?: Date | string
+  }
+
+  export type schema_migrationsUpdateInput = {
+    version?: StringFieldUpdateOperationsInput | string
+    applied_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type schema_migrationsUncheckedUpdateInput = {
+    version?: StringFieldUpdateOperationsInput | string
+    applied_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type schema_migrationsCreateManyInput = {
+    version: string
+    applied_at?: Date | string
+  }
+
+  export type schema_migrationsUpdateManyMutationInput = {
+    version?: StringFieldUpdateOperationsInput | string
+    applied_at?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type schema_migrationsUncheckedUpdateManyInput = {
+    version?: StringFieldUpdateOperationsInput | string
+    applied_at?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type IntFilter<$PrismaModel = never> = {
@@ -41462,6 +43636,70 @@ export namespace Prisma {
   export type uni_assist_templateSumOrderByAggregateInput = {
     id?: SortOrder
     collegepond_user_id?: SortOrder
+  }
+
+  export type otp_codeOrderByRelevanceInput = {
+    fields: otp_codeOrderByRelevanceFieldEnum | otp_codeOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type otp_codeCountOrderByAggregateInput = {
+    id?: SortOrder
+    identifier?: SortOrder
+    code_hash?: SortOrder
+    expires_at?: SortOrder
+    attempts?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type otp_codeAvgOrderByAggregateInput = {
+    id?: SortOrder
+    attempts?: SortOrder
+  }
+
+  export type otp_codeMaxOrderByAggregateInput = {
+    id?: SortOrder
+    identifier?: SortOrder
+    code_hash?: SortOrder
+    expires_at?: SortOrder
+    attempts?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type otp_codeMinOrderByAggregateInput = {
+    id?: SortOrder
+    identifier?: SortOrder
+    code_hash?: SortOrder
+    expires_at?: SortOrder
+    attempts?: SortOrder
+    created_at?: SortOrder
+  }
+
+  export type otp_codeSumOrderByAggregateInput = {
+    id?: SortOrder
+    attempts?: SortOrder
+  }
+
+  export type schema_migrationsOrderByRelevanceInput = {
+    fields: schema_migrationsOrderByRelevanceFieldEnum | schema_migrationsOrderByRelevanceFieldEnum[]
+    sort: SortOrder
+    search: string
+  }
+
+  export type schema_migrationsCountOrderByAggregateInput = {
+    version?: SortOrder
+    applied_at?: SortOrder
+  }
+
+  export type schema_migrationsMaxOrderByAggregateInput = {
+    version?: SortOrder
+    applied_at?: SortOrder
+  }
+
+  export type schema_migrationsMinOrderByAggregateInput = {
+    version?: SortOrder
+    applied_at?: SortOrder
   }
 
   export type courseCreateNestedOneWithoutApplicationInput = {
@@ -44048,30 +46286,30 @@ export namespace Prisma {
 
   export type courseCreateWithoutApplicationInput = {
     name: string
-    degree_level?: number | null
-    duration_months?: number | null
-    tuition_fee?: Decimal | DecimalJsLike | number | string | null
-    currency?: string | null
+    degree_level: number
+    duration_months: number
+    tuition_fee: Decimal | DecimalJsLike | number | string
+    currency: string
     is_open?: number
     created_at?: Date | string
     updated_at?: Date | string
     code?: string | null
-    url?: string | null
+    url: string
     toefl?: Decimal | DecimalJsLike | number | string | null
     ielts?: Decimal | DecimalJsLike | number | string | null
     det?: number | null
-    is_stem?: number
+    is_stem?: number | null
     intake_month?: string | null
     intake_year?: number | null
-    is_coop_available?: number
-    has_app_fee_waiver?: number
+    is_coop_available?: number | null
+    has_app_fee_waiver?: number | null
     app_fee?: Decimal | DecimalJsLike | number | string | null
     has_tuition_deposit?: number
     has_scholarship?: number
     scholarship_amount?: Decimal | DecimalJsLike | number | string | null
     min_entry_requirements?: string | null
     min_entry_requirements_scale?: string | null
-    has_faster_tat?: number
+    has_faster_tat?: number | null
     shortlist?: shortlistCreateNestedManyWithoutCourseInput
     university: universityCreateNestedOneWithoutCourseInput
   }
@@ -44079,31 +46317,31 @@ export namespace Prisma {
   export type courseUncheckedCreateWithoutApplicationInput = {
     id?: number
     name: string
-    degree_level?: number | null
-    duration_months?: number | null
-    tuition_fee?: Decimal | DecimalJsLike | number | string | null
-    currency?: string | null
+    degree_level: number
+    duration_months: number
+    tuition_fee: Decimal | DecimalJsLike | number | string
+    currency: string
     is_open?: number
     created_at?: Date | string
     updated_at?: Date | string
     university_id: number
     code?: string | null
-    url?: string | null
+    url: string
     toefl?: Decimal | DecimalJsLike | number | string | null
     ielts?: Decimal | DecimalJsLike | number | string | null
     det?: number | null
-    is_stem?: number
+    is_stem?: number | null
     intake_month?: string | null
     intake_year?: number | null
-    is_coop_available?: number
-    has_app_fee_waiver?: number
+    is_coop_available?: number | null
+    has_app_fee_waiver?: number | null
     app_fee?: Decimal | DecimalJsLike | number | string | null
     has_tuition_deposit?: number
     has_scholarship?: number
     scholarship_amount?: Decimal | DecimalJsLike | number | string | null
     min_entry_requirements?: string | null
     min_entry_requirements_scale?: string | null
-    has_faster_tat?: number
+    has_faster_tat?: number | null
     shortlist?: shortlistUncheckedCreateNestedManyWithoutCourseInput
   }
 
@@ -44169,14 +46407,14 @@ export namespace Prisma {
   export type studentCreateWithoutApplicationInput = {
     first_name: string
     last_name: string
-    email?: string | null
-    phone?: string | null
-    country?: string | null
-    intake?: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at?: Date | string
     updated_at?: Date | string
     gender?: number | null
-    date_of_birth?: Date | string | null
+    date_of_birth: Date | string
     nationality?: string | null
     status?: number
     course_level?: number | null
@@ -44225,16 +46463,16 @@ export namespace Prisma {
     id?: number
     first_name: string
     last_name: string
-    email?: string | null
-    phone?: string | null
-    country?: string | null
-    intake?: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at?: Date | string
     updated_at?: Date | string
     gender?: number | null
     org_id?: number | null
     counsellor_id?: number | null
-    date_of_birth?: Date | string | null
+    date_of_birth: Date | string
     nationality?: string | null
     status?: number
     course_level?: number | null
@@ -44374,30 +46612,30 @@ export namespace Prisma {
 
   export type courseUpdateWithoutApplicationInput = {
     name?: StringFieldUpdateOperationsInput | string
-    degree_level?: NullableIntFieldUpdateOperationsInput | number | null
-    duration_months?: NullableIntFieldUpdateOperationsInput | number | null
-    tuition_fee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    degree_level?: IntFieldUpdateOperationsInput | number
+    duration_months?: IntFieldUpdateOperationsInput | number
+    tuition_fee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
     is_open?: IntFieldUpdateOperationsInput | number
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
-    url?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: StringFieldUpdateOperationsInput | string
     toefl?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     ielts?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     det?: NullableIntFieldUpdateOperationsInput | number | null
-    is_stem?: IntFieldUpdateOperationsInput | number
+    is_stem?: NullableIntFieldUpdateOperationsInput | number | null
     intake_month?: NullableStringFieldUpdateOperationsInput | string | null
     intake_year?: NullableIntFieldUpdateOperationsInput | number | null
-    is_coop_available?: IntFieldUpdateOperationsInput | number
-    has_app_fee_waiver?: IntFieldUpdateOperationsInput | number
+    is_coop_available?: NullableIntFieldUpdateOperationsInput | number | null
+    has_app_fee_waiver?: NullableIntFieldUpdateOperationsInput | number | null
     app_fee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     has_tuition_deposit?: IntFieldUpdateOperationsInput | number
     has_scholarship?: IntFieldUpdateOperationsInput | number
     scholarship_amount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     min_entry_requirements?: NullableStringFieldUpdateOperationsInput | string | null
     min_entry_requirements_scale?: NullableStringFieldUpdateOperationsInput | string | null
-    has_faster_tat?: IntFieldUpdateOperationsInput | number
+    has_faster_tat?: NullableIntFieldUpdateOperationsInput | number | null
     shortlist?: shortlistUpdateManyWithoutCourseNestedInput
     university?: universityUpdateOneRequiredWithoutCourseNestedInput
   }
@@ -44405,31 +46643,31 @@ export namespace Prisma {
   export type courseUncheckedUpdateWithoutApplicationInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
-    degree_level?: NullableIntFieldUpdateOperationsInput | number | null
-    duration_months?: NullableIntFieldUpdateOperationsInput | number | null
-    tuition_fee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    degree_level?: IntFieldUpdateOperationsInput | number
+    duration_months?: IntFieldUpdateOperationsInput | number
+    tuition_fee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
     is_open?: IntFieldUpdateOperationsInput | number
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     university_id?: IntFieldUpdateOperationsInput | number
     code?: NullableStringFieldUpdateOperationsInput | string | null
-    url?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: StringFieldUpdateOperationsInput | string
     toefl?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     ielts?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     det?: NullableIntFieldUpdateOperationsInput | number | null
-    is_stem?: IntFieldUpdateOperationsInput | number
+    is_stem?: NullableIntFieldUpdateOperationsInput | number | null
     intake_month?: NullableStringFieldUpdateOperationsInput | string | null
     intake_year?: NullableIntFieldUpdateOperationsInput | number | null
-    is_coop_available?: IntFieldUpdateOperationsInput | number
-    has_app_fee_waiver?: IntFieldUpdateOperationsInput | number
+    is_coop_available?: NullableIntFieldUpdateOperationsInput | number | null
+    has_app_fee_waiver?: NullableIntFieldUpdateOperationsInput | number | null
     app_fee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     has_tuition_deposit?: IntFieldUpdateOperationsInput | number
     has_scholarship?: IntFieldUpdateOperationsInput | number
     scholarship_amount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     min_entry_requirements?: NullableStringFieldUpdateOperationsInput | string | null
     min_entry_requirements_scale?: NullableStringFieldUpdateOperationsInput | string | null
-    has_faster_tat?: IntFieldUpdateOperationsInput | number
+    has_faster_tat?: NullableIntFieldUpdateOperationsInput | number | null
     shortlist?: shortlistUncheckedUpdateManyWithoutCourseNestedInput
   }
 
@@ -44507,14 +46745,14 @@ export namespace Prisma {
   export type studentUpdateWithoutApplicationInput = {
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null
@@ -44563,16 +46801,16 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     org_id?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null
@@ -44992,10 +47230,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     notes?: string | null
     tier?: number
     mou_signed_at?: Date | string | null
@@ -45032,10 +47270,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     approved_by_collegepond_user_id?: number | null
     lead_counsellor_id?: number | null
     counsellor_id?: number | null
@@ -45145,10 +47383,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
     mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -45185,10 +47423,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
     lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -45550,7 +47788,7 @@ export namespace Prisma {
   export type universityCreateWithoutCourseInput = {
     name: string
     code?: string | null
-    city?: string | null
+    city: string
     country: string
     type?: number
     ranking?: number | null
@@ -45566,7 +47804,7 @@ export namespace Prisma {
     id?: number
     name: string
     code?: string | null
-    city?: string | null
+    city: string
     country: string
     type?: number
     ranking?: number | null
@@ -45664,7 +47902,7 @@ export namespace Prisma {
   export type universityUpdateWithoutCourseInput = {
     name?: StringFieldUpdateOperationsInput | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: StringFieldUpdateOperationsInput | string
     country?: StringFieldUpdateOperationsInput | string
     type?: IntFieldUpdateOperationsInput | number
     ranking?: NullableIntFieldUpdateOperationsInput | number | null
@@ -45680,7 +47918,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: StringFieldUpdateOperationsInput | string
     country?: StringFieldUpdateOperationsInput | string
     type?: IntFieldUpdateOperationsInput | number
     ranking?: NullableIntFieldUpdateOperationsInput | number | null
@@ -45761,10 +47999,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     notes?: string | null
     tier?: number
     mou_signed_at?: Date | string | null
@@ -45801,10 +48039,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     approved_by_collegepond_user_id?: number | null
     lead_counsellor_id?: number | null
     counsellor_id?: number | null
@@ -45831,14 +48069,14 @@ export namespace Prisma {
   export type studentCreateWithoutDocumentInput = {
     first_name: string
     last_name: string
-    email?: string | null
-    phone?: string | null
-    country?: string | null
-    intake?: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at?: Date | string
     updated_at?: Date | string
     gender?: number | null
-    date_of_birth?: Date | string | null
+    date_of_birth: Date | string
     nationality?: string | null
     status?: number
     course_level?: number | null
@@ -45887,16 +48125,16 @@ export namespace Prisma {
     id?: number
     first_name: string
     last_name: string
-    email?: string | null
-    phone?: string | null
-    country?: string | null
-    intake?: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at?: Date | string
     updated_at?: Date | string
     gender?: number | null
     org_id?: number | null
     counsellor_id?: number | null
-    date_of_birth?: Date | string | null
+    date_of_birth: Date | string
     nationality?: string | null
     status?: number
     course_level?: number | null
@@ -46030,10 +48268,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
     mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -46070,10 +48308,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
     lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -46106,14 +48344,14 @@ export namespace Prisma {
   export type studentUpdateWithoutDocumentInput = {
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null
@@ -46162,16 +48400,16 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     org_id?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null
@@ -46324,10 +48562,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     notes?: string | null
     tier?: number
     mou_signed_at?: Date | string | null
@@ -46364,10 +48602,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     approved_by_collegepond_user_id?: number | null
     lead_counsellor_id?: number | null
     counsellor_id?: number | null
@@ -46486,10 +48724,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
     mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -46526,10 +48764,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
     lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -46964,10 +49202,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     notes?: string | null
     tier?: number
     mou_signed_at?: Date | string | null
@@ -47004,10 +49242,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     approved_by_collegepond_user_id?: number | null
     lead_counsellor_id?: number | null
     counsellor_id?: number | null
@@ -47057,10 +49295,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
     mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -47097,10 +49335,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
     lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -47333,14 +49571,14 @@ export namespace Prisma {
   export type studentCreateWithoutOrganizationInput = {
     first_name: string
     last_name: string
-    email?: string | null
-    phone?: string | null
-    country?: string | null
-    intake?: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at?: Date | string
     updated_at?: Date | string
     gender?: number | null
-    date_of_birth?: Date | string | null
+    date_of_birth: Date | string
     nationality?: string | null
     status?: number
     course_level?: number | null
@@ -47389,15 +49627,15 @@ export namespace Prisma {
     id?: number
     first_name: string
     last_name: string
-    email?: string | null
-    phone?: string | null
-    country?: string | null
-    intake?: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at?: Date | string
     updated_at?: Date | string
     gender?: number | null
     counsellor_id?: number | null
-    date_of_birth?: Date | string | null
+    date_of_birth: Date | string
     nationality?: string | null
     status?: number
     course_level?: number | null
@@ -47466,10 +49704,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     notes?: string | null
     tier?: number
     mou_signed_at?: Date | string | null
@@ -47505,10 +49743,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     approved_by_collegepond_user_id?: number | null
     lead_counsellor_id?: number | null
     counsellor_id?: number | null
@@ -47715,16 +49953,16 @@ export namespace Prisma {
     id?: IntFilter<"student"> | number
     first_name?: StringFilter<"student"> | string
     last_name?: StringFilter<"student"> | string
-    email?: StringNullableFilter<"student"> | string | null
-    phone?: StringNullableFilter<"student"> | string | null
-    country?: StringNullableFilter<"student"> | string | null
-    intake?: StringNullableFilter<"student"> | string | null
+    email?: StringFilter<"student"> | string
+    phone?: StringFilter<"student"> | string
+    country?: StringFilter<"student"> | string
+    intake?: StringFilter<"student"> | string
     created_at?: DateTimeFilter<"student"> | Date | string
     updated_at?: DateTimeFilter<"student"> | Date | string
     gender?: IntNullableFilter<"student"> | number | null
     org_id?: IntNullableFilter<"student"> | number | null
     counsellor_id?: IntNullableFilter<"student"> | number | null
-    date_of_birth?: DateTimeNullableFilter<"student"> | Date | string | null
+    date_of_birth?: DateTimeFilter<"student"> | Date | string
     nationality?: StringNullableFilter<"student"> | string | null
     status?: IntFilter<"student"> | number
     course_level?: IntNullableFilter<"student"> | number | null
@@ -47796,10 +50034,10 @@ export namespace Prisma {
     date_of_birth?: DateTimeNullableFilter<"user"> | Date | string | null
     gender?: IntNullableFilter<"user"> | number | null
     nationality?: StringNullableFilter<"user"> | string | null
-    address?: StringNullableFilter<"user"> | string | null
-    city?: StringNullableFilter<"user"> | string | null
-    state?: StringNullableFilter<"user"> | string | null
-    country?: StringNullableFilter<"user"> | string | null
+    address?: StringFilter<"user"> | string
+    city?: StringFilter<"user"> | string
+    state?: StringFilter<"user"> | string
+    country?: StringFilter<"user"> | string
     approved_by_collegepond_user_id?: IntNullableFilter<"user"> | number | null
     lead_counsellor_id?: IntNullableFilter<"user"> | number | null
     counsellor_id?: IntNullableFilter<"user"> | number | null
@@ -47827,10 +50065,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     notes?: string | null
     tier?: number
     mou_signed_at?: Date | string | null
@@ -47867,10 +50105,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     approved_by_collegepond_user_id?: number | null
     lead_counsellor_id?: number | null
     counsellor_id?: number | null
@@ -47920,10 +50158,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
     mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -47960,10 +50198,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
     lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -48345,10 +50583,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     notes?: string | null
     tier?: number
     mou_signed_at?: Date | string | null
@@ -48385,10 +50623,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     approved_by_collegepond_user_id?: number | null
     lead_counsellor_id?: number | null
     counsellor_id?: number | null
@@ -48471,10 +50709,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     notes?: string | null
     tier?: number
     mou_signed_at?: Date | string | null
@@ -48511,10 +50749,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     approved_by_collegepond_user_id?: number | null
     lead_counsellor_id?: number | null
     counsellor_id?: number | null
@@ -48836,10 +51074,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
     mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -48876,10 +51114,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
     lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -48974,10 +51212,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
     mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -49014,10 +51252,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
     lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -49038,30 +51276,30 @@ export namespace Prisma {
 
   export type courseCreateWithoutUniversityInput = {
     name: string
-    degree_level?: number | null
-    duration_months?: number | null
-    tuition_fee?: Decimal | DecimalJsLike | number | string | null
-    currency?: string | null
+    degree_level: number
+    duration_months: number
+    tuition_fee: Decimal | DecimalJsLike | number | string
+    currency: string
     is_open?: number
     created_at?: Date | string
     updated_at?: Date | string
     code?: string | null
-    url?: string | null
+    url: string
     toefl?: Decimal | DecimalJsLike | number | string | null
     ielts?: Decimal | DecimalJsLike | number | string | null
     det?: number | null
-    is_stem?: number
+    is_stem?: number | null
     intake_month?: string | null
     intake_year?: number | null
-    is_coop_available?: number
-    has_app_fee_waiver?: number
+    is_coop_available?: number | null
+    has_app_fee_waiver?: number | null
     app_fee?: Decimal | DecimalJsLike | number | string | null
     has_tuition_deposit?: number
     has_scholarship?: number
     scholarship_amount?: Decimal | DecimalJsLike | number | string | null
     min_entry_requirements?: string | null
     min_entry_requirements_scale?: string | null
-    has_faster_tat?: number
+    has_faster_tat?: number | null
     application?: applicationCreateNestedManyWithoutCourseInput
     shortlist?: shortlistCreateNestedManyWithoutCourseInput
   }
@@ -49069,30 +51307,30 @@ export namespace Prisma {
   export type courseUncheckedCreateWithoutUniversityInput = {
     id?: number
     name: string
-    degree_level?: number | null
-    duration_months?: number | null
-    tuition_fee?: Decimal | DecimalJsLike | number | string | null
-    currency?: string | null
+    degree_level: number
+    duration_months: number
+    tuition_fee: Decimal | DecimalJsLike | number | string
+    currency: string
     is_open?: number
     created_at?: Date | string
     updated_at?: Date | string
     code?: string | null
-    url?: string | null
+    url: string
     toefl?: Decimal | DecimalJsLike | number | string | null
     ielts?: Decimal | DecimalJsLike | number | string | null
     det?: number | null
-    is_stem?: number
+    is_stem?: number | null
     intake_month?: string | null
     intake_year?: number | null
-    is_coop_available?: number
-    has_app_fee_waiver?: number
+    is_coop_available?: number | null
+    has_app_fee_waiver?: number | null
     app_fee?: Decimal | DecimalJsLike | number | string | null
     has_tuition_deposit?: number
     has_scholarship?: number
     scholarship_amount?: Decimal | DecimalJsLike | number | string | null
     min_entry_requirements?: string | null
     min_entry_requirements_scale?: string | null
-    has_faster_tat?: number
+    has_faster_tat?: number | null
     application?: applicationUncheckedCreateNestedManyWithoutCourseInput
     shortlist?: shortlistUncheckedCreateNestedManyWithoutCourseInput
   }
@@ -49129,31 +51367,31 @@ export namespace Prisma {
     NOT?: courseScalarWhereInput | courseScalarWhereInput[]
     id?: IntFilter<"course"> | number
     name?: StringFilter<"course"> | string
-    degree_level?: IntNullableFilter<"course"> | number | null
-    duration_months?: IntNullableFilter<"course"> | number | null
-    tuition_fee?: DecimalNullableFilter<"course"> | Decimal | DecimalJsLike | number | string | null
-    currency?: StringNullableFilter<"course"> | string | null
+    degree_level?: IntFilter<"course"> | number
+    duration_months?: IntFilter<"course"> | number
+    tuition_fee?: DecimalFilter<"course"> | Decimal | DecimalJsLike | number | string
+    currency?: StringFilter<"course"> | string
     is_open?: IntFilter<"course"> | number
     created_at?: DateTimeFilter<"course"> | Date | string
     updated_at?: DateTimeFilter<"course"> | Date | string
     university_id?: IntFilter<"course"> | number
     code?: StringNullableFilter<"course"> | string | null
-    url?: StringNullableFilter<"course"> | string | null
+    url?: StringFilter<"course"> | string
     toefl?: DecimalNullableFilter<"course"> | Decimal | DecimalJsLike | number | string | null
     ielts?: DecimalNullableFilter<"course"> | Decimal | DecimalJsLike | number | string | null
     det?: IntNullableFilter<"course"> | number | null
-    is_stem?: IntFilter<"course"> | number
+    is_stem?: IntNullableFilter<"course"> | number | null
     intake_month?: StringNullableFilter<"course"> | string | null
     intake_year?: IntNullableFilter<"course"> | number | null
-    is_coop_available?: IntFilter<"course"> | number
-    has_app_fee_waiver?: IntFilter<"course"> | number
+    is_coop_available?: IntNullableFilter<"course"> | number | null
+    has_app_fee_waiver?: IntNullableFilter<"course"> | number | null
     app_fee?: DecimalNullableFilter<"course"> | Decimal | DecimalJsLike | number | string | null
     has_tuition_deposit?: IntFilter<"course"> | number
     has_scholarship?: IntFilter<"course"> | number
     scholarship_amount?: DecimalNullableFilter<"course"> | Decimal | DecimalJsLike | number | string | null
     min_entry_requirements?: StringNullableFilter<"course"> | string | null
     min_entry_requirements_scale?: StringNullableFilter<"course"> | string | null
-    has_faster_tat?: IntFilter<"course"> | number
+    has_faster_tat?: IntNullableFilter<"course"> | number | null
   }
 
   export type audit_logCreateWithoutUserInput = {
@@ -49308,14 +51546,14 @@ export namespace Prisma {
   export type studentCreateWithoutUserInput = {
     first_name: string
     last_name: string
-    email?: string | null
-    phone?: string | null
-    country?: string | null
-    intake?: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at?: Date | string
     updated_at?: Date | string
     gender?: number | null
-    date_of_birth?: Date | string | null
+    date_of_birth: Date | string
     nationality?: string | null
     status?: number
     course_level?: number | null
@@ -49364,15 +51602,15 @@ export namespace Prisma {
     id?: number
     first_name: string
     last_name: string
-    email?: string | null
-    phone?: string | null
-    country?: string | null
-    intake?: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at?: Date | string
     updated_at?: Date | string
     gender?: number | null
     org_id?: number | null
-    date_of_birth?: Date | string | null
+    date_of_birth: Date | string
     nationality?: string | null
     status?: number
     course_level?: number | null
@@ -49429,14 +51667,14 @@ export namespace Prisma {
   export type studentCreateWithoutCreated_byInput = {
     first_name: string
     last_name: string
-    email?: string | null
-    phone?: string | null
-    country?: string | null
-    intake?: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at?: Date | string
     updated_at?: Date | string
     gender?: number | null
-    date_of_birth?: Date | string | null
+    date_of_birth: Date | string
     nationality?: string | null
     status?: number
     course_level?: number | null
@@ -49485,16 +51723,16 @@ export namespace Prisma {
     id?: number
     first_name: string
     last_name: string
-    email?: string | null
-    phone?: string | null
-    country?: string | null
-    intake?: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at?: Date | string
     updated_at?: Date | string
     gender?: number | null
     org_id?: number | null
     counsellor_id?: number | null
-    date_of_birth?: Date | string | null
+    date_of_birth: Date | string
     nationality?: string | null
     status?: number
     course_level?: number | null
@@ -50188,10 +52426,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     notes?: string | null
     tier?: number
     mou_signed_at?: Date | string | null
@@ -50228,10 +52466,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     lead_counsellor_id?: number | null
     counsellor_id?: number | null
     bdm_id?: number | null
@@ -50275,10 +52513,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     notes?: string | null
     tier?: number
     mou_signed_at?: Date | string | null
@@ -50315,10 +52553,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     approved_by_collegepond_user_id?: number | null
     lead_counsellor_id?: number | null
     counsellor_id?: number | null
@@ -50362,10 +52600,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     notes?: string | null
     tier?: number
     mou_signed_at?: Date | string | null
@@ -50402,10 +52640,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     approved_by_collegepond_user_id?: number | null
     lead_counsellor_id?: number | null
     bdm_id?: number | null
@@ -50449,10 +52687,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     notes?: string | null
     tier?: number
     mou_signed_at?: Date | string | null
@@ -50489,10 +52727,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     approved_by_collegepond_user_id?: number | null
     counsellor_id?: number | null
     bdm_id?: number | null
@@ -50547,14 +52785,14 @@ export namespace Prisma {
   export type studentCreateWithoutCp_counsellorInput = {
     first_name: string
     last_name: string
-    email?: string | null
-    phone?: string | null
-    country?: string | null
-    intake?: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at?: Date | string
     updated_at?: Date | string
     gender?: number | null
-    date_of_birth?: Date | string | null
+    date_of_birth: Date | string
     nationality?: string | null
     status?: number
     course_level?: number | null
@@ -50603,16 +52841,16 @@ export namespace Prisma {
     id?: number
     first_name: string
     last_name: string
-    email?: string | null
-    phone?: string | null
-    country?: string | null
-    intake?: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at?: Date | string
     updated_at?: Date | string
     gender?: number | null
     org_id?: number | null
     counsellor_id?: number | null
-    date_of_birth?: Date | string | null
+    date_of_birth: Date | string
     nationality?: string | null
     status?: number
     course_level?: number | null
@@ -50863,14 +53101,14 @@ export namespace Prisma {
   export type studentCreateWithoutNoteInput = {
     first_name: string
     last_name: string
-    email?: string | null
-    phone?: string | null
-    country?: string | null
-    intake?: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at?: Date | string
     updated_at?: Date | string
     gender?: number | null
-    date_of_birth?: Date | string | null
+    date_of_birth: Date | string
     nationality?: string | null
     status?: number
     course_level?: number | null
@@ -50919,16 +53157,16 @@ export namespace Prisma {
     id?: number
     first_name: string
     last_name: string
-    email?: string | null
-    phone?: string | null
-    country?: string | null
-    intake?: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at?: Date | string
     updated_at?: Date | string
     gender?: number | null
     org_id?: number | null
     counsellor_id?: number | null
-    date_of_birth?: Date | string | null
+    date_of_birth: Date | string
     nationality?: string | null
     status?: number
     course_level?: number | null
@@ -51034,14 +53272,14 @@ export namespace Prisma {
   export type studentUpdateWithoutNoteInput = {
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null
@@ -51090,16 +53328,16 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     org_id?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null
@@ -51195,14 +53433,14 @@ export namespace Prisma {
   export type studentCreateWithoutEmergency_contactInput = {
     first_name: string
     last_name: string
-    email?: string | null
-    phone?: string | null
-    country?: string | null
-    intake?: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at?: Date | string
     updated_at?: Date | string
     gender?: number | null
-    date_of_birth?: Date | string | null
+    date_of_birth: Date | string
     nationality?: string | null
     status?: number
     course_level?: number | null
@@ -51251,16 +53489,16 @@ export namespace Prisma {
     id?: number
     first_name: string
     last_name: string
-    email?: string | null
-    phone?: string | null
-    country?: string | null
-    intake?: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at?: Date | string
     updated_at?: Date | string
     gender?: number | null
     org_id?: number | null
     counsellor_id?: number | null
-    date_of_birth?: Date | string | null
+    date_of_birth: Date | string
     nationality?: string | null
     status?: number
     course_level?: number | null
@@ -51322,14 +53560,14 @@ export namespace Prisma {
   export type studentUpdateWithoutEmergency_contactInput = {
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null
@@ -51378,16 +53616,16 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     org_id?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null
@@ -51433,14 +53671,14 @@ export namespace Prisma {
   export type studentCreateWithoutEducationInput = {
     first_name: string
     last_name: string
-    email?: string | null
-    phone?: string | null
-    country?: string | null
-    intake?: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at?: Date | string
     updated_at?: Date | string
     gender?: number | null
-    date_of_birth?: Date | string | null
+    date_of_birth: Date | string
     nationality?: string | null
     status?: number
     course_level?: number | null
@@ -51489,16 +53727,16 @@ export namespace Prisma {
     id?: number
     first_name: string
     last_name: string
-    email?: string | null
-    phone?: string | null
-    country?: string | null
-    intake?: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at?: Date | string
     updated_at?: Date | string
     gender?: number | null
     org_id?: number | null
     counsellor_id?: number | null
-    date_of_birth?: Date | string | null
+    date_of_birth: Date | string
     nationality?: string | null
     status?: number
     course_level?: number | null
@@ -51560,14 +53798,14 @@ export namespace Prisma {
   export type studentUpdateWithoutEducationInput = {
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null
@@ -51616,16 +53854,16 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     org_id?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null
@@ -51671,14 +53909,14 @@ export namespace Prisma {
   export type studentCreateWithoutWork_experienceInput = {
     first_name: string
     last_name: string
-    email?: string | null
-    phone?: string | null
-    country?: string | null
-    intake?: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at?: Date | string
     updated_at?: Date | string
     gender?: number | null
-    date_of_birth?: Date | string | null
+    date_of_birth: Date | string
     nationality?: string | null
     status?: number
     course_level?: number | null
@@ -51727,16 +53965,16 @@ export namespace Prisma {
     id?: number
     first_name: string
     last_name: string
-    email?: string | null
-    phone?: string | null
-    country?: string | null
-    intake?: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at?: Date | string
     updated_at?: Date | string
     gender?: number | null
     org_id?: number | null
     counsellor_id?: number | null
-    date_of_birth?: Date | string | null
+    date_of_birth: Date | string
     nationality?: string | null
     status?: number
     course_level?: number | null
@@ -51798,14 +54036,14 @@ export namespace Prisma {
   export type studentUpdateWithoutWork_experienceInput = {
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null
@@ -51854,16 +54092,16 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     org_id?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null
@@ -51909,14 +54147,14 @@ export namespace Prisma {
   export type studentCreateWithoutTest_scoreInput = {
     first_name: string
     last_name: string
-    email?: string | null
-    phone?: string | null
-    country?: string | null
-    intake?: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at?: Date | string
     updated_at?: Date | string
     gender?: number | null
-    date_of_birth?: Date | string | null
+    date_of_birth: Date | string
     nationality?: string | null
     status?: number
     course_level?: number | null
@@ -51965,16 +54203,16 @@ export namespace Prisma {
     id?: number
     first_name: string
     last_name: string
-    email?: string | null
-    phone?: string | null
-    country?: string | null
-    intake?: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at?: Date | string
     updated_at?: Date | string
     gender?: number | null
     org_id?: number | null
     counsellor_id?: number | null
-    date_of_birth?: Date | string | null
+    date_of_birth: Date | string
     nationality?: string | null
     status?: number
     course_level?: number | null
@@ -52036,14 +54274,14 @@ export namespace Prisma {
   export type studentUpdateWithoutTest_scoreInput = {
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null
@@ -52092,16 +54330,16 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     org_id?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null
@@ -52147,14 +54385,14 @@ export namespace Prisma {
   export type studentCreateWithoutShortlistInput = {
     first_name: string
     last_name: string
-    email?: string | null
-    phone?: string | null
-    country?: string | null
-    intake?: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at?: Date | string
     updated_at?: Date | string
     gender?: number | null
-    date_of_birth?: Date | string | null
+    date_of_birth: Date | string
     nationality?: string | null
     status?: number
     course_level?: number | null
@@ -52203,16 +54441,16 @@ export namespace Prisma {
     id?: number
     first_name: string
     last_name: string
-    email?: string | null
-    phone?: string | null
-    country?: string | null
-    intake?: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at?: Date | string
     updated_at?: Date | string
     gender?: number | null
     org_id?: number | null
     counsellor_id?: number | null
-    date_of_birth?: Date | string | null
+    date_of_birth: Date | string
     nationality?: string | null
     status?: number
     course_level?: number | null
@@ -52262,30 +54500,30 @@ export namespace Prisma {
 
   export type courseCreateWithoutShortlistInput = {
     name: string
-    degree_level?: number | null
-    duration_months?: number | null
-    tuition_fee?: Decimal | DecimalJsLike | number | string | null
-    currency?: string | null
+    degree_level: number
+    duration_months: number
+    tuition_fee: Decimal | DecimalJsLike | number | string
+    currency: string
     is_open?: number
     created_at?: Date | string
     updated_at?: Date | string
     code?: string | null
-    url?: string | null
+    url: string
     toefl?: Decimal | DecimalJsLike | number | string | null
     ielts?: Decimal | DecimalJsLike | number | string | null
     det?: number | null
-    is_stem?: number
+    is_stem?: number | null
     intake_month?: string | null
     intake_year?: number | null
-    is_coop_available?: number
-    has_app_fee_waiver?: number
+    is_coop_available?: number | null
+    has_app_fee_waiver?: number | null
     app_fee?: Decimal | DecimalJsLike | number | string | null
     has_tuition_deposit?: number
     has_scholarship?: number
     scholarship_amount?: Decimal | DecimalJsLike | number | string | null
     min_entry_requirements?: string | null
     min_entry_requirements_scale?: string | null
-    has_faster_tat?: number
+    has_faster_tat?: number | null
     application?: applicationCreateNestedManyWithoutCourseInput
     university: universityCreateNestedOneWithoutCourseInput
   }
@@ -52293,31 +54531,31 @@ export namespace Prisma {
   export type courseUncheckedCreateWithoutShortlistInput = {
     id?: number
     name: string
-    degree_level?: number | null
-    duration_months?: number | null
-    tuition_fee?: Decimal | DecimalJsLike | number | string | null
-    currency?: string | null
+    degree_level: number
+    duration_months: number
+    tuition_fee: Decimal | DecimalJsLike | number | string
+    currency: string
     is_open?: number
     created_at?: Date | string
     updated_at?: Date | string
     university_id: number
     code?: string | null
-    url?: string | null
+    url: string
     toefl?: Decimal | DecimalJsLike | number | string | null
     ielts?: Decimal | DecimalJsLike | number | string | null
     det?: number | null
-    is_stem?: number
+    is_stem?: number | null
     intake_month?: string | null
     intake_year?: number | null
-    is_coop_available?: number
-    has_app_fee_waiver?: number
+    is_coop_available?: number | null
+    has_app_fee_waiver?: number | null
     app_fee?: Decimal | DecimalJsLike | number | string | null
     has_tuition_deposit?: number
     has_scholarship?: number
     scholarship_amount?: Decimal | DecimalJsLike | number | string | null
     min_entry_requirements?: string | null
     min_entry_requirements_scale?: string | null
-    has_faster_tat?: number
+    has_faster_tat?: number | null
     application?: applicationUncheckedCreateNestedManyWithoutCourseInput
   }
 
@@ -52384,14 +54622,14 @@ export namespace Prisma {
   export type studentUpdateWithoutShortlistInput = {
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null
@@ -52440,16 +54678,16 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     org_id?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null
@@ -52505,30 +54743,30 @@ export namespace Prisma {
 
   export type courseUpdateWithoutShortlistInput = {
     name?: StringFieldUpdateOperationsInput | string
-    degree_level?: NullableIntFieldUpdateOperationsInput | number | null
-    duration_months?: NullableIntFieldUpdateOperationsInput | number | null
-    tuition_fee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    degree_level?: IntFieldUpdateOperationsInput | number
+    duration_months?: IntFieldUpdateOperationsInput | number
+    tuition_fee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
     is_open?: IntFieldUpdateOperationsInput | number
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
-    url?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: StringFieldUpdateOperationsInput | string
     toefl?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     ielts?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     det?: NullableIntFieldUpdateOperationsInput | number | null
-    is_stem?: IntFieldUpdateOperationsInput | number
+    is_stem?: NullableIntFieldUpdateOperationsInput | number | null
     intake_month?: NullableStringFieldUpdateOperationsInput | string | null
     intake_year?: NullableIntFieldUpdateOperationsInput | number | null
-    is_coop_available?: IntFieldUpdateOperationsInput | number
-    has_app_fee_waiver?: IntFieldUpdateOperationsInput | number
+    is_coop_available?: NullableIntFieldUpdateOperationsInput | number | null
+    has_app_fee_waiver?: NullableIntFieldUpdateOperationsInput | number | null
     app_fee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     has_tuition_deposit?: IntFieldUpdateOperationsInput | number
     has_scholarship?: IntFieldUpdateOperationsInput | number
     scholarship_amount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     min_entry_requirements?: NullableStringFieldUpdateOperationsInput | string | null
     min_entry_requirements_scale?: NullableStringFieldUpdateOperationsInput | string | null
-    has_faster_tat?: IntFieldUpdateOperationsInput | number
+    has_faster_tat?: NullableIntFieldUpdateOperationsInput | number | null
     application?: applicationUpdateManyWithoutCourseNestedInput
     university?: universityUpdateOneRequiredWithoutCourseNestedInput
   }
@@ -52536,31 +54774,31 @@ export namespace Prisma {
   export type courseUncheckedUpdateWithoutShortlistInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
-    degree_level?: NullableIntFieldUpdateOperationsInput | number | null
-    duration_months?: NullableIntFieldUpdateOperationsInput | number | null
-    tuition_fee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    degree_level?: IntFieldUpdateOperationsInput | number
+    duration_months?: IntFieldUpdateOperationsInput | number
+    tuition_fee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
     is_open?: IntFieldUpdateOperationsInput | number
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     university_id?: IntFieldUpdateOperationsInput | number
     code?: NullableStringFieldUpdateOperationsInput | string | null
-    url?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: StringFieldUpdateOperationsInput | string
     toefl?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     ielts?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     det?: NullableIntFieldUpdateOperationsInput | number | null
-    is_stem?: IntFieldUpdateOperationsInput | number
+    is_stem?: NullableIntFieldUpdateOperationsInput | number | null
     intake_month?: NullableStringFieldUpdateOperationsInput | string | null
     intake_year?: NullableIntFieldUpdateOperationsInput | number | null
-    is_coop_available?: IntFieldUpdateOperationsInput | number
-    has_app_fee_waiver?: IntFieldUpdateOperationsInput | number
+    is_coop_available?: NullableIntFieldUpdateOperationsInput | number | null
+    has_app_fee_waiver?: NullableIntFieldUpdateOperationsInput | number | null
     app_fee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     has_tuition_deposit?: IntFieldUpdateOperationsInput | number
     has_scholarship?: IntFieldUpdateOperationsInput | number
     scholarship_amount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     min_entry_requirements?: NullableStringFieldUpdateOperationsInput | string | null
     min_entry_requirements_scale?: NullableStringFieldUpdateOperationsInput | string | null
-    has_faster_tat?: IntFieldUpdateOperationsInput | number
+    has_faster_tat?: NullableIntFieldUpdateOperationsInput | number | null
     application?: applicationUncheckedUpdateManyWithoutCourseNestedInput
   }
 
@@ -53012,15 +55250,15 @@ export namespace Prisma {
     id?: number
     first_name: string
     last_name: string
-    email?: string | null
-    phone?: string | null
-    country?: string | null
-    intake?: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at?: Date | string
     updated_at?: Date | string
     gender?: number | null
     counsellor_id?: number | null
-    date_of_birth?: Date | string | null
+    date_of_birth: Date | string
     nationality?: string | null
     status?: number
     course_level?: number | null
@@ -53072,10 +55310,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     approved_by_collegepond_user_id?: number | null
     lead_counsellor_id?: number | null
     counsellor_id?: number | null
@@ -53330,14 +55568,14 @@ export namespace Prisma {
   export type studentUpdateWithoutOrganizationInput = {
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null
@@ -53386,15 +55624,15 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null
@@ -53442,15 +55680,15 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null
@@ -53501,10 +55739,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
     mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -53540,10 +55778,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
     lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -53579,10 +55817,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
     lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -54028,58 +56266,58 @@ export namespace Prisma {
   export type courseCreateManyUniversityInput = {
     id?: number
     name: string
-    degree_level?: number | null
-    duration_months?: number | null
-    tuition_fee?: Decimal | DecimalJsLike | number | string | null
-    currency?: string | null
+    degree_level: number
+    duration_months: number
+    tuition_fee: Decimal | DecimalJsLike | number | string
+    currency: string
     is_open?: number
     created_at?: Date | string
     updated_at?: Date | string
     code?: string | null
-    url?: string | null
+    url: string
     toefl?: Decimal | DecimalJsLike | number | string | null
     ielts?: Decimal | DecimalJsLike | number | string | null
     det?: number | null
-    is_stem?: number
+    is_stem?: number | null
     intake_month?: string | null
     intake_year?: number | null
-    is_coop_available?: number
-    has_app_fee_waiver?: number
+    is_coop_available?: number | null
+    has_app_fee_waiver?: number | null
     app_fee?: Decimal | DecimalJsLike | number | string | null
     has_tuition_deposit?: number
     has_scholarship?: number
     scholarship_amount?: Decimal | DecimalJsLike | number | string | null
     min_entry_requirements?: string | null
     min_entry_requirements_scale?: string | null
-    has_faster_tat?: number
+    has_faster_tat?: number | null
   }
 
   export type courseUpdateWithoutUniversityInput = {
     name?: StringFieldUpdateOperationsInput | string
-    degree_level?: NullableIntFieldUpdateOperationsInput | number | null
-    duration_months?: NullableIntFieldUpdateOperationsInput | number | null
-    tuition_fee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    degree_level?: IntFieldUpdateOperationsInput | number
+    duration_months?: IntFieldUpdateOperationsInput | number
+    tuition_fee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
     is_open?: IntFieldUpdateOperationsInput | number
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
-    url?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: StringFieldUpdateOperationsInput | string
     toefl?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     ielts?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     det?: NullableIntFieldUpdateOperationsInput | number | null
-    is_stem?: IntFieldUpdateOperationsInput | number
+    is_stem?: NullableIntFieldUpdateOperationsInput | number | null
     intake_month?: NullableStringFieldUpdateOperationsInput | string | null
     intake_year?: NullableIntFieldUpdateOperationsInput | number | null
-    is_coop_available?: IntFieldUpdateOperationsInput | number
-    has_app_fee_waiver?: IntFieldUpdateOperationsInput | number
+    is_coop_available?: NullableIntFieldUpdateOperationsInput | number | null
+    has_app_fee_waiver?: NullableIntFieldUpdateOperationsInput | number | null
     app_fee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     has_tuition_deposit?: IntFieldUpdateOperationsInput | number
     has_scholarship?: IntFieldUpdateOperationsInput | number
     scholarship_amount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     min_entry_requirements?: NullableStringFieldUpdateOperationsInput | string | null
     min_entry_requirements_scale?: NullableStringFieldUpdateOperationsInput | string | null
-    has_faster_tat?: IntFieldUpdateOperationsInput | number
+    has_faster_tat?: NullableIntFieldUpdateOperationsInput | number | null
     application?: applicationUpdateManyWithoutCourseNestedInput
     shortlist?: shortlistUpdateManyWithoutCourseNestedInput
   }
@@ -54087,30 +56325,30 @@ export namespace Prisma {
   export type courseUncheckedUpdateWithoutUniversityInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
-    degree_level?: NullableIntFieldUpdateOperationsInput | number | null
-    duration_months?: NullableIntFieldUpdateOperationsInput | number | null
-    tuition_fee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    degree_level?: IntFieldUpdateOperationsInput | number
+    duration_months?: IntFieldUpdateOperationsInput | number
+    tuition_fee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
     is_open?: IntFieldUpdateOperationsInput | number
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
-    url?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: StringFieldUpdateOperationsInput | string
     toefl?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     ielts?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     det?: NullableIntFieldUpdateOperationsInput | number | null
-    is_stem?: IntFieldUpdateOperationsInput | number
+    is_stem?: NullableIntFieldUpdateOperationsInput | number | null
     intake_month?: NullableStringFieldUpdateOperationsInput | string | null
     intake_year?: NullableIntFieldUpdateOperationsInput | number | null
-    is_coop_available?: IntFieldUpdateOperationsInput | number
-    has_app_fee_waiver?: IntFieldUpdateOperationsInput | number
+    is_coop_available?: NullableIntFieldUpdateOperationsInput | number | null
+    has_app_fee_waiver?: NullableIntFieldUpdateOperationsInput | number | null
     app_fee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     has_tuition_deposit?: IntFieldUpdateOperationsInput | number
     has_scholarship?: IntFieldUpdateOperationsInput | number
     scholarship_amount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     min_entry_requirements?: NullableStringFieldUpdateOperationsInput | string | null
     min_entry_requirements_scale?: NullableStringFieldUpdateOperationsInput | string | null
-    has_faster_tat?: IntFieldUpdateOperationsInput | number
+    has_faster_tat?: NullableIntFieldUpdateOperationsInput | number | null
     application?: applicationUncheckedUpdateManyWithoutCourseNestedInput
     shortlist?: shortlistUncheckedUpdateManyWithoutCourseNestedInput
   }
@@ -54118,30 +56356,30 @@ export namespace Prisma {
   export type courseUncheckedUpdateManyWithoutUniversityInput = {
     id?: IntFieldUpdateOperationsInput | number
     name?: StringFieldUpdateOperationsInput | string
-    degree_level?: NullableIntFieldUpdateOperationsInput | number | null
-    duration_months?: NullableIntFieldUpdateOperationsInput | number | null
-    tuition_fee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
-    currency?: NullableStringFieldUpdateOperationsInput | string | null
+    degree_level?: IntFieldUpdateOperationsInput | number
+    duration_months?: IntFieldUpdateOperationsInput | number
+    tuition_fee?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    currency?: StringFieldUpdateOperationsInput | string
     is_open?: IntFieldUpdateOperationsInput | number
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     code?: NullableStringFieldUpdateOperationsInput | string | null
-    url?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: StringFieldUpdateOperationsInput | string
     toefl?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     ielts?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     det?: NullableIntFieldUpdateOperationsInput | number | null
-    is_stem?: IntFieldUpdateOperationsInput | number
+    is_stem?: NullableIntFieldUpdateOperationsInput | number | null
     intake_month?: NullableStringFieldUpdateOperationsInput | string | null
     intake_year?: NullableIntFieldUpdateOperationsInput | number | null
-    is_coop_available?: IntFieldUpdateOperationsInput | number
-    has_app_fee_waiver?: IntFieldUpdateOperationsInput | number
+    is_coop_available?: NullableIntFieldUpdateOperationsInput | number | null
+    has_app_fee_waiver?: NullableIntFieldUpdateOperationsInput | number | null
     app_fee?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     has_tuition_deposit?: IntFieldUpdateOperationsInput | number
     has_scholarship?: IntFieldUpdateOperationsInput | number
     scholarship_amount?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
     min_entry_requirements?: NullableStringFieldUpdateOperationsInput | string | null
     min_entry_requirements_scale?: NullableStringFieldUpdateOperationsInput | string | null
-    has_faster_tat?: IntFieldUpdateOperationsInput | number
+    has_faster_tat?: NullableIntFieldUpdateOperationsInput | number | null
   }
 
   export type audit_logCreateManyUserInput = {
@@ -54199,15 +56437,15 @@ export namespace Prisma {
     id?: number
     first_name: string
     last_name: string
-    email?: string | null
-    phone?: string | null
-    country?: string | null
-    intake?: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at?: Date | string
     updated_at?: Date | string
     gender?: number | null
     org_id?: number | null
-    date_of_birth?: Date | string | null
+    date_of_birth: Date | string
     nationality?: string | null
     status?: number
     course_level?: number | null
@@ -54247,16 +56485,16 @@ export namespace Prisma {
     id?: number
     first_name: string
     last_name: string
-    email?: string | null
-    phone?: string | null
-    country?: string | null
-    intake?: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at?: Date | string
     updated_at?: Date | string
     gender?: number | null
     org_id?: number | null
     counsellor_id?: number | null
-    date_of_birth?: Date | string | null
+    date_of_birth: Date | string
     nationality?: string | null
     status?: number
     course_level?: number | null
@@ -54444,14 +56682,14 @@ export namespace Prisma {
   export type studentUpdateWithoutUserInput = {
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null
@@ -54500,15 +56738,15 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     org_id?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null
@@ -54556,15 +56794,15 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     org_id?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null
@@ -54603,14 +56841,14 @@ export namespace Prisma {
   export type studentUpdateWithoutCreated_byInput = {
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null
@@ -54659,16 +56897,16 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     org_id?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null
@@ -54715,16 +56953,16 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     org_id?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null
@@ -54776,10 +57014,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     lead_counsellor_id?: number | null
     counsellor_id?: number | null
     bdm_id?: number | null
@@ -54808,10 +57046,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     approved_by_collegepond_user_id?: number | null
     lead_counsellor_id?: number | null
     counsellor_id?: number | null
@@ -54840,10 +57078,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     approved_by_collegepond_user_id?: number | null
     lead_counsellor_id?: number | null
     bdm_id?: number | null
@@ -54872,10 +57110,10 @@ export namespace Prisma {
     date_of_birth?: Date | string | null
     gender?: number | null
     nationality?: string | null
-    address?: string | null
-    city?: string | null
-    state?: string | null
-    country?: string | null
+    address: string
+    city: string
+    state: string
+    country: string
     approved_by_collegepond_user_id?: number | null
     counsellor_id?: number | null
     bdm_id?: number | null
@@ -54898,16 +57136,16 @@ export namespace Prisma {
     id?: number
     first_name: string
     last_name: string
-    email?: string | null
-    phone?: string | null
-    country?: string | null
-    intake?: string | null
+    email: string
+    phone: string
+    country: string
+    intake: string
     created_at?: Date | string
     updated_at?: Date | string
     gender?: number | null
     org_id?: number | null
     counsellor_id?: number | null
-    date_of_birth?: Date | string | null
+    date_of_birth: Date | string
     nationality?: string | null
     status?: number
     course_level?: number | null
@@ -54976,10 +57214,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
     mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -55016,10 +57254,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
     bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -55055,10 +57293,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
     bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -55085,10 +57323,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
     mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -55125,10 +57363,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
     lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -55164,10 +57402,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
     lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -55194,10 +57432,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
     mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -55234,10 +57472,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
     lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
     bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -55273,10 +57511,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
     lead_counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
     bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -55303,10 +57541,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     notes?: NullableStringFieldUpdateOperationsInput | string | null
     tier?: IntFieldUpdateOperationsInput | number
     mou_signed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -55343,10 +57581,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
     bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -55382,10 +57620,10 @@ export namespace Prisma {
     date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
-    address?: NullableStringFieldUpdateOperationsInput | string | null
-    city?: NullableStringFieldUpdateOperationsInput | string | null
-    state?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: StringFieldUpdateOperationsInput | string
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
     approved_by_collegepond_user_id?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
     bdm_id?: NullableIntFieldUpdateOperationsInput | number | null
@@ -55420,14 +57658,14 @@ export namespace Prisma {
   export type studentUpdateWithoutCp_counsellorInput = {
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null
@@ -55476,16 +57714,16 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     org_id?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null
@@ -55532,16 +57770,16 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     first_name?: StringFieldUpdateOperationsInput | string
     last_name?: StringFieldUpdateOperationsInput | string
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    phone?: NullableStringFieldUpdateOperationsInput | string | null
-    country?: NullableStringFieldUpdateOperationsInput | string | null
-    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    intake?: StringFieldUpdateOperationsInput | string
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     gender?: NullableIntFieldUpdateOperationsInput | number | null
     org_id?: NullableIntFieldUpdateOperationsInput | number | null
     counsellor_id?: NullableIntFieldUpdateOperationsInput | number | null
-    date_of_birth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    date_of_birth?: DateTimeFieldUpdateOperationsInput | Date | string
     nationality?: NullableStringFieldUpdateOperationsInput | string | null
     status?: IntFieldUpdateOperationsInput | number
     course_level?: NullableIntFieldUpdateOperationsInput | number | null

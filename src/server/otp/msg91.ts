@@ -1,8 +1,8 @@
 import { env } from "~/env";
+import { checkEmailOtp, issueEmailOtp } from "./email-store";
 
 const OTP_LENGTH = 5;
 const OTP_EXPIRY_MINUTES = 5;
-const EMAIL_EXPIRY_MS = OTP_EXPIRY_MINUTES * 60 * 1000;
 
 interface Msg91Response {
   type?: string;
@@ -55,29 +55,20 @@ export async function verifyPhoneOtp(phoneE164: string, code: string): Promise<b
   return res.ok && data.type === "success";
 }
 
-// ─── Email (we manage OTP ourselves, MSG91 just sends the mail) ─────────────
-
-interface StoredEmailOtp {
-  code: string;
-  expiresAt: number;
-}
-
-const emailStore = new Map<string, StoredEmailOtp>();
-
-function generateCode(): string {
-  return String(Math.floor(10000 + Math.random() * 90000));
-}
+// ─── Email (we own the code; MSG91 just delivers the mail) ──────────────────
+// Code state lives in the DB (./email-store) so it survives restarts / runs
+// across instances and enforces the verify attempt cap (brute-force guard).
 
 export async function sendEmailOtp(email: string): Promise<void> {
   if (!env.MSG91_EMAIL_TEMPLATE_ID || !env.MSG91_EMAIL_FROM || !env.MSG91_EMAIL_DOMAIN) {
     throw new Error("MSG91 email config incomplete");
   }
 
-  const code = generateCode();
-  emailStore.set(email.toLowerCase(), {
-    code,
-    expiresAt: Date.now() + EMAIL_EXPIRY_MS,
-  });
+  const code = await issueEmailOtp(email);
+  if (code === null) {
+    // Resend within the cooldown — the previously sent code is still valid.
+    throw new Error("An OTP was just sent. Please wait before requesting another.");
+  }
 
   await msg91Fetch("https://control.msg91.com/api/v5/email/send", {
     recipients: [{ to: [{ email }], variables: { otp: code } }],
@@ -87,15 +78,6 @@ export async function sendEmailOtp(email: string): Promise<void> {
   });
 }
 
-export async function verifyEmailOtp(email: string, code: string): Promise<boolean> {
-  const key = email.toLowerCase();
-  const entry = emailStore.get(key);
-  if (!entry) return false;
-  if (entry.expiresAt < Date.now()) {
-    emailStore.delete(key);
-    return false;
-  }
-  if (entry.code !== code) return false;
-  emailStore.delete(key);
-  return true;
+export function verifyEmailOtp(email: string, code: string): Promise<boolean> {
+  return checkEmailOtp(email, code);
 }

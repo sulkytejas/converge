@@ -7,6 +7,11 @@ import {
   protectedPartnerProcedure,
 } from "~/server/api/trpc";
 import { AdminRole } from "~/server/db/enums";
+import { resolveStorageUrl } from "~/server/storage";
+
+// M6: defensive cap on unbounded list queries until cursor pagination lands.
+// Generous (won't bite at test-data scale); documented in the README notes.
+const LIST_CAP = 500;
 
 // Two-letter ISO code for the university's country. We accept either an ISO2
 // code or a longer name and normalize to ISO2 server-side, but the form is
@@ -26,7 +31,7 @@ const universityInput = z.object({
     .string()
     .trim()
     .regex(UNI_CODE_REGEX, "Code must be exactly 3 alphanumeric characters"),
-  city: z.string().trim().max(100).nullable().optional(),
+  city: z.string().trim().min(1).max(100),
   country: ISO2,
   // 0 = Public, 1 = Private. Defaults to public.
   type: z.number().int().min(0).max(1).default(0),
@@ -41,12 +46,12 @@ const courseInput = z.object({
   universityId: z.number().int().positive(),
   name: z.string().trim().min(1).max(150),
   code: z.string().trim().max(50).nullable().optional(),
-  degreeLevel: z.number().int().min(0).max(255).nullable().optional(),
-  durationMonths: z.number().int().min(1).max(120).nullable().optional(),
-  tuitionFee: z.number().nonnegative().nullable().optional(),
-  currency: z.string().trim().length(3).nullable().optional(),
+  degreeLevel: z.number().int().min(0).max(255),
+  durationMonths: z.number().int().min(1).max(120),
+  tuitionFee: z.number().nonnegative(),
+  currency: z.string().trim().length(3),
   isOpen: z.boolean().default(true),
-  url: z.string().trim().max(500).nullable().optional(),
+  url: z.string().trim().min(1).max(255),
   toefl: z.number().nonnegative().nullable().optional(),
   ielts: z.number().nonnegative().nullable().optional(),
   det: z.number().int().nonnegative().nullable().optional(),
@@ -115,7 +120,7 @@ function toUniversityApi(u: {
     ranking: u.ranking,
     appSource: u.app_source,
     website: u.website,
-    logoUrl: u.logo_url,
+    logoUrl: resolveStorageUrl(u.logo_url),
     isOpen: u.is_open === 1,
     createdAt: u.created_at.toISOString(),
     updatedAt: u.updated_at.toISOString(),
@@ -136,18 +141,18 @@ function toCourseApi(c: {
   toefl: { toNumber: () => number } | null;
   ielts: { toNumber: () => number } | null;
   det: number | null;
-  is_stem: number;
+  is_stem: number | null;
   intake_month: string | null;
   intake_year: number | null;
-  is_coop_available: number;
-  has_app_fee_waiver: number;
+  is_coop_available: number | null;
+  has_app_fee_waiver: number | null;
   app_fee: { toNumber: () => number } | null;
   has_tuition_deposit: number;
   has_scholarship: number;
   scholarship_amount: { toNumber: () => number } | null;
   min_entry_requirements: string | null;
   min_entry_requirements_scale: string | null;
-  has_faster_tat: number;
+  has_faster_tat: number | null;
   university?: {
     id: number;
     name: string;
@@ -188,7 +193,7 @@ function toCourseApi(c: {
           name: c.university.name,
           country: c.university.country,
           city: c.university.city,
-          logoUrl: c.university.logo_url,
+          logoUrl: resolveStorageUrl(c.university.logo_url),
         }
       : null,
   };
@@ -201,6 +206,7 @@ export const universitiesRouter = createTRPCRouter({
   listUniversities: protectedAdminProcedure.query(async ({ ctx }) => {
     const rows = await ctx.db.university.findMany({
       orderBy: { name: "asc" },
+      take: LIST_CAP,
       include: { _count: { select: { course: true } } },
     });
     return rows.map((u) => ({
@@ -216,7 +222,7 @@ export const universitiesRouter = createTRPCRouter({
         data: {
           name: input.name,
           code: input.code,
-          city: input.city ?? null,
+          city: input.city,
           country: input.country,
           type: input.type,
           ranking: input.ranking ?? null,
@@ -237,7 +243,7 @@ export const universitiesRouter = createTRPCRouter({
         data: {
           name: input.name,
           code: input.code,
-          city: input.city ?? null,
+          city: input.city,
           country: input.country,
           type: input.type,
           ranking: input.ranking ?? null,
@@ -296,6 +302,7 @@ export const universitiesRouter = createTRPCRouter({
           ? { university_id: input.universityId }
           : undefined,
         orderBy: [{ university_id: "asc" }, { name: "asc" }],
+        take: LIST_CAP,
         include: {
           university: {
             select: {
@@ -329,12 +336,12 @@ export const universitiesRouter = createTRPCRouter({
           university_id: input.universityId,
           name: input.name,
           code: input.code,
-          degree_level: input.degreeLevel ?? null,
-          duration_months: input.durationMonths ?? null,
-          tuition_fee: input.tuitionFee ?? null,
-          currency: input.currency ?? null,
+          degree_level: input.degreeLevel,
+          duration_months: input.durationMonths,
+          tuition_fee: input.tuitionFee,
+          currency: input.currency,
           is_open: bool(input.isOpen),
-          url: input.url ?? null,
+          url: input.url,
           toefl: input.toefl ?? null,
           ielts: input.ielts ?? null,
           det: input.det ?? null,
@@ -423,6 +430,7 @@ export const universitiesRouter = createTRPCRouter({
       const rows = await ctx.db.course.findMany({
         where,
         orderBy,
+        take: LIST_CAP,
         include: {
           university: {
             select: {

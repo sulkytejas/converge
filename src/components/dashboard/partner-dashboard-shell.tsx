@@ -32,8 +32,7 @@ export function PartnerDashboardShell({ children }: { children: ReactNode }) {
 
   const userName =
     `${me.data?.firstName ?? ""} ${me.data?.lastName ?? ""}`.trim() ||
-    me.data?.email ||
-    "Partner";
+    (me.data?.email ?? "Partner");
 
   const initials = userName
     .split(" ")

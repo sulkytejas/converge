@@ -393,6 +393,7 @@ export default function AdminUniversitiesPage() {
     }
     if (!uniForm.country.trim() || uniForm.country.length !== 2)
       errs.country = "Country is required";
+    if (!uniForm.city.trim()) errs.city = "City is required";
     setUniErrors(errs);
     if (Object.keys(errs).length) return;
 
@@ -400,7 +401,7 @@ export default function AdminUniversitiesPage() {
       name: uniForm.name.trim(),
       code,
       country: uniForm.country,
-      city: uniForm.city.trim() || null,
+      city: uniForm.city.trim(),
       type: uniForm.type === "private" ? 1 : 0,
       ranking: intOrNull(uniForm.ranking),
       appSource: uniForm.appSource.trim() || null,
@@ -417,22 +418,32 @@ export default function AdminUniversitiesPage() {
   }
 
   function handleSubmitCourse() {
+    const degreeLevel =
+      courseForm.degreeLevel === "" ? null : Number(courseForm.degreeLevel);
+    const durationMonths = intOrNull(courseForm.durationMonths);
+    const tuitionFee = numOrNull(courseForm.tuitionFee);
+    const currency = courseForm.currency.trim();
+    const url = courseForm.url.trim();
     const errs: Record<string, string> = {};
     if (!courseForm.name.trim()) errs.name = "Name is required";
     if (!courseForm.universityId) errs.universityId = "Pick a university";
+    if (degreeLevel === null) errs.degreeLevel = "Degree level is required";
+    if (durationMonths === null) errs.durationMonths = "Duration (months) is required";
+    if (tuitionFee === null) errs.tuitionFee = "Tuition fee is required";
+    if (!currency) errs.currency = "Currency is required";
+    if (!url) errs.url = "Program URL is required";
     setCourseErrors(errs);
     if (Object.keys(errs).length) return;
     createCourse.mutate({
       universityId: Number(courseForm.universityId),
       name: courseForm.name.trim(),
       code: courseForm.code.trim() || null,
-      degreeLevel:
-        courseForm.degreeLevel === "" ? null : Number(courseForm.degreeLevel),
-      durationMonths: intOrNull(courseForm.durationMonths),
-      tuitionFee: numOrNull(courseForm.tuitionFee),
-      currency: courseForm.currency.trim() || null,
+      degreeLevel: degreeLevel!,
+      durationMonths: durationMonths!,
+      tuitionFee: tuitionFee!,
+      currency: currency,
       isOpen: courseForm.isOpen,
-      url: courseForm.url.trim() || null,
+      url: url,
       toefl: numOrNull(courseForm.toefl),
       ielts: numOrNull(courseForm.ielts),
       det: intOrNull(courseForm.det),

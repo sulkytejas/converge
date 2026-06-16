@@ -526,6 +526,20 @@ exports.Prisma.Uni_assist_templateScalarFieldEnum = {
   created_at: 'created_at'
 };
 
+exports.Prisma.Otp_codeScalarFieldEnum = {
+  id: 'id',
+  identifier: 'identifier',
+  code_hash: 'code_hash',
+  expires_at: 'expires_at',
+  attempts: 'attempts',
+  created_at: 'created_at'
+};
+
+exports.Prisma.Schema_migrationsScalarFieldEnum = {
+  version: 'version',
+  applied_at: 'applied_at'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -735,6 +749,15 @@ exports.Prisma.uni_assist_templateOrderByRelevanceFieldEnum = {
   name: 'name'
 };
 
+exports.Prisma.otp_codeOrderByRelevanceFieldEnum = {
+  identifier: 'identifier',
+  code_hash: 'code_hash'
+};
+
+exports.Prisma.schema_migrationsOrderByRelevanceFieldEnum = {
+  version: 'version'
+};
+
 
 exports.Prisma.ModelName = {
   application: 'application',
@@ -762,7 +785,9 @@ exports.Prisma.ModelName = {
   student_work_experience: 'student_work_experience',
   student_test_score: 'student_test_score',
   shortlist: 'shortlist',
-  uni_assist_template: 'uni_assist_template'
+  uni_assist_template: 'uni_assist_template',
+  otp_code: 'otp_code',
+  schema_migrations: 'schema_migrations'
 };
 
 /**

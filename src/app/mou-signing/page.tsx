@@ -62,8 +62,7 @@ export default function MouSigningPage() {
 
   const partnerName =
     `${me.data?.firstName ?? ""} ${me.data?.lastName ?? ""}`.trim() ||
-    me.data?.email ||
-    "Partner";
+    (me.data?.email ?? "Partner");
 
   const rightScrollRef = useRef<HTMLDivElement | null>(null);
 

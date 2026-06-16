@@ -286,6 +286,10 @@ function PersonalInfoForm({
         return;
       }
     }
+    if (!form.dateOfBirth) {
+      onToast("Date of birth is required");
+      return;
+    }
     updateMut.mutate({
       id: student.id,
       firstName: form.firstName.trim(),
@@ -293,7 +297,7 @@ function PersonalInfoForm({
       email: form.email.trim(),
       countryCode: form.phoneCode,
       phone: form.phone.trim(),
-      dateOfBirth: form.dateOfBirth || null,
+      dateOfBirth: form.dateOfBirth,
       gender: form.gender ? Number(form.gender) : null,
       nationality: form.nationality || null,
       country: form.country,

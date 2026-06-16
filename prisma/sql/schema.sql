@@ -41,9 +41,10 @@ CREATE TABLE IF NOT EXISTS `organization` (
 
 
 -- -----------------------------------------------------
--- collegepond_user  (internal staff accounts; carries role)
+-- cp_user  (internal staff accounts; carries role)
+-- (renamed from collegepond_user)
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `collegepond_user` (
+CREATE TABLE IF NOT EXISTS `cp_user` (
   `id`            INT NOT NULL AUTO_INCREMENT,
   `created_at`    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at`    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -79,11 +80,11 @@ CREATE TABLE IF NOT EXISTS `user` (
   `date_of_birth`                   DATE NULL DEFAULT NULL,
   `gender`                          TINYINT(3) UNSIGNED NULL DEFAULT NULL,
   `nationality`                     VARCHAR(2)   NULL DEFAULT NULL,
-  `address`                         VARCHAR(255) NULL DEFAULT NULL,
-  `city`                            VARCHAR(100) NULL DEFAULT NULL,
-  `state`                           VARCHAR(100) NULL DEFAULT NULL,
-  `country`                         VARCHAR(2)   NULL DEFAULT NULL,
-  `approved_by_collegepond_user_id` INT NULL DEFAULT NULL,
+  `address`                         VARCHAR(255) NOT NULL,
+  `city`                            VARCHAR(100) NOT NULL,
+  `state`                           VARCHAR(100) NOT NULL,
+  `country`                         VARCHAR(2)   NOT NULL,
+  `approved_by_cp_user_id`          INT NULL DEFAULT NULL,
   `lead_counsellor_id`              INT NULL DEFAULT NULL,
   `counsellor_id`                   INT NULL DEFAULT NULL,
   `bdm_id`                          INT NULL DEFAULT NULL,
@@ -97,7 +98,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   UNIQUE INDEX `email_UNIQUE`       (`email` ASC) VISIBLE,
   UNIQUE INDEX `tracking_id_UNIQUE` (`tracking_id` ASC) VISIBLE,
   INDEX `fk_user_organization_idx`           (`org_id` ASC) VISIBLE,
-  INDEX `fk_user_collegepond_user1_idx`      (`approved_by_collegepond_user_id` ASC) VISIBLE,
+  INDEX `fk_user_collegepond_user1_idx`      (`approved_by_cp_user_id` ASC) VISIBLE,
   INDEX `fk_user_collegepond_user1_idx1`     (`lead_counsellor_id` ASC) VISIBLE,
   INDEX `fk_user_collegepond_user2_idx`      (`counsellor_id` ASC) VISIBLE,
   INDEX `fk_user_collegepond_user_bdm_idx`   (`bdm_id` ASC) VISIBLE,
@@ -105,16 +106,16 @@ CREATE TABLE IF NOT EXISTS `user` (
     FOREIGN KEY (`org_id`) REFERENCES `organization` (`id`)
     ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_user_approved_by_collegepond_user`
-    FOREIGN KEY (`approved_by_collegepond_user_id`) REFERENCES `collegepond_user` (`id`)
+    FOREIGN KEY (`approved_by_cp_user_id`) REFERENCES `cp_user` (`id`)
     ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `fk_user_lead_counsellor`
-    FOREIGN KEY (`lead_counsellor_id`) REFERENCES `collegepond_user` (`id`)
+    FOREIGN KEY (`lead_counsellor_id`) REFERENCES `cp_user` (`id`)
     ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `fk_user_counsellor`
-    FOREIGN KEY (`counsellor_id`) REFERENCES `collegepond_user` (`id`)
+    FOREIGN KEY (`counsellor_id`) REFERENCES `cp_user` (`id`)
     ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `fk_user_bdm`
-    FOREIGN KEY (`bdm_id`) REFERENCES `collegepond_user` (`id`)
+    FOREIGN KEY (`bdm_id`) REFERENCES `cp_user` (`id`)
     ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE = InnoDB;
 
@@ -127,7 +128,7 @@ CREATE TABLE IF NOT EXISTS `document` (
   `file_name`       VARCHAR(255) NOT NULL,
   `file_url`        VARCHAR(500) NOT NULL,
   `mime_type`       VARCHAR(100) NULL DEFAULT NULL,
-  `is_most_recent`  TINYINT NOT NULL DEFAULT 1,
+  `is_most_recent`  TINYINT(1) NOT NULL DEFAULT 1,
   `doc_type`        VARCHAR(50)  NOT NULL,
   `status`          TINYINT(3) UNSIGNED NOT NULL DEFAULT 0,
   `created_at`      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -182,21 +183,21 @@ CREATE TABLE IF NOT EXISTS `student` (
   `id`                 INT NOT NULL AUTO_INCREMENT,
   `first_name`         VARCHAR(50)  NOT NULL,
   `last_name`          VARCHAR(50)  NOT NULL,
-  `email`              VARCHAR(255) NULL DEFAULT NULL,
-  `phone`              VARCHAR(20)  NULL DEFAULT NULL,
-  `country`            VARCHAR(2)   NULL DEFAULT NULL,  -- destination interest, not nationality
-  `intake`             VARCHAR(20)  NULL DEFAULT NULL,
+  `email`              VARCHAR(255) NOT NULL,
+  `phone`              VARCHAR(20)  NOT NULL,
+  `country`            VARCHAR(2)   NOT NULL,  -- destination interest, not nationality
+  `intake`             VARCHAR(20)  NOT NULL,
   `created_at`         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at`         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `gender`             TINYINT(3) UNSIGNED NULL DEFAULT NULL,
   `org_id`             INT NULL,                        -- NULL for independent counsellors
   `counsellor_id`      INT NULL,                        -- partner-side counsellor (scoping)
-  `date_of_birth`      DATE NULL DEFAULT NULL,
+  `date_of_birth`      DATE NOT NULL,
   `nationality`        VARCHAR(2)  NULL DEFAULT NULL,
   `status`             TINYINT UNSIGNED NOT NULL DEFAULT 0,  -- StudentStatus enum (enums.ts)
   `course_level`       TINYINT UNSIGNED NULL DEFAULT NULL,   -- CourseLevel enum
   `interested_program` VARCHAR(100) NULL DEFAULT NULL,
-  `education_loan`     TINYINT(1) NULL DEFAULT NULL,
+  `needs_edu_loan`     TINYINT(1) NULL DEFAULT NULL,  -- renamed from education_loan
   `apply_through_cp`   TINYINT(1) NULL DEFAULT NULL,
   `cp_counsellor_id`   INT NULL DEFAULT NULL,           -- CP-side assigned counsellor
   `created_by_user_id` INT NULL DEFAULT NULL,           -- partner user who created the record
@@ -227,6 +228,7 @@ CREATE TABLE IF NOT EXISTS `student` (
   `medical_condition_details` VARCHAR(500) NULL DEFAULT NULL,
   `highest_education_level`   TINYINT UNSIGNED NULL DEFAULT NULL,  -- EducationLevel enum
   PRIMARY KEY (`id`),
+  UNIQUE INDEX `student_email_UNIQUE`  (`email` ASC) VISIBLE,
   INDEX `fk_student_organization1_idx` (`org_id` ASC) VISIBLE,
   INDEX `fk_student_user1_idx`         (`counsellor_id` ASC) VISIBLE,
   INDEX `idx_student_status`           (`status` ASC) VISIBLE,
@@ -239,7 +241,7 @@ CREATE TABLE IF NOT EXISTS `student` (
     FOREIGN KEY (`counsellor_id`) REFERENCES `user` (`id`)
     ON DELETE SET NULL ON UPDATE NO ACTION,
   CONSTRAINT `fk_student_cp_counsellor`
-    FOREIGN KEY (`cp_counsellor_id`) REFERENCES `collegepond_user` (`id`)
+    FOREIGN KEY (`cp_counsellor_id`) REFERENCES `cp_user` (`id`)
     ON DELETE SET NULL,
   CONSTRAINT `fk_student_created_by`
     FOREIGN KEY (`created_by_user_id`) REFERENCES `user` (`id`)
@@ -254,7 +256,7 @@ CREATE TABLE IF NOT EXISTS `university` (
   `id`         INT NOT NULL AUTO_INCREMENT,
   `name`       VARCHAR(150) NOT NULL,
   `code`       VARCHAR(50) NULL DEFAULT NULL,             -- Admin-chosen identifier; used by bulk imports + ZIP logo matching
-  `city`       VARCHAR(100) NULL DEFAULT NULL,
+  `city`       VARCHAR(100) NOT NULL,
   `country`    VARCHAR(2)   NOT NULL,
   `type`       TINYINT NOT NULL DEFAULT 0,                -- 0=Public, 1=Private
   `ranking`    SMALLINT UNSIGNED NULL DEFAULT NULL,       -- QS / equivalent ranking
@@ -275,32 +277,32 @@ CREATE TABLE IF NOT EXISTS `university` (
 CREATE TABLE IF NOT EXISTS `course` (
   `id`                            INT NOT NULL AUTO_INCREMENT,
   `name`                          VARCHAR(150) NOT NULL,
-  `degree_level`                  TINYINT(5) UNSIGNED NULL DEFAULT NULL,
-  `duration_months`               SMALLINT NULL DEFAULT NULL,
-  `tuition_fee`                   DECIMAL(12,2) NULL DEFAULT NULL,
-  `currency`                      CHAR(3) NULL DEFAULT NULL,
-  `is_open`                       TINYINT NOT NULL DEFAULT 1,
+  `degree_level`                  TINYINT(5) UNSIGNED NOT NULL,
+  `duration_months`               SMALLINT NOT NULL,
+  `tuition_fee`                   DECIMAL(12,2) NOT NULL,
+  `currency`                      CHAR(3) NOT NULL,
+  `is_open`                       TINYINT(1) NOT NULL DEFAULT 1,
   `created_at`                    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at`                    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `university_id`                 INT NOT NULL,
   `code`                          VARCHAR(50) NULL DEFAULT NULL,
   -- Catalog enrichment fields populated from the Master_B2B import.
-  `url`                           VARCHAR(500)  NULL DEFAULT NULL,
-  `toefl`                         DECIMAL(5,2)  NULL DEFAULT NULL,
-  `ielts`                         DECIMAL(3,1)  NULL DEFAULT NULL,
-  `det`                           SMALLINT UNSIGNED NULL DEFAULT NULL,
-  `is_stem`                       TINYINT NOT NULL DEFAULT 0,
+  `url`                           VARCHAR(255)  NOT NULL,
+  `toefl`                         DECIMAL(5,2) UNSIGNED NULL DEFAULT NULL,
+  `ielts`                         DECIMAL(3,1) UNSIGNED NULL DEFAULT NULL,
+  `duolingo`                      SMALLINT UNSIGNED NULL DEFAULT NULL,  -- renamed from det
+  `is_stem`                       TINYINT(1) NULL DEFAULT NULL,
   `intake_month`                  VARCHAR(50)   NULL DEFAULT NULL,
   `intake_year`                   SMALLINT UNSIGNED NULL DEFAULT NULL,
-  `is_coop_available`             TINYINT NOT NULL DEFAULT 0,
-  `has_app_fee_waiver`            TINYINT NOT NULL DEFAULT 0,
-  `app_fee`                       DECIMAL(10,2) NULL DEFAULT NULL,
-  `has_tuition_deposit`           TINYINT NOT NULL DEFAULT 0,
-  `has_scholarship`               TINYINT NOT NULL DEFAULT 0,
-  `scholarship_amount`            DECIMAL(12,2) NULL DEFAULT NULL,
-  `min_entry_requirements`        VARCHAR(50)   NULL DEFAULT NULL,
+  `is_coop_available`             TINYINT(1) NULL DEFAULT NULL,
+  `has_app_fee_waiver`            TINYINT(1) NULL DEFAULT NULL,
+  `app_fee`                       DECIMAL(7,2) UNSIGNED NULL DEFAULT NULL,
+  `has_tuition_deposit`           TINYINT(1) NOT NULL DEFAULT 0,
+  `has_scholarship`               TINYINT(1) NOT NULL DEFAULT 0,
+  `scholarship_amount`            DECIMAL(12,2) UNSIGNED NULL DEFAULT NULL,
+  `min_entry_req`                 VARCHAR(50)   NULL DEFAULT NULL,  -- renamed from min_entry_requirements
   `min_entry_requirements_scale`  VARCHAR(20)   NULL DEFAULT NULL,
-  `has_faster_tat`                TINYINT NOT NULL DEFAULT 0,
+  `has_faster_tat`                TINYINT(1) NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_course_university1_idx` (`university_id` ASC) VISIBLE,
   UNIQUE INDEX `code_UNIQUE`        (`code` ASC) VISIBLE,
@@ -543,7 +545,7 @@ CREATE TABLE IF NOT EXISTS `uni_assist_template` (
   PRIMARY KEY (`id`),
   INDEX `fk_uni_assist_template_cp_user_idx` (`collegepond_user_id` ASC) VISIBLE,
   CONSTRAINT `fk_uni_assist_template_cp_user`
-    FOREIGN KEY (`collegepond_user_id`) REFERENCES `collegepond_user` (`id`)
+    FOREIGN KEY (`collegepond_user_id`) REFERENCES `cp_user` (`id`)
     ON DELETE CASCADE
 ) ENGINE = InnoDB;
 
@@ -571,7 +573,7 @@ CREATE TABLE IF NOT EXISTS `student_note` (
     FOREIGN KEY (`student_id`) REFERENCES `student` (`id`)
     ON DELETE CASCADE,
   CONSTRAINT `fk_note_cp_user`
-    FOREIGN KEY (`collegepond_user_id`) REFERENCES `collegepond_user` (`id`)
+    FOREIGN KEY (`collegepond_user_id`) REFERENCES `cp_user` (`id`)
     ON DELETE SET NULL
 ) ENGINE = InnoDB;
 
@@ -732,8 +734,37 @@ CREATE TABLE IF NOT EXISTS `shortlist` (
     FOREIGN KEY (`course_id`) REFERENCES `course` (`id`)
     ON DELETE CASCADE,
   CONSTRAINT `fk_shortlist_cp_user`
-    FOREIGN KEY (`collegepond_user_id`) REFERENCES `collegepond_user` (`id`)
+    FOREIGN KEY (`collegepond_user_id`) REFERENCES `cp_user` (`id`)
     ON DELETE SET NULL
+) ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- otp_code  (email OTP store; phone OTPs are managed by MSG91 server-side)
+-- One row per email identifier: replaced on resend, deleted on success /
+-- expiry / after MAX attempts. Codes are stored hashed; powers the verify
+-- attempt cap that blocks 5-digit brute force.
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `otp_code` (
+  `id`         INT NOT NULL AUTO_INCREMENT,
+  `identifier` VARCHAR(255) NOT NULL,
+  `code_hash`  VARCHAR(64)  NOT NULL,
+  `expires_at` TIMESTAMP NOT NULL,
+  `attempts`   TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `uq_otp_identifier` (`identifier` ASC) VISIBLE
+) ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- schema_migrations  (tracks applied delta files — see scripts/db-apply.sh)
+-- Present in the canonical schema so fresh DBs and diffs both include it.
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `schema_migrations` (
+  `version`    VARCHAR(255) NOT NULL,
+  `applied_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`version`)
 ) ENGINE = InnoDB;
 
 

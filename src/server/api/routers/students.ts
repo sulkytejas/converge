@@ -7,6 +7,10 @@ import {
 } from "~/server/api/trpc";
 import { decryptSecret, encryptSecret } from "~/server/crypto";
 import { db } from "~/server/db";
+import { resolveStorageUrl } from "~/server/storage";
+
+// M6: defensive cap on unbounded list queries until cursor pagination lands.
+const LIST_CAP = 500;
 import {
   APP_TO_STUDENT_STATUS,
   COURSE_LEVEL_CODES,
@@ -196,7 +200,7 @@ function toCourseCard(c: {
     university: c.university.name,
     universityCity: c.university.city,
     universityCountry: c.university.country,
-    universityLogoUrl: c.university.logo_url,
+    universityLogoUrl: resolveStorageUrl(c.university.logo_url),
     universityAppSource: c.university.app_source,
   };
 }
@@ -286,6 +290,8 @@ const createFields = z.object({
   // Destination country of interest (ISO2).
   country: z.string().trim().length(2).transform((v) => v.toUpperCase()),
   intake: z.string().trim().min(1).max(20),
+  // date_of_birth is NOT NULL in the DB, so it's required at creation.
+  dateOfBirth: dateStringSchema,
   courseLevel: z
     .number()
     .int()
@@ -314,11 +320,10 @@ async function findDuplicate(
   phone: string,
   where: Record<string, unknown>,
 ) {
+  // phone is NOT NULL, so every student is a phone-match candidate; we scan the
+  // whole in-scope set and match by email or phone-digits in JS below.
   const candidates = await db.student.findMany({
-    where: {
-      ...where,
-      OR: [{ email: email.toLowerCase() }, { phone: { not: null } }],
-    },
+    where,
     select: {
       id: true,
       first_name: true,
@@ -392,6 +397,7 @@ export const studentsRouter = createTRPCRouter({
   listLite: protectedAdminProcedure.query(async () => {
     const rows = await db.student.findMany({
       orderBy: [{ first_name: "asc" }, { last_name: "asc" }],
+      take: LIST_CAP,
       select: {
         id: true,
         first_name: true,
@@ -412,6 +418,7 @@ export const studentsRouter = createTRPCRouter({
   adminList: protectedAdminProcedure.query(async () => {
     const rows = await db.student.findMany({
       orderBy: { updated_at: "desc" },
+      take: LIST_CAP,
       include: studentInclude,
     });
     return rows.map(toApi);
@@ -450,6 +457,7 @@ export const studentsRouter = createTRPCRouter({
           phone: normalizePhone(input.countryCode, input.phone),
           country: input.country,
           intake: input.intake,
+          date_of_birth: new Date(input.dateOfBirth),
           status: 0,
           course_level: input.courseLevel,
           interested_program: input.interestedProgram,
@@ -553,7 +561,7 @@ export const studentsRouter = createTRPCRouter({
           id: d.id,
           docType: d.doc_type,
           fileName: d.file_name,
-          fileUrl: d.file_url,
+          fileUrl: resolveStorageUrl(d.file_url),
           mimeType: d.mime_type,
           sizeBytes: d.size_bytes,
           isMostRecent: d.is_most_recent === 1,
@@ -644,7 +652,6 @@ export const studentsRouter = createTRPCRouter({
     .input(
       createFields.extend({
         id: z.number().int().positive(),
-        dateOfBirth: dateStringSchema.nullable(),
         gender: z
           .number()
           .int()
@@ -752,7 +759,7 @@ export const studentsRouter = createTRPCRouter({
           last_name: input.lastName,
           email: input.email.toLowerCase(),
           phone: normalizePhone(input.countryCode, input.phone),
-          date_of_birth: input.dateOfBirth ? new Date(input.dateOfBirth) : null,
+          date_of_birth: new Date(input.dateOfBirth),
           gender: input.gender,
           nationality: input.nationality,
           country: input.country,
@@ -1628,6 +1635,7 @@ export const studentsRouter = createTRPCRouter({
     const rows = await db.student.findMany({
       where,
       orderBy: { updated_at: "desc" },
+      take: LIST_CAP,
       include: studentInclude,
     });
     // Partners don't see CP-internal assignment details.
@@ -1648,26 +1656,46 @@ export const studentsRouter = createTRPCRouter({
       if (duplicate) return { ok: false as const, duplicate };
       void where;
 
-      const created = await db.student.create({
-        data: {
-          first_name: input.firstName,
-          last_name: input.lastName,
-          email: input.email.toLowerCase(),
-          phone: normalizePhone(input.countryCode, input.phone),
-          country: input.country,
-          intake: input.intake,
-          status: 0,
-          course_level: input.courseLevel,
-          interested_program: input.interestedProgram,
-          education_loan: input.educationLoan ? 1 : 0,
-          apply_through_cp: input.applyThroughCp ? 1 : 0,
-          org_id: user.org_id,
-          created_by_user_id: user.id,
-          counsellor_id:
-            user.type === UserType.AGENCY_COUNSELLOR ? user.id : null,
-        },
-        include: studentInclude,
-      });
-      return { ok: true as const, student: toPartnerApi(created) };
+      try {
+        const created = await db.student.create({
+          data: {
+            first_name: input.firstName,
+            last_name: input.lastName,
+            email: input.email.toLowerCase(),
+            phone: normalizePhone(input.countryCode, input.phone),
+            country: input.country,
+            intake: input.intake,
+            date_of_birth: new Date(input.dateOfBirth),
+            status: 0,
+            course_level: input.courseLevel,
+            interested_program: input.interestedProgram,
+            education_loan: input.educationLoan ? 1 : 0,
+            apply_through_cp: input.applyThroughCp ? 1 : 0,
+            org_id: user.org_id,
+            created_by_user_id: user.id,
+            counsellor_id:
+              user.type === UserType.AGENCY_COUNSELLOR ? user.id : null,
+          },
+          include: studentInclude,
+        });
+        return { ok: true as const, student: toPartnerApi(created) };
+      } catch (e) {
+        // student.email is globally UNIQUE, but findDuplicate above is
+        // org-scoped — a collision with a student in another org slips through
+        // and surfaces as a Prisma P2002. Return a neutral conflict instead of
+        // a 500, and don't leak the other org's record.
+        if (
+          e &&
+          typeof e === "object" &&
+          "code" in e &&
+          (e as { code?: string }).code === "P2002"
+        ) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "A student with this email address already exists.",
+          });
+        }
+        throw e;
+      }
     }),
 });
