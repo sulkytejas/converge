@@ -2,55 +2,90 @@
 # DigitalOcean App Platform spec for Converge
 # Docs: https://docs.digitalocean.com/products/app-platform/reference/app-spec/
 #
-# Apply with:  doctl apps create --spec .do/app.yaml   (or update --spec)
+# This documents the ACTUAL working configuration of the deployed app
+# (app id 19cda1e2-324f-48fb-a59a-f2ff93088ada). The live app was created with
+# `doctl apps create --spec` and App Platform stores its OWN copy of the spec —
+# so editing this file does NOT change the running app. It is the source-of-truth
+# / disaster-recovery reference and a template for re-creation.
 #
-# SECRETS: values marked `type: SECRET` MUST be set to real values in the DO
-# dashboard (or via doctl) — do NOT commit real secrets here. Generate:
-#   AUTH_SECRET / CREDENTIAL_ENCRYPTION_KEY:  openssl rand -base64 48
-# (use a DISTINCT value for each — see audit H3).
+#   Re-apply:   doctl apps update <app-id> --spec .do/app.yaml
+#   Re-create:  doctl apps create        --spec .do/app.yaml
+# (Fill the SECRET placeholders first — NEVER commit real secrets here.)
+#
+# Generate the two app secrets (use a DISTINCT value for each):
+#   openssl rand -base64 48
 # =============================================================================
 name: converge
-region: blr1 # match your Managed MySQL + Spaces region
+region: blr # App Platform region slug for Bangalore. NOT "blr1" (that's the
+            # datacenter slug and is rejected here). Co-located with the Managed
+            # MySQL cluster's blr1 datacenter.
 
-databases:
-  - name: converge-db
-    engine: MYSQL
-    version: "8"
-    production: true
-    # cluster_name: <existing-cluster>   # uncomment to attach an existing cluster
+# NOTE: We deliberately do NOT use App Platform's managed-database binding
+# (`databases:` block + ${db.DATABASE_URL}). The `defaultdb` was bootstrapped by
+# hand (schema.sql + seed), so we point at it with an explicit DATABASE_URL below
+# for deterministic targeting. The DB firewall is locked so this app is the only
+# trusted source.
 
 services:
   - name: web
     github:
       repo: sulkytejas/converge
-      branch: main
-      deploy_on_push: true
+      branch: do-migration-prep
+      deploy_on_push: false # MANUAL deploys only — a git push does NOT redeploy
+                            # prod. Deploy on demand with:
+                            #   doctl apps create-deployment <app-id>
+                            # (or the dashboard "Deploy" button). The app still
+                            # tracks the branch and builds its latest commit.
     environment_slug: node-js
-    instance_size_slug: basic-xs
-    instance_count: 1 # in-process rate limiters assume 1 instance (see audit H1/H6)
+    instance_size_slug: basic-xs # 1 vCPU / 1 GiB
+    instance_count: 1 # in-process rate limiters assume a single instance (audit H1/H6)
     http_port: 3000
-    # Env validation is skipped at build (secrets/DB are injected at run time);
-    # `npm run build` runs `prisma generate && next build`.
-    build_command: SKIP_ENV_VALIDATION=1 npm run build
+
+    # `npm run build` = `prisma generate && next build`. Two build-time gotchas
+    # are encoded in this command:
+    #   1. Dummy DATABASE_URL — `next build` imports every route module under
+    #      NODE_ENV=production, which constructs the Prisma client from
+    #      DATABASE_URL. That var is RUN_TIME-only (absent at build), so the
+    #      constructor throws during "Collecting page data". The dummy lets it
+    #      construct; it never connects (page-data collection runs no queries).
+    #      The real URL is injected at run time (see envs).
+    #   2. SKIP_ENV_VALIDATION=1 — so @t3-oss/env doesn't fail the build on the
+    #      (intentionally) absent run-time secrets.
+    build_command: DATABASE_URL='mysql://build:build@localhost:3306/build' SKIP_ENV_VALIDATION=1 npm run build
     run_command: npm run start
+
     health_check:
-      http_path: /api/health
-      initial_delay_seconds: 20
+      http_path: /api/health # SELECT 1 — confirms process up AND DB reachable
+      initial_delay_seconds: 30
       period_seconds: 30
+      timeout_seconds: 5
+      failure_threshold: 5
+
     envs:
+      # NODE_ENV is RUN_TIME ONLY. At BUILD time, NODE_ENV=production makes npm
+      # skip devDependencies (tailwindcss, @tailwindcss/postcss, typescript,
+      # postcss) → "Cannot find module '@tailwindcss/postcss'". `next build`
+      # produces a production build regardless of NODE_ENV.
       - key: NODE_ENV
-        scope: RUN_AND_BUILD_TIME
+        scope: RUN_TIME
         value: production
 
-      # --- Managed MySQL bindings (from the `databases` block above) ---
+      # --- Managed MySQL (explicit connection string → defaultdb) ---
+      # Format: mysql://doadmin:<password>@<host>:25060/defaultdb
       - key: DATABASE_URL
         scope: RUN_TIME
-        value: ${converge-db.DATABASE_URL}
-      - key: DATABASE_CA_CERT # consumed by src/server/db.ts for strict TLS
+        type: SECRET
+        value: REPLACE_IN_DASHBOARD
+      # CA cert PEM (downloaded from the cluster). Enables strict TLS
+      # verification (db.ts: sslaccept=strict). Without it, the connection is
+      # encrypted but unverified. Public cert, but multi-line.
+      - key: DATABASE_CA_CERT
         scope: RUN_TIME
-        value: ${converge-db.CA_CERT}
+        value: REPLACE_IN_DASHBOARD
 
-      # --- App secrets (set real values in the dashboard) ---
+      # --- App secrets — DISTINCT values, and keep them STABLE across deploys.
+      # Rotating AUTH_SECRET logs everyone out; rotating CREDENTIAL_ENCRYPTION_KEY
+      # makes already-encrypted portal credentials undecryptable (data loss). ---
       - key: AUTH_SECRET
         scope: RUN_TIME
         type: SECRET
@@ -61,9 +96,36 @@ services:
         value: REPLACE_IN_DASHBOARD
       - key: ADMIN_EMAIL
         scope: RUN_TIME
-        value: ""
+        value: services@collegepond.com
 
-      # --- MSG91 (OTP) — required in production (app refuses sandbox fallback) ---
+      # --- DigitalOcean Spaces (file uploads) ---
+      - key: SPACES_KEY
+        scope: RUN_TIME
+        type: SECRET
+        value: REPLACE_IN_DASHBOARD
+      - key: SPACES_SECRET
+        scope: RUN_TIME
+        type: SECRET
+        value: REPLACE_IN_DASHBOARD
+      - key: SPACES_BUCKET
+        scope: RUN_TIME
+        value: converge-assets
+      - key: SPACES_REGION
+        scope: RUN_TIME
+        value: sgp1 # BLR1 Spaces creates were disabled; sgp1 is fine (object
+                    # storage over HTTPS — region isn't latency-critical).
+      - key: SPACES_ENDPOINT
+        scope: RUN_TIME
+        value: https://sgp1.digitaloceanspaces.com
+      # Optional CDN base for PUBLIC logos; unset = serve from the bucket origin.
+      # - key: SPACES_CDN_URL
+      #   scope: RUN_TIME
+      #   value: https://converge-assets.sgp1.cdn.digitaloceanspaces.com
+
+      # --- MSG91 (OTP + transactional email) — REQUIRED for login, NOT yet wired
+      # on the live app. Until set, login pages load but OTP can't be sent.
+      # SMS template → admin login; email template + verified domain → partner
+      # login. All are optional in env.js so the app boots without them.
       - key: MSG91_AUTH_KEY
         scope: RUN_TIME
         type: SECRET
@@ -80,25 +142,7 @@ services:
       - key: MSG91_EMAIL_DOMAIN
         scope: RUN_TIME
         value: ""
-
-      # --- DigitalOcean Spaces (file uploads) — required in production ---
-      - key: SPACES_KEY
-        scope: RUN_TIME
-        type: SECRET
-        value: REPLACE_IN_DASHBOARD
-      - key: SPACES_SECRET
-        scope: RUN_TIME
-        type: SECRET
-        value: REPLACE_IN_DASHBOARD
-      - key: SPACES_BUCKET
-        scope: RUN_TIME
-        value: ""
-      - key: SPACES_REGION
-        scope: RUN_TIME
-        value: "" # e.g. blr1
-      - key: SPACES_ENDPOINT
-        scope: RUN_TIME
-        value: "" # e.g. https://blr1.digitaloceanspaces.com
-      - key: SPACES_CDN_URL
-        scope: RUN_TIME
-        value: ""
+      # - key: MSG91_ADMIN_NOTIFY_TEMPLATE_ID  # transactional: admin signup notify
+      #   value: ""
+      # - key: MSG91_MOREINFO_TEMPLATE_ID      # transactional: partner more-info
+      #   value: ""
