@@ -4,7 +4,8 @@ import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Sidebar } from "./sidebar";
 import { Topbar, type NotificationItem } from "./topbar";
-import { NAV_SECTIONS, ROLE_OPTIONS, type AdminRole } from "./nav-config";
+import { NAV_SECTIONS } from "./nav-config";
+import { AdminRoleLabel, isAdminRole } from "~/server/db/enums";
 import { api } from "~/trpc/react";
 
 const STORAGE_KEY = "cp-sidebar-collapsed";
@@ -47,7 +48,6 @@ const DEFAULT_NOTIFICATIONS: NotificationItem[] = [
 
 export interface DashboardShellProps {
   children: ReactNode;
-  initialRole?: AdminRole;
   badges?: Record<string, number | string | undefined>;
   notifications?: NotificationItem[];
   taskCount?: number;
@@ -55,7 +55,6 @@ export interface DashboardShellProps {
 
 export function DashboardShell({
   children,
-  initialRole = "super_admin",
   badges = { approvals: 7 },
   notifications = DEFAULT_NOTIFICATIONS,
   taskCount = 0,
@@ -63,9 +62,10 @@ export function DashboardShell({
   const router = useRouter();
   const utils = api.useUtils();
   const logout = api.authSession.logout.useMutation();
+  // Real signed-in admin (collegepond_user) — drives the profile name/role.
+  const me = api.authSession.me.useQuery().data;
 
   const [collapsed, setCollapsed] = useState(false);
-  const [role, setRole] = useState<AdminRole>(initialRole);
 
   // Hydrate collapsed state from localStorage on mount
   useEffect(() => {
@@ -91,8 +91,9 @@ export function DashboardShell({
     });
   }, []);
 
-  const activeRole = ROLE_OPTIONS.find((r) => r.value === role) ?? ROLE_OPTIONS[0]!;
-  const initials = activeRole.name
+  const userName = me ? `${me.firstName} ${me.lastName}`.trim() : "";
+  const roleLabel = me && isAdminRole(me.role) ? AdminRoleLabel[me.role] : "";
+  const initials = userName
     .split(" ")
     .map((w) => w[0])
     .filter(Boolean)
@@ -107,35 +108,13 @@ export function DashboardShell({
         sections={NAV_SECTIONS}
         logoSubtitle="Admin Portal"
         badges={badges}
-        footer={
-          <>
-            <label
-              htmlFor="role-switcher"
-              className="mb-1.5 block text-[11px] font-semibold tracking-wider text-[#98A2B3] uppercase"
-            >
-              Demo as
-            </label>
-            <select
-              id="role-switcher"
-              value={role}
-              onChange={(e) => setRole(e.target.value as AdminRole)}
-              className="w-full cursor-pointer rounded-md border border-[#D0D5DD] bg-white px-2.5 py-1.5 text-[13px] text-[#344054] outline-none transition-colors focus:border-[#1570EF] focus:shadow-[0_0_0_3px_rgba(21,112,239,0.12)]"
-            >
-              {ROLE_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label} — {opt.name}
-                </option>
-              ))}
-            </select>
-          </>
-        }
       />
       <Topbar
         collapsed={collapsed}
         onToggleSidebar={toggleSidebar}
-        userName={activeRole.name}
+        userName={userName}
         userInitials={initials}
-        roleLabel={activeRole.label}
+        roleLabel={roleLabel}
         notifications={notifications}
         taskCount={taskCount}
         onLogout={handleLogout}

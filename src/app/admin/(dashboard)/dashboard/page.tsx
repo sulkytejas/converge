@@ -1,10 +1,17 @@
+"use client";
+
+import { api } from "~/trpc/react";
+
 export default function DashboardPage() {
+  const me = api.authSession.me.useQuery().data;
+  const firstName = me?.firstName ?? "";
+
   return (
     <>
       <div className="mb-6 flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold text-[#101828]">
-            Welcome back, Suraj
+            Welcome back{firstName ? `, ${firstName}` : ""}
           </h1>
           <p className="mt-1 text-sm text-[#667085]">
             Here&apos;s what&apos;s happening across Collegepond today.

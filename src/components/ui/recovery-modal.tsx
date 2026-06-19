@@ -90,7 +90,7 @@ const defaultOptions: RecoveryOption[] = [
           For immediate access, contact your Super Admin who can unlock your account from the <strong>Users</strong> page.
         </p>
         <div className="mt-3 text-xs text-[#667085]">
-          <strong>Super Admin:</strong> suraj@collegepond.com
+          <strong>Super Admin:</strong> services@collegepond.com
         </div>
       </div>
     ),
@@ -112,7 +112,7 @@ const defaultOptions: RecoveryOption[] = [
         <p className="mb-3 text-[13px] leading-relaxed text-[#344054]">For any other login issues, please contact:</p>
         <div className="text-[13px] leading-loose text-[#344054]">
           <strong>IT Support:</strong> it-support@collegepond.com<br />
-          <strong>Super Admin:</strong> suraj@collegepond.com<br />
+          <strong>Super Admin:</strong> services@collegepond.com<br />
           <strong>Hours:</strong> Mon-Fri, 9:00 AM - 6:00 PM IST
         </div>
       </div>
