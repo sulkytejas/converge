@@ -70,7 +70,7 @@ export function Sidebar({
                 {section.label}
               </div>
             )}
-            {section.items.map((item) => (
+            {section.items.filter((item) => !item.hidden).map((item) => (
               <NavLink
                 key={item.href}
                 item={item}

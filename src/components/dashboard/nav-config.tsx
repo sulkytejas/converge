@@ -33,6 +33,9 @@ export interface NavItem {
   icon: ReactNode;
   badgeKey?: string;
   disabled?: boolean;
+  /** Hidden from the sidebar entirely — kept in the config so it's trivial to
+   *  re-enable later (the route/page still exists). Filtered out in Sidebar. */
+  hidden?: boolean;
   roles?: AdminRole[];
 }
 
@@ -75,10 +78,14 @@ export const NAV_SECTIONS: NavSection[] = [
         icon: <ApprovalsIcon />,
         badgeKey: "approvals",
       },
+      // TAT Management — HIDDEN for now (gated off until the feature is ready).
+      // The route/page at /admin/tat-management still exists and stays admin-gated;
+      // set `hidden: false` (or delete the flag) to bring the tab back in the nav.
       {
         label: "TAT Management",
         href: "/admin/tat-management",
         icon: <ClockIcon />,
+        hidden: true,
       },
       { label: "Uni Assist", href: "/admin/uni-assist", icon: <SearchIcon /> },
     ],

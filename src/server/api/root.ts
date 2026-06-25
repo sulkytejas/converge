@@ -1,6 +1,7 @@
 import { accountRouter } from "~/server/api/routers/account";
 import { authRouter } from "~/server/api/routers/auth";
 import { authSessionRouter } from "~/server/api/routers/auth-session";
+import { dashboardRouter } from "~/server/api/routers/dashboard";
 import { signupRouter } from "~/server/api/routers/signup";
 import { adminAuthRouter } from "~/server/api/routers/admin-auth";
 import { usersRouter } from "~/server/api/routers/users";
@@ -19,6 +20,7 @@ export const appRouter = createTRPCRouter({
   partners: partnersRouter,
   universities: universitiesRouter,
   students: studentsRouter,
+  dashboard: dashboardRouter,
 });
 
 export type AppRouter = typeof appRouter;
