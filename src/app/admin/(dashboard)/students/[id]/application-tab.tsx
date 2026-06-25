@@ -34,8 +34,8 @@ import { LeadPipeline } from "./lead-pipeline";
 // Pipeline config (mirrors the mock's APP_STAGES / STAGE_ALTERNATIVES)
 // ---------------------------------------------------------------------------
 
-// Happy-path stages, in order (UniApplicationStatus 0–7).
-const PIPELINE_STAGES = [0, 1, 2, 3, 4, 5, 6, 7] as const;
+// Happy-path stages, in order (UniApplicationStatus 0–8, ending at Enrolled).
+const PIPELINE_STAGES = [0, 1, 2, 3, 4, 5, 6, 7, 8] as const;
 
 interface StageOption {
   label: string;
@@ -109,6 +109,7 @@ const STAGE_OPTIONS: Record<number, StageOption[]> = {
   ],
   7: [
     { label: "Visa Secured", kind: "current" },
+    { label: "Advance to Enrolled", kind: "advance", to: 8 },
     {
       label: "Visa Rejected",
       kind: "terminal",
@@ -125,6 +126,10 @@ const STAGE_OPTIONS: Record<number, StageOption[]> = {
       kind: "terminal",
       to: UniApplicationStatus.COURSE_CLOSED,
     },
+  ],
+  8: [
+    { label: "Enrolled", kind: "current" },
+    { label: "Revert to Visa Secured", kind: "revert", to: 7 },
   ],
 };
 

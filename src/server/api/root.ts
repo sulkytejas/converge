@@ -8,6 +8,7 @@ import { usersRouter } from "~/server/api/routers/users";
 import { partnersRouter } from "~/server/api/routers/partners";
 import { universitiesRouter } from "~/server/api/routers/universities";
 import { studentsRouter } from "~/server/api/routers/students";
+import { placementsRouter } from "~/server/api/routers/placements";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 
 export const appRouter = createTRPCRouter({
@@ -20,6 +21,7 @@ export const appRouter = createTRPCRouter({
   partners: partnersRouter,
   universities: universitiesRouter,
   students: studentsRouter,
+  placements: placementsRouter,
   dashboard: dashboardRouter,
 });
 

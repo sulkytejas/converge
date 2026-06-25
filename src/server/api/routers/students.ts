@@ -212,7 +212,7 @@ function currentStage(
   status: number,
   history: Array<{ stage: number }>,
 ): number {
-  if (status <= UniApplicationStatus.VISA_SECURED) return status;
+  if (status <= UniApplicationStatus.ENROLLED) return status;
   if (history.length > 0) return Math.max(...history.map((h) => h.stage));
   return (
     TERMINAL_FALLBACK_STAGE[status] ?? UniApplicationStatus.VISA_SECURED
@@ -1320,7 +1320,7 @@ export const studentsRouter = createTRPCRouter({
           update: bumpDate ? { occurred_at: new Date() } : {},
         });
 
-      if (target <= UniApplicationStatus.VISA_SECURED) {
+      if (target <= UniApplicationStatus.ENROLLED) {
         if (target < stageBefore) {
           // Revert: drop history above the target (undo an accidental
           // advance), keep the target entry's original date.

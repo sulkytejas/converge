@@ -22,10 +22,16 @@ const OFFER_OR_BEYOND = [
   UniApplicationStatus.UNCONDITIONAL_OFFER,
   UniApplicationStatus.DEPOSIT_PAID,
   UniApplicationStatus.VISA_SECURED,
+  UniApplicationStatus.ENROLLED,
 ];
 const DEPOSIT_OR_BEYOND = [
   UniApplicationStatus.DEPOSIT_PAID,
   UniApplicationStatus.VISA_SECURED,
+  UniApplicationStatus.ENROLLED,
+];
+const VISA_OR_BEYOND = [
+  UniApplicationStatus.VISA_SECURED,
+  UniApplicationStatus.ENROLLED,
 ];
 
 // Trend pill shape returned with each admin KPI (null = nothing to compare).
@@ -283,7 +289,7 @@ export const dashboardRouter = createTRPCRouter({
         where: { ...appWhere, status: { in: DEPOSIT_OR_BEYOND } },
       }),
       db.application.count({
-        where: { ...appWhere, status: UniApplicationStatus.VISA_SECURED },
+        where: { ...appWhere, status: { in: VISA_OR_BEYOND } },
       }),
       db.student.count({
         where: { ...studentWhere, created_at: { gte: yearStart } },

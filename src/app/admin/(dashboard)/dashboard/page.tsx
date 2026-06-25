@@ -40,6 +40,7 @@ const FUNNEL_STAGES: { status: number; color: string }[] = [
   { status: 5, color: "#6941C6" },
   { status: 6, color: "#F79009" },
   { status: 7, color: "#12B76A" },
+  { status: 8, color: "#039855" },
 ];
 
 const COUNTRY_PALETTE = [

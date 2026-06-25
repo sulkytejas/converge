@@ -147,6 +147,7 @@ export const StudentStatus = {
   VISA_REJECTED: 42,
   DEFERRED_TO_NEXT_INTAKE: 43,
   COURSE_CLOSED: 44,
+  ENROLLED: 45,
 } as const;
 export type StudentStatus = (typeof StudentStatus)[keyof typeof StudentStatus];
 
@@ -172,6 +173,7 @@ export const StudentStatusLabel: Record<StudentStatus, string> = {
   [StudentStatus.VISA_REJECTED]: "Visa Rejected",
   [StudentStatus.DEFERRED_TO_NEXT_INTAKE]: "Deferred to Next Intake",
   [StudentStatus.COURSE_CLOSED]: "Course Closed",
+  [StudentStatus.ENROLLED]: "Enrolled",
 };
 
 export const STUDENT_STATUS_CODES = Object.values(
@@ -360,6 +362,9 @@ export const UniApplicationStatus = {
   UNCONDITIONAL_OFFER: 5,
   DEPOSIT_PAID: 6,
   VISA_SECURED: 7,
+  // Final happy-path stage: student confirmed enrolled at the university.
+  // Set from the Student Placements page once visa is secured.
+  ENROLLED: 8,
   REJECTED_BY_UNIVERSITY: 20,
   APPLICATION_WITHDRAWAL: 21,
   DECLINED_BY_STUDENT: 22,
@@ -386,6 +391,7 @@ export const APP_TO_STUDENT_STATUS: Record<UniApplicationStatus, StudentStatus> 
   [UniApplicationStatus.UNCONDITIONAL_OFFER]: StudentStatus.UNCONDITIONAL_OFFER,
   [UniApplicationStatus.DEPOSIT_PAID]: StudentStatus.DEPOSIT_PAID,
   [UniApplicationStatus.VISA_SECURED]: StudentStatus.VISA_SECURED,
+  [UniApplicationStatus.ENROLLED]: StudentStatus.ENROLLED,
   [UniApplicationStatus.REJECTED_BY_UNIVERSITY]: StudentStatus.REJECTED_BY_UNIVERSITY,
   [UniApplicationStatus.APPLICATION_WITHDRAWAL]: StudentStatus.APPLICATION_WITHDRAWAL,
   [UniApplicationStatus.DECLINED_BY_STUDENT]: StudentStatus.DECLINED_BY_STUDENT,
@@ -417,6 +423,7 @@ export const UniApplicationStatusLabel: Record<UniApplicationStatus, string> = {
   [UniApplicationStatus.UNCONDITIONAL_OFFER]: "Unconditional Offer",
   [UniApplicationStatus.DEPOSIT_PAID]: "Deposit Paid",
   [UniApplicationStatus.VISA_SECURED]: "Visa Secured",
+  [UniApplicationStatus.ENROLLED]: "Enrolled",
   [UniApplicationStatus.REJECTED_BY_UNIVERSITY]: "Rejected by University",
   [UniApplicationStatus.APPLICATION_WITHDRAWAL]: "Application Withdrawal",
   [UniApplicationStatus.DECLINED_BY_STUDENT]: "Declined by Student",
