@@ -9,7 +9,8 @@ import {
   EventRegistrationStatusLabel,
 } from "~/server/db/enums";
 import { formatDate } from "~/components/dashboard/format";
-import { StatCard, EmptyState, Icon } from "~/components/dashboard/widgets";
+import { StatCard, EmptyState, Icon, Skeleton } from "~/components/dashboard/widgets";
+import { Stagger, FadeUp } from "~/components/dashboard/motion";
 
 type EventRow = RouterOutputs["events"]["forPartners"][number];
 
@@ -180,11 +181,17 @@ export default function PartnerEventsPage() {
         </p>
       </div>
 
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard icon="calendar" tone="blue" value={upcoming.length} label="Upcoming Events" />
-        <StatCard icon="calendar" tone="purple" value={thisMonth.length} label="This Month" />
-        <StatCard icon="clock" tone="cyan" value={past.length} label="Past Events" />
-      </div>
+      <Stagger className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <FadeUp className="h-full">
+          <StatCard icon="calendar" tone="blue" value={upcoming.length} label="Upcoming Events" />
+        </FadeUp>
+        <FadeUp className="h-full">
+          <StatCard icon="calendar" tone="purple" value={thisMonth.length} label="This Month" />
+        </FadeUp>
+        <FadeUp className="h-full">
+          <StatCard icon="clock" tone="cyan" value={past.length} label="Past Events" />
+        </FadeUp>
+      </Stagger>
 
       <div className="mb-5 flex gap-1 border-b border-[#E4E7EC]">
         {(
@@ -216,8 +223,10 @@ export default function PartnerEventsPage() {
       </div>
 
       {isLoading ? (
-        <div className="rounded-xl border border-dashed border-[#D0D5DD] bg-[#F9FAFB] p-6 text-center text-[13px] text-[#667085]">
-          Loading events…
+        <div className="space-y-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-44" />
+          ))}
         </div>
       ) : list.length === 0 ? (
         <EmptyState

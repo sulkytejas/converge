@@ -4,7 +4,8 @@ import { useState } from "react";
 import { api, type RouterOutputs } from "~/trpc/react";
 import { UniApplicationStatus } from "~/server/db/enums";
 import { formatDate, countryFlag } from "~/components/dashboard/format";
-import { Icon, type IconName } from "~/components/dashboard/widgets";
+import { Icon, type IconName, SkeletonTable } from "~/components/dashboard/widgets";
+import { Stagger, FadeUp } from "~/components/dashboard/motion";
 
 type Placement = RouterOutputs["placements"]["list"][number];
 type AttKey = "pending" | "attended";
@@ -148,12 +149,20 @@ export default function StudentPlacementsPage() {
       </div>
 
       {/* Stat cards */}
-      <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard icon="students" bg="#EFF8FF" fg="#1570EF" value={total} label="Total Students" />
-        <StatCard icon="check" bg="#EFF8FF" fg="#175CD3" value={attended} label="Enrolled" />
-        <StatCard icon="clock" bg="#FFF6ED" fg="#B93815" value={pending} label="Pending" />
-        <StatCard icon="calendar" bg="#F0FDF4" fg="#15803D" value={idsEntered} label="IDs Entered" />
-      </div>
+      <Stagger className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <FadeUp className="h-full">
+          <StatCard icon="students" bg="#EFF8FF" fg="#1570EF" value={total} label="Total Students" />
+        </FadeUp>
+        <FadeUp className="h-full">
+          <StatCard icon="check" bg="#EFF8FF" fg="#175CD3" value={attended} label="Enrolled" />
+        </FadeUp>
+        <FadeUp className="h-full">
+          <StatCard icon="clock" bg="#FFF6ED" fg="#B93815" value={pending} label="Pending" />
+        </FadeUp>
+        <FadeUp className="h-full">
+          <StatCard icon="calendar" bg="#F0FDF4" fg="#15803D" value={idsEntered} label="IDs Entered" />
+        </FadeUp>
+      </Stagger>
 
       {/* Filter bar */}
       <div className="mb-5 flex flex-wrap items-center gap-2.5">
@@ -211,8 +220,8 @@ export default function StudentPlacementsPage() {
 
       {/* Content */}
       {isLoading ? (
-        <div className="rounded-[10px] border border-dashed border-[#D0D5DD] bg-[#F9FAFB] p-6 text-center text-[13px] text-[#667085]">
-          Loading placements…
+        <div className="overflow-hidden rounded-xl border border-[#E4E7EC] bg-white">
+          <SkeletonTable rows={6} cols={7} />
         </div>
       ) : filtered.length === 0 ? (
         <div className="rounded-[10px] border border-dashed border-[#D0D5DD] bg-[#F9FAFB] p-6 text-center">

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { api } from "~/trpc/react";
 import { UserStatus } from "~/server/db/enums";
 import { formatDate } from "~/components/dashboard/format";
-import { EmptyState } from "~/components/dashboard/widgets";
+import { EmptyState, SkeletonTable } from "~/components/dashboard/widgets";
 
 const STATUS: Record<number, { label: string; cls: string }> = {
   [UserStatus.UNDER_REVIEW]: {
@@ -132,9 +132,7 @@ export default function PartnerCounsellorsPage() {
           </span>
         </div>
         {isLoading ? (
-          <div className="p-5">
-            <EmptyState label="Loading…" />
-          </div>
+          <SkeletonTable rows={4} cols={5} />
         ) : rows.length === 0 ? (
           <div className="p-5">
             <EmptyState label="No counsellors yet — add your first above." />

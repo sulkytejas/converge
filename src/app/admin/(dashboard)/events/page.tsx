@@ -9,7 +9,8 @@ import {
   EventRegistrationStatusLabel,
 } from "~/server/db/enums";
 import { formatDate } from "~/components/dashboard/format";
-import { StatCard, Icon } from "~/components/dashboard/widgets";
+import { StatCard, Icon, Skeleton } from "~/components/dashboard/widgets";
+import { Stagger, FadeUp } from "~/components/dashboard/motion";
 
 type EventRow = RouterOutputs["events"]["list"][number];
 
@@ -682,12 +683,20 @@ export default function EventsPage() {
       </div>
 
       {/* Stat cards */}
-      <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard icon="calendar" tone="blue" value={upcoming.length} label="Upcoming Events" />
-        <StatCard icon="calendar" tone="purple" value={thisMonth.length} label="This Month" />
-        <StatCard icon="check" tone="green" value={`${avgAttendance}%`} label="Avg Attendance" />
-        <StatCard icon="applications" tone="cyan" value={rows.length} label="Total Events" />
-      </div>
+      <Stagger className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <FadeUp className="h-full">
+          <StatCard icon="calendar" tone="blue" value={upcoming.length} label="Upcoming Events" />
+        </FadeUp>
+        <FadeUp className="h-full">
+          <StatCard icon="calendar" tone="purple" value={thisMonth.length} label="This Month" />
+        </FadeUp>
+        <FadeUp className="h-full">
+          <StatCard icon="check" tone="green" value={`${avgAttendance}%`} label="Avg Attendance" />
+        </FadeUp>
+        <FadeUp className="h-full">
+          <StatCard icon="applications" tone="cyan" value={rows.length} label="Total Events" />
+        </FadeUp>
+      </Stagger>
 
       {/* Tabs */}
       <div className="mb-5 flex gap-1 border-b border-[#E4E7EC]">
@@ -750,8 +759,10 @@ export default function EventsPage() {
       </div>
 
       {isLoading ? (
-        <div className="rounded-xl border border-dashed border-[#D0D5DD] bg-[#F9FAFB] p-6 text-center text-[13px] text-[#667085]">
-          Loading events…
+        <div className="space-y-4">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <Skeleton key={i} className="h-44" />
+          ))}
         </div>
       ) : filtered.length === 0 ? (
         <div className="rounded-xl border border-dashed border-[#D0D5DD] bg-[#F9FAFB] p-6 text-center">

@@ -653,3 +653,23 @@ export function SkeletonRows({ rows = 5 }: { rows?: number }) {
     </div>
   );
 }
+
+// Table-shaped skeleton (header strip + rows of cells) for table pages.
+export function SkeletonTable({ rows = 6, cols = 5 }: { rows?: number; cols?: number }) {
+  return (
+    <div>
+      <div className="flex gap-4 border-b border-[#E4E7EC] bg-[#F9FAFB] px-4 py-2.5">
+        {Array.from({ length: cols }).map((_, c) => (
+          <Skeleton key={c} className={`h-3 ${c === 0 ? "w-32" : "flex-1"}`} />
+        ))}
+      </div>
+      {Array.from({ length: rows }).map((_, r) => (
+        <div key={r} className="flex items-center gap-4 border-b border-[#F2F4F7] px-4 py-3.5 last:border-0">
+          {Array.from({ length: cols }).map((_, c) => (
+            <Skeleton key={c} className={`h-4 ${c === 0 ? "w-36" : "flex-1"}`} />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}

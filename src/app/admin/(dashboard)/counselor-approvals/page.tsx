@@ -7,8 +7,10 @@ import { formatDate, initials } from "~/components/dashboard/format";
 import {
   StatCard,
   EmptyState,
+  SkeletonTable,
   AVATAR_GRADIENTS,
 } from "~/components/dashboard/widgets";
+import { Stagger, FadeUp } from "~/components/dashboard/motion";
 
 type Counsellor = RouterOutputs["counsellors"]["list"][number];
 type Tab = "pending" | "approved" | "rejected";
@@ -190,12 +192,20 @@ export default function CounselorApprovalsPage() {
       </div>
 
       {/* Stat cards */}
-      <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard icon="approvals" tone="orange" value={pending.length} label="Pending Approvals" />
-        <StatCard icon="check" tone="green" value={approved.length} label="Approved" />
-        <StatCard icon="applications" tone="red" value={rejected.length} label="Rejected" />
-        <StatCard icon="partners" tone="blue" value={rows.length} label="Total Counsellors" />
-      </div>
+      <Stagger className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <FadeUp className="h-full">
+          <StatCard icon="approvals" tone="orange" value={pending.length} label="Pending Approvals" />
+        </FadeUp>
+        <FadeUp className="h-full">
+          <StatCard icon="check" tone="green" value={approved.length} label="Approved" />
+        </FadeUp>
+        <FadeUp className="h-full">
+          <StatCard icon="applications" tone="red" value={rejected.length} label="Rejected" />
+        </FadeUp>
+        <FadeUp className="h-full">
+          <StatCard icon="partners" tone="blue" value={rows.length} label="Total Counsellors" />
+        </FadeUp>
+      </Stagger>
 
       {/* Tabs */}
       <div className="mb-5 flex gap-1 border-b border-[#E4E7EC]">
@@ -259,9 +269,7 @@ export default function CounselorApprovalsPage() {
       {/* Table */}
       <div className="overflow-hidden rounded-xl border border-[#E4E7EC] bg-white">
         {isLoading ? (
-          <div className="p-5">
-            <EmptyState label="Loading counsellors…" />
-          </div>
+          <SkeletonTable rows={6} cols={6} />
         ) : filtered.length === 0 ? (
           <div className="p-5">
             <EmptyState
