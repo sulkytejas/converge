@@ -5,6 +5,7 @@ import {
   ResourcesIcon,
   SearchIcon,
   StudentsIcon,
+  UsersIcon,
 } from "./nav-icons";
 import { type NavSection } from "./nav-config";
 
@@ -20,6 +21,7 @@ export const PARTNER_NAV_SECTIONS: NavSection[] = [
         badgeKey: "students",
       },
       { label: "Uni Assist", href: "/partner/uni-assist", icon: <SearchIcon /> },
+      { label: "Counsellors", href: "/partner/counsellors", icon: <UsersIcon /> },
     ],
   },
   {

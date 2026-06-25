@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
-import { createTRPCRouter, protectedAdminProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedAdminProcedure,
+  protectedPartnerProcedure,
+} from "~/server/api/trpc";
 import { db } from "~/server/db";
 import { UserStatus, UserType } from "~/server/db/enums";
 
@@ -118,5 +122,108 @@ export const counsellorsRouter = createTRPCRouter({
         },
       });
       return { success: true as const };
+    }),
+
+  // ===== Partner side: agency owner adds + lists their own counsellors =====
+  // Minimal flow (no RBAC): owner adds a counsellor → created Pending →
+  // appears on the admin Counselor Approvals page. Role is implicitly
+  // "Counsellor"; Team Lead and per-counsellor scoping are deferred.
+  myCounsellors: protectedPartnerProcedure.query(async ({ ctx }) => {
+    const me = await db.user.findUnique({
+      where: { id: ctx.cpPartner.id },
+      select: { org_id: true },
+    });
+    if (!me?.org_id) return [];
+    const rows = await db.user.findMany({
+      where: { type: UserType.AGENCY_COUNSELLOR, org_id: me.org_id },
+      orderBy: { created_at: "desc" },
+      select: {
+        id: true,
+        first_name: true,
+        last_name: true,
+        email: true,
+        phone: true,
+        status: true,
+        created_at: true,
+      },
+    });
+    return rows.map((r) => ({
+      id: r.id,
+      name: `${r.first_name} ${r.last_name}`.trim(),
+      email: r.email,
+      phone: r.phone,
+      status: r.status,
+      createdAt: r.created_at,
+    }));
+  }),
+
+  addCounsellor: protectedPartnerProcedure
+    .input(
+      z.object({
+        firstName: z.string().trim().min(1).max(50),
+        lastName: z.string().trim().min(1).max(50),
+        email: z.string().trim().email().max(255),
+        phone: z.string().trim().min(5).max(45),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const me = await db.user.findUnique({
+        where: { id: ctx.cpPartner.id },
+        select: { org_id: true },
+      });
+      if (!me?.org_id) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Only agency accounts can add counsellors.",
+        });
+      }
+      const email = input.email.toLowerCase();
+      const existing = await db.user.findUnique({
+        where: { email },
+        select: { id: true },
+      });
+      if (existing) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "Someone with this email already exists.",
+        });
+      }
+      const org = await db.organization.findUnique({
+        where: { id: me.org_id },
+        select: { city: true, state: true, country: true },
+      });
+      const created = await db.user.create({
+        data: {
+          first_name: input.firstName,
+          last_name: input.lastName,
+          email,
+          phone: input.phone,
+          type: UserType.AGENCY_COUNSELLOR,
+          status: UserStatus.UNDER_REVIEW,
+          org_id: me.org_id,
+          // Required NOT NULL profile fields — placeholdered from the org; the
+          // counsellor completes their own profile after first login.
+          address: "-",
+          city: org?.city ?? "-",
+          state: org?.state ?? "-",
+          country: org?.country ?? "IN",
+        },
+        select: { id: true },
+      });
+      await db.audit_log.create({
+        data: {
+          action: "counsellor.invited",
+          entity_type: "user",
+          entity_id: created.id,
+          metadata: { byPartnerUserId: ctx.cpPartner.id, orgId: me.org_id },
+        },
+      });
+      // Invite email is a graceful no-op until an MSG91 template is wired —
+      // the counsellor can already sign in via the email-OTP partner login
+      // once Collegepond approves them.
+      console.log(
+        `[Counsellors] Invited counsellor #${created.id} (org ${me.org_id}); pending Collegepond approval.`,
+      );
+      return { id: created.id };
     }),
 });
