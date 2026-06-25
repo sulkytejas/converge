@@ -1,5 +1,9 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedAdminProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedAdminProcedure,
+  protectedPartnerProcedure,
+} from "~/server/api/trpc";
 import { db } from "~/server/db";
 import { EVENT_TYPE_CODES, type EventType } from "~/server/db/enums";
 
@@ -141,4 +145,38 @@ export const eventsRouter = createTRPCRouter({
       });
       return { success: true as const };
     }),
+
+  // Published events visible to partners (upcoming + past), read-only.
+  forPartners: protectedPartnerProcedure.query(async () => {
+    const rows = await db.event.findMany({
+      where: { is_active: 1 },
+      orderBy: { event_date: "desc" },
+      select: {
+        id: true,
+        title: true,
+        event_type: true,
+        description: true,
+        event_date: true,
+        start_time: true,
+        end_time: true,
+        location: true,
+        is_virtual: true,
+        meeting_url: true,
+        max_attendees: true,
+      },
+    });
+    return rows.map((e) => ({
+      id: e.id,
+      title: e.title,
+      eventType: e.event_type,
+      description: e.description,
+      eventDate: e.event_date.toISOString().slice(0, 10),
+      startTime: dateToTime(e.start_time),
+      endTime: dateToTime(e.end_time),
+      location: e.location,
+      isVirtual: e.is_virtual === 1,
+      meetingUrl: e.meeting_url,
+      maxAttendees: e.max_attendees,
+    }));
+  }),
 });
