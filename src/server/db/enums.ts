@@ -455,3 +455,20 @@ export const EventTypeLabel: Record<EventType, string> = {
 };
 
 export const EVENT_TYPE_CODES = Object.values(EventType) as EventType[];
+
+// event_registration.status — a partner's RSVP state for an event.
+export const EventRegistrationStatus = {
+  INVITED: 0,
+  ACCEPTED: 1,
+  DECLINED: 2,
+  ATTENDED: 3,
+} as const;
+export type EventRegistrationStatus =
+  (typeof EventRegistrationStatus)[keyof typeof EventRegistrationStatus];
+
+export const EventRegistrationStatusLabel: Record<EventRegistrationStatus, string> = {
+  [EventRegistrationStatus.INVITED]: "Invited",
+  [EventRegistrationStatus.ACCEPTED]: "Accepted",
+  [EventRegistrationStatus.DECLINED]: "Declined",
+  [EventRegistrationStatus.ATTENDED]: "Attended",
+};

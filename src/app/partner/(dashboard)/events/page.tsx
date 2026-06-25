@@ -2,7 +2,12 @@
 
 import { useState } from "react";
 import { api, type RouterOutputs } from "~/trpc/react";
-import { EventType, EventTypeLabel } from "~/server/db/enums";
+import {
+  EventType,
+  EventTypeLabel,
+  EventRegistrationStatus,
+  EventRegistrationStatusLabel,
+} from "~/server/db/enums";
 import { formatDate } from "~/components/dashboard/format";
 import { StatCard, EmptyState, Icon } from "~/components/dashboard/widgets";
 
@@ -16,9 +21,17 @@ const TYPE_BADGE: Record<number, string> = {
   [EventType.PARTNER_MEET]: "bg-[#F0F0FF] text-[#5925DC]",
   [EventType.OTHER]: "bg-[#F2F4F7] text-[#344054]",
 };
+const RSVP_BADGE: Record<number, string> = {
+  0: "bg-[#FFF6ED] text-[#B93815]",
+  1: "bg-[#ECFDF3] text-[#027A48]",
+  2: "bg-[#FEF3F2] text-[#B42318]",
+  3: "bg-[#EFF8FF] text-[#175CD3]",
+};
 
 const pad = (n: number) => String(n).padStart(2, "0");
-
+function typeLabel(code: number): string {
+  return (EventTypeLabel as Record<number, string | undefined>)[code] ?? "Other";
+}
 function formatTime(hhmm: string | null): string {
   if (!hhmm) return "";
   const parts = hhmm.split(":");
@@ -28,13 +41,26 @@ function formatTime(hhmm: string | null): string {
   const h12 = h % 12 === 0 ? 12 : h % 12;
   return `${h12}:${pad(m)} ${ap}`;
 }
-
 function todayStr(): string {
   const n = new Date();
   return `${n.getFullYear()}-${pad(n.getMonth() + 1)}-${pad(n.getDate())}`;
 }
 
-function EventCard({ e }: { e: EventRow }) {
+function EventCard({
+  e,
+  isUpcoming,
+  onRsvp,
+  busy,
+}: {
+  e: EventRow;
+  isUpcoming: boolean;
+  onRsvp: (status: "accepted" | "declined") => void;
+  busy: boolean;
+}) {
+  const accepted =
+    e.rsvpStatus === EventRegistrationStatus.ACCEPTED ||
+    e.rsvpStatus === EventRegistrationStatus.ATTENDED;
+  const declined = e.rsvpStatus === EventRegistrationStatus.DECLINED;
   return (
     <div className="mb-3 rounded-xl border border-[#E4E7EC] bg-white p-5">
       <div className="flex flex-wrap items-center gap-2">
@@ -42,9 +68,17 @@ function EventCard({ e }: { e: EventRow }) {
         <span
           className={`rounded-[10px] px-2 py-0.5 text-[11px] font-semibold ${TYPE_BADGE[e.eventType] ?? TYPE_BADGE[EventType.OTHER]}`}
         >
-          {(EventTypeLabel as Record<number, string | undefined>)[e.eventType] ??
-            "Other"}
+          {typeLabel(e.eventType)}
         </span>
+        {e.rsvpStatus != null && (
+          <span
+            className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${RSVP_BADGE[e.rsvpStatus] ?? RSVP_BADGE[0]}`}
+          >
+            {(EventRegistrationStatusLabel as Record<number, string | undefined>)[
+              e.rsvpStatus
+            ] ?? "Invited"}
+          </span>
+        )}
       </div>
       <div className="mt-2.5 flex flex-wrap gap-4 text-[12px] text-[#475467]">
         <span className="flex items-center gap-1.5">
@@ -59,21 +93,60 @@ function EventCard({ e }: { e: EventRow }) {
         <span className="flex items-center gap-1.5">
           <Icon name="globe" size={13} /> {e.isVirtual ? "Online" : (e.location ?? "—")}
         </span>
+        {e.organizer && (
+          <span className="flex items-center gap-1.5">
+            <Icon name="university" size={13} /> {e.organizer}
+          </span>
+        )}
       </div>
       {e.description && (
         <p className="mt-2.5 text-[13px] leading-relaxed text-[#475467]">
           {e.description}
         </p>
       )}
-      {e.isVirtual && e.meetingUrl && (
-        <a
-          href={e.meetingUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-[#1570EF] px-3 py-2 text-[12px] font-semibold text-white hover:bg-[#1260d4]"
-        >
-          Join Online
-        </a>
+      {e.agenda && (
+        <p className="mt-2 text-[12px] whitespace-pre-line text-[#667085]">
+          <span className="font-semibold text-[#344054]">Agenda: </span>
+          {e.agenda}
+        </p>
+      )}
+      {isUpcoming && (
+        <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-[#F2F4F7] pt-3">
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => onRsvp("accepted")}
+            className={`rounded-lg px-3 py-1.5 text-[12px] font-semibold disabled:opacity-50 ${
+              accepted
+                ? "bg-[#12B76A] text-white"
+                : "border border-[#D0D5DD] bg-white text-[#344054] hover:bg-[#F9FAFB]"
+            }`}
+          >
+            {accepted ? "Going ✓" : "Accept"}
+          </button>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => onRsvp("declined")}
+            className={`rounded-lg px-3 py-1.5 text-[12px] font-semibold disabled:opacity-50 ${
+              declined
+                ? "bg-[#F04438] text-white"
+                : "border border-[#D0D5DD] bg-white text-[#344054] hover:bg-[#F9FAFB]"
+            }`}
+          >
+            {declined ? "Declined" : "Decline"}
+          </button>
+          {e.isVirtual && e.meetingUrl && accepted && (
+            <a
+              href={e.meetingUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ml-auto rounded-lg bg-[#1570EF] px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-[#1260d4]"
+            >
+              Join Online
+            </a>
+          )}
+        </div>
       )}
     </div>
   );
@@ -81,6 +154,10 @@ function EventCard({ e }: { e: EventRow }) {
 
 export default function PartnerEventsPage() {
   const { data, isLoading } = api.events.forPartners.useQuery();
+  const utils = api.useUtils();
+  const rsvp = api.events.rsvp.useMutation({
+    onSuccess: () => void utils.events.forPartners.invalidate(),
+  });
   const [tab, setTab] = useState<"upcoming" | "past">("upcoming");
 
   const rows = data ?? [];
@@ -92,7 +169,6 @@ export default function PartnerEventsPage() {
     .filter((e) => e.eventDate < today)
     .sort((a, b) => b.eventDate.localeCompare(a.eventDate));
   const thisMonth = upcoming.filter((e) => e.eventDate.startsWith(today.slice(0, 7)));
-
   const list = tab === "upcoming" ? upcoming : past;
 
   return (
@@ -110,7 +186,6 @@ export default function PartnerEventsPage() {
         <StatCard icon="clock" tone="cyan" value={past.length} label="Past Events" />
       </div>
 
-      {/* Tabs */}
       <div className="mb-5 flex gap-1 border-b border-[#E4E7EC]">
         {(
           [
@@ -146,12 +221,18 @@ export default function PartnerEventsPage() {
         </div>
       ) : list.length === 0 ? (
         <EmptyState
-          label={
-            tab === "upcoming" ? "No upcoming events right now." : "No past events."
-          }
+          label={tab === "upcoming" ? "No upcoming events right now." : "No past events."}
         />
       ) : (
-        list.map((e) => <EventCard key={e.id} e={e} />)
+        list.map((e) => (
+          <EventCard
+            key={e.id}
+            e={e}
+            isUpcoming={tab === "upcoming"}
+            busy={rsvp.isPending}
+            onRsvp={(status) => rsvp.mutate({ eventId: e.id, status })}
+          />
+        ))
       )}
     </>
   );

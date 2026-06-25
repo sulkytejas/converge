@@ -2,7 +2,12 @@
 
 import { useState } from "react";
 import { api, type RouterOutputs } from "~/trpc/react";
-import { EventType, EventTypeLabel, EVENT_TYPE_CODES } from "~/server/db/enums";
+import {
+  EventType,
+  EventTypeLabel,
+  EVENT_TYPE_CODES,
+  EventRegistrationStatusLabel,
+} from "~/server/db/enums";
 import { formatDate } from "~/components/dashboard/format";
 import { StatCard, Icon } from "~/components/dashboard/widgets";
 
@@ -17,9 +22,25 @@ const TYPE_BADGE: Record<number, string> = {
   [EventType.OTHER]: "bg-[#F2F4F7] text-[#344054]",
 };
 
+const RSVP_BADGE: Record<number, string> = {
+  0: "bg-[#FFF6ED] text-[#B93815]",
+  1: "bg-[#ECFDF3] text-[#027A48]",
+  2: "bg-[#FEF3F2] text-[#B42318]",
+  3: "bg-[#EFF8FF] text-[#175CD3]",
+};
+
 const pad = (n: number) => String(n).padStart(2, "0");
 const nn = (s: string): string | null => (s.trim() === "" ? null : s.trim());
 
+function typeLabel(code: number): string {
+  return (EventTypeLabel as Record<number, string | undefined>)[code] ?? "Other";
+}
+function rsvpLabel(code: number): string {
+  return (
+    (EventRegistrationStatusLabel as Record<number, string | undefined>)[code] ??
+    "Invited"
+  );
+}
 function formatTime(hhmm: string | null): string {
   if (!hhmm) return "";
   const parts = hhmm.split(":");
@@ -29,14 +50,18 @@ function formatTime(hhmm: string | null): string {
   const h12 = h % 12 === 0 ? 12 : h % 12;
   return `${h12}:${pad(m)} ${ap}`;
 }
-
 function todayStr(): string {
   const n = new Date();
   return `${n.getFullYear()}-${pad(n.getMonth() + 1)}-${pad(n.getDate())}`;
 }
+function attendanceRate(e: EventRow): number | null {
+  if (e.actualAttendance == null || e.maxAttendees == null || e.maxAttendees <= 0)
+    return null;
+  return Math.round((e.actualAttendance / e.maxAttendees) * 100);
+}
 
 // ---------------------------------------------------------------------------
-// Compact month calendar with dots on days that have events.
+// Month calendar with dots on event days.
 // ---------------------------------------------------------------------------
 function Calendar({ events }: { events: EventRow[] }) {
   const now = new Date();
@@ -103,7 +128,7 @@ function Calendar({ events }: { events: EventRow[] }) {
             >
               {d}
               {count > 0 && (
-                <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-[#1570EF]" title={`${count} event(s)`} />
+                <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-[#1570EF]" />
               )}
             </div>
           );
@@ -119,6 +144,7 @@ function Calendar({ events }: { events: EventRow[] }) {
 function EventModal({ event, onClose }: { event: EventRow | null; onClose: () => void }) {
   const utils = api.useUtils();
   const isEdit = event !== null;
+  const partners = api.events.partnersForInvite.useQuery().data ?? [];
   const [f, setF] = useState(() => ({
     title: event?.title ?? "",
     eventType: (event?.eventType ?? EventType.UNIVERSITY_FAIR) as EventType,
@@ -128,9 +154,14 @@ function EventModal({ event, onClose }: { event: EventRow | null; onClose: () =>
     isVirtual: event?.isVirtual ?? false,
     location: event?.location ?? "",
     meetingUrl: event?.meetingUrl ?? "",
+    organizer: event?.organizer ?? "",
     description: event?.description ?? "",
+    agenda: event?.agenda ?? "",
     maxAttendees: event?.maxAttendees != null ? String(event.maxAttendees) : "",
+    actualAttendance:
+      event?.actualAttendance != null ? String(event.actualAttendance) : "",
     isActive: event?.isActive ?? false,
+    invitePartnerIds: event?.invitedPartners.map((p) => p.userId) ?? [],
   }));
   const [err, setErr] = useState("");
   const onDone = () => {
@@ -143,6 +174,13 @@ function EventModal({ event, onClose }: { event: EventRow | null; onClose: () =>
 
   const set = <K extends keyof typeof f>(k: K, v: (typeof f)[K]) =>
     setF((s) => ({ ...s, [k]: v }));
+  const toggleInvite = (id: number, on: boolean) =>
+    setF((s) => ({
+      ...s,
+      invitePartnerIds: on
+        ? [...s.invitePartnerIds, id]
+        : s.invitePartnerIds.filter((x) => x !== id),
+    }));
 
   function submit() {
     if (f.title.trim() === "") return setErr("Event name is required.");
@@ -156,9 +194,14 @@ function EventModal({ event, onClose }: { event: EventRow | null; onClose: () =>
       isVirtual: f.isVirtual,
       location: f.isVirtual ? null : nn(f.location),
       meetingUrl: f.isVirtual ? nn(f.meetingUrl) : null,
+      organizer: nn(f.organizer),
       description: nn(f.description),
+      agenda: nn(f.agenda),
       maxAttendees: f.maxAttendees.trim() === "" ? null : Number(f.maxAttendees),
+      actualAttendance:
+        f.actualAttendance.trim() === "" ? null : Number(f.actualAttendance),
       isActive: f.isActive,
+      invitePartnerIds: f.invitePartnerIds,
     };
     if (isEdit) update.mutate({ ...payload, id: event.id });
     else create.mutate(payload);
@@ -266,15 +309,60 @@ function EventModal({ event, onClose }: { event: EventRow | null; onClose: () =>
             </div>
           )}
           <div>
+            <label className={label}>University / Organizer</label>
+            <input
+              className={input}
+              value={f.organizer}
+              onChange={(e) => set("organizer", e.target.value)}
+              placeholder="e.g. University of Manchester or Collegepond"
+            />
+          </div>
+          <div>
             <label className={label}>Description</label>
             <textarea
-              className={`${input} min-h-[80px] resize-y`}
+              className={`${input} min-h-[70px] resize-y`}
               value={f.description}
               onChange={(e) => set("description", e.target.value)}
               placeholder="Brief description of the event…"
             />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className={label}>Agenda</label>
+            <textarea
+              className={`${input} min-h-[80px] resize-y`}
+              value={f.agenda}
+              onChange={(e) => set("agenda", e.target.value)}
+              placeholder="Schedule / talking points…"
+            />
+          </div>
+          <div>
+            <label className={label}>Partners to Invite</label>
+            <div className="max-h-32 overflow-y-auto rounded-lg border border-[#D0D5DD] p-2">
+              {partners.length === 0 ? (
+                <p className="px-1 py-1 text-[12px] text-[#98A2B3]">
+                  No approved partners yet.
+                </p>
+              ) : (
+                partners.map((p) => (
+                  <label
+                    key={p.userId}
+                    className="flex items-center gap-2 rounded px-1 py-1 text-[13px] text-[#344054] hover:bg-[#F9FAFB]"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={f.invitePartnerIds.includes(p.userId)}
+                      onChange={(e) => toggleInvite(p.userId, e.target.checked)}
+                    />
+                    {p.name}
+                  </label>
+                ))
+              )}
+            </div>
+            <span className="mt-1 block text-[11px] text-[#98A2B3]">
+              {f.invitePartnerIds.length} selected
+            </span>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
             <div>
               <label className={label}>Max Attendees</label>
               <input
@@ -284,6 +372,17 @@ function EventModal({ event, onClose }: { event: EventRow | null; onClose: () =>
                 value={f.maxAttendees}
                 onChange={(e) => set("maxAttendees", e.target.value)}
                 placeholder="100"
+              />
+            </div>
+            <div>
+              <label className={label}>Actual Attendance</label>
+              <input
+                type="number"
+                min={0}
+                className={input}
+                value={f.actualAttendance}
+                onChange={(e) => set("actualAttendance", e.target.value)}
+                placeholder="(past)"
               />
             </div>
             <div>
@@ -324,15 +423,14 @@ function EventModal({ event, onClose }: { event: EventRow | null; onClose: () =>
 
 function EventCard({
   e,
-  readOnly,
   onEdit,
   onDelete,
 }: {
   e: EventRow;
-  readOnly: boolean;
   onEdit: () => void;
   onDelete: () => void;
 }) {
+  const [showRsvps, setShowRsvps] = useState(false);
   return (
     <div className="mb-3 rounded-xl border border-[#E4E7EC] bg-white p-5">
       <div className="flex items-start justify-between gap-3">
@@ -341,8 +439,7 @@ function EventCard({
           <span
             className={`rounded-[10px] px-2 py-0.5 text-[11px] font-semibold ${TYPE_BADGE[e.eventType] ?? TYPE_BADGE[EventType.OTHER]}`}
           >
-            {(EventTypeLabel as Record<number, string | undefined>)[e.eventType] ??
-              "Other"}
+            {typeLabel(e.eventType)}
           </span>
           <span
             className={`rounded-[10px] px-2 py-0.5 text-[11px] font-semibold ${
@@ -352,24 +449,22 @@ function EventCard({
             {e.isActive ? "Published" : "Draft"}
           </span>
         </div>
-        {!readOnly && (
-          <div className="flex shrink-0 gap-2">
-            <button
-              type="button"
-              onClick={onEdit}
-              className="rounded-md border border-[#D0D5DD] bg-white px-2.5 py-1.5 text-[12px] font-semibold text-[#344054] hover:bg-[#F9FAFB]"
-            >
-              Edit
-            </button>
-            <button
-              type="button"
-              onClick={onDelete}
-              className="rounded-md border border-[#FECDCA] bg-white px-2.5 py-1.5 text-[12px] font-semibold text-[#B42318] hover:bg-[#FEF3F2]"
-            >
-              Delete
-            </button>
-          </div>
-        )}
+        <div className="flex shrink-0 gap-2">
+          <button
+            type="button"
+            onClick={onEdit}
+            className="rounded-md border border-[#D0D5DD] bg-white px-2.5 py-1.5 text-[12px] font-semibold text-[#344054] hover:bg-[#F9FAFB]"
+          >
+            Edit
+          </button>
+          <button
+            type="button"
+            onClick={onDelete}
+            className="rounded-md border border-[#FECDCA] bg-white px-2.5 py-1.5 text-[12px] font-semibold text-[#B42318] hover:bg-[#FEF3F2]"
+          >
+            Delete
+          </button>
+        </div>
       </div>
       <div className="mt-2.5 flex flex-wrap gap-4 text-[12px] text-[#475467]">
         <span className="flex items-center gap-1.5">
@@ -384,19 +479,133 @@ function EventCard({
         <span className="flex items-center gap-1.5">
           <Icon name="globe" size={13} /> {e.isVirtual ? "Online" : (e.location ?? "—")}
         </span>
+        {e.organizer && (
+          <span className="flex items-center gap-1.5">
+            <Icon name="university" size={13} /> {e.organizer}
+          </span>
+        )}
       </div>
       {e.description && (
         <p className="mt-2.5 text-[13px] leading-relaxed text-[#475467]">
           {e.description.length > 180 ? `${e.description.slice(0, 178)}…` : e.description}
         </p>
       )}
-      <div className="mt-3 flex flex-wrap gap-4 border-t border-[#F2F4F7] pt-3 text-[12px] text-[#667085]">
+      {e.agenda && (
+        <p className="mt-2 text-[12px] whitespace-pre-line text-[#667085]">
+          <span className="font-semibold text-[#344054]">Agenda: </span>
+          {e.agenda.length > 160 ? `${e.agenda.slice(0, 158)}…` : e.agenda}
+        </p>
+      )}
+      <div className="mt-3 flex flex-wrap items-center gap-4 border-t border-[#F2F4F7] pt-3 text-[12px] text-[#667085]">
         <span>
-          Max attendees: <strong className="text-[#101828]">{e.maxAttendees ?? "—"}</strong>
+          Partners invited: <strong className="text-[#101828]">{e.partnersInvited}</strong>
         </span>
         <span>
-          Registrations: <strong className="text-[#101828]">{e.registrations}</strong>
+          RSVPs:{" "}
+          <strong className="text-[#101828]">
+            {e.rsvpsAccepted}/{e.partnersInvited}
+          </strong>
         </span>
+        <span>
+          Max: <strong className="text-[#101828]">{e.maxAttendees ?? "—"}</strong>
+        </span>
+        {e.partnersInvited > 0 && (
+          <button
+            type="button"
+            onClick={() => setShowRsvps((s) => !s)}
+            className="ml-auto font-semibold text-[#1570EF] hover:underline"
+          >
+            {showRsvps ? "Hide RSVPs" : "View RSVPs"}
+          </button>
+        )}
+      </div>
+      {showRsvps && e.invitedPartners.length > 0 && (
+        <ul className="mt-3 space-y-1.5 rounded-lg bg-[#F9FAFB] p-3">
+          {e.invitedPartners.map((p, i) => (
+            <li key={i} className="flex items-center justify-between text-[12px]">
+              <span className="text-[#344054]">{p.name}</span>
+              <span
+                className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${RSVP_BADGE[p.status] ?? RSVP_BADGE[0]}`}
+              >
+                {rsvpLabel(p.status)}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+const TH =
+  "px-3 py-2.5 text-left text-[11px] font-semibold tracking-wide text-[#667085] uppercase";
+
+function PastEventsTable({
+  events,
+  onEdit,
+}: {
+  events: EventRow[];
+  onEdit: (e: EventRow) => void;
+}) {
+  return (
+    <div className="overflow-hidden rounded-xl border border-[#E4E7EC] bg-white">
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse text-[13px]">
+          <thead>
+            <tr className="border-b border-[#E4E7EC] bg-[#F9FAFB]">
+              <th className={TH}>Event</th>
+              <th className={TH}>Type</th>
+              <th className={TH}>Date</th>
+              <th className={TH}>Location</th>
+              <th className={TH}>Organizer</th>
+              <th className={TH}>Attendance</th>
+              <th className={TH}>Rate</th>
+              <th className={TH}></th>
+            </tr>
+          </thead>
+          <tbody>
+            {events.map((e) => {
+              const rate = attendanceRate(e);
+              return (
+                <tr
+                  key={e.id}
+                  className="border-b border-[#F2F4F7] last:border-0 hover:bg-[#FAFBFC]"
+                >
+                  <td className="px-3 py-3 font-medium text-[#101828]">{e.title}</td>
+                  <td className="px-3 py-3">
+                    <span
+                      className={`rounded-[10px] px-2 py-0.5 text-[11px] font-semibold ${TYPE_BADGE[e.eventType] ?? TYPE_BADGE[EventType.OTHER]}`}
+                    >
+                      {typeLabel(e.eventType)}
+                    </span>
+                  </td>
+                  <td className="px-3 py-3 text-[#475467]">{formatDate(e.eventDate)}</td>
+                  <td className="px-3 py-3 text-[#475467]">
+                    {e.isVirtual ? "Online" : (e.location ?? "—")}
+                  </td>
+                  <td className="px-3 py-3 text-[#475467]">{e.organizer ?? "—"}</td>
+                  <td className="px-3 py-3 text-[#475467]">
+                    {e.actualAttendance != null
+                      ? `${e.actualAttendance}/${e.maxAttendees ?? "—"}`
+                      : "—"}
+                  </td>
+                  <td className="px-3 py-3 font-semibold text-[#101828]">
+                    {rate != null ? `${rate}%` : "—"}
+                  </td>
+                  <td className="px-3 py-3 text-right">
+                    <button
+                      type="button"
+                      onClick={() => onEdit(e)}
+                      className="rounded-md border border-[#D0D5DD] bg-white px-2.5 py-1.5 text-[12px] font-semibold text-[#344054] hover:bg-[#F9FAFB]"
+                    >
+                      Edit
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     </div>
   );
@@ -421,8 +630,18 @@ export default function EventsPage() {
   const today = todayStr();
   const upcoming = rows.filter((e) => e.eventDate >= today);
   const past = rows.filter((e) => e.eventDate < today);
-  const thisMonthPrefix = today.slice(0, 7);
-  const thisMonth = upcoming.filter((e) => e.eventDate.startsWith(thisMonthPrefix));
+  const thisMonth = upcoming.filter((e) => e.eventDate.startsWith(today.slice(0, 7)));
+
+  let sum = 0;
+  let n = 0;
+  for (const e of past) {
+    const r = attendanceRate(e);
+    if (r != null) {
+      sum += r;
+      n++;
+    }
+  }
+  const avgAttendance = n > 0 ? Math.round(sum / n) : 0;
 
   const base = (tab === "upcoming" ? upcoming : past)
     .slice()
@@ -466,8 +685,8 @@ export default function EventsPage() {
       <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatCard icon="calendar" tone="blue" value={upcoming.length} label="Upcoming Events" />
         <StatCard icon="calendar" tone="purple" value={thisMonth.length} label="This Month" />
-        <StatCard icon="clock" tone="cyan" value={past.length} label="Past Events" />
-        <StatCard icon="applications" tone="green" value={rows.length} label="Total Events" />
+        <StatCard icon="check" tone="green" value={`${avgAttendance}%`} label="Avg Attendance" />
+        <StatCard icon="applications" tone="cyan" value={rows.length} label="Total Events" />
       </div>
 
       {/* Tabs */}
@@ -530,42 +749,38 @@ export default function EventsPage() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_300px]">
-        {/* Event list */}
-        <div>
-          {isLoading ? (
-            <div className="rounded-xl border border-dashed border-[#D0D5DD] bg-[#F9FAFB] p-6 text-center text-[13px] text-[#667085]">
-              Loading events…
-            </div>
-          ) : filtered.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-[#D0D5DD] bg-[#F9FAFB] p-6 text-center">
-              <h4 className="mb-1 font-semibold text-[#344054]">No events found</h4>
-              <p className="text-[13px] text-[#667085]">
-                {tab === "past"
-                  ? "No past events to show."
-                  : "No upcoming events — add one to get started."}
-              </p>
-            </div>
-          ) : (
-            filtered.map((e) => (
+      {isLoading ? (
+        <div className="rounded-xl border border-dashed border-[#D0D5DD] bg-[#F9FAFB] p-6 text-center text-[13px] text-[#667085]">
+          Loading events…
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-[#D0D5DD] bg-[#F9FAFB] p-6 text-center">
+          <h4 className="mb-1 font-semibold text-[#344054]">No events found</h4>
+          <p className="text-[13px] text-[#667085]">
+            {tab === "past"
+              ? "No past events to show."
+              : "No upcoming events — add one to get started."}
+          </p>
+        </div>
+      ) : tab === "past" ? (
+        <PastEventsTable events={filtered} onEdit={(e) => setModal({ event: e })} />
+      ) : (
+        <div className="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_300px]">
+          <div>
+            {filtered.map((e) => (
               <EventCard
                 key={e.id}
                 e={e}
-                readOnly={tab === "past"}
                 onEdit={() => setModal({ event: e })}
                 onDelete={() => confirmDelete(e)}
               />
-            ))
-          )}
-        </div>
-
-        {/* Calendar (upcoming tab) */}
-        {tab === "upcoming" && (
+            ))}
+          </div>
           <div className="order-first lg:order-last">
             <Calendar events={upcoming} />
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {modal && <EventModal event={modal.event} onClose={() => setModal(null)} />}
     </>
