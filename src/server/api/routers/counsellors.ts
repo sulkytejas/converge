@@ -11,6 +11,17 @@ import { UserStatus, UserType } from "~/server/db/enums";
 // in the audit log (no column for it on user yet).
 // ---------------------------------------------------------------------------
 
+// organization.num_counsellors is a declared range bucket (1–5); upper bound
+// gives the "X / Y counsellors" cap shown under the partner. Code 5 (25+) =
+// no fixed cap.
+const CAP_UPPER: Record<number, number | null> = {
+  1: 5,
+  2: 10,
+  3: 15,
+  4: 25,
+  5: null,
+};
+
 export const counsellorsRouter = createTRPCRouter({
   list: protectedAdminProcedure.query(async () => {
     const rows = await db.user.findMany({
@@ -26,8 +37,9 @@ export const counsellorsRouter = createTRPCRouter({
         is_email_verified: true,
         is_phone_verified: true,
         created_at: true,
+        org_id: true,
         approved_by_collegepond_user_id: true,
-        organization: { select: { name: true } },
+        organization: { select: { name: true, num_counsellors: true } },
       },
     });
 
@@ -54,7 +66,12 @@ export const counsellorsRouter = createTRPCRouter({
       email: r.email,
       phone: r.phone,
       status: r.status,
+      orgId: r.org_id,
       partner: r.organization?.name ?? "—",
+      partnerCap:
+        r.organization?.num_counsellors != null
+          ? (CAP_UPPER[r.organization.num_counsellors] ?? null)
+          : null,
       emailVerified: r.is_email_verified === 1,
       phoneVerified: r.is_phone_verified === 1,
       createdAt: r.created_at,

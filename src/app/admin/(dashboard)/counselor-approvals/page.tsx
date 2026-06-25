@@ -45,13 +45,37 @@ function VerifyBadge({ ok, label }: { ok: boolean; label: string }) {
   );
 }
 
+function partnerCount(c: Counsellor, countByOrg: Map<number, number>) {
+  const n = c.orgId != null ? (countByOrg.get(c.orgId) ?? 0) : 0;
+  return c.partnerCap != null
+    ? `${n}/${c.partnerCap} counsellors`
+    : `${n} counsellor${n === 1 ? "" : "s"}`;
+}
+
+function PartnerCell({
+  c,
+  countByOrg,
+}: {
+  c: Counsellor;
+  countByOrg: Map<number, number>;
+}) {
+  return (
+    <td className="px-4 py-3">
+      <div className="text-[#344054]">{c.partner}</div>
+      <div className="text-[11px] text-[#98A2B3]">{partnerCount(c, countByOrg)}</div>
+    </td>
+  );
+}
+
 function PendingRow({
   c,
   i,
+  countByOrg,
   onChanged,
 }: {
   c: Counsellor;
   i: number;
+  countByOrg: Map<number, number>;
   onChanged: () => void;
 }) {
   const [reason, setReason] = useState("");
@@ -65,7 +89,7 @@ function PendingRow({
           <div className="font-semibold text-[#101828]">{c.name}</div>
         </div>
       </td>
-      <td className="px-4 py-3 text-[#344054]">{c.partner}</td>
+      <PartnerCell c={c} countByOrg={countByOrg} />
       <td className="px-4 py-3 text-[#475467]">{c.email}</td>
       <td className="px-4 py-3 text-[#475467]">{c.phone}</td>
       <td className="px-4 py-3 text-[#475467]">{formatDate(c.createdAt)}</td>
@@ -126,6 +150,12 @@ export default function CounselorApprovalsPage() {
   const [partner, setPartner] = useState("");
 
   const rows = data ?? [];
+  const countByOrg = new Map<number, number>();
+  for (const r of rows) {
+    if (r.orgId != null) {
+      countByOrg.set(r.orgId, (countByOrg.get(r.orgId) ?? 0) + 1);
+    }
+  }
   const pending = rows.filter((r) => r.status === UserStatus.UNDER_REVIEW);
   const approved = rows.filter((r) => r.status === UserStatus.APPROVED);
   const rejected = rows.filter((r) => r.status === UserStatus.REJECTED);
@@ -251,7 +281,7 @@ export default function CounselorApprovalsPage() {
                   <th className={TH}>Partner</th>
                   <th className={TH}>Email</th>
                   {tab === "pending" && <th className={TH}>Phone</th>}
-                  <th className={TH}>Added</th>
+                  <th className={TH}>Signed Up</th>
                   {tab === "pending" && <th className={TH}>Verification</th>}
                   {tab === "pending" && <th className={TH}>Actions</th>}
                   {tab !== "pending" && <th className={TH}>Decided By</th>}
@@ -260,7 +290,13 @@ export default function CounselorApprovalsPage() {
               <tbody>
                 {tab === "pending"
                   ? filtered.map((c, i) => (
-                      <PendingRow key={c.id} c={c} i={i} onChanged={refresh} />
+                      <PendingRow
+                        key={c.id}
+                        c={c}
+                        i={i}
+                        countByOrg={countByOrg}
+                        onChanged={refresh}
+                      />
                     ))
                   : filtered.map((c, i) => (
                       <tr
@@ -273,7 +309,7 @@ export default function CounselorApprovalsPage() {
                             <div className="font-semibold text-[#101828]">{c.name}</div>
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-[#344054]">{c.partner}</td>
+                        <PartnerCell c={c} countByOrg={countByOrg} />
                         <td className="px-4 py-3 text-[#475467]">{c.email}</td>
                         <td className="px-4 py-3 text-[#475467]">
                           {formatDate(c.createdAt)}
