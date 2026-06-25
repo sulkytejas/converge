@@ -631,3 +631,25 @@ export function NeedsDataBadge() {
 export function EmptyState({ label = "No data yet." }: { label?: string }) {
   return <p className="py-6 text-center text-[13px] text-[#98A2B3]">{label}</p>;
 }
+
+// Shimmer placeholder block — compose into skeleton cards/rows/lists.
+export function Skeleton({ className }: { className?: string }) {
+  return (
+    <div className={`animate-pulse rounded-md bg-[#EAECF0] ${className ?? ""}`} />
+  );
+}
+
+// Skeleton list rows for a card body that's loading.
+export function SkeletonRows({ rows = 5 }: { rows?: number }) {
+  return (
+    <div className="space-y-3">
+      {Array.from({ length: rows }).map((_, i) => (
+        <div key={i} className="flex items-center gap-3">
+          <Skeleton className="h-8 w-8 rounded-full" />
+          <Skeleton className="h-3.5 flex-1" />
+          <Skeleton className="h-3.5 w-10" />
+        </div>
+      ))}
+    </div>
+  );
+}

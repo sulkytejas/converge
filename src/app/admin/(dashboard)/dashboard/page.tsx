@@ -25,8 +25,11 @@ import {
   Icon,
   NeedsDataBadge,
   EmptyState,
+  Skeleton,
+  SkeletonRows,
   AVATAR_GRADIENTS,
 } from "~/components/dashboard/widgets";
+import { Stagger, FadeUp } from "~/components/dashboard/motion";
 
 const num = (n: number) => n.toLocaleString("en-IN");
 
@@ -189,45 +192,53 @@ export default function DashboardPage() {
       </div>
 
       {/* KPIs */}
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <KpiCard
-          label="Total Students"
-          icon="students"
-          tone="blue"
-          href="/admin/students"
-          loading={!data}
-          value={k ? num(k.students.value) : "—"}
-          trend={k?.students.trend}
-          trendNote="vs last month"
-        />
-        <KpiCard
-          label="Active Applications"
-          icon="applications"
-          tone="purple"
-          loading={!data}
-          value={k ? num(k.applications.value) : "—"}
-          trend={k?.applications.trend}
-          trendNote="vs last month"
-        />
-        <KpiCard
-          label="Partner Network"
-          icon="partners"
-          tone="green"
-          href="/admin/partners"
-          loading={!data}
-          value={k ? num(k.partners.value) : "—"}
-          trend={k?.partners.trend}
-          trendNote="this month"
-        />
-        <KpiCard
-          label="Revenue (YTD)"
-          icon="revenue"
-          tone="orange"
-          loading={!data}
-          value={k ? formatINR(k.revenue.value) : "—"}
-          needsData
-        />
-      </div>
+      <Stagger className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <FadeUp className="h-full">
+          <KpiCard
+            label="Total Students"
+            icon="students"
+            tone="blue"
+            href="/admin/students"
+            loading={!data}
+            value={k ? num(k.students.value) : "—"}
+            trend={k?.students.trend}
+            trendNote="vs last month"
+          />
+        </FadeUp>
+        <FadeUp className="h-full">
+          <KpiCard
+            label="Active Applications"
+            icon="applications"
+            tone="purple"
+            loading={!data}
+            value={k ? num(k.applications.value) : "—"}
+            trend={k?.applications.trend}
+            trendNote="vs last month"
+          />
+        </FadeUp>
+        <FadeUp className="h-full">
+          <KpiCard
+            label="Partner Network"
+            icon="partners"
+            tone="green"
+            href="/admin/partners"
+            loading={!data}
+            value={k ? num(k.partners.value) : "—"}
+            trend={k?.partners.trend}
+            trendNote="this month"
+          />
+        </FadeUp>
+        <FadeUp className="h-full">
+          <KpiCard
+            label="Revenue (YTD)"
+            icon="revenue"
+            tone="orange"
+            loading={!data}
+            value={k ? formatINR(k.revenue.value) : "—"}
+            needsData
+          />
+        </FadeUp>
+      </Stagger>
 
       {/* Pending approvals call-out */}
       {k && k.pendingApprovals > 0 && (
@@ -252,11 +263,20 @@ export default function DashboardPage() {
           link="/admin/students"
           className="lg:col-span-2"
         >
-          <Funnel steps={funnelSteps} />
+          {isLoading ? <SkeletonRows rows={8} /> : <Funnel steps={funnelSteps} />}
         </DashboardCard>
 
         <DashboardCard title="Applications by Country">
-          {countryData.length > 0 ? (
+          {isLoading ? (
+            <div className="flex flex-wrap items-center gap-5">
+              <Skeleton className="h-[168px] w-[168px] rounded-full" />
+              <div className="flex-1 space-y-2.5">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Skeleton key={i} className="h-3.5 w-full" />
+                ))}
+              </div>
+            </div>
+          ) : countryData.length > 0 ? (
             <DonutChart data={countryData} centerLabel="apps" />
           ) : (
             <EmptyState />
@@ -272,7 +292,11 @@ export default function DashboardPage() {
           className="lg:col-span-2"
           bodyClassName=""
         >
-          {partners.length > 0 ? (
+          {isLoading ? (
+            <div className="p-5">
+              <SkeletonRows rows={6} />
+            </div>
+          ) : partners.length > 0 ? (
             <>
             <div className="overflow-x-auto">
               <table className="w-full border-collapse">
@@ -359,14 +383,16 @@ export default function DashboardPage() {
         </DashboardCard>
 
         <DashboardCard title="Recent Activity">
-          <ActivityFeed items={activityItems} />
+          {isLoading ? <SkeletonRows /> : <ActivityFeed items={activityItems} />}
         </DashboardCard>
       </div>
 
       {/* Row 3: Application Queue + Top Universities + TAT */}
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         <DashboardCard title="Application Queue" link="/admin/students">
-          {data && data.applicationQueue.length > 0 ? (
+          {isLoading ? (
+            <SkeletonRows />
+          ) : data && data.applicationQueue.length > 0 ? (
             <ul className="space-y-1">
               {data.applicationQueue.map((q) => {
                 const color =
@@ -397,7 +423,7 @@ export default function DashboardPage() {
         </DashboardCard>
 
         <DashboardCard title="Top Universities">
-          <BreakdownList rows={uniRows} />
+          {isLoading ? <SkeletonRows /> : <BreakdownList rows={uniRows} />}
         </DashboardCard>
 
         {/* TAT Compliance — UI ready; TAT module gated off until data exists. */}
@@ -416,9 +442,6 @@ export default function DashboardPage() {
         </DashboardCard>
       </div>
 
-      {isLoading && (
-        <p className="mt-4 text-center text-xs text-[#98A2B3]">Loading dashboard…</p>
-      )}
     </>
   );
 }
