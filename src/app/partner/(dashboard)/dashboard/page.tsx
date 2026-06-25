@@ -10,8 +10,11 @@ import {
   DashboardCard,
   NeedsDataBadge,
   EmptyState,
+  Skeleton,
+  SkeletonRows,
   Icon,
 } from "~/components/dashboard/widgets";
+import { Stagger, FadeUp } from "~/components/dashboard/motion";
 
 const num = (n: number) => n.toLocaleString("en-IN");
 
@@ -65,37 +68,45 @@ export default function PartnerDashboardPage() {
       </div>
 
       {/* KPIs */}
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <KpiCard
-          label="All Applications"
-          icon="applications"
-          tone="blue"
-          href="/partner/students"
-          loading={isLoading}
-          value={stats ? num(stats.kpis.applications) : "—"}
-        />
-        <KpiCard
-          label="Offers Received"
-          icon="offer"
-          tone="purple"
-          loading={isLoading}
-          value={stats ? num(stats.kpis.offers) : "—"}
-        />
-        <KpiCard
-          label="Deposits Paid"
-          icon="deposit"
-          tone="orange"
-          loading={isLoading}
-          value={stats ? num(stats.kpis.deposits) : "—"}
-        />
-        <KpiCard
-          label="Visas Received"
-          icon="visa"
-          tone="green"
-          loading={isLoading}
-          value={stats ? num(stats.kpis.visas) : "—"}
-        />
-      </div>
+      <Stagger className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <FadeUp className="h-full">
+          <KpiCard
+            label="All Applications"
+            icon="applications"
+            tone="blue"
+            href="/partner/students"
+            loading={isLoading}
+            value={stats ? num(stats.kpis.applications) : "—"}
+          />
+        </FadeUp>
+        <FadeUp className="h-full">
+          <KpiCard
+            label="Offers Received"
+            icon="offer"
+            tone="purple"
+            loading={isLoading}
+            value={stats ? num(stats.kpis.offers) : "—"}
+          />
+        </FadeUp>
+        <FadeUp className="h-full">
+          <KpiCard
+            label="Deposits Paid"
+            icon="deposit"
+            tone="orange"
+            loading={isLoading}
+            value={stats ? num(stats.kpis.deposits) : "—"}
+          />
+        </FadeUp>
+        <FadeUp className="h-full">
+          <KpiCard
+            label="Visas Received"
+            icon="visa"
+            tone="green"
+            loading={isLoading}
+            value={stats ? num(stats.kpis.visas) : "—"}
+          />
+        </FadeUp>
+      </Stagger>
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         {/* Recent Applications — live */}
@@ -104,7 +115,9 @@ export default function PartnerDashboardPage() {
           link="/partner/students"
           className="lg:col-span-2"
         >
-          {stats && stats.recentApplications.length > 0 ? (
+          {isLoading ? (
+            <SkeletonRows />
+          ) : stats && stats.recentApplications.length > 0 ? (
             <ul className="divide-y divide-[#F2F4F7]">
               {stats.recentApplications.map((a) => (
                 <li
@@ -129,7 +142,12 @@ export default function PartnerDashboardPage() {
 
         {/* Relationship Manager — live (the partner's BDM) */}
         <DashboardCard title="Your Relationship Manager">
-          {rm ? (
+          {isLoading ? (
+            <div className="flex items-center gap-3">
+              <Skeleton className="h-11 w-11 rounded-full" />
+              <Skeleton className="h-4 w-32" />
+            </div>
+          ) : rm ? (
             <div className="text-[13px]">
               <div className="flex items-center gap-3">
                 <span className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-[#1570EF] to-[#0b4ea2] text-sm font-bold text-white">
@@ -163,7 +181,13 @@ export default function PartnerDashboardPage() {
             </span>
             <div>
               <div className="text-[28px] leading-none font-extrabold text-[#101828]">
-                {stats ? num(stats.studentsThisYear) : "—"}
+                {isLoading ? (
+                  <Skeleton className="h-7 w-12" />
+                ) : stats ? (
+                  num(stats.studentsThisYear)
+                ) : (
+                  "—"
+                )}
               </div>
               <p className="mt-1 text-xs text-[#98A2B3]">New students since January.</p>
             </div>
@@ -172,7 +196,9 @@ export default function PartnerDashboardPage() {
 
         {/* Events — live (event table) */}
         <DashboardCard title="Upcoming Events" link="/partner/events">
-          {stats && stats.events.length > 0 ? (
+          {isLoading ? (
+            <SkeletonRows rows={3} />
+          ) : stats && stats.events.length > 0 ? (
             <ul className="space-y-3">
               {stats.events.map((e) => (
                 <li key={e.id} className="flex gap-3 text-[13px]">
