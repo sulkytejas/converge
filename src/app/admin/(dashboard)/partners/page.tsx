@@ -6,6 +6,7 @@ import { FormSelect } from "~/components/ui/form-select";
 import { Toast } from "~/components/ui/toast";
 import { AdminRole } from "~/server/db/enums";
 import { api } from "~/trpc/react";
+import { SkeletonTable } from "~/components/dashboard/widgets";
 
 type Tab = "all" | "pending" | "deactivated";
 
@@ -359,7 +360,7 @@ export default function PartnersPage() {
       {/* Tab content */}
       {partnersQuery.isLoading ? (
         <Card>
-          <div className="px-5 py-10 text-center text-sm text-[#98A2B3]">Loading…</div>
+          <SkeletonTable rows={6} cols={6} />
         </Card>
       ) : filtered.length === 0 ? (
         <Card>

@@ -10,6 +10,8 @@ import { StatusBadge } from "~/components/ui/status-badge";
 import { Toast } from "~/components/ui/toast";
 import { UniLogo } from "~/components/ui/uni-logo";
 import { api, type RouterOutputs } from "~/trpc/react";
+import { SkeletonTable } from "~/components/dashboard/widgets";
+import { Stagger, FadeUp } from "~/components/dashboard/motion";
 import {
   ImportPreviewModal,
   type ImportPreview,
@@ -512,33 +514,41 @@ export default function AdminUniversitiesPage() {
       </div>
 
       {/* Stat cards (matches mock: Total Universities, Total Programs, Inactive, Countries) */}
-      <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-        <StatCard
-          label="Total Universities"
-          value={stats.totalUni}
-          sub={`Across ${stats.countries.length} countries`}
-        />
-        <StatCard
-          label="Total Programs"
-          value={stats.totalPrograms}
-          sub="UG + Postgrad"
-        />
-        <StatCard
-          label="Inactive Universities"
-          value={stats.inactiveUni}
-          valueClassName={stats.inactiveUni > 0 ? "text-[#F79009]" : undefined}
-          sub="Currently not active"
-        />
-        <StatCard
-          label="Countries Covered"
-          value={stats.countries.length}
-          sub={
-            stats.countries.length
-              ? stats.countries.map(flagEmoji).join(" ")
-              : "—"
-          }
-        />
-      </div>
+      <Stagger className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-4">
+        <FadeUp className="h-full">
+          <StatCard
+            label="Total Universities"
+            value={stats.totalUni}
+            sub={`Across ${stats.countries.length} countries`}
+          />
+        </FadeUp>
+        <FadeUp className="h-full">
+          <StatCard
+            label="Total Programs"
+            value={stats.totalPrograms}
+            sub="UG + Postgrad"
+          />
+        </FadeUp>
+        <FadeUp className="h-full">
+          <StatCard
+            label="Inactive Universities"
+            value={stats.inactiveUni}
+            valueClassName={stats.inactiveUni > 0 ? "text-[#F79009]" : undefined}
+            sub="Currently not active"
+          />
+        </FadeUp>
+        <FadeUp className="h-full">
+          <StatCard
+            label="Countries Covered"
+            value={stats.countries.length}
+            sub={
+              stats.countries.length
+                ? stats.countries.map(flagEmoji).join(" ")
+                : "—"
+            }
+          />
+        </FadeUp>
+      </Stagger>
 
       {/* Tabs */}
       <div className="mb-5 flex gap-0 border-b-2 border-[#E4E7EC]">
@@ -1157,7 +1167,7 @@ function UniversitiesCard({
       {error ? (
         <ErrorBanner message={error} />
       ) : isLoading ? (
-        <EmptyRow message="Loading…" />
+        <SkeletonTable rows={6} cols={6} />
       ) : rows.length === 0 ? (
         <EmptyState title="No universities" hint="Add one or use Bulk Upload." />
       ) : (
@@ -1357,7 +1367,7 @@ function ProgramsCard({
       {error ? (
         <ErrorBanner message={error} />
       ) : isLoading ? (
-        <EmptyRow message="Loading…" />
+        <SkeletonTable rows={6} cols={6} />
       ) : rows.length === 0 ? (
         <EmptyState title="No programs" hint="Add one or use Bulk Upload." />
       ) : (
@@ -1970,12 +1980,6 @@ function EmptyState({ title, hint }: { title: string; hint: string }) {
       <div className="text-[15px] font-semibold text-[#667085]">{title}</div>
       <div className="mt-1 text-[13px] text-[#98A2B3]">{hint}</div>
     </div>
-  );
-}
-
-function EmptyRow({ message }: { message: string }) {
-  return (
-    <div className="px-5 py-8 text-center text-sm text-[#98A2B3]">{message}</div>
   );
 }
 

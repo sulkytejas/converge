@@ -16,6 +16,8 @@ import {
   type CourseLevel,
 } from "~/components/students/status";
 import { api, type RouterOutputs } from "~/trpc/react";
+import { Skeleton, SkeletonTable } from "~/components/dashboard/widgets";
+import { Stagger, FadeUp } from "~/components/dashboard/motion";
 import {
   AddStudentModal,
   COUNTRY_NAME,
@@ -285,8 +287,15 @@ export default function PartnerStudentsPage() {
           {students.error.message}
         </div>
       ) : students.isLoading ? (
-        <div className="rounded-2xl border border-dashed border-[#D0D5DD] bg-white p-12 text-center text-sm text-[#98A2B3]">
-          Loading…
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-[88px]" />
+            ))}
+          </div>
+          <div className="overflow-hidden rounded-2xl border border-[#E4E7EC] bg-white">
+            <SkeletonTable rows={6} cols={6} />
+          </div>
         </div>
       ) : (
         <>
@@ -361,12 +370,20 @@ export default function PartnerStudentsPage() {
           </div>
 
           {/* Stat cards */}
-          <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <StatCard label="All Applications" value={stats.apps} />
-            <StatCard label="Offers" value={stats.offers} />
-            <StatCard label="Deposits" value={stats.deposits} />
-            <StatCard label="Visas Received" value={stats.visas} />
-          </div>
+          <Stagger className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <FadeUp className="h-full">
+              <StatCard label="All Applications" value={stats.apps} />
+            </FadeUp>
+            <FadeUp className="h-full">
+              <StatCard label="Offers" value={stats.offers} />
+            </FadeUp>
+            <FadeUp className="h-full">
+              <StatCard label="Deposits" value={stats.deposits} />
+            </FadeUp>
+            <FadeUp className="h-full">
+              <StatCard label="Visas Received" value={stats.visas} />
+            </FadeUp>
+          </Stagger>
 
           {/* Status filter pills */}
           <div className="mb-4 flex flex-wrap gap-2">

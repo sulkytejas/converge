@@ -10,6 +10,7 @@ import {
   studentStatusGroup,
 } from "~/components/students/status";
 import { api } from "~/trpc/react";
+import { SkeletonTable } from "~/components/dashboard/widgets";
 import {
   countryName,
   derivedProgram,
@@ -542,9 +543,7 @@ export default function StudentsPage() {
         </div>
       ) : studentsQuery.isLoading ? (
         <Card>
-          <div className="px-5 py-10 text-center text-sm text-[#98A2B3]">
-            Loading…
-          </div>
+          <SkeletonTable rows={8} cols={7} />
         </Card>
       ) : (
         <Card>

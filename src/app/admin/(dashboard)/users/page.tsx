@@ -12,6 +12,8 @@ import { Toast } from "~/components/ui/toast";
 import { isValidEmail, isValidPhone, getExpectedPhoneDigits } from "~/lib/utils/validation";
 import { AdminRole, AdminRoleLabel } from "~/server/db/enums";
 import { api } from "~/trpc/react";
+import { Skeleton } from "~/components/dashboard/widgets";
+import { Stagger, FadeUp } from "~/components/dashboard/motion";
 
 const SUPER_ADMIN: number = AdminRole.SUPER_ADMIN;
 
@@ -245,21 +247,27 @@ export default function UsersPage() {
       </div>
 
       {/* Stat cards */}
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <StatCard label="Total Users" value={total} sub="All admin users" />
-        <StatCard
-          label="Active"
-          value={activeCount}
-          valueClassName="text-[#067647]"
-          sub="Currently active"
-        />
-        <StatCard
-          label="Inactive"
-          value={inactiveCount}
-          valueClassName="text-[#667085]"
-          sub="Deactivated accounts"
-        />
-      </div>
+      <Stagger className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <FadeUp className="h-full">
+          <StatCard label="Total Users" value={total} sub="All admin users" />
+        </FadeUp>
+        <FadeUp className="h-full">
+          <StatCard
+            label="Active"
+            value={activeCount}
+            valueClassName="text-[#067647]"
+            sub="Currently active"
+          />
+        </FadeUp>
+        <FadeUp className="h-full">
+          <StatCard
+            label="Inactive"
+            value={inactiveCount}
+            valueClassName="text-[#667085]"
+            sub="Deactivated accounts"
+          />
+        </FadeUp>
+      </Stagger>
 
       {/* Filter bar */}
       <div className="mb-5 flex flex-wrap items-center gap-3">
@@ -326,11 +334,15 @@ export default function UsersPage() {
             </thead>
             <tbody>
               {usersQuery.isLoading ? (
-                <tr>
-                  <td colSpan={6} className="px-3.5 py-8 text-center text-sm text-[#98A2B3]">
-                    Loading...
-                  </td>
-                </tr>
+                Array.from({ length: 6 }).map((_, i) => (
+                  <tr key={i} className="border-b border-[#F2F4F7] last:border-b-0">
+                    {Array.from({ length: 6 }).map((_, c) => (
+                      <td key={c} className="px-3.5 py-3.5">
+                        <Skeleton className="h-4 w-full" />
+                      </td>
+                    ))}
+                  </tr>
+                ))
               ) : filtered.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-3.5 py-8 text-center text-sm text-[#98A2B3]">
