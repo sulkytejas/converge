@@ -28,45 +28,100 @@ const DEPOSIT_OR_BEYOND = [
   UniApplicationStatus.VISA_SECURED,
 ];
 
+// Trend pill shape returned with each admin KPI (null = nothing to compare).
+type Trend = { value: string; dir: "up" | "down" } | null;
+
 export const dashboardRouter = createTRPCRouter({
   // ===== Admin overview =====
   adminStats: protectedAdminProcedure.query(async ({ ctx }) => {
     const { db } = ctx;
     const partnerWhere = { type: { not: UserType.ADMIN } };
 
+    // Time windows for month-over-month / year-over-year trend pills.
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const yearStart = new Date(now.getFullYear(), 0, 1);
+    const lastYearStart = new Date(now.getFullYear() - 1, 0, 1);
+    const lastYearToDate = new Date(
+      now.getFullYear() - 1,
+      now.getMonth(),
+      now.getDate(),
+    );
+
     const [
       partners,
+      partnersThisMonth,
       students,
-      applications,
+      studentsThisMonth,
+      studentsLastMonth,
+      applicationsActive,
+      appsThisMonth,
+      appsLastMonth,
       pendingApprovals,
-      pipelineRaw,
       queueRaw,
       topOrgsRaw,
+      appByOrgRaw,
+      depByOrgRaw,
+      revByOrgRaw,
       appByCourse,
-      byCountryRaw,
+      byCountryRows,
+      revYtdAgg,
+      revLastYtdAgg,
       recent,
     ] = await Promise.all([
       db.user.count({ where: partnerWhere }),
+      db.user.count({
+        where: { ...partnerWhere, created_at: { gte: monthStart } },
+      }),
       db.student.count(),
-      db.application.count(),
+      db.student.count({ where: { created_at: { gte: monthStart } } }),
+      db.student.count({
+        where: { created_at: { gte: lastMonthStart, lt: monthStart } },
+      }),
+      // "Active" applications = anything not in a terminal outcome (>=20).
+      db.application.count({ where: { status: { lt: 20 } } }),
+      db.application.count({ where: { created_at: { gte: monthStart } } }),
+      db.application.count({
+        where: { created_at: { gte: lastMonthStart, lt: monthStart } },
+      }),
       db.user.count({
         where: { ...partnerWhere, status: UserStatus.UNDER_REVIEW },
       }),
-      db.user.groupBy({ by: ["status"], where: partnerWhere, _count: true }),
       db.application.groupBy({ by: ["status"], _count: true }),
       db.student.groupBy({
         by: ["org_id"],
         where: { org_id: { not: null } },
         _count: { id: true },
         orderBy: { _count: { id: "desc" } },
-        take: 5,
+        take: 8,
+      }),
+      db.application.groupBy({ by: ["org_id"], _count: { id: true } }),
+      db.application.groupBy({
+        by: ["org_id"],
+        where: { status: { in: DEPOSIT_OR_BEYOND } },
+        _count: { id: true },
+      }),
+      db.commission.groupBy({
+        by: ["org_id"],
+        _sum: { commision_amount: true },
       }),
       db.application.groupBy({ by: ["course_id"], _count: { course_id: true } }),
-      db.student.groupBy({
-        by: ["country"],
-        _count: { country: true },
-        orderBy: { _count: { country: "desc" } },
-        take: 6,
+      // Applications by destination country (student.country, ISO2).
+      db.$queryRaw<{ country: string; count: bigint }[]>`
+        SELECT s.country AS country, COUNT(*) AS count
+        FROM application a
+        JOIN student s ON a.student_id = s.id
+        GROUP BY s.country
+        ORDER BY count DESC
+        LIMIT 6`,
+      db.commission.aggregate({
+        _sum: { commision_amount: true },
+        where: { created_at: { gte: yearStart } },
+      }),
+      db.commission.aggregate({
+        _sum: { commision_amount: true },
+        where: { created_at: { gte: lastYearStart, lt: lastYearToDate } },
       }),
       db.audit_log.findMany({
         orderBy: { created_at: "desc" },
@@ -80,38 +135,51 @@ export const dashboardRouter = createTRPCRouter({
       }),
     ]);
 
-    // Partner pipeline by status
-    const pipeline = { underReview: 0, approved: 0, rejected: 0, inactive: 0 };
-    for (const g of pipelineRaw) {
-      if (g.status === UserStatus.UNDER_REVIEW) pipeline.underReview = g._count;
-      else if (g.status === UserStatus.APPROVED) pipeline.approved = g._count;
-      else if (g.status === UserStatus.REJECTED) pipeline.rejected = g._count;
-      else if (g.status === UserStatus.INACTIVE) pipeline.inactive = g._count;
-    }
+    // Trend pill — % change vs the comparison window. null when nothing to compare.
+    const trend = (cur: number, prev: number): Trend => {
+      if (prev === 0) return cur === 0 ? null : { value: "New", dir: "up" };
+      const p = Math.round(((cur - prev) / prev) * 1000) / 10;
+      return { value: `${p >= 0 ? "+" : ""}${p}%`, dir: p >= 0 ? "up" : "down" };
+    };
 
-    // Application queue — count per stage, ascending
+    const revenueYtd = Number(revYtdAgg._sum.commision_amount ?? 0);
+    const revenueLastYtd = Number(revLastYtdAgg._sum.commision_amount ?? 0);
+
+    // Application queue — count per stage, ascending.
     const applicationQueue = queueRaw
       .map((g) => ({ status: g.status, count: g._count }))
       .sort((a, b) => a.status - b.status);
 
-    // Top partners — resolve org names
+    // Top partners — students from topOrgsRaw, enriched with apps/deposits/revenue.
+    // (application.org_id and commission.org_id are non-null, so no null guard.)
     const topOrgs = topOrgsRaw.filter(
       (g): g is typeof g & { org_id: number } => g.org_id !== null,
     );
     const orgs = topOrgs.length
       ? await db.organization.findMany({
           where: { id: { in: topOrgs.map((g) => g.org_id) } },
-          select: { id: true, name: true },
+          select: { id: true, name: true, city: true },
         })
       : [];
-    const orgName = new Map(orgs.map((o) => [o.id, o.name]));
+    const orgById = new Map(orgs.map((o) => [o.id, o]));
+    const appByOrg = new Map<number, number>();
+    for (const g of appByOrgRaw) appByOrg.set(g.org_id, g._count.id);
+    const depByOrg = new Map<number, number>();
+    for (const g of depByOrgRaw) depByOrg.set(g.org_id, g._count.id);
+    const revByOrg = new Map<number, number>();
+    for (const g of revByOrgRaw)
+      revByOrg.set(g.org_id, Number(g._sum.commision_amount ?? 0));
     const topPartners = topOrgs.map((g) => ({
       orgId: g.org_id,
-      name: orgName.get(g.org_id) ?? "—",
+      name: orgById.get(g.org_id)?.name ?? "—",
+      city: orgById.get(g.org_id)?.city ?? null,
       students: g._count.id,
+      applications: appByOrg.get(g.org_id) ?? 0,
+      deposits: depByOrg.get(g.org_id) ?? 0,
+      revenue: revByOrg.get(g.org_id) ?? 0,
     }));
 
-    // Top universities — applications grouped by course, rolled up to university
+    // Top universities — applications grouped by course, rolled up to university.
     const courses = appByCourse.length
       ? await db.course.findMany({
           where: { id: { in: appByCourse.map((g) => g.course_id) } },
@@ -135,11 +203,11 @@ export const dashboardRouter = createTRPCRouter({
     const topUniversities = [...uniCount.entries()]
       .map(([id, count]) => ({ id, name: uniName.get(id) ?? "—", applications: count }))
       .sort((a, b) => b.applications - a.applications)
-      .slice(0, 5);
+      .slice(0, 6);
 
-    const applicationsByCountry = byCountryRaw.map((g) => ({
-      country: g.country,
-      count: g._count.country,
+    const applicationsByCountry = byCountryRows.map((r) => ({
+      country: r.country,
+      count: Number(r.count),
     }));
 
     const recentActivity = recent.map((r) => ({
@@ -150,8 +218,25 @@ export const dashboardRouter = createTRPCRouter({
     }));
 
     return {
-      kpis: { partners, students, applications, pendingApprovals },
-      pipeline,
+      kpis: {
+        students: {
+          value: students,
+          trend: trend(studentsThisMonth, studentsLastMonth),
+        },
+        applications: {
+          value: applicationsActive,
+          trend: trend(appsThisMonth, appsLastMonth),
+        },
+        partners: {
+          value: partners,
+          trend:
+            partnersThisMonth > 0
+              ? { value: `+${partnersThisMonth} new`, dir: "up" as const }
+              : null,
+        },
+        revenue: { value: revenueYtd, trend: trend(revenueYtd, revenueLastYtd) },
+        pendingApprovals,
+      },
       applicationQueue,
       topPartners,
       topUniversities,

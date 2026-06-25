@@ -1,191 +1,418 @@
 "use client";
 
 import { type ReactNode } from "react";
+import Link from "next/link";
 import { api } from "~/trpc/react";
-import { StatCard } from "~/components/ui/stat-card";
-import { UniApplicationStatusLabel } from "~/server/db/enums";
+import {
+  greeting,
+  formatLongDate,
+  formatINR,
+  timeAgo,
+  humanize,
+  stageLabel,
+  countryName,
+  countryFlag,
+} from "~/components/dashboard/format";
+import {
+  KpiCard,
+  DashboardCard,
+  Funnel,
+  DonutChart,
+  BreakdownList,
+  ActivityFeed,
+  StatTrio,
+  MeterRow,
+  Icon,
+  NeedsDataBadge,
+  EmptyState,
+  AVATAR_GRADIENTS,
+} from "~/components/dashboard/widgets";
 
-function greeting(): string {
-  const h = new Date().getHours();
-  if (h < 12) return "Good morning";
-  if (h < 17) return "Good afternoon";
-  return "Good evening";
+const num = (n: number) => n.toLocaleString("en-IN");
+
+// Happy-path application stages (0–7) for the pipeline funnel, with colors.
+const FUNNEL_STAGES: { status: number; color: string }[] = [
+  { status: 0, color: "#1570EF" },
+  { status: 1, color: "#0BA5EC" },
+  { status: 2, color: "#6172F3" },
+  { status: 3, color: "#7F56D9" },
+  { status: 4, color: "#9E77ED" },
+  { status: 5, color: "#6941C6" },
+  { status: 6, color: "#F79009" },
+  { status: 7, color: "#12B76A" },
+];
+
+const COUNTRY_PALETTE = [
+  "#1570EF",
+  "#7F56D9",
+  "#12B76A",
+  "#F79009",
+  "#0BA5EC",
+  "#F04438",
+];
+const UNI_PALETTE = [
+  "#1570EF",
+  "#0BA5EC",
+  "#7F56D9",
+  "#12B76A",
+  "#F79009",
+  "#E31B54",
+];
+
+// Tier is derived from student volume (no tier column yet) — a display nicety.
+function tierOf(students: number): { label: string; bg: string; fg: string } {
+  if (students >= 75) return { label: "Diamond", bg: "#EFF8FF", fg: "#1570EF" };
+  if (students >= 50) return { label: "Titanium", bg: "#F9F5FF", fg: "#6941C6" };
+  if (students >= 30) return { label: "Platinum", bg: "#FFFAEB", fg: "#B54708" };
+  if (students >= 15) return { label: "Gold", bg: "#ECFDF3", fg: "#027A48" };
+  return { label: "Silver", bg: "#F2F4F7", fg: "#344054" };
 }
 
-function timeAgo(d: Date | string): string {
-  const t = typeof d === "string" ? new Date(d) : d;
-  const s = Math.max(0, Math.floor((Date.now() - t.getTime()) / 1000));
-  if (s < 60) return "just now";
-  const m = Math.floor(s / 60);
-  if (m < 60) return `${m}m ago`;
-  const h = Math.floor(m / 60);
-  if (h < 24) return `${h}h ago`;
-  return `${Math.floor(h / 24)}d ago`;
+// Map an audit action to an emoji + bubble color for the activity feed.
+function activityStyle(action: string): { icon: string; bg: string } {
+  const a = action.toLowerCase();
+  if (a.includes("partner") || a.includes("org")) return { icon: "🤝", bg: "#ECFDF3" };
+  if (a.includes("application") || a.includes("app")) return { icon: "📋", bg: "#EFF8FF" };
+  if (a.includes("student")) return { icon: "🎓", bg: "#F0F9FF" };
+  if (a.includes("commission") || a.includes("invoice") || a.includes("payment"))
+    return { icon: "💰", bg: "#FFFAEB" };
+  if (a.includes("counsel") || a.includes("user")) return { icon: "👤", bg: "#F9F5FF" };
+  if (a.includes("login") || a.includes("auth")) return { icon: "🔐", bg: "#F2F4F7" };
+  return { icon: "•", bg: "#F2F4F7" };
 }
 
-function humanize(a: string): string {
-  return a.replace(/[._]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-}
-
-// UniApplicationStatusLabel is a Record over the enum; cast so a stray/unknown
-// status code degrades gracefully instead of rendering "undefined".
-function stageLabel(status: number): string {
-  const map = UniApplicationStatusLabel as Record<number, string | undefined>;
-  return map[status] ?? `Stage ${status}`;
-}
-
-function Card({ title, children }: { title: string; children: ReactNode }) {
+function QuickActions({ pending }: { pending: number }) {
+  const items: { label: string; href: string; badge?: number }[] = [
+    { label: "Review Approvals", href: "/admin/counselor-approvals", badge: pending },
+    { label: "Add Partner", href: "/admin/partners" },
+    { label: "Add University", href: "/admin/universities" },
+    { label: "View Students", href: "/admin/students" },
+  ];
   return (
-    <div className="rounded-xl border border-[#E4E7EC] bg-white p-5">
-      <h2 className="mb-4 text-sm font-semibold text-[#101828]">{title}</h2>
-      {children}
-    </div>
-  );
-}
-
-function Bar({ label, value, max, tone = "#1570EF" }: { label: string; value: number; max: number; tone?: string }) {
-  const pct = max > 0 ? Math.round((value / max) * 100) : 0;
-  return (
-    <div className="mb-3 last:mb-0">
-      <div className="mb-1 flex items-center justify-between text-[13px]">
-        <span className="text-[#344054]">{label}</span>
-        <span className="font-semibold text-[#101828]">{value}</span>
+    <details className="relative">
+      <summary className="flex h-9 cursor-pointer list-none items-center gap-2 rounded-lg bg-[#1570EF] px-4 text-[13px] font-semibold text-white hover:bg-[#1260d4] [&::-webkit-details-marker]:hidden">
+        <Icon name="bolt" size={15} />
+        Quick Actions
+        <Icon name="chevron-down" size={14} />
+      </summary>
+      <div className="absolute right-0 z-20 mt-2 w-56 rounded-xl border border-[#E4E7EC] bg-white p-1.5 shadow-[0_12px_40px_rgba(0,0,0,0.12)]">
+        {items.map((it) => (
+          <Link
+            key={it.href}
+            href={it.href}
+            className="flex items-center justify-between rounded-lg px-3 py-2 text-[13px] text-[#344054] hover:bg-[#F0F7FF] hover:text-[#1570EF]"
+          >
+            {it.label}
+            {it.badge != null && it.badge > 0 && (
+              <span className="rounded-full bg-[#FEF3F2] px-2 py-0.5 text-[11px] font-bold text-[#B42318]">
+                {it.badge}
+              </span>
+            )}
+          </Link>
+        ))}
       </div>
-      <div className="h-2 overflow-hidden rounded-full bg-[#F2F4F7]">
-        <div className="h-full rounded-full" style={{ width: `${pct}%`, background: tone }} />
-      </div>
-    </div>
+    </details>
   );
-}
-
-function RankList({ rows, valueLabel }: { rows: { name: string; value: number }[]; valueLabel: string }) {
-  if (rows.length === 0) return <Empty />;
-  return (
-    <ul className="space-y-2.5">
-      {rows.map((r, i) => (
-        <li key={`${r.name}-${i}`} className="flex items-center gap-3 text-[13px]">
-          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#F2F4F7] text-xs font-semibold text-[#475467]">
-            {i + 1}
-          </span>
-          <span className="flex-1 truncate text-[#344054]">{r.name}</span>
-          <span className="shrink-0 font-semibold text-[#101828]">
-            {r.value}
-            <span className="ml-1 text-xs font-normal text-[#98A2B3]">{valueLabel}</span>
-          </span>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function Empty() {
-  return <p className="py-6 text-center text-[13px] text-[#98A2B3]">No data yet.</p>;
 }
 
 export default function DashboardPage() {
   const me = api.authSession.me.useQuery().data;
   const { data, isLoading } = api.dashboard.adminStats.useQuery();
   const firstName = me?.firstName ?? "";
+  const k = data?.kpis;
 
-  const pipelineMax = data
-    ? Math.max(1, data.pipeline.underReview, data.pipeline.approved, data.pipeline.rejected, data.pipeline.inactive)
-    : 1;
-  const countryMax = data ? Math.max(1, ...data.applicationsByCountry.map((c) => c.count)) : 1;
+  const queueMap = new Map(
+    (data?.applicationQueue ?? []).map((q) => [q.status, q.count]),
+  );
+  const funnelSteps = FUNNEL_STAGES.map((s) => ({
+    label: stageLabel(s.status),
+    count: queueMap.get(s.status) ?? 0,
+    color: s.color,
+  }));
+
+  const countryData = (data?.applicationsByCountry ?? []).map((c, i) => ({
+    label: `${countryFlag(c.country)} ${countryName(c.country)}`,
+    value: c.count,
+    color: COUNTRY_PALETTE[i % COUNTRY_PALETTE.length]!,
+  }));
+
+  const uniRows = (data?.topUniversities ?? []).map((u, i) => ({
+    label: u.name,
+    value: u.applications,
+    color: UNI_PALETTE[i % UNI_PALETTE.length]!,
+    lead: (
+      <span style={{ color: UNI_PALETTE[i % UNI_PALETTE.length]! }} className="font-bold">
+        {i + 1}
+      </span>
+    ) as ReactNode,
+  }));
+
+  const activityItems = (data?.recentActivity ?? []).map((r) => {
+    const s = activityStyle(r.action);
+    return {
+      id: r.id,
+      icon: s.icon,
+      bg: s.bg,
+      text: (
+        <>
+          <strong className="font-semibold text-[#101828]">{humanize(r.action)}</strong>
+          {r.entityType ? ` · ${r.entityType}` : ""}
+        </>
+      ),
+      time: timeAgo(r.at),
+    };
+  });
+
+  const partners = data?.topPartners ?? [];
 
   return (
     <>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-[#101828]">
-          {greeting()}
-          {firstName ? `, ${firstName}` : ""}
-        </h1>
-        <p className="mt-1 text-sm text-[#667085]">
-          Here&apos;s what&apos;s happening across Collegepond today.
-        </p>
+      {/* Welcome + date + quick actions */}
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-[#101828]">
+            {greeting()}
+            {firstName ? `, ${firstName}` : ""} 👋
+          </h1>
+          <p className="mt-1 text-sm text-[#667085]">
+            Here&apos;s what&apos;s happening across Collegepond today.
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="hidden h-9 items-center gap-2 rounded-lg border border-[#E4E7EC] bg-white px-3 text-[13px] font-medium text-[#344054] sm:flex">
+            <Icon name="calendar" size={15} className="text-[#667085]" />
+            {formatLongDate(new Date())}
+          </span>
+          <QuickActions pending={k?.pendingApprovals ?? 0} />
+        </div>
       </div>
 
       {/* KPIs */}
-      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Partners" value={data?.kpis.partners ?? "—"} />
-        <StatCard label="Students" value={data?.kpis.students ?? "—"} />
-        <StatCard label="Applications" value={data?.kpis.applications ?? "—"} />
-        <StatCard
-          label="Pending Approvals"
-          value={data?.kpis.pendingApprovals ?? "—"}
-          valueClassName={data && data.kpis.pendingApprovals > 0 ? "text-[#B54708]" : ""}
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <KpiCard
+          label="Total Students"
+          icon="students"
+          tone="blue"
+          href="/admin/students"
+          loading={!data}
+          value={k ? num(k.students.value) : "—"}
+          trend={k?.students.trend}
+          trendNote="vs last month"
+        />
+        <KpiCard
+          label="Active Applications"
+          icon="applications"
+          tone="purple"
+          loading={!data}
+          value={k ? num(k.applications.value) : "—"}
+          trend={k?.applications.trend}
+          trendNote="vs last month"
+        />
+        <KpiCard
+          label="Partner Network"
+          icon="partners"
+          tone="green"
+          href="/admin/partners"
+          loading={!data}
+          value={k ? num(k.partners.value) : "—"}
+          trend={k?.partners.trend}
+          trendNote="this month"
+        />
+        <KpiCard
+          label="Revenue (YTD)"
+          icon="revenue"
+          tone="orange"
+          loading={!data}
+          value={k ? formatINR(k.revenue.value) : "—"}
+          needsData
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Card title="Partner Pipeline">
-          {data ? (
+      {/* Pending approvals call-out */}
+      {k && k.pendingApprovals > 0 && (
+        <Link
+          href="/admin/counselor-approvals"
+          className="mb-6 flex items-center justify-between gap-3 rounded-xl border border-[#FEDF89] bg-[#FFFCF5] px-5 py-3.5 text-[13px] transition-colors hover:border-[#F79009]"
+        >
+          <span className="flex items-center gap-2.5 font-medium text-[#B54708]">
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#FEF0C7] text-[#B54708]">
+              <Icon name="approvals" size={16} />
+            </span>
+            {k.pendingApprovals} partner approval{k.pendingApprovals === 1 ? "" : "s"} awaiting review
+          </span>
+          <span className="font-semibold text-[#B54708]">Review →</span>
+        </Link>
+      )}
+
+      {/* Row 1: Application Pipeline + Applications by Country */}
+      <div className="mb-5 grid grid-cols-1 gap-5 lg:grid-cols-3">
+        <DashboardCard
+          title="Application Pipeline"
+          link="/admin/students"
+          className="lg:col-span-2"
+        >
+          <Funnel steps={funnelSteps} />
+        </DashboardCard>
+
+        <DashboardCard title="Applications by Country">
+          {countryData.length > 0 ? (
+            <DonutChart data={countryData} centerLabel="apps" />
+          ) : (
+            <EmptyState />
+          )}
+        </DashboardCard>
+      </div>
+
+      {/* Row 2: Top Partners + Recent Activity */}
+      <div className="mb-5 grid grid-cols-1 gap-5 lg:grid-cols-3">
+        <DashboardCard
+          title="Top Performing Partners"
+          link="/admin/partners"
+          className="lg:col-span-2"
+          bodyClassName=""
+        >
+          {partners.length > 0 ? (
             <>
-              <Bar label="Under Review" value={data.pipeline.underReview} max={pipelineMax} tone="#F79009" />
-              <Bar label="Approved" value={data.pipeline.approved} max={pipelineMax} tone="#12B76A" />
-              <Bar label="Rejected" value={data.pipeline.rejected} max={pipelineMax} tone="#F04438" />
-              <Bar label="Inactive" value={data.pipeline.inactive} max={pipelineMax} tone="#98A2B3" />
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b border-[#E4E7EC] bg-[#F9FAFB] text-left text-[11px] font-semibold tracking-wide text-[#667085] uppercase">
+                    <th className="px-4 py-2.5">Partner</th>
+                    <th className="px-4 py-2.5">Tier</th>
+                    <th className="px-4 py-2.5">Students</th>
+                    <th className="px-4 py-2.5">Apps</th>
+                    <th className="px-4 py-2.5">Deposits</th>
+                    <th className="px-4 py-2.5">Conv.</th>
+                    <th className="px-4 py-2.5">Revenue</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {partners.map((p, i) => {
+                    const tier = tierOf(p.students);
+                    const conv =
+                      p.students > 0 ? Math.round((p.deposits / p.students) * 100) : 0;
+                    const convColor =
+                      conv >= 50 ? "#027A48" : conv >= 30 ? "#B54708" : "#B42318";
+                    return (
+                      <tr
+                        key={p.orgId}
+                        className="border-b border-[#F2F4F7] text-[13px] last:border-0 hover:bg-[#FAFBFC]"
+                      >
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2.5">
+                            <span
+                              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold text-white"
+                              style={{
+                                background: AVATAR_GRADIENTS[i % AVATAR_GRADIENTS.length],
+                              }}
+                            >
+                              {p.name.slice(0, 2).toUpperCase()}
+                            </span>
+                            <div className="min-w-0">
+                              <div className="truncate font-medium text-[#101828]">
+                                {p.name}
+                              </div>
+                              {p.city && (
+                                <div className="truncate text-[11px] text-[#98A2B3]">
+                                  {p.city}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span
+                            className="rounded-full px-2 py-0.5 text-[11px] font-semibold"
+                            style={{ background: tier.bg, color: tier.fg }}
+                          >
+                            {tier.label}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 font-semibold text-[#101828]">
+                          {p.students}
+                        </td>
+                        <td className="px-4 py-3 text-[#344054]">{p.applications}</td>
+                        <td className="px-4 py-3 text-[#344054]">{p.deposits}</td>
+                        <td className="px-4 py-3 font-semibold" style={{ color: convColor }}>
+                          {conv}%
+                        </td>
+                        <td className="px-4 py-3 font-medium text-[#98A2B3]">
+                          {formatINR(p.revenue)}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <div className="flex items-center gap-2 border-t border-[#E4E7EC] px-4 py-2.5 text-[11px] text-[#98A2B3]">
+              <NeedsDataBadge />
+              Revenue reflects the commissions module (in progress) — figures are sample for now.
+            </div>
             </>
           ) : (
-            <Empty />
+            <div className="p-5">
+              <EmptyState />
+            </div>
           )}
-        </Card>
+        </DashboardCard>
 
-        <Card title="Application Queue">
+        <DashboardCard title="Recent Activity">
+          <ActivityFeed items={activityItems} />
+        </DashboardCard>
+      </div>
+
+      {/* Row 3: Application Queue + Top Universities + TAT */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+        <DashboardCard title="Application Queue" link="/admin/students">
           {data && data.applicationQueue.length > 0 ? (
-            <ul className="space-y-2 text-[13px]">
-              {data.applicationQueue.map((q) => (
-                <li key={q.status} className="flex items-center justify-between">
-                  <span className="text-[#344054]">{stageLabel(q.status)}</span>
-                  <span className="font-semibold text-[#101828]">{q.count}</span>
-                </li>
-              ))}
+            <ul className="space-y-1">
+              {data.applicationQueue.map((q) => {
+                const color =
+                  FUNNEL_STAGES.find((s) => s.status === q.status)?.color ??
+                  (q.status >= 20 ? "#F04438" : "#667085");
+                return (
+                  <li
+                    key={q.status}
+                    className="flex items-center justify-between rounded-lg px-2 py-1.5 hover:bg-[#F0F7FF]"
+                  >
+                    <span className="flex items-center gap-2 text-[13px] text-[#344054]">
+                      <span
+                        className="h-2 w-2 rounded-full"
+                        style={{ background: color }}
+                      />
+                      {stageLabel(q.status)}
+                    </span>
+                    <span className="min-w-7 rounded-md bg-[#F2F4F7] px-2 py-0.5 text-center text-[13px] font-bold text-[#101828]">
+                      {q.count}
+                    </span>
+                  </li>
+                );
+              })}
             </ul>
           ) : (
-            <Empty />
+            <EmptyState />
           )}
-        </Card>
+        </DashboardCard>
 
-        <Card title="Recent Activity">
-          {data && data.recentActivity.length > 0 ? (
-            <ul className="space-y-3">
-              {data.recentActivity.map((r) => (
-                <li key={r.id} className="text-[13px]">
-                  <div className="text-[#344054]">{humanize(r.action)}</div>
-                  <div className="text-xs text-[#98A2B3]">
-                    {r.entityType ? `${r.entityType} · ` : ""}
-                    {timeAgo(r.at)}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <Empty />
-          )}
-        </Card>
+        <DashboardCard title="Top Universities">
+          <BreakdownList rows={uniRows} />
+        </DashboardCard>
 
-        <Card title="Top Partners">
-          <RankList
-            rows={(data?.topPartners ?? []).map((p) => ({ name: p.name, value: p.students }))}
-            valueLabel="students"
+        {/* TAT Compliance — UI ready; TAT module gated off until data exists. */}
+        <DashboardCard title="TAT Compliance" headerRight={<NeedsDataBadge />}>
+          <StatTrio
+            items={[
+              { label: "Active Breaches", value: 4, color: "#F04438" },
+              { label: "Avg Response", value: "18h", color: "#1570EF" },
+              { label: "Compliance", value: "87%", color: "#12B76A" },
+            ]}
           />
-        </Card>
-
-        <Card title="Top Universities">
-          <RankList
-            rows={(data?.topUniversities ?? []).map((u) => ({ name: u.name, value: u.applications }))}
-            valueLabel="apps"
-          />
-        </Card>
-
-        <Card title="Applications by Country">
-          {data && data.applicationsByCountry.length > 0 ? (
-            data.applicationsByCountry.map((c) => (
-              <Bar key={c.country} label={c.country} value={c.count} max={countryMax} />
-            ))
-          ) : (
-            <Empty />
-          )}
-        </Card>
+          <MeterRow label="Chat Response" value={95} color="#12B76A" />
+          <MeterRow label="App Submission" value={82} color="#F79009" />
+          <MeterRow label="Doc Review" value={91} color="#1570EF" />
+          <MeterRow label="Shortlisting" value={74} color="#F04438" />
+        </DashboardCard>
       </div>
 
       {isLoading && (
