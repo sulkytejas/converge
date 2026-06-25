@@ -56,3 +56,27 @@
   from { width: 0; }
   to { width: 100%; }
 }
+
+/* ---- Native View Transitions ---- */
+/* Shared-element morph: a student's avatar tweens between the list row and the
+   slide-over header (see students/page.tsx + slide-over.tsx). */
+::view-transition-group(student-morph) {
+  animation-duration: 0.42s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Overlay/page crossfade for the rest of the captured viewport. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.3s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Respect reduced-motion: snap instead of morph. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

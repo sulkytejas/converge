@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState, type ReactNode } from "react";
+import { flushSync } from "react-dom";
 import { Button } from "~/components/ui/button";
 import { Toast } from "~/components/ui/toast";
 import {
@@ -163,6 +164,29 @@ export default function StudentsPage() {
   );
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [slideOverId, setSlideOverId] = useState<number | null>(null);
+  const [morphId, setMorphId] = useState<number | null>(null);
+
+  // Native View Transition: morph the clicked row's avatar into the slide-over.
+  // The row avatar is named first (captured as the "old" snapshot), then the
+  // name is handed to the slide-over avatar (the "new" snapshot) so the browser
+  // tweens the circle between the two positions. Falls back to an instant open
+  // where the API is unsupported.
+  const openStudent = (id: number) => {
+    const doc: Document & {
+      startViewTransition?: (cb: () => void) => unknown;
+    } = document;
+    if (!doc.startViewTransition) {
+      setSlideOverId(id);
+      return;
+    }
+    flushSync(() => setMorphId(id));
+    doc.startViewTransition(() => {
+      flushSync(() => {
+        setSlideOverId(id);
+        setMorphId(null);
+      });
+    });
+  };
 
   const [addOpen, setAddOpen] = useState(false);
   const [statusModalOpen, setStatusModalOpen] = useState(false);
@@ -596,9 +620,10 @@ export default function StudentsPage() {
                     <StudentRow
                       key={s.id}
                       student={s}
+                      morphing={morphId === s.id}
                       selected={selectedIds.has(s.id)}
                       onToggle={() => toggleRow(s.id)}
-                      onView={() => setSlideOverId(s.id)}
+                      onView={() => openStudent(s.id)}
                       counsellors={counsellors}
                       onAssign={(cpCounsellorId) =>
                         assignSingleMut.mutate({ ids: [s.id], cpCounsellorId })
@@ -705,6 +730,7 @@ export default function StudentsPage() {
 
 function StudentRow({
   student: s,
+  morphing,
   selected,
   onToggle,
   onView,
@@ -713,6 +739,7 @@ function StudentRow({
   assigning,
 }: {
   student: AdminStudent;
+  morphing: boolean;
   selected: boolean;
   onToggle: () => void;
   onView: () => void;
@@ -741,7 +768,10 @@ function StudentRow({
         <div className="flex items-center gap-3">
           <div
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white"
-            style={{ background: avatarGradient(s.id) }}
+            style={{
+              background: avatarGradient(s.id),
+              viewTransitionName: morphing ? "student-morph" : undefined,
+            }}
           >
             {studentInitials(s)}
           </div>

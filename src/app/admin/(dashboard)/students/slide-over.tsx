@@ -52,7 +52,10 @@ export function StudentSlideOver({
           <div className="flex items-center gap-3.5">
             <div
               className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-base font-semibold text-white"
-              style={{ background: avatarGradient(student.id) }}
+              style={{
+                background: avatarGradient(student.id),
+                viewTransitionName: "student-morph",
+              }}
             >
               {studentInitials(student)}
             </div>
