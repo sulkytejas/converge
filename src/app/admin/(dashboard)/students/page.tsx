@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Link as VTLink } from "next-view-transitions";
 import { useMemo, useState, type ReactNode } from "react";
 import { flushSync } from "react-dom";
 import { Button } from "~/components/ui/button";
@@ -770,18 +771,21 @@ function StudentRow({
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white"
             style={{
               background: avatarGradient(s.id),
-              viewTransitionName: morphing ? "student-morph" : undefined,
+              viewTransitionName: morphing
+                ? "student-morph"
+                : `student-avatar-${s.id}`,
             }}
           >
             {studentInitials(s)}
           </div>
           <div className="min-w-0">
-            <Link
+            <VTLink
               href={`/admin/students/${s.id}`}
+              style={{ viewTransitionName: `student-name-${s.id}` }}
               className="text-sm font-semibold whitespace-nowrap text-[#101828] hover:text-[#1570EF] hover:underline"
             >
               {studentName(s)}
-            </Link>
+            </VTLink>
             <div className="truncate text-[11px] text-[#98A2B3]">
               {s.email ?? "—"}
             </div>

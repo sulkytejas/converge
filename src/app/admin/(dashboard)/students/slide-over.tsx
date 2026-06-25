@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Link as VTLink } from "next-view-transitions";
 import { useEffect, type ReactNode } from "react";
 import { StudentStatusBadge } from "~/components/students/status";
 import {
@@ -195,12 +196,12 @@ export function StudentSlideOver({
             </div>
           </div>
 
-          <Link
+          <VTLink
             href={`/admin/students/${student.id}`}
             className="mt-5 flex items-center justify-center gap-1.5 rounded-lg bg-[#1570EF] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#1260d4]"
           >
             View Full Profile →
-          </Link>
+          </VTLink>
           <Link
             href={`/admin/uni-assist?student=${student.id}`}
             className="mt-2.5 flex items-center justify-center gap-1.5 rounded-lg border border-[#1570EF] bg-white px-4 py-2.5 text-sm font-semibold text-[#1570EF] hover:bg-[#F0F7FF]"

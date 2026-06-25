@@ -4,6 +4,7 @@ import { type Metadata } from "next";
 import { Dancing_Script, Inter } from "next/font/google";
 
 import { TRPCReactProvider } from "~/trpc/react";
+import { ViewTransitions } from "next-view-transitions";
 
 export const metadata: Metadata = {
   title: "Collegepond",
@@ -28,7 +29,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${dancingScript.variable}`}>
       <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <ViewTransitions>
+          <TRPCReactProvider>{children}</TRPCReactProvider>
+        </ViewTransitions>
       </body>
     </html>
   );

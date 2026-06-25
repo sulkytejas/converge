@@ -89,13 +89,19 @@ export default function StudentProfilePage() {
             <div className="flex flex-wrap items-center gap-4">
               <div
                 className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full text-xl font-semibold text-white"
-                style={{ background: avatarGradient(student.id) }}
+                style={{
+                  background: avatarGradient(student.id),
+                  viewTransitionName: `student-avatar-${student.id}`,
+                }}
               >
                 {studentInitials(student)}
               </div>
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2.5">
-                  <h2 className="text-[22px] font-bold text-[#101828]">
+                  <h2
+                    className="text-[22px] font-bold text-[#101828]"
+                    style={{ viewTransitionName: `student-name-${student.id}` }}
+                  >
                     {studentName(student)}
                   </h2>
                   <span className="rounded-2xl bg-[#EFF8FF] px-2.5 py-0.5 text-xs font-semibold text-[#1570EF]">
