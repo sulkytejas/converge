@@ -261,6 +261,35 @@ export function KpiCard({
 }
 
 // ---------------------------------------------------------------------------
+// Plain stat card — colored icon box, big number, label (no trend). Used by
+// the list pages (placements / approvals / events).
+// ---------------------------------------------------------------------------
+export function StatCard({
+  icon,
+  tone = "blue",
+  value,
+  label,
+}: {
+  icon: IconName;
+  tone?: Tone;
+  value: ReactNode;
+  label: string;
+}) {
+  const t = TONES[tone];
+  return (
+    <div className="rounded-xl border border-[#E4E7EC] bg-white p-5">
+      <div
+        className={`mb-3.5 flex h-11 w-11 items-center justify-center rounded-[10px] ${t.bg} ${t.fg}`}
+      >
+        <Icon name={icon} size={22} />
+      </div>
+      <div className="text-[28px] leading-none font-extrabold text-[#101828]">{value}</div>
+      <div className="mt-1.5 text-[13px] font-medium text-[#667085]">{label}</div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Card shell with a header (title + optional link or custom right-slot).
 // ---------------------------------------------------------------------------
 export function DashboardCard({

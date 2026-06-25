@@ -431,3 +431,27 @@ export const UniApplicationStatusLabel: Record<UniApplicationStatus, string> = {
   [UniApplicationStatus.DEFERRED_TO_NEXT_INTAKE]: "Deferred to Next Intake",
   [UniApplicationStatus.COURSE_CLOSED]: "Course Closed",
 };
+
+// ---------------------------------------------------------------------------
+// Events
+// ---------------------------------------------------------------------------
+export const EventType = {
+  UNIVERSITY_FAIR: 0,
+  WEBINAR: 1,
+  WORKSHOP: 2,
+  INFO_SESSION: 3,
+  PARTNER_MEET: 4,
+  OTHER: 5,
+} as const;
+export type EventType = (typeof EventType)[keyof typeof EventType];
+
+export const EventTypeLabel: Record<EventType, string> = {
+  [EventType.UNIVERSITY_FAIR]: "University Fair",
+  [EventType.WEBINAR]: "Webinar",
+  [EventType.WORKSHOP]: "Workshop",
+  [EventType.INFO_SESSION]: "Info Session",
+  [EventType.PARTNER_MEET]: "Partner Meet",
+  [EventType.OTHER]: "Other",
+};
+
+export const EVENT_TYPE_CODES = Object.values(EventType) as EventType[];
