@@ -16,6 +16,7 @@ import { universityBillingRouter } from "~/server/api/routers/university-billing
 import { partnerCommissionRouter } from "~/server/api/routers/partner-commission";
 import { partnerPayoutsRouter } from "~/server/api/routers/partner-payouts";
 import { reconciliationRouter } from "~/server/api/routers/reconciliation";
+import { settingsRouter } from "~/server/api/routers/settings";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 
 export const appRouter = createTRPCRouter({
@@ -36,6 +37,7 @@ export const appRouter = createTRPCRouter({
   partnerCommission: partnerCommissionRouter,
   partnerPayouts: partnerPayoutsRouter,
   reconciliation: reconciliationRouter,
+  settings: settingsRouter,
   dashboard: dashboardRouter,
 });
 
