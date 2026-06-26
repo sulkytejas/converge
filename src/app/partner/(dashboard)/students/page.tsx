@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { flushSync } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Button } from "~/components/ui/button";
 import { StatCard } from "~/components/ui/stat-card";
@@ -18,6 +19,7 @@ import {
 import { api, type RouterOutputs } from "~/trpc/react";
 import { Skeleton, SkeletonTable } from "~/components/dashboard/widgets";
 import { Stagger, FadeUp } from "~/components/dashboard/motion";
+import { stageLabel } from "~/components/dashboard/format";
 import {
   AddStudentModal,
   COUNTRY_NAME,
@@ -131,6 +133,31 @@ export default function PartnerStudentsPage() {
 
   const [toastMsg, setToastMsg] = useState("");
   const [toastOpen, setToastOpen] = useState(false);
+  const [slideOverId, setSlideOverId] = useState<number | null>(null);
+  const [morphId, setMorphId] = useState<number | null>(null);
+
+  // Native View Transition: morph the clicked row's avatar into the slide-over.
+  const openStudent = (id: number) => {
+    const doc: Document & {
+      startViewTransition?: (cb: () => void) => unknown;
+    } = document;
+    if (!doc.startViewTransition) {
+      setSlideOverId(id);
+      return;
+    }
+    flushSync(() => setMorphId(id));
+    doc.startViewTransition(() => {
+      flushSync(() => {
+        setSlideOverId(id);
+        setMorphId(null);
+      });
+    });
+  };
+
+  const slideStudent =
+    slideOverId === null
+      ? null
+      : (rows.find((s) => s.id === slideOverId) ?? null);
   const showToast = (msg: string) => {
     setToastMsg(msg);
     setToastOpen(true);
@@ -452,7 +479,14 @@ export default function PartnerStudentsPage() {
                     </td>
                   </tr>
                 ) : (
-                  tableRows.map((s) => <StudentRow key={s.id} student={s} />)
+                  tableRows.map((s) => (
+                    <StudentRow
+                      key={s.id}
+                      student={s}
+                      onView={() => openStudent(s.id)}
+                      morphing={morphId === s.id}
+                    />
+                  ))
                 )}
               </tbody>
             </table>
@@ -470,13 +504,28 @@ export default function PartnerStudentsPage() {
         open={toastOpen}
         onClose={() => setToastOpen(false)}
       />
+
+      {slideStudent && (
+        <PartnerStudentSlideOver
+          student={slideStudent}
+          onClose={() => setSlideOverId(null)}
+        />
+      )}
     </>
   );
 }
 
 // ----- Table row --------------------------------------------------------------
 
-function StudentRow({ student: s }: { student: PartnerStudent }) {
+function StudentRow({
+  student: s,
+  onView,
+  morphing,
+}: {
+  student: PartnerStudent;
+  onView: () => void;
+  morphing: boolean;
+}) {
   const { university, program } = derivedApplication(s);
   const initials =
     `${s.firstName.charAt(0)}${s.lastName.charAt(0)}`.toUpperCase();
@@ -484,12 +533,18 @@ function StudentRow({ student: s }: { student: PartnerStudent }) {
     <tr className="border-b border-[#F2F4F7] transition-colors last:border-b-0 hover:bg-[#F9FAFB]">
       <td className="px-4 py-3">
         <div className="flex items-center gap-3">
-          <span
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold text-white"
-            style={{ background: avatarGradient(s.id) }}
+          <button
+            type="button"
+            onClick={onView}
+            aria-label={`View ${s.firstName} ${s.lastName}`}
+            className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-xs font-semibold text-white"
+            style={{
+              background: avatarGradient(s.id),
+              viewTransitionName: morphing ? "student-morph" : undefined,
+            }}
           >
             {initials}
-          </span>
+          </button>
           <div className="min-w-0">
             <div className="text-sm font-semibold whitespace-nowrap text-[#101828]">
               {s.firstName} {s.lastName}
@@ -530,6 +585,148 @@ function StudentRow({ student: s }: { student: PartnerStudent }) {
         {relativeTime(s.updatedAt)}
       </td>
     </tr>
+  );
+}
+
+function SlideDetail({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="min-w-0">
+      <div className="text-[11px] font-semibold tracking-wider text-[#98A2B3] uppercase">
+        {label}
+      </div>
+      <div className="mt-0.5 text-sm break-words text-[#344054]">{value}</div>
+    </div>
+  );
+}
+
+// Quick-peek panel for a partner's student. The avatar carries a
+// view-transition-name so the native View Transition morphs the row avatar
+// into this header (see openStudent in the page component).
+function PartnerStudentSlideOver({
+  student: s,
+  onClose,
+}: {
+  student: PartnerStudent;
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  const { university, program } = derivedApplication(s);
+  const initials =
+    `${s.firstName.charAt(0)}${s.lastName.charAt(0)}`.toUpperCase();
+
+  return (
+    <div className="fixed inset-0 z-[200]">
+      <div
+        className="absolute inset-0 bg-[rgba(16,24,40,0.45)]"
+        onClick={onClose}
+      />
+      <aside className="absolute top-0 right-0 flex h-full w-[480px] max-w-[calc(100vw-32px)] flex-col bg-white shadow-[-12px_0_40px_rgba(0,0,0,0.18)]">
+        <div className="flex items-start justify-between gap-3 border-b border-[#E4E7EC] px-6 py-5">
+          <div className="flex items-center gap-3.5">
+            <div
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-base font-semibold text-white"
+              style={{
+                background: avatarGradient(s.id),
+                viewTransitionName: "student-morph",
+              }}
+            >
+              {initials}
+            </div>
+            <div>
+              <div className="text-base font-bold text-[#101828]">
+                {s.firstName} {s.lastName}
+              </div>
+              <div className="mt-1 flex flex-wrap items-center gap-2">
+                <StudentStatusBadge status={s.status} />
+                <span className="text-xs text-[#98A2B3]">CP-{s.id}</span>
+              </div>
+            </div>
+          </div>
+          <button
+            type="button"
+            aria-label="Close"
+            onClick={onClose}
+            className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-[#E4E7EC] bg-white hover:bg-[#F9FAFB]"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#667085"
+              strokeWidth={2}
+              className="h-4 w-4"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-6 py-5">
+          <div className="space-y-2.5 text-sm">
+            <div className="flex items-center gap-2.5">
+              <span className="w-14 shrink-0 text-[#98A2B3]">Email</span>
+              <span className="break-all text-[#344054]">{s.email ?? "—"}</span>
+            </div>
+            <div className="flex items-center gap-2.5">
+              <span className="w-14 shrink-0 text-[#98A2B3]">Phone</span>
+              <span className="text-[#344054]">{s.phone ?? "—"}</span>
+            </div>
+          </div>
+
+          <div className="mt-6 mb-3 border-b border-[#F2F4F7] pb-1.5 text-[11px] font-bold tracking-wider text-[#667085] uppercase">
+            Academic Details
+          </div>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-3.5 rounded-lg bg-[#F9FAFB] p-4">
+            <SlideDetail label="University" value={university} />
+            <SlideDetail label="Program" value={program} />
+            <SlideDetail label="Level" value={levelShort(s.courseLevel)} />
+            <SlideDetail label="Intake" value={s.intake ?? "—"} />
+            <SlideDetail
+              label="Country"
+              value={s.country ? (COUNTRY_NAME[s.country] ?? s.country) : "—"}
+            />
+            <SlideDetail label="Student ID" value={`CP-${s.id}`} />
+          </div>
+
+          <div className="mt-6 mb-3 border-b border-[#F2F4F7] pb-1.5 text-[11px] font-bold tracking-wider text-[#667085] uppercase">
+            Universities Applied ({s.applications.length})
+          </div>
+          {s.applications.length === 0 ? (
+            <div className="rounded-lg border border-dashed border-[#D0D5DD] px-4 py-5 text-center text-[13px] text-[#98A2B3]">
+              No applications yet.
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {s.applications.map((app) => (
+                <div
+                  key={app.id}
+                  className="flex items-center justify-between gap-3 rounded-lg border border-[#E4E7EC] px-3.5 py-2.5"
+                >
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-semibold text-[#101828]">
+                      {app.university}
+                    </div>
+                    <div className="mt-0.5 truncate text-xs text-[#667085]">
+                      {app.program}
+                    </div>
+                  </div>
+                  <span className="shrink-0 rounded-2xl bg-[#F2F4F7] px-2.5 py-1 text-[11px] font-semibold whitespace-nowrap text-[#344054]">
+                    {stageLabel(app.status)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </aside>
+    </div>
   );
 }
 
