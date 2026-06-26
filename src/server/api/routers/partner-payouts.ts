@@ -6,7 +6,12 @@ import {
   operationsProcedure,
 } from "~/server/api/trpc";
 import { db } from "~/server/db";
-import { PartnerInvoiceStatus, PayoutStatus } from "~/server/db/enums";
+import {
+  PartnerInvoiceStatus,
+  PayoutStatus,
+  VendorInvoiceStatus,
+  toINR,
+} from "~/server/db/enums";
 
 type Decimalish = { toNumber: () => number } | null;
 const num = (d: Decimalish): number => (d == null ? 0 : d.toNumber());
@@ -27,11 +32,28 @@ export const partnerPayoutsRouter = createTRPCRouter({
           include: {
             commission: {
               select: {
-                collegepond_received_at: true,
+                claimable_inr: true,
                 application: {
                   select: {
                     course: { select: { name: true, university: { select: { name: true } } } },
                     student: { select: { first_name: true, last_name: true } },
+                  },
+                },
+                // The vendor invoice CP raised to collect for this student — the
+                // "source ref" the partner's claim is cross-referenced against,
+                // plus what's needed to compute the collected ratio.
+                vendor_invoice_item: {
+                  select: {
+                    expected_amount: true,
+                    vendor_invoice: {
+                      select: {
+                        invoice_number: true,
+                        status: true,
+                        currency: true,
+                        total_expected_amount: true,
+                        vendor_payment: { select: { amount_inr: true } },
+                      },
+                    },
                   },
                 },
               },
@@ -43,17 +65,46 @@ export const partnerPayoutsRouter = createTRPCRouter({
 
     return invoices.map((inv) => {
       const items = inv.invoice_item.map((it) => {
-        const received = it.commission.collegepond_received_at != null;
+        const c = it.commission;
+        const claimed = num(it.amount);
+        const vii = c.vendor_invoice_item;
+        const vInv = vii?.vendor_invoice ?? null;
+        // The match is driven by how much the VENDOR paid CP for this student
+        // (paid ratio of the source vendor invoice) — NOT by claimed vs received.
+        let match: "verified" | "partial" | "no-payment" = "no-payment";
+        let amountReceived = 0;
+        let paymentStatus: number | null = null;
+        if (vInv && vii) {
+          paymentStatus = vInv.status;
+          const expectedInr = toINR(num(vInv.total_expected_amount), vInv.currency);
+          const paidInr = vInv.vendor_payment.reduce((s, p) => s + num(p.amount_inr), 0);
+          const ratio = expectedInr > 0 ? paidInr / expectedInr : 0;
+          const studentExpectedInr = toINR(num(vii.expected_amount), vInv.currency);
+          if (vInv.status === VendorInvoiceStatus.FULLY_PAID || ratio >= 0.99) {
+            match = "verified";
+            amountReceived =
+              num(c.claimable_inr) > 0 ? num(c.claimable_inr) : studentExpectedInr;
+          } else if (ratio > 0) {
+            match = "partial";
+            amountReceived = Math.round(studentExpectedInr * ratio * 100) / 100;
+          }
+        }
         return {
           student:
-            `${it.commission.application.student.first_name} ${it.commission.application.student.last_name}`.trim(),
-          university: it.commission.application.course.university.name,
-          program: it.commission.application.course.name,
-          claimed: num(it.amount),
-          match: received ? ("verified" as const) : ("no-payment" as const),
+            `${c.application.student.first_name} ${c.application.student.last_name}`.trim(),
+          university: c.application.course.university.name,
+          program: c.application.course.name,
+          claimed,
+          amountReceived,
+          paymentStatus,
+          invoiceRef: vInv?.invoice_number ?? null,
+          match,
         };
       });
-      const allVerified = items.length > 0 && items.every((i) => i.match === "verified");
+      const verifiedCount = items.filter((i) => i.match === "verified").length;
+      const partialCount = items.filter((i) => i.match === "partial").length;
+      const noneCount = items.filter((i) => i.match === "no-payment").length;
+      const allVerified = items.length > 0 && verifiedCount === items.length;
       return {
         id: inv.id,
         invoiceNumber: inv.invoice_number,
@@ -65,8 +116,11 @@ export const partnerPayoutsRouter = createTRPCRouter({
         status: inv.status,
         gstin: inv.gstin,
         pan: inv.pan,
+        rejectionReason: inv.rejection_reason,
         allVerified,
-        verifiedCount: items.filter((i) => i.match === "verified").length,
+        verifiedCount,
+        partialCount,
+        noneCount,
         hasPayout: inv.partner_payout != null,
         items,
       };
@@ -129,6 +183,68 @@ export const partnerPayoutsRouter = createTRPCRouter({
       return { success: true as const };
     }),
 
+  // Partial approve — pay only the students CP has collected for; the payout is
+  // the net prorated to the collected share. Used when some students are still
+  // uncollected but the partner shouldn't wait on the whole invoice.
+  partialApprove: operationsProcedure
+    .input(z.object({ invoiceId: z.number().int().positive() }))
+    .mutation(async ({ ctx, input }) => {
+      const inv = await db.invoice.findUnique({
+        where: { id: input.invoiceId },
+        include: {
+          partner_payout: { select: { id: true } },
+          invoice_item: {
+            include: { commission: { select: { collegepond_received_at: true } } },
+          },
+        },
+      });
+      if (!inv) throw new TRPCError({ code: "NOT_FOUND", message: "Invoice not found" });
+      if (inv.partner_payout) {
+        throw new TRPCError({ code: "CONFLICT", message: "This invoice is already approved." });
+      }
+      if (inv.status === PartnerInvoiceStatus.REJECTED || inv.status === PartnerInvoiceStatus.PAID) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "This invoice can't be approved." });
+      }
+      const verified = inv.invoice_item.filter(
+        (it) => it.commission.collegepond_received_at != null,
+      );
+      if (verified.length === 0) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "No collected students yet — nothing to partially approve.",
+        });
+      }
+      if (verified.length === inv.invoice_item.length) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Every student is collected — use Approve for the full amount.",
+        });
+      }
+      const totalClaimed = inv.invoice_item.reduce((s, it) => s + num(it.amount), 0);
+      const verifiedClaimed = verified.reduce((s, it) => s + num(it.amount), 0);
+      const net = netOf(inv);
+      const partialNet =
+        totalClaimed > 0
+          ? Math.round(net * (verifiedClaimed / totalClaimed) * 100) / 100
+          : net;
+      await db.$transaction([
+        db.invoice.update({
+          where: { id: inv.id },
+          data: { status: PartnerInvoiceStatus.PARTIAL_APPROVED },
+        }),
+        db.partner_payout.create({
+          data: {
+            invoice_id: inv.id,
+            amount_inr: partialNet,
+            status: PayoutStatus.APPROVED,
+            ops_approved_by_cp_user_id: ctx.cpUser.id,
+            ops_approved_at: new Date(),
+          },
+        }),
+      ]);
+      return { success: true as const };
+    }),
+
   reject: operationsProcedure
     .input(
       z.object({
@@ -167,7 +283,11 @@ export const partnerPayoutsRouter = createTRPCRouter({
     const pendingReview = invoices.filter(
       (i) => i.status === PartnerInvoiceStatus.SUBMITTED || i.status === PartnerInvoiceStatus.UNDER_REVIEW,
     ).length;
-    const approved = invoices.filter((i) => i.status === PartnerInvoiceStatus.APPROVED).length;
+    const approved = invoices.filter(
+      (i) =>
+        i.status === PartnerInvoiceStatus.APPROVED ||
+        i.status === PartnerInvoiceStatus.PARTIAL_APPROVED,
+    ).length;
     const amountPending = invoices
       .filter((i) => i.status !== PartnerInvoiceStatus.PAID && i.status !== PartnerInvoiceStatus.REJECTED)
       .reduce((s, i) => s + netOf(i), 0);
