@@ -40,6 +40,7 @@ export default function StudentProfilePage() {
     { id },
     { enabled: validId },
   );
+  const utils = api.useUtils();
 
   const [tab, setTab] = useState<TabId>("profile");
   const [toastMsg, setToastMsg] = useState("");
@@ -50,6 +51,11 @@ export default function StudentProfilePage() {
   };
 
   const student = studentQuery.data;
+  // First-paint fallback for the hero, so the View-Transition morph target
+  // (name + avatar) exists on the very first navigation: adminGet isn't cached
+  // yet, but the row we came from is in the adminList cache (same base shape).
+  const hero =
+    student ?? utils.students.adminList.getData()?.find((s) => s.id === id);
 
   return (
     <>
@@ -78,7 +84,7 @@ export default function StudentProfilePage() {
         <div className="rounded-lg border border-[#FECDCA] bg-[#FEF3F2] p-4 text-sm text-[#B42318]">
           {studentQuery.error.message}
         </div>
-      ) : !student ? (
+      ) : !hero ? (
         <div className="rounded-[14px] border border-[#E4E7EC] bg-white px-6 py-12 text-center text-sm text-[#98A2B3]">
           Loading…
         </div>
@@ -90,32 +96,32 @@ export default function StudentProfilePage() {
               <div
                 className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full text-xl font-semibold text-white"
                 style={{
-                  background: avatarGradient(student.id),
-                  viewTransitionName: `student-avatar-${student.id}`,
+                  background: avatarGradient(hero.id),
+                  viewTransitionName: `student-avatar-${hero.id}`,
                 }}
               >
-                {studentInitials(student)}
+                {studentInitials(hero)}
               </div>
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2.5">
                   <h2
                     className="text-[22px] font-bold text-[#101828]"
-                    style={{ viewTransitionName: `student-name-${student.id}` }}
+                    style={{ viewTransitionName: `student-name-${hero.id}` }}
                   >
-                    {studentName(student)}
+                    {studentName(hero)}
                   </h2>
                   <span className="rounded-2xl bg-[#EFF8FF] px-2.5 py-0.5 text-xs font-semibold text-[#1570EF]">
-                    {displayId(student.id)}
+                    {displayId(hero.id)}
                   </span>
-                  <StudentStatusBadge status={student.status} />
+                  <StudentStatusBadge status={hero.status} />
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-[13px] text-[#667085]">
-                  <HeroMeta icon={<MailIcon />}>{student.email ?? "—"}</HeroMeta>
+                  <HeroMeta icon={<MailIcon />}>{hero.email ?? "—"}</HeroMeta>
                   <HeroMeta icon={<PhoneIcon />}>
-                    {student.phone ?? "—"}
+                    {hero.phone ?? "—"}
                   </HeroMeta>
                   <HeroMeta icon={<CapIcon />}>
-                    {derivedProgram(student)} | {derivedUniversity(student)}
+                    {derivedProgram(hero)} | {derivedUniversity(hero)}
                   </HeroMeta>
                 </div>
               </div>
@@ -142,25 +148,33 @@ export default function StudentProfilePage() {
             })}
           </div>
 
-          {tab === "profile" && (
-            <ProfileTab student={student} onToast={showToast} />
+          {student ? (
+            <>
+              {tab === "profile" && (
+                <ProfileTab student={student} onToast={showToast} />
+              )}
+              {tab === "application" && (
+                <ApplicationTab student={student} onToast={showToast} />
+              )}
+              {tab === "tasks" && (
+                <TasksNotesTab student={student} onToast={showToast} />
+              )}
+              {tab === "documents" && (
+                <DocumentsTab student={student} onToast={showToast} />
+              )}
+              {tab === "chat" && (
+                <PlaceholderTab
+                  title="Chat is coming soon"
+                  description="Conversations between Collegepond counselors and this student will appear here."
+                />
+              )}
+              {tab === "summary" && <SummaryTab student={student} />}
+            </>
+          ) : (
+            <div className="rounded-[14px] border border-[#E4E7EC] bg-white px-6 py-10 text-center text-sm text-[#98A2B3]">
+              Loading details…
+            </div>
           )}
-          {tab === "application" && (
-            <ApplicationTab student={student} onToast={showToast} />
-          )}
-          {tab === "tasks" && (
-            <TasksNotesTab student={student} onToast={showToast} />
-          )}
-          {tab === "documents" && (
-            <DocumentsTab student={student} onToast={showToast} />
-          )}
-          {tab === "chat" && (
-            <PlaceholderTab
-              title="Chat is coming soon"
-              description="Conversations between Collegepond counselors and this student will appear here."
-            />
-          )}
-          {tab === "summary" && <SummaryTab student={student} />}
         </>
       )}
 
