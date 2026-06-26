@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { StudentStatusBadge } from "~/components/students/status";
 import { Toast } from "~/components/ui/toast";
 import { api } from "~/trpc/react";
@@ -149,7 +150,14 @@ export default function StudentProfilePage() {
           </div>
 
           {student ? (
-            <>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={tab}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+              >
               {tab === "profile" && (
                 <ProfileTab student={student} onToast={showToast} />
               )}
@@ -169,7 +177,8 @@ export default function StudentProfilePage() {
                 />
               )}
               {tab === "summary" && <SummaryTab student={student} />}
-            </>
+              </motion.div>
+            </AnimatePresence>
           ) : (
             <div className="rounded-[14px] border border-[#E4E7EC] bg-white px-6 py-10 text-center text-sm text-[#98A2B3]">
               Loading details…

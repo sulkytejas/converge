@@ -4,6 +4,7 @@
 
 import { type ReactNode } from "react";
 import Link from "next/link";
+import { CountUp } from "./motion";
 
 // ---------------------------------------------------------------------------
 // Icons — a small Feather-style set used across KPI cards and headers.
@@ -225,7 +226,7 @@ export function KpiCard({
         {loading ? (
           <span className="inline-block h-7 w-16 animate-pulse rounded bg-[#F2F4F7]" />
         ) : (
-          value
+          <CountUp value={value} />
         )}
       </div>
       {needsData ? (
@@ -355,7 +356,7 @@ export function Funnel({
             </div>
             <div className="h-7 flex-1 overflow-hidden rounded-md bg-[#F2F4F7]">
               <div
-                className="flex h-full items-center rounded-md pl-2.5 text-xs font-semibold text-white"
+                className="flex h-full items-center rounded-md pl-2.5 text-xs font-semibold text-white animate-[growW_0.7s_ease-out]"
                 style={{ width: `${pct}%`, background: s.color }}
               >
                 {s.count > 0 ? s.count : ""}
@@ -451,20 +452,28 @@ export function DonutChart({
         className="shrink-0"
       >
         <circle cx={cx} cy={cy} r={r} fill="none" stroke="#F2F4F7" strokeWidth={thickness} />
-        {slices.map((s, i) => (
-          <circle
-            key={i}
-            cx={cx}
-            cy={cy}
-            r={r}
-            fill="none"
-            stroke={s.color}
-            strokeWidth={thickness}
-            strokeDasharray={`${(s.value / total) * c} ${c}`}
-            strokeDashoffset={-(s.start / total) * c}
-            transform={`rotate(-90 ${cx} ${cy})`}
-          />
-        ))}
+        <g
+          style={{
+            transformBox: "fill-box",
+            transformOrigin: "center",
+            animation: "donutSweep 0.7s ease-out",
+          }}
+        >
+          {slices.map((s, i) => (
+            <circle
+              key={i}
+              cx={cx}
+              cy={cy}
+              r={r}
+              fill="none"
+              stroke={s.color}
+              strokeWidth={thickness}
+              strokeDasharray={`${(s.value / total) * c} ${c}`}
+              strokeDashoffset={-(s.start / total) * c}
+              transform={`rotate(-90 ${cx} ${cy})`}
+            />
+          ))}
+        </g>
         <text
           x={cx}
           y={cy - 2}
@@ -607,7 +616,7 @@ export function MeterRow({
       <span className="w-24 shrink-0 text-xs font-medium text-[#344054]">{label}</span>
       <span className="h-2 flex-1 overflow-hidden rounded-full bg-[#F2F4F7]">
         <span
-          className="block h-full rounded-full"
+          className="block h-full rounded-full animate-[growW_0.7s_ease-out]"
           style={{ width: `${value}%`, background: color }}
         />
       </span>
