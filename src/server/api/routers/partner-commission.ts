@@ -1,0 +1,311 @@
+import { z } from "zod";
+import { TRPCError } from "@trpc/server";
+import {
+  createTRPCRouter,
+  protectedPartnerProcedure,
+} from "~/server/api/trpc";
+import { db } from "~/server/db";
+import { encryptSecret } from "~/server/crypto";
+import { PartnerInvoiceStatus } from "~/server/db/enums";
+
+type Decimalish = { toNumber: () => number } | null;
+const num = (d: Decimalish): number => (d == null ? 0 : d.toNumber());
+const round2 = (n: number) => Math.round(n * 100) / 100;
+const orNull = (v: string | null | undefined): string | null => {
+  const t = v?.trim();
+  if (!t) return null;
+  return t;
+};
+
+// CollegePond is the invoice recipient. State code 27 = Maharashtra (Mumbai).
+const CP = {
+  name: "Collegepond Counsellors Pvt Ltd",
+  gstin: "27AADCK1234F1Z5",
+  state: "27",
+  sac: "998399", // Other Professional, Technical and Business Services
+};
+
+// GST math (partner is the supplier billing CP): intra-state -> CGST+SGST,
+// inter-state -> IGST; no GSTIN -> less TDS @2% u/s 194J.
+function computeTax(subtotal: number, partnerGstin: string | null) {
+  if (!partnerGstin) {
+    const tds = round2(subtotal * 0.02);
+    return {
+      isInterstate: null as boolean | null,
+      cgst: 0,
+      sgst: 0,
+      igst: 0,
+      tds,
+      netPayable: round2(subtotal - tds),
+    };
+  }
+  const interstate = !partnerGstin.startsWith(CP.state);
+  if (interstate) {
+    const igst = round2(subtotal * 0.18);
+    return { isInterstate: true, cgst: 0, sgst: 0, igst, tds: 0, netPayable: round2(subtotal + igst) };
+  }
+  const cgst = round2(subtotal * 0.09);
+  const sgst = round2(subtotal * 0.09);
+  return { isInterstate: false, cgst, sgst, igst: 0, tds: 0, netPayable: round2(subtotal + cgst + sgst) };
+}
+
+async function requireOrgId(cpPartnerId: number): Promise<number> {
+  const u = await db.user.findUnique({
+    where: { id: cpPartnerId },
+    select: { org_id: true },
+  });
+  if (!u?.org_id) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Your account isn't linked to an organization, so invoices can't be raised yet.",
+    });
+  }
+  return u.org_id;
+}
+
+const studentCode = (id: number) => `CP-${String(id).padStart(5, "0")}`;
+
+export const partnerCommissionRouter = createTRPCRouter({
+  // Every commission for the partner's org, with a derived claim status.
+  listClaimable: protectedPartnerProcedure.query(async ({ ctx }) => {
+    const orgId = await requireOrgId(ctx.cpPartner.id);
+    const comms = await db.commission.findMany({
+      where: { org_id: orgId },
+      orderBy: { id: "desc" },
+      include: {
+        application: {
+          select: {
+            university_app_id: true,
+            student: { select: { id: true, first_name: true, last_name: true } },
+            course: { select: { name: true, university: { select: { name: true } } } },
+          },
+        },
+        invoice_item: { select: { id: true, invoice: { select: { status: true } } } },
+      },
+    });
+
+    return comms.map((c) => {
+      const partnerSharePct = c.partner_share_pct == null ? 100 : num(c.partner_share_pct);
+      const claimable = c.claimable_inr == null ? 0 : round2(num(c.claimable_inr) * (partnerSharePct / 100));
+      const received = c.collegepond_received_at != null;
+      const invoiced = c.invoice_item != null;
+      const paid = c.partner_paid_at != null;
+      const status: "pending" | "claimable" | "invoiced" | "paid" = paid
+        ? "paid"
+        : invoiced
+          ? "invoiced"
+          : received
+            ? "claimable"
+            : "pending";
+      return {
+        commissionId: c.id,
+        studentCode: studentCode(c.application.student.id),
+        studentName:
+          `${c.application.student.first_name} ${c.application.student.last_name}`.trim(),
+        university: c.application.course.university.name,
+        program: c.application.course.name,
+        currency: c.currency,
+        commissionAmount: num(c.commision_amount),
+        partnerSharePct,
+        claimableInr: claimable,
+        status,
+        selectable: status === "claimable",
+      };
+    });
+  }),
+
+  // The partner's saved payout account. The raw account number / GSTIN / PAN are
+  // encrypted at rest (crypto.ts); only the masked last-4 reaches the client.
+  bankAccount: protectedPartnerProcedure.query(async ({ ctx }) => {
+    const orgId = await requireOrgId(ctx.cpPartner.id);
+    const [acct, org] = await Promise.all([
+      db.partner_bank_account.findFirst({ where: { org_id: orgId }, orderBy: { id: "desc" } }),
+      db.organization.findUnique({ where: { id: orgId }, select: { gst_number: true, name: true } }),
+    ]);
+    return {
+      hasAccount: acct != null,
+      accountHolder: acct?.account_holder ?? null,
+      accountNumberLast4: acct?.account_number_last4 ?? null,
+      ifsc: acct?.ifsc ?? null,
+      swift: acct?.swift ?? null,
+      bankName: acct?.bank_name ?? null,
+      branch: acct?.branch ?? null,
+      accountType: acct?.account_type ?? null,
+      // GSTIN/PAN are shown on the tax invoice — kept here for the wizard. (The
+      // org's gst_number is the non-encrypted source; the encrypted copy on the
+      // account is for the payout side.)
+      gstin: org?.gst_number ?? null,
+      orgName: org?.name ?? null,
+    };
+  }),
+
+  saveBankAccount: protectedPartnerProcedure
+    .input(
+      z.object({
+        accountHolder: z.string().trim().min(1).max(150),
+        accountNumber: z.string().trim().min(4).max(34),
+        ifsc: z.string().trim().max(15).optional(),
+        swift: z.string().trim().max(15).optional(),
+        bankName: z.string().trim().max(150).optional(),
+        branch: z.string().trim().max(150).optional(),
+        accountType: z.string().trim().max(30).optional(),
+        gstin: z.string().trim().max(20).optional(),
+        pan: z.string().trim().max(15).optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const orgId = await requireOrgId(ctx.cpPartner.id);
+      const last4 = input.accountNumber.slice(-4);
+      const data = {
+        account_holder: input.accountHolder,
+        account_number_enc: encryptSecret(input.accountNumber),
+        account_number_last4: last4,
+        ifsc: orNull(input.ifsc),
+        swift: orNull(input.swift),
+        bank_name: orNull(input.bankName),
+        branch: orNull(input.branch),
+        account_type: orNull(input.accountType),
+        gstin_enc: input.gstin?.trim() ? encryptSecret(input.gstin.trim()) : null,
+        pan_enc: input.pan?.trim() ? encryptSecret(input.pan.trim()) : null,
+      };
+      const existing = await db.partner_bank_account.findFirst({
+        where: { org_id: orgId },
+        select: { id: true },
+      });
+      if (existing) {
+        await db.partner_bank_account.update({ where: { id: existing.id }, data });
+      } else {
+        await db.partner_bank_account.create({ data: { org_id: orgId, ...data } });
+      }
+      return { success: true as const };
+    }),
+
+  // Generate a GST tax invoice for the selected claimable commissions.
+  generateInvoice: protectedPartnerProcedure
+    .input(
+      z.object({
+        commissionIds: z.array(z.number().int().positive()).min(1),
+        invoiceNumber: z.string().trim().min(1).max(30),
+        invoiceDate: z.string(),
+        gstin: z.string().trim().max(20).optional(),
+        pan: z.string().trim().max(15).optional(),
+        signatoryName: z.string().trim().min(1).max(100),
+        signatoryDesignation: z.string().trim().max(100).optional(),
+        notes: z.string().trim().max(1000).optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const orgId = await requireOrgId(ctx.cpPartner.id);
+      const bank = await db.partner_bank_account.findFirst({
+        where: { org_id: orgId },
+        orderBy: { id: "desc" },
+        select: { id: true, account_number_last4: true, ifsc: true, bank_name: true, account_holder: true },
+      });
+
+      const comms = await db.commission.findMany({
+        where: { id: { in: input.commissionIds }, org_id: orgId },
+        select: {
+          id: true,
+          claimable_inr: true,
+          partner_share_pct: true,
+          collegepond_received_at: true,
+          invoice_item: { select: { id: true } },
+        },
+      });
+      if (comms.length !== input.commissionIds.length) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Some claims are no longer available." });
+      }
+      for (const c of comms) {
+        if (c.collegepond_received_at == null) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "A selected claim hasn't been paid by CollegePond yet." });
+        }
+        if (c.invoice_item != null) {
+          throw new TRPCError({ code: "CONFLICT", message: "A selected claim is already invoiced." });
+        }
+      }
+
+      const lineAmounts = comms.map((c) => {
+        const sharePct = c.partner_share_pct == null ? 100 : num(c.partner_share_pct);
+        return { commissionId: c.id, amount: round2(num(c.claimable_inr) * (sharePct / 100)) };
+      });
+      const subtotal = round2(lineAmounts.reduce((s, l) => s + l.amount, 0));
+      const partnerGstin = orNull(input.gstin);
+      const tax = computeTax(subtotal, partnerGstin);
+
+      const created = await db.$transaction(async (tx) => {
+        const inv = await tx.invoice.create({
+          data: {
+            invoice_number: input.invoiceNumber,
+            invoice_date: new Date(input.invoiceDate),
+            total_amount: subtotal,
+            currency: "INR",
+            status: PartnerInvoiceStatus.SUBMITTED,
+            org_id: orgId,
+            gstin: partnerGstin,
+            pan: orNull(input.pan),
+            sac_code: CP.sac,
+            is_interstate: tax.isInterstate == null ? null : tax.isInterstate ? 1 : 0,
+            cgst_amount: tax.cgst,
+            sgst_amount: tax.sgst,
+            igst_amount: tax.igst,
+            tds_amount: tax.tds,
+            net_payable: tax.netPayable,
+            signed_at: new Date(),
+            signatory_name: input.signatoryName,
+            signatory_designation: orNull(input.signatoryDesignation),
+            notes: orNull(input.notes),
+            bank_account_id: bank?.id ?? null,
+            bank_details: bank
+              ? `${bank.bank_name ?? ""} ${bank.ifsc ?? ""} ****${bank.account_number_last4 ?? ""}`.trim()
+              : null,
+          },
+        });
+        await tx.invoice_item.createMany({
+          data: lineAmounts.map((l) => ({
+            invoice_id: inv.id,
+            commission_id: l.commissionId,
+            amount: l.amount,
+          })),
+        });
+        return inv;
+      });
+      return { invoiceId: created.id, netPayable: tax.netPayable };
+    }),
+
+  // Tax preview for the wizard (no write).
+  taxPreview: protectedPartnerProcedure
+    .input(z.object({ commissionIds: z.array(z.number().int().positive()), gstin: z.string().optional() }))
+    .query(async ({ ctx, input }) => {
+      const orgId = await requireOrgId(ctx.cpPartner.id);
+      const comms = await db.commission.findMany({
+        where: { id: { in: input.commissionIds }, org_id: orgId },
+        select: { claimable_inr: true, partner_share_pct: true },
+      });
+      const subtotal = round2(
+        comms.reduce((s, c) => {
+          const sharePct = c.partner_share_pct == null ? 100 : num(c.partner_share_pct);
+          return s + round2(num(c.claimable_inr) * (sharePct / 100));
+        }, 0),
+      );
+      return { subtotal, ...computeTax(subtotal, orNull(input.gstin)), cpName: CP.name, cpGstin: CP.gstin, sac: CP.sac };
+    }),
+
+  invoiceHistory: protectedPartnerProcedure.query(async ({ ctx }) => {
+    const orgId = await requireOrgId(ctx.cpPartner.id);
+    const invoices = await db.invoice.findMany({
+      where: { org_id: orgId },
+      orderBy: { invoice_date: "desc" },
+      include: { invoice_item: { select: { id: true } } },
+    });
+    return invoices.map((inv) => ({
+      id: inv.id,
+      invoiceNumber: inv.invoice_number,
+      invoiceDate: inv.invoice_date,
+      students: inv.invoice_item.length,
+      totalAmount: num(inv.total_amount),
+      netPayable: inv.net_payable == null ? num(inv.total_amount) : num(inv.net_payable),
+      status: inv.status,
+      rejectionReason: inv.rejection_reason,
+    }));
+  }),
+});
