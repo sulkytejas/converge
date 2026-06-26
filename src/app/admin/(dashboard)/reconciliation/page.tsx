@@ -422,6 +422,7 @@ function ReconPanel({
   const readyToPay = payout.status === PayoutStatus.READY_TO_PAY;
   const isWire = method === PayoutMethod.INTERNATIONAL_WIRE;
   const checksDisabled = !canVerify || readyToPay;
+  const allChecked = bankConfirmed && invoiceVerified && commissionVerified && duplicateCheck;
 
   const CHECKS: { key: string; label: string; v: boolean; set: (b: boolean) => void }[] = [
     { key: "bank", label: "University payment confirmed in bank statement", v: bankConfirmed, set: setBankConfirmed },
@@ -479,9 +480,12 @@ function ReconPanel({
             </div>
           </div>
           {!readyToPay && canVerify && (
-            <Button className="!mt-3 !h-9 w-full !text-[13px]" loading={verifying} onClick={() => onVerify({ bankConfirmed, invoiceVerified, commissionVerified, duplicateCheck })}>
-              Verify &amp; Ready to Pay
-            </Button>
+            <>
+              <Button className="!mt-3 !h-9 w-full !text-[13px]" disabled={!allChecked} loading={verifying} onClick={() => onVerify({ bankConfirmed, invoiceVerified, commissionVerified, duplicateCheck })}>
+                Verify &amp; Ready to Pay
+              </Button>
+              {!allChecked && <p className="mt-1.5 text-center text-[11px] text-[#98A2B3]">Tick all 4 checks to mark Ready to Pay.</p>}
+            </>
           )}
           {readyToPay && <div className="mt-3 rounded-md bg-[#ECFDF3] px-3 py-2 text-xs font-semibold text-[#067647]">✓ Verified — ready to release</div>}
         </div>
@@ -522,6 +526,12 @@ function ReconPanel({
             </div>
             <FormTextarea label="Notes" value={notes} onChange={(e) => setNotes(e.target.value)} />
           </div>
+          {!readyToPay && (
+            <div className="mt-3">
+              <button disabled className="h-9 w-full cursor-not-allowed rounded-lg bg-[#EAECF0] text-[13px] font-semibold text-[#98A2B3]">Release Payment</button>
+              <p className="mt-1.5 text-center text-[11px] text-[#98A2B3]">Complete the 4-point verification first.</p>
+            </div>
+          )}
           {readyToPay && canRelease && (
             <Button className="!mt-3 !h-9 w-full !text-[13px]" loading={releasing} onClick={doRelease}>Release Payment</Button>
           )}
