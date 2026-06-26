@@ -744,6 +744,7 @@ export default function AdminUniversitiesPage() {
         open={uniModal.open}
         title={uniModal.editing ? "Edit University" : "Add University"}
         onClose={closeUniModal}
+        animateIn={!uniModal.editing}
         footer={
           <>
             <Button variant="secondary" onClick={closeUniModal} className="!h-[38px] !px-4">

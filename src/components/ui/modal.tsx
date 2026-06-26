@@ -11,6 +11,9 @@ interface ModalProps {
   footer?: ReactNode;
   /** Tailwind width class (default: w-[520px]). */
   width?: string;
+  /** Play the entrance animation. Disable when a parent View Transition
+   *  already animates the modal in (e.g. the Universities logo morph). */
+  animateIn?: boolean;
 }
 
 export function Modal({
@@ -20,6 +23,7 @@ export function Modal({
   children,
   footer,
   width = "w-[520px]",
+  animateIn = true,
 }: ModalProps) {
   // Close on Escape.
   useEffect(() => {
@@ -35,11 +39,11 @@ export function Modal({
 
   return (
     <div
-      className="fixed inset-0 z-[250] flex items-center justify-center bg-[rgba(16,24,40,0.55)]"
+      className={`fixed inset-0 z-[250] flex items-center justify-center bg-[rgba(16,24,40,0.55)] ${animateIn ? "animate-[fadeIn_0.2s_ease-out]" : ""}`}
       onClick={onClose}
     >
       <div
-        className={`max-h-[90vh] ${width} max-w-[calc(100vw-32px)] overflow-y-auto rounded-xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.2)]`}
+        className={`max-h-[90vh] ${width} max-w-[calc(100vw-32px)] overflow-y-auto rounded-xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.2)] ${animateIn ? "animate-[modalIn_0.22s_ease-out]" : ""}`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-[#E4E7EC] px-6 py-5">
