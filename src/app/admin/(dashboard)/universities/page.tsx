@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { Button } from "~/components/ui/button";
 import { FormInput } from "~/components/ui/form-input";
 import { FormSelect } from "~/components/ui/form-select";
@@ -368,9 +369,29 @@ export default function AdminUniversitiesPage() {
   }
 
   function openEditUni(u: UniversityRow) {
-    setUniModal({ open: true, editing: u });
-    setUniForm(fromUni(u));
-    setUniErrors({});
+    const apply = () => {
+      setUniModal({ open: true, editing: u });
+      setUniForm(fromUni(u));
+      setUniErrors({});
+    };
+    const doc: Document & {
+      startViewTransition?: (cb: () => void) => unknown;
+    } = document;
+    if (!doc.startViewTransition) {
+      apply();
+      return;
+    }
+    // Morph the row's logo into the edit modal's logo field: name the row logo
+    // (old snapshot), then clear it + open the modal whose logo carries the
+    // same name (new snapshot) so the browser tweens between them.
+    const rowLogo = document.querySelector<HTMLElement>(
+      `[data-uni-logo="${u.id}"]`,
+    );
+    if (rowLogo) rowLogo.style.viewTransitionName = "uni-logo-morph";
+    doc.startViewTransition(() => {
+      if (rowLogo) rowLogo.style.viewTransitionName = "";
+      flushSync(apply);
+    });
   }
 
   function closeUniModal() {
@@ -1225,7 +1246,9 @@ function UniversitiesCard({
                     </Td>
                     <Td>
                       <div className="flex items-center gap-2.5">
-                        <UniLogo name={u.name} logoUrl={u.logoUrl} size={32} />
+                        <span data-uni-logo={u.id} className="inline-flex shrink-0">
+                          <UniLogo name={u.name} logoUrl={u.logoUrl} size={32} />
+                        </span>
                         <span className="font-semibold text-[#101828]">{u.name}</span>
                       </div>
                     </Td>
@@ -1862,7 +1885,12 @@ function LogoUploader({
     <div>
       <div className="mb-1.5 text-[13px] font-medium text-[#344054]">Logo</div>
       <div className="flex items-center gap-3">
-        <UniLogo name={name} logoUrl={logoUrl || null} size={56} />
+        <span
+          className="inline-flex"
+          style={{ viewTransitionName: "uni-logo-morph" }}
+        >
+          <UniLogo name={name} logoUrl={logoUrl || null} size={56} />
+        </span>
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2">
             <input
