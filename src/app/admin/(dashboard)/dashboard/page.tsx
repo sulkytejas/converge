@@ -174,7 +174,10 @@ export default function DashboardPage() {
       {/* Welcome + date + quick actions */}
       <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-[#101828]">
+          <h1
+            className="text-2xl font-bold text-[#101828]"
+            suppressHydrationWarning
+          >
             {greeting()}
             {firstName ? `, ${firstName}` : ""} 👋
           </h1>
@@ -183,7 +186,10 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <span className="hidden h-9 items-center gap-2 rounded-lg border border-[#E4E7EC] bg-white px-3 text-[13px] font-medium text-[#344054] sm:flex">
+          <span
+            className="hidden h-9 items-center gap-2 rounded-lg border border-[#E4E7EC] bg-white px-3 text-[13px] font-medium text-[#344054] sm:flex"
+            suppressHydrationWarning
+          >
             <Icon name="calendar" size={15} className="text-[#667085]" />
             {formatLongDate(new Date())}
           </span>
