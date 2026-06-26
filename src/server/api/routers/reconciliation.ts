@@ -33,6 +33,24 @@ const PENDING_STATES = [
   PayoutStatus.SENT_BACK,
 ];
 
+// partner_payout stores who-acted as plain FK ids (no relation) — resolve the
+// distinct ids to display names in one query for the audit trail.
+async function userNameMap(
+  ids: (number | null | undefined)[],
+): Promise<Map<number, string>> {
+  const unique = Array.from(new Set(ids.filter((x): x is number => x != null)));
+  if (unique.length === 0) return new Map();
+  const users = await db.collegepond_user.findMany({
+    where: { id: { in: unique } },
+    select: { id: true, first_name: true, last_name: true },
+  });
+  return new Map(users.map((u) => [u.id, `${u.first_name} ${u.last_name}`.trim()]));
+}
+const intakeOf = (
+  m: string | number | null,
+  y: string | number | null,
+): string | null => [m, y].filter(Boolean).join(" ") || null;
+
 export const reconciliationRouter = createTRPCRouter({
   listPending: financeProcedure.query(async () => {
     const payouts = await db.partner_payout.findMany({
@@ -42,6 +60,7 @@ export const reconciliationRouter = createTRPCRouter({
         invoice: {
           select: {
             invoice_number: true,
+            created_at: true,
             gstin: true,
             pan: true,
             net_payable: true,
@@ -55,10 +74,34 @@ export const reconciliationRouter = createTRPCRouter({
                 bank_name: true,
               },
             },
+            invoice_item: {
+              select: {
+                amount: true,
+                commission: {
+                  select: {
+                    commision_rate: true,
+                    application: {
+                      select: {
+                        student: { select: { first_name: true, last_name: true } },
+                        course: {
+                          select: {
+                            name: true,
+                            intake_month: true,
+                            intake_year: true,
+                            university: { select: { name: true } },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
         },
       },
     });
+    const names = await userNameMap(payouts.map((p) => p.ops_approved_by_cp_user_id));
     return payouts.map((p) => ({
       id: p.id,
       partner: p.invoice.organization.name,
@@ -66,6 +109,10 @@ export const reconciliationRouter = createTRPCRouter({
       amountInr: num(p.amount_inr),
       status: p.status,
       opsApprovedAt: p.ops_approved_at,
+      approvedBy:
+        p.ops_approved_by_cp_user_id != null
+          ? (names.get(p.ops_approved_by_cp_user_id) ?? null)
+          : null,
       gstin: p.invoice.gstin,
       pan: p.invoice.pan,
       bank: p.invoice.bank_account
@@ -84,6 +131,15 @@ export const reconciliationRouter = createTRPCRouter({
       },
       holdReason: p.hold_reason,
       sentBackReason: p.sent_back_reason,
+      students: p.invoice.invoice_item.map((it) => ({
+        name: `${it.commission.application.student.first_name} ${it.commission.application.student.last_name}`.trim(),
+        university: it.commission.application.course.university.name,
+        intake: intakeOf(
+          it.commission.application.course.intake_month,
+          it.commission.application.course.intake_year,
+        ),
+        rate: num(it.commission.commision_rate),
+      })),
     }));
   }),
 
@@ -124,10 +180,13 @@ export const reconciliationRouter = createTRPCRouter({
         payoutId: z.number().int().positive(),
         method: payoutMethod,
         bankName: z.string().max(150).optional(),
+        accountNumber: z.string().max(34).optional(),
         ifsc: z.string().max(15).optional(),
         swift: z.string().max(15).optional(),
         referenceNumber: z.string().trim().min(1).max(100),
         paymentDate: z.string(),
+        amountInr: z.number().positive().optional(),
+        notes: z.string().max(500).optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -150,13 +209,18 @@ export const reconciliationRouter = createTRPCRouter({
             status: PayoutStatus.RELEASED,
             method: input.method,
             bank_name: orNull(input.bankName),
+            account_number_last4: input.accountNumber
+              ? input.accountNumber.replace(/\D/g, "").slice(-4) || null
+              : undefined,
             ifsc: orNull(input.ifsc),
             swift: orNull(input.swift),
             reference_number: input.referenceNumber.trim(),
             payment_date: new Date(input.paymentDate),
+            notes: orNull(input.notes),
             released_by_cp_user_id: ctx.cpUser.id,
             released_at: now,
             fy: financialYearOf(new Date(input.paymentDate)),
+            ...(input.amountInr != null ? { amount_inr: input.amountInr } : {}),
           },
         }),
         db.invoice.update({
@@ -195,8 +259,47 @@ export const reconciliationRouter = createTRPCRouter({
     const payouts = await db.partner_payout.findMany({
       where: { status: PayoutStatus.RELEASED },
       orderBy: { released_at: "desc" },
-      include: { invoice: { select: { invoice_number: true, organization: { select: { name: true } } } } },
+      include: {
+        invoice: {
+          select: {
+            invoice_number: true,
+            created_at: true,
+            gstin: true,
+            pan: true,
+            organization: { select: { name: true } },
+            invoice_item: {
+              select: {
+                commission: {
+                  select: {
+                    commision_rate: true,
+                    application: {
+                      select: {
+                        student: { select: { first_name: true, last_name: true } },
+                        course: {
+                          select: {
+                            intake_month: true,
+                            intake_year: true,
+                            university: { select: { name: true } },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
+    const names = await userNameMap(
+      payouts.flatMap((p) => [
+        p.ops_approved_by_cp_user_id,
+        p.verified_by_cp_user_id,
+        p.released_by_cp_user_id,
+      ]),
+    );
+    const nameOf = (id: number | null) => (id != null ? (names.get(id) ?? null) : null);
     return payouts.map((p) => ({
       id: p.id,
       partner: p.invoice.organization.name,
@@ -206,6 +309,34 @@ export const reconciliationRouter = createTRPCRouter({
       reference: p.reference_number,
       paymentDate: p.payment_date,
       releasedAt: p.released_at,
+      submittedAt: p.invoice.created_at,
+      approvedBy: nameOf(p.ops_approved_by_cp_user_id),
+      approvedAt: p.ops_approved_at,
+      verifiedBy: nameOf(p.verified_by_cp_user_id),
+      verifiedAt: p.verified_at,
+      releasedBy: nameOf(p.released_by_cp_user_id),
+      checks: {
+        bankConfirmed: p.verify_bank_confirmed === 1,
+        invoiceVerified: p.verify_invoice_verified === 1,
+        commissionVerified: p.verify_commission_verified === 1,
+        duplicateCheck: p.verify_duplicate_check === 1,
+      },
+      bankName: p.bank_name,
+      accountLast4: p.account_number_last4,
+      ifsc: p.ifsc,
+      swift: p.swift,
+      notes: p.notes,
+      gstin: p.invoice.gstin,
+      pan: p.invoice.pan,
+      students: p.invoice.invoice_item.map((it) => ({
+        name: `${it.commission.application.student.first_name} ${it.commission.application.student.last_name}`.trim(),
+        university: it.commission.application.course.university.name,
+        intake: intakeOf(
+          it.commission.application.course.intake_month,
+          it.commission.application.course.intake_year,
+        ),
+        rate: num(it.commission.commision_rate),
+      })),
     }));
   }),
 
@@ -214,12 +345,21 @@ export const reconciliationRouter = createTRPCRouter({
       where: { status: { in: PENDING_STATES } },
       select: { status: true, amount_inr: true },
     });
-    const released = await db.partner_payout.count({ where: { status: PayoutStatus.RELEASED } });
+    // "Pending Verification" = approved + on-hold (excludes ready-to-pay & sent-back).
+    const pendingSet = pending.filter(
+      (p) => p.status === PayoutStatus.APPROVED || p.status === PayoutStatus.ON_HOLD,
+    );
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const releasedThisMonth = await db.partner_payout.count({
+      where: { status: PayoutStatus.RELEASED, released_at: { gte: monthStart } },
+    });
     return {
-      pendingVerification: pending.filter((p) => p.status === PayoutStatus.APPROVED).length,
+      pendingVerification: pendingSet.length,
       readyToPay: pending.filter((p) => p.status === PayoutStatus.READY_TO_PAY).length,
-      amountPending: Math.round(pending.reduce((s, p) => s + num(p.amount_inr), 0) * 100) / 100,
-      released,
+      amountPending:
+        Math.round(pendingSet.reduce((s, p) => s + num(p.amount_inr), 0) * 100) / 100,
+      releasedThisMonth,
     };
   }),
 });
