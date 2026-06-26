@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { Link as VTLink } from "next-view-transitions";
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import { flushSync } from "react-dom";
 import { Button } from "~/components/ui/button";
 import { Toast } from "~/components/ui/toast";
@@ -147,6 +148,16 @@ const emptyFilters: Filters = {
 export default function StudentsPage() {
   const utils = api.useUtils();
   const studentsQuery = api.students.adminList.useQuery();
+
+  // Warm the shared /students/[id] route chunk once the list loads, so the very
+  // first name-click can morph. In dev, routes compile on-demand and Links
+  // don't auto-prefetch; an explicit router.prefetch() triggers it. (In prod
+  // this is belt-and-suspenders on top of Link prefetch.)
+  const router = useRouter();
+  useEffect(() => {
+    const firstId = studentsQuery.data?.[0]?.id;
+    if (firstId != null) router.prefetch(`/admin/students/${firstId}`);
+  }, [router, studentsQuery.data]);
   const orgsQuery = api.students.listOrgs.useQuery();
   const counsellorsQuery = api.users.listByRole.useQuery({
     role: COUNSELLOR_ROLE,
