@@ -270,15 +270,42 @@ export function StatCard({
   tone = "blue",
   value,
   label,
+  sub,
+  onClick,
+  active = false,
 }: {
   icon: IconName;
   tone?: Tone;
   value: ReactNode;
   label: string;
+  /** Optional muted sub-line under the label (e.g. "N overdue"). */
+  sub?: ReactNode;
+  /** When provided, the card becomes a clickable filter toggle. */
+  onClick?: () => void;
+  /** Highlights the card (e.g. when its filter is applied). */
+  active?: boolean;
 }) {
   const t = TONES[tone];
+  const interactive = !!onClick;
   return (
-    <div className="rounded-xl border border-[#E4E7EC] bg-white p-5">
+    <div
+      onClick={onClick}
+      role={interactive ? "button" : undefined}
+      tabIndex={interactive ? 0 : undefined}
+      onKeyDown={
+        interactive
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onClick?.();
+              }
+            }
+          : undefined
+      }
+      className={`rounded-xl border bg-white p-5 transition ${
+        active ? "border-[#1570EF] ring-1 ring-[#1570EF]" : "border-[#E4E7EC]"
+      } ${interactive ? "cursor-pointer hover:border-[#84caff] hover:shadow-sm" : ""}`}
+    >
       <div
         className={`mb-3.5 flex h-11 w-11 items-center justify-center rounded-[10px] ${t.bg} ${t.fg}`}
       >
@@ -286,6 +313,7 @@ export function StatCard({
       </div>
       <div className="text-[28px] leading-none font-extrabold text-[#101828]">{value}</div>
       <div className="mt-1.5 text-[13px] font-medium text-[#667085]">{label}</div>
+      {sub != null && <div className="mt-0.5 text-xs text-[#98A2B3]">{sub}</div>}
     </div>
   );
 }

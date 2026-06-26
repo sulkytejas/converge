@@ -12,6 +12,7 @@ import {
   CommissionType,
   VARIANCE_REASON_CODES,
   financialYearOf,
+  toINR,
 } from "~/server/db/enums";
 
 type Decimalish = { toNumber: () => number } | null;
@@ -40,8 +41,9 @@ async function resolveDefaultRate(universityId: number, courseId: number) {
     include: { commission_rate: true, vendor: true },
   });
   if (!contract) return null;
+  const courseRate = contract.commission_rate.find((r) => r.course_id === courseId);
   const rate =
-    contract.commission_rate.find((r) => r.course_id === courseId) ??
+    courseRate ??
     contract.commission_rate.find((r) => r.course_id === null) ??
     null;
   if (!rate) return null;
@@ -49,8 +51,11 @@ async function resolveDefaultRate(universityId: number, courseId: number) {
     contractId: contract.id,
     vendorId: contract.vendor_id,
     vendorName: contract.vendor?.name ?? "Direct",
+    vendorType: contract.vendor?.type ?? null,
     commissionType: rate.commission_type,
     rate: num(rate.rate),
+    // A course-specific rate overrides the university-wide one.
+    isProgramSpecific: courseRate != null,
   };
 }
 
@@ -77,7 +82,8 @@ export const universityBillingRouter = createTRPCRouter({
       select: {
         id: true,
         university_app_id: true,
-        student: { select: { first_name: true, last_name: true } },
+        updated_at: true,
+        student: { select: { id: true, first_name: true, last_name: true } },
         course: {
           select: {
             id: true,
@@ -86,13 +92,17 @@ export const universityBillingRouter = createTRPCRouter({
             currency: true,
             intake_month: true,
             intake_year: true,
-            university: { select: { id: true, name: true } },
+            university: { select: { id: true, name: true, country: true } },
           },
         },
       },
     });
+    // Already-confirmed (billed) enrolled students drive the progress bar.
+    const confirmedCount = await db.application.count({
+      where: { status: UniApplicationStatus.ENROLLED, commission: { isNot: null } },
+    });
 
-    return Promise.all(
+    const students = await Promise.all(
       apps.map(async (a) => {
         const resolved = await resolveDefaultRate(a.course.university.id, a.course.id);
         const intake = [a.course.intake_month, a.course.intake_year]
@@ -101,18 +111,29 @@ export const universityBillingRouter = createTRPCRouter({
         return {
           applicationId: a.id,
           studentName: `${a.student.first_name} ${a.student.last_name}`.trim(),
+          cpStudentId: `CP-${a.student.id}`,
           universityStudentId: a.university_app_id,
           program: a.course.name,
           university: a.course.university.name,
+          universityId: a.course.university.id,
+          country: a.course.university.country,
           intake: intake || null,
           tuition: num(a.course.tuition_fee),
           currency: a.course.currency,
           rate: resolved?.rate ?? null,
-          vendorName: resolved?.vendorName ?? null,
+          vendorId: resolved?.vendorId ?? null,
+          vendorName: resolved?.vendorName ?? "Direct",
+          vendorType: resolved?.vendorType ?? null,
+          rateType: resolved
+            ? resolved.isProgramSpecific
+              ? "Program-specific"
+              : "Unified"
+            : null,
           hasDefaultRate: resolved != null,
         };
       }),
     );
+    return { students, confirmedCount, attendedCount: students.length };
   }),
 
   // Confirm a student for billing — creates the commission from the
@@ -178,35 +199,78 @@ export const universityBillingRouter = createTRPCRouter({
   // ========================================================================
   vendorBillingStudents: financeProcedure.query(async () => {
     const comms = await db.commission.findMany({
-      where: { vendor_invoice_item: { is: null } },
       orderBy: { id: "asc" },
       include: {
         vendor: true,
         application: {
           select: {
             university_app_id: true,
+            student: { select: { id: true, first_name: true, last_name: true } },
             course: {
-              select: { name: true, university: { select: { id: true, name: true } } },
+              select: {
+                id: true,
+                name: true,
+                university: { select: { id: true, name: true } },
+              },
             },
           },
         },
         organization: { select: { name: true } },
+        vendor_invoice_item: {
+          select: {
+            vendor_invoice: {
+              select: { id: true, invoice_number: true, status: true },
+            },
+          },
+        },
       },
     });
 
-    return comms.map((c) => ({
-      commissionId: c.id,
-      vendorId: c.vendor_id,
-      vendorName: c.vendor?.name ?? "Direct",
-      university: c.application.course.university.name,
-      universityStudentId: c.application.university_app_id,
-      program: c.application.course.name,
-      partner: c.organization.name,
-      tuition: num(c.tuition_fee),
-      currency: c.currency,
-      rate: num(c.commision_rate),
-      calcAmount: num(c.commision_amount),
-    }));
+    // Batch which (university, course) pairs have a program-specific rate under
+    // the university's default contract, to label Program-specific vs Unified.
+    const uniIds = Array.from(
+      new Set(comms.map((c) => c.application.course.university.id)),
+    );
+    const contracts = await db.commission_contract.findMany({
+      where: { university_id: { in: uniIds }, is_default: 1 },
+      include: { commission_rate: { select: { course_id: true } } },
+    });
+    const specificByUni = new Map<number, Set<number>>();
+    for (const ct of contracts) {
+      const set = new Set<number>();
+      for (const r of ct.commission_rate) if (r.course_id != null) set.add(r.course_id);
+      specificByUni.set(ct.university_id, set);
+    }
+
+    return comms.map((c) => {
+      const inv = c.vendor_invoice_item?.vendor_invoice ?? null;
+      const uniId = c.application.course.university.id;
+      const courseId = c.application.course.id;
+      return {
+        commissionId: c.id,
+        vendorId: c.vendor_id,
+        vendorName: c.vendor?.name ?? "Direct",
+        vendorType: c.vendor?.type ?? null,
+        university: c.application.course.university.name,
+        universityId: uniId,
+        studentName:
+          `${c.application.student.first_name} ${c.application.student.last_name}`.trim(),
+        cpStudentId: `CP-${c.application.student.id}`,
+        universityStudentId: c.application.university_app_id,
+        program: c.application.course.name,
+        partner: c.organization.name,
+        tuition: num(c.tuition_fee),
+        currency: c.currency,
+        rate: num(c.commision_rate),
+        calcAmount: num(c.commision_amount),
+        rateType: specificByUni.get(uniId)?.has(courseId)
+          ? "Program-specific"
+          : "Unified",
+        invoice: inv
+          ? { id: inv.id, number: inv.invoice_number, status: inv.status }
+          : null,
+      };
+    });
   }),
 
   createVendorInvoice: financeManagerProcedure
@@ -466,8 +530,20 @@ export const universityBillingRouter = createTRPCRouter({
         },
         include: {
           vendor: true,
-          _count: { select: { vendor_invoice_item: true } },
-          vendor_payment: { select: { amount_inr: true, exchange_rate: true } },
+          vendor_invoice_item: {
+            select: {
+              commission: {
+                select: {
+                  application: {
+                    select: {
+                      course: { select: { university: { select: { name: true } } } },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          vendor_payment: { select: { amount_foreign: true } },
         },
       });
       const today = new Date();
@@ -475,13 +551,28 @@ export const universityBillingRouter = createTRPCRouter({
         const daysOverdue = inv.due_date
           ? Math.floor((today.getTime() - inv.due_date.getTime()) / 86_400_000)
           : 0;
+        const paidForeign = inv.vendor_payment.reduce(
+          (s, p) => s + num(p.amount_foreign),
+          0,
+        );
+        const outstanding =
+          Math.round((num(inv.total_expected_amount) - paidForeign) * 100) / 100;
+        const unis = Array.from(
+          new Set(
+            inv.vendor_invoice_item.map(
+              (it) => it.commission.application.course.university.name,
+            ),
+          ),
+        );
         return {
           id: inv.id,
           invoiceNumber: inv.invoice_number,
           vendorName: inv.vendor?.name ?? "Direct",
+          university: unis.length === 0 ? "—" : unis.length === 1 ? unis[0]! : "Multiple",
           currency: inv.currency,
-          students: inv._count.vendor_invoice_item,
-          outstanding: num(inv.total_expected_amount),
+          students: inv.vendor_invoice_item.length,
+          outstanding,
+          outstandingInr: toINR(outstanding, inv.currency),
           dueDate: inv.due_date,
           daysOverdue: Math.max(0, daysOverdue),
           bucket:
@@ -489,10 +580,15 @@ export const universityBillingRouter = createTRPCRouter({
           status: inv.status,
         };
       });
-      const buckets = [0, 1, 2, 3].map((b) => ({
-        bucket: b,
-        count: rows.filter((r) => r.bucket === b).length,
-      }));
+      const buckets = [0, 1, 2, 3].map((b) => {
+        const inBucket = rows.filter((r) => r.bucket === b);
+        return {
+          bucket: b,
+          count: inBucket.length,
+          inrTotal:
+            Math.round(inBucket.reduce((s, r) => s + r.outstandingInr, 0) * 100) / 100,
+        };
+      });
       return { rows, buckets };
     }),
 
@@ -504,23 +600,43 @@ export const universityBillingRouter = createTRPCRouter({
       const where = input?.fy ? { fy: input.fy } : {};
       const invoices = await db.vendor_invoice.findMany({
         where,
-        select: { id: true, status: true },
+        select: {
+          status: true,
+          currency: true,
+          total_expected_amount: true,
+          due_date: true,
+        },
       });
       const payments = await db.vendor_payment.findMany({
         where: input?.fy ? { fy: input.fy } : {},
         select: { amount_inr: true },
       });
-      const total = invoices.length;
-      const fullyPaid = invoices.filter(
-        (i) => i.status === VendorInvoiceStatus.FULLY_PAID,
+      const today = new Date();
+      const expectedInr =
+        Math.round(
+          invoices.reduce(
+            (s, i) => s + toINR(num(i.total_expected_amount), i.currency),
+            0,
+          ) * 100,
+        ) / 100;
+      const receivedInr =
+        Math.round(payments.reduce((s, p) => s + num(p.amount_inr), 0) * 100) / 100;
+      const outstandingInr = Math.max(
+        0,
+        Math.round((expectedInr - receivedInr) * 100) / 100,
+      );
+      const overdueCount = invoices.filter(
+        (i) =>
+          (i.status === VendorInvoiceStatus.SENT ||
+            i.status === VendorInvoiceStatus.PARTIAL_PAYMENT) &&
+          i.due_date != null &&
+          i.due_date.getTime() < today.getTime(),
       ).length;
-      const receivedInr = payments.reduce((s, p) => s + num(p.amount_inr), 0);
-      return {
-        invoicesSent: total,
-        receivedInr: Math.round(receivedInr * 100) / 100,
-        outstanding: total - fullyPaid,
-        collectionRate: total > 0 ? Math.round((fullyPaid / total) * 100) : 0,
-      };
+      const collectionRate =
+        expectedInr > 0
+          ? Math.min(100, Math.round((receivedInr / expectedInr) * 100))
+          : 0;
+      return { expectedInr, receivedInr, outstandingInr, overdueCount, collectionRate };
     }),
 
   // Financial years present in the data, for the stats dropdown.
