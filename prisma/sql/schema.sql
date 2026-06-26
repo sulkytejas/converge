@@ -942,7 +942,7 @@ CREATE TABLE IF NOT EXISTS `commission_tranche` (
 CREATE TABLE IF NOT EXISTS `vendor_invoice` (
   `id`                    INT NOT NULL AUTO_INCREMENT,
   `invoice_number`        VARCHAR(40) NOT NULL,
-  `vendor_id`             INT NOT NULL,
+  `vendor_id`             INT NULL DEFAULT NULL,
   `university_id`         INT NULL DEFAULT NULL,
   `currency`              CHAR(3) NOT NULL,
   `invoice_date`          DATE NOT NULL,
@@ -961,7 +961,7 @@ CREATE TABLE IF NOT EXISTS `vendor_invoice` (
   INDEX `idx_vendor_invoice_status`        (`status` ASC) VISIBLE,
   CONSTRAINT `fk_vendor_invoice_vendor`
     FOREIGN KEY (`vendor_id`) REFERENCES `vendor` (`id`)
-    ON DELETE RESTRICT ON UPDATE CASCADE,
+    ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `fk_vendor_invoice_university`
     FOREIGN KEY (`university_id`) REFERENCES `university` (`id`)
     ON DELETE SET NULL ON UPDATE CASCADE

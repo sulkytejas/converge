@@ -42911,7 +42911,7 @@ export namespace Prisma {
   export type Vendor_invoiceGroupByOutputType = {
     id: number
     invoice_number: string
-    vendor_id: number
+    vendor_id: number | null
     university_id: number | null
     currency: string
     invoice_date: Date
@@ -42959,7 +42959,7 @@ export namespace Prisma {
     created_by_cp_user_id?: boolean
     created_at?: boolean
     updated_at?: boolean
-    vendor?: boolean | vendorDefaultArgs<ExtArgs>
+    vendor?: boolean | vendor_invoice$vendorArgs<ExtArgs>
     university?: boolean | vendor_invoice$universityArgs<ExtArgs>
     vendor_invoice_item?: boolean | vendor_invoice$vendor_invoice_itemArgs<ExtArgs>
     vendor_payment?: boolean | vendor_invoice$vendor_paymentArgs<ExtArgs>
@@ -42987,7 +42987,7 @@ export namespace Prisma {
 
   export type vendor_invoiceOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "invoice_number" | "vendor_id" | "university_id" | "currency" | "invoice_date" | "due_date" | "status" | "total_expected_amount" | "notes" | "fy" | "created_by_cp_user_id" | "created_at" | "updated_at", ExtArgs["result"]["vendor_invoice"]>
   export type vendor_invoiceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    vendor?: boolean | vendorDefaultArgs<ExtArgs>
+    vendor?: boolean | vendor_invoice$vendorArgs<ExtArgs>
     university?: boolean | vendor_invoice$universityArgs<ExtArgs>
     vendor_invoice_item?: boolean | vendor_invoice$vendor_invoice_itemArgs<ExtArgs>
     vendor_payment?: boolean | vendor_invoice$vendor_paymentArgs<ExtArgs>
@@ -42997,7 +42997,7 @@ export namespace Prisma {
   export type $vendor_invoicePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "vendor_invoice"
     objects: {
-      vendor: Prisma.$vendorPayload<ExtArgs>
+      vendor: Prisma.$vendorPayload<ExtArgs> | null
       university: Prisma.$universityPayload<ExtArgs> | null
       vendor_invoice_item: Prisma.$vendor_invoice_itemPayload<ExtArgs>[]
       vendor_payment: Prisma.$vendor_paymentPayload<ExtArgs>[]
@@ -43005,7 +43005,7 @@ export namespace Prisma {
     scalars: $Extensions.GetPayloadResult<{
       id: number
       invoice_number: string
-      vendor_id: number
+      vendor_id: number | null
       university_id: number | null
       currency: string
       invoice_date: Date
@@ -43357,7 +43357,7 @@ export namespace Prisma {
    */
   export interface Prisma__vendor_invoiceClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    vendor<T extends vendorDefaultArgs<ExtArgs> = {}>(args?: Subset<T, vendorDefaultArgs<ExtArgs>>): Prisma__vendorClient<$Result.GetResult<Prisma.$vendorPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    vendor<T extends vendor_invoice$vendorArgs<ExtArgs> = {}>(args?: Subset<T, vendor_invoice$vendorArgs<ExtArgs>>): Prisma__vendorClient<$Result.GetResult<Prisma.$vendorPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     university<T extends vendor_invoice$universityArgs<ExtArgs> = {}>(args?: Subset<T, vendor_invoice$universityArgs<ExtArgs>>): Prisma__universityClient<$Result.GetResult<Prisma.$universityPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     vendor_invoice_item<T extends vendor_invoice$vendor_invoice_itemArgs<ExtArgs> = {}>(args?: Subset<T, vendor_invoice$vendor_invoice_itemArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$vendor_invoice_itemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     vendor_payment<T extends vendor_invoice$vendor_paymentArgs<ExtArgs> = {}>(args?: Subset<T, vendor_invoice$vendor_paymentArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$vendor_paymentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -43744,6 +43744,25 @@ export namespace Prisma {
      * Limit how many vendor_invoices to delete.
      */
     limit?: number
+  }
+
+  /**
+   * vendor_invoice.vendor
+   */
+  export type vendor_invoice$vendorArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the vendor
+     */
+    select?: vendorSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the vendor
+     */
+    omit?: vendorOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: vendorInclude<ExtArgs> | null
+    where?: vendorWhereInput
   }
 
   /**
@@ -53032,7 +53051,7 @@ export namespace Prisma {
     NOT?: vendor_invoiceWhereInput | vendor_invoiceWhereInput[]
     id?: IntFilter<"vendor_invoice"> | number
     invoice_number?: StringFilter<"vendor_invoice"> | string
-    vendor_id?: IntFilter<"vendor_invoice"> | number
+    vendor_id?: IntNullableFilter<"vendor_invoice"> | number | null
     university_id?: IntNullableFilter<"vendor_invoice"> | number | null
     currency?: StringFilter<"vendor_invoice"> | string
     invoice_date?: DateTimeFilter<"vendor_invoice"> | Date | string
@@ -53044,7 +53063,7 @@ export namespace Prisma {
     created_by_cp_user_id?: IntNullableFilter<"vendor_invoice"> | number | null
     created_at?: DateTimeFilter<"vendor_invoice"> | Date | string
     updated_at?: DateTimeFilter<"vendor_invoice"> | Date | string
-    vendor?: XOR<VendorScalarRelationFilter, vendorWhereInput>
+    vendor?: XOR<VendorNullableScalarRelationFilter, vendorWhereInput> | null
     university?: XOR<UniversityNullableScalarRelationFilter, universityWhereInput> | null
     vendor_invoice_item?: Vendor_invoice_itemListRelationFilter
     vendor_payment?: Vendor_paymentListRelationFilter
@@ -53053,7 +53072,7 @@ export namespace Prisma {
   export type vendor_invoiceOrderByWithRelationInput = {
     id?: SortOrder
     invoice_number?: SortOrder
-    vendor_id?: SortOrder
+    vendor_id?: SortOrderInput | SortOrder
     university_id?: SortOrderInput | SortOrder
     currency?: SortOrder
     invoice_date?: SortOrder
@@ -53078,7 +53097,7 @@ export namespace Prisma {
     AND?: vendor_invoiceWhereInput | vendor_invoiceWhereInput[]
     OR?: vendor_invoiceWhereInput[]
     NOT?: vendor_invoiceWhereInput | vendor_invoiceWhereInput[]
-    vendor_id?: IntFilter<"vendor_invoice"> | number
+    vendor_id?: IntNullableFilter<"vendor_invoice"> | number | null
     university_id?: IntNullableFilter<"vendor_invoice"> | number | null
     currency?: StringFilter<"vendor_invoice"> | string
     invoice_date?: DateTimeFilter<"vendor_invoice"> | Date | string
@@ -53090,7 +53109,7 @@ export namespace Prisma {
     created_by_cp_user_id?: IntNullableFilter<"vendor_invoice"> | number | null
     created_at?: DateTimeFilter<"vendor_invoice"> | Date | string
     updated_at?: DateTimeFilter<"vendor_invoice"> | Date | string
-    vendor?: XOR<VendorScalarRelationFilter, vendorWhereInput>
+    vendor?: XOR<VendorNullableScalarRelationFilter, vendorWhereInput> | null
     university?: XOR<UniversityNullableScalarRelationFilter, universityWhereInput> | null
     vendor_invoice_item?: Vendor_invoice_itemListRelationFilter
     vendor_payment?: Vendor_paymentListRelationFilter
@@ -53099,7 +53118,7 @@ export namespace Prisma {
   export type vendor_invoiceOrderByWithAggregationInput = {
     id?: SortOrder
     invoice_number?: SortOrder
-    vendor_id?: SortOrder
+    vendor_id?: SortOrderInput | SortOrder
     university_id?: SortOrderInput | SortOrder
     currency?: SortOrder
     invoice_date?: SortOrder
@@ -53124,7 +53143,7 @@ export namespace Prisma {
     NOT?: vendor_invoiceScalarWhereWithAggregatesInput | vendor_invoiceScalarWhereWithAggregatesInput[]
     id?: IntWithAggregatesFilter<"vendor_invoice"> | number
     invoice_number?: StringWithAggregatesFilter<"vendor_invoice"> | string
-    vendor_id?: IntWithAggregatesFilter<"vendor_invoice"> | number
+    vendor_id?: IntNullableWithAggregatesFilter<"vendor_invoice"> | number | null
     university_id?: IntNullableWithAggregatesFilter<"vendor_invoice"> | number | null
     currency?: StringWithAggregatesFilter<"vendor_invoice"> | string
     invoice_date?: DateTimeWithAggregatesFilter<"vendor_invoice"> | Date | string
@@ -57281,7 +57300,7 @@ export namespace Prisma {
     created_by_cp_user_id?: number | null
     created_at?: Date | string
     updated_at?: Date | string
-    vendor: vendorCreateNestedOneWithoutVendor_invoiceInput
+    vendor?: vendorCreateNestedOneWithoutVendor_invoiceInput
     university?: universityCreateNestedOneWithoutVendor_invoiceInput
     vendor_invoice_item?: vendor_invoice_itemCreateNestedManyWithoutVendor_invoiceInput
     vendor_payment?: vendor_paymentCreateNestedManyWithoutVendor_invoiceInput
@@ -57290,7 +57309,7 @@ export namespace Prisma {
   export type vendor_invoiceUncheckedCreateInput = {
     id?: number
     invoice_number: string
-    vendor_id: number
+    vendor_id?: number | null
     university_id?: number | null
     currency: string
     invoice_date: Date | string
@@ -57318,7 +57337,7 @@ export namespace Prisma {
     created_by_cp_user_id?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    vendor?: vendorUpdateOneRequiredWithoutVendor_invoiceNestedInput
+    vendor?: vendorUpdateOneWithoutVendor_invoiceNestedInput
     university?: universityUpdateOneWithoutVendor_invoiceNestedInput
     vendor_invoice_item?: vendor_invoice_itemUpdateManyWithoutVendor_invoiceNestedInput
     vendor_payment?: vendor_paymentUpdateManyWithoutVendor_invoiceNestedInput
@@ -57327,7 +57346,7 @@ export namespace Prisma {
   export type vendor_invoiceUncheckedUpdateInput = {
     id?: IntFieldUpdateOperationsInput | number
     invoice_number?: StringFieldUpdateOperationsInput | string
-    vendor_id?: IntFieldUpdateOperationsInput | number
+    vendor_id?: NullableIntFieldUpdateOperationsInput | number | null
     university_id?: NullableIntFieldUpdateOperationsInput | number | null
     currency?: StringFieldUpdateOperationsInput | string
     invoice_date?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -57346,7 +57365,7 @@ export namespace Prisma {
   export type vendor_invoiceCreateManyInput = {
     id?: number
     invoice_number: string
-    vendor_id: number
+    vendor_id?: number | null
     university_id?: number | null
     currency: string
     invoice_date: Date | string
@@ -57377,7 +57396,7 @@ export namespace Prisma {
   export type vendor_invoiceUncheckedUpdateManyInput = {
     id?: IntFieldUpdateOperationsInput | number
     invoice_number?: StringFieldUpdateOperationsInput | string
-    vendor_id?: IntFieldUpdateOperationsInput | number
+    vendor_id?: NullableIntFieldUpdateOperationsInput | number | null
     university_id?: NullableIntFieldUpdateOperationsInput | number | null
     currency?: StringFieldUpdateOperationsInput | string
     invoice_date?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -61008,11 +61027,6 @@ export namespace Prisma {
     status?: SortOrder
   }
 
-  export type VendorScalarRelationFilter = {
-    is?: vendorWhereInput
-    isNot?: vendorWhereInput
-  }
-
   export type UniversityNullableScalarRelationFilter = {
     is?: universityWhereInput | null
     isNot?: universityWhereInput | null
@@ -64544,10 +64558,12 @@ export namespace Prisma {
     connect?: vendor_paymentWhereUniqueInput | vendor_paymentWhereUniqueInput[]
   }
 
-  export type vendorUpdateOneRequiredWithoutVendor_invoiceNestedInput = {
+  export type vendorUpdateOneWithoutVendor_invoiceNestedInput = {
     create?: XOR<vendorCreateWithoutVendor_invoiceInput, vendorUncheckedCreateWithoutVendor_invoiceInput>
     connectOrCreate?: vendorCreateOrConnectWithoutVendor_invoiceInput
     upsert?: vendorUpsertWithoutVendor_invoiceInput
+    disconnect?: vendorWhereInput | boolean
+    delete?: vendorWhereInput | boolean
     connect?: vendorWhereUniqueInput
     update?: XOR<XOR<vendorUpdateToOneWithWhereWithoutVendor_invoiceInput, vendorUpdateWithoutVendor_invoiceInput>, vendorUncheckedUpdateWithoutVendor_invoiceInput>
   }
@@ -71062,7 +71078,7 @@ export namespace Prisma {
     created_by_cp_user_id?: number | null
     created_at?: Date | string
     updated_at?: Date | string
-    vendor: vendorCreateNestedOneWithoutVendor_invoiceInput
+    vendor?: vendorCreateNestedOneWithoutVendor_invoiceInput
     vendor_invoice_item?: vendor_invoice_itemCreateNestedManyWithoutVendor_invoiceInput
     vendor_payment?: vendor_paymentCreateNestedManyWithoutVendor_invoiceInput
   }
@@ -71070,7 +71086,7 @@ export namespace Prisma {
   export type vendor_invoiceUncheckedCreateWithoutUniversityInput = {
     id?: number
     invoice_number: string
-    vendor_id: number
+    vendor_id?: number | null
     currency: string
     invoice_date: Date | string
     due_date?: Date | string | null
@@ -71197,7 +71213,7 @@ export namespace Prisma {
     NOT?: vendor_invoiceScalarWhereInput | vendor_invoiceScalarWhereInput[]
     id?: IntFilter<"vendor_invoice"> | number
     invoice_number?: StringFilter<"vendor_invoice"> | string
-    vendor_id?: IntFilter<"vendor_invoice"> | number
+    vendor_id?: IntNullableFilter<"vendor_invoice"> | number | null
     university_id?: IntNullableFilter<"vendor_invoice"> | number | null
     currency?: StringFilter<"vendor_invoice"> | string
     invoice_date?: DateTimeFilter<"vendor_invoice"> | Date | string
@@ -76128,7 +76144,7 @@ export namespace Prisma {
     created_by_cp_user_id?: number | null
     created_at?: Date | string
     updated_at?: Date | string
-    vendor: vendorCreateNestedOneWithoutVendor_invoiceInput
+    vendor?: vendorCreateNestedOneWithoutVendor_invoiceInput
     university?: universityCreateNestedOneWithoutVendor_invoiceInput
     vendor_payment?: vendor_paymentCreateNestedManyWithoutVendor_invoiceInput
   }
@@ -76136,7 +76152,7 @@ export namespace Prisma {
   export type vendor_invoiceUncheckedCreateWithoutVendor_invoice_itemInput = {
     id?: number
     invoice_number: string
-    vendor_id: number
+    vendor_id?: number | null
     university_id?: number | null
     currency: string
     invoice_date: Date | string
@@ -76225,7 +76241,7 @@ export namespace Prisma {
     created_by_cp_user_id?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    vendor?: vendorUpdateOneRequiredWithoutVendor_invoiceNestedInput
+    vendor?: vendorUpdateOneWithoutVendor_invoiceNestedInput
     university?: universityUpdateOneWithoutVendor_invoiceNestedInput
     vendor_payment?: vendor_paymentUpdateManyWithoutVendor_invoiceNestedInput
   }
@@ -76233,7 +76249,7 @@ export namespace Prisma {
   export type vendor_invoiceUncheckedUpdateWithoutVendor_invoice_itemInput = {
     id?: IntFieldUpdateOperationsInput | number
     invoice_number?: StringFieldUpdateOperationsInput | string
-    vendor_id?: IntFieldUpdateOperationsInput | number
+    vendor_id?: NullableIntFieldUpdateOperationsInput | number | null
     university_id?: NullableIntFieldUpdateOperationsInput | number | null
     currency?: StringFieldUpdateOperationsInput | string
     invoice_date?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -76312,7 +76328,7 @@ export namespace Prisma {
     created_by_cp_user_id?: number | null
     created_at?: Date | string
     updated_at?: Date | string
-    vendor: vendorCreateNestedOneWithoutVendor_invoiceInput
+    vendor?: vendorCreateNestedOneWithoutVendor_invoiceInput
     university?: universityCreateNestedOneWithoutVendor_invoiceInput
     vendor_invoice_item?: vendor_invoice_itemCreateNestedManyWithoutVendor_invoiceInput
   }
@@ -76320,7 +76336,7 @@ export namespace Prisma {
   export type vendor_invoiceUncheckedCreateWithoutVendor_paymentInput = {
     id?: number
     invoice_number: string
-    vendor_id: number
+    vendor_id?: number | null
     university_id?: number | null
     currency: string
     invoice_date: Date | string
@@ -76363,7 +76379,7 @@ export namespace Prisma {
     created_by_cp_user_id?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    vendor?: vendorUpdateOneRequiredWithoutVendor_invoiceNestedInput
+    vendor?: vendorUpdateOneWithoutVendor_invoiceNestedInput
     university?: universityUpdateOneWithoutVendor_invoiceNestedInput
     vendor_invoice_item?: vendor_invoice_itemUpdateManyWithoutVendor_invoiceNestedInput
   }
@@ -76371,7 +76387,7 @@ export namespace Prisma {
   export type vendor_invoiceUncheckedUpdateWithoutVendor_paymentInput = {
     id?: IntFieldUpdateOperationsInput | number
     invoice_number?: StringFieldUpdateOperationsInput | string
-    vendor_id?: IntFieldUpdateOperationsInput | number
+    vendor_id?: NullableIntFieldUpdateOperationsInput | number | null
     university_id?: NullableIntFieldUpdateOperationsInput | number | null
     currency?: StringFieldUpdateOperationsInput | string
     invoice_date?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -78551,7 +78567,7 @@ export namespace Prisma {
   export type vendor_invoiceCreateManyUniversityInput = {
     id?: number
     invoice_number: string
-    vendor_id: number
+    vendor_id?: number | null
     currency: string
     invoice_date: Date | string
     due_date?: Date | string | null
@@ -78708,7 +78724,7 @@ export namespace Prisma {
     created_by_cp_user_id?: NullableIntFieldUpdateOperationsInput | number | null
     created_at?: DateTimeFieldUpdateOperationsInput | Date | string
     updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
-    vendor?: vendorUpdateOneRequiredWithoutVendor_invoiceNestedInput
+    vendor?: vendorUpdateOneWithoutVendor_invoiceNestedInput
     vendor_invoice_item?: vendor_invoice_itemUpdateManyWithoutVendor_invoiceNestedInput
     vendor_payment?: vendor_paymentUpdateManyWithoutVendor_invoiceNestedInput
   }
@@ -78716,7 +78732,7 @@ export namespace Prisma {
   export type vendor_invoiceUncheckedUpdateWithoutUniversityInput = {
     id?: IntFieldUpdateOperationsInput | number
     invoice_number?: StringFieldUpdateOperationsInput | string
-    vendor_id?: IntFieldUpdateOperationsInput | number
+    vendor_id?: NullableIntFieldUpdateOperationsInput | number | null
     currency?: StringFieldUpdateOperationsInput | string
     invoice_date?: DateTimeFieldUpdateOperationsInput | Date | string
     due_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -78734,7 +78750,7 @@ export namespace Prisma {
   export type vendor_invoiceUncheckedUpdateManyWithoutUniversityInput = {
     id?: IntFieldUpdateOperationsInput | number
     invoice_number?: StringFieldUpdateOperationsInput | string
-    vendor_id?: IntFieldUpdateOperationsInput | number
+    vendor_id?: NullableIntFieldUpdateOperationsInput | number | null
     currency?: StringFieldUpdateOperationsInput | string
     invoice_date?: DateTimeFieldUpdateOperationsInput | Date | string
     due_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
