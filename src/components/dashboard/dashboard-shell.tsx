@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Sidebar } from "./sidebar";
 import { Topbar, type NotificationItem } from "./topbar";
-import { NAV_SECTIONS } from "./nav-config";
+import { NAV_SECTIONS, navRoleFromCode } from "./nav-config";
 import { AdminRoleLabel, isAdminRole } from "~/server/db/enums";
 import { api } from "~/trpc/react";
 
@@ -108,6 +108,7 @@ export function DashboardShell({
         sections={NAV_SECTIONS}
         logoSubtitle="Admin Portal"
         badges={badges}
+        role={me && isAdminRole(me.role) ? navRoleFromCode(me.role) : null}
       />
       <Topbar
         collapsed={collapsed}

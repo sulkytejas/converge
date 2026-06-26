@@ -60,6 +60,40 @@ export const ROLE_OPTIONS: RoleOption[] = [
   { value: "content_mgr", name: "Kavita Rao", label: "Content Mgr" },
 ];
 
+// Finance section is visible only to finance staff + admins; everyone else has
+// it hidden from the sidebar (the server also blocks the calls).
+const FINANCE_NAV_ROLES: AdminRole[] = [
+  "super_admin",
+  "finance_mgr",
+  "finance_exec",
+];
+
+// Maps the numeric AdminRole code (src/server/db/enums.ts) to the sidebar's
+// string role. Ops/counsellor variants collapse to the nearest sidebar bucket;
+// only the finance/admin gate is exercised today.
+export function navRoleFromCode(code: number): AdminRole | null {
+  switch (code) {
+    case 0:
+      return "super_admin";
+    case 1:
+      return "finance_mgr";
+    case 2:
+      return "finance_exec";
+    case 3:
+    case 5:
+      return "ops_team_lead";
+    case 4:
+    case 6:
+      return "ops_counselor";
+    case 7:
+      return "content_mgr";
+    case 8:
+      return "bdm";
+    default:
+      return null;
+  }
+}
+
 export const NAV_SECTIONS: NavSection[] = [
   {
     label: "Operations",
@@ -107,21 +141,25 @@ export const NAV_SECTIONS: NavSection[] = [
         label: "Commission Rates",
         href: "/admin/commission-rates",
         icon: <CommissionIcon />,
+        roles: FINANCE_NAV_ROLES,
       },
       {
         label: "University Billing",
         href: "/admin/university-billing",
         icon: <BillingIcon />,
+        roles: FINANCE_NAV_ROLES,
       },
       {
         label: "Invoices & Payouts",
         href: "/admin/invoices",
         icon: <InvoiceIcon />,
+        roles: FINANCE_NAV_ROLES,
       },
       {
         label: "Reconciliation",
         href: "/admin/reconciliation",
         icon: <ReconciliationIcon />,
+        roles: FINANCE_NAV_ROLES,
       },
     ],
   },

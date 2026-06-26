@@ -6,7 +6,11 @@ import {
   financeManagerProcedure,
 } from "~/server/api/trpc";
 import { db } from "~/server/db";
-import { VENDOR_TYPE_CODES, COMMISSION_TYPE_CODES } from "~/server/db/enums";
+import {
+  VENDOR_TYPE_CODES,
+  COMMISSION_TYPE_CODES,
+  CommissionType,
+} from "~/server/db/enums";
 
 // Prisma Decimal -> number at the API boundary (the house convention; superjson
 // also handles Decimal, but routers serialise explicitly).
@@ -212,9 +216,26 @@ export const commissionRatesRouter = createTRPCRouter({
         effectiveDate: z.string().optional(),
         notes: z.string().max(500).optional(),
         isDefault: z.boolean().optional(),
+        // Optional headline (university-wide) rate, set inline from the modal so
+        // the user doesn't have to expand the row and add a rate as a 2nd step.
+        commissionType: commissionType.optional(),
+        rate: z.number().min(0).nullable().optional(),
+        rateCourseId: z.number().int().positive().nullable().optional(),
+        level: z.number().int().min(0).max(255).nullable().optional(),
       }),
     )
     .mutation(async ({ input }) => {
+      const clash = await db.commission_contract.findFirst({
+        where: { university_id: input.universityId, vendor_id: input.vendorId },
+        select: { id: true },
+      });
+      if (clash) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message:
+            "A commission source for this university and vendor already exists. Edit it instead.",
+        });
+      }
       const created = await db.$transaction(async (tx) => {
         if (input.isDefault) {
           await tx.commission_contract.updateMany({
@@ -222,7 +243,7 @@ export const commissionRatesRouter = createTRPCRouter({
             data: { is_default: 0 },
           });
         }
-        return tx.commission_contract.create({
+        const contract = await tx.commission_contract.create({
           data: {
             university_id: input.universityId,
             vendor_id: input.vendorId,
@@ -232,6 +253,19 @@ export const commissionRatesRouter = createTRPCRouter({
             is_default: input.isDefault ? 1 : 0,
           },
         });
+        if (input.rate != null) {
+          await tx.commission_rate.create({
+            data: {
+              contract_id: contract.id,
+              course_id: input.rateCourseId ?? null,
+              level: input.level ?? null,
+              commission_type: input.commissionType ?? CommissionType.PERCENTAGE,
+              rate: input.rate,
+              currency: null,
+            },
+          });
+        }
+        return contract;
       });
       return { id: created.id };
     }),
@@ -240,23 +274,94 @@ export const commissionRatesRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.number().int().positive(),
+        vendorId: z.number().int().positive().nullable().optional(),
         cpSharePct: z.number().min(0).max(100).nullable().optional(),
         effectiveDate: z.string().nullable().optional(),
         notes: z.string().max(500).optional(),
+        isDefault: z.boolean().optional(),
+        // Edit the headline (university-wide) rate inline.
+        commissionType: commissionType.optional(),
+        rate: z.number().min(0).nullable().optional(),
+        level: z.number().int().min(0).max(255).nullable().optional(),
       }),
     )
     .mutation(async ({ input }) => {
-      await db.commission_contract.update({
+      const current = await db.commission_contract.findUnique({
         where: { id: input.id },
-        data: {
-          ...(input.cpSharePct === undefined
-            ? {}
-            : { cp_share_pct: input.cpSharePct }),
-          ...(input.effectiveDate === undefined
-            ? {}
-            : { effective_date: parseDate(input.effectiveDate) }),
-          ...(input.notes === undefined ? {} : { notes: orNull(input.notes) }),
-        },
+        select: { university_id: true, vendor_id: true },
+      });
+      if (!current) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Contract not found." });
+      }
+      // Changing the vendor must respect the (university, vendor) uniqueness.
+      if (input.vendorId !== undefined && input.vendorId !== current.vendor_id) {
+        const clash = await db.commission_contract.findFirst({
+          where: {
+            university_id: current.university_id,
+            vendor_id: input.vendorId,
+            id: { not: input.id },
+          },
+          select: { id: true },
+        });
+        if (clash) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message:
+              "Another commission source already uses this university and vendor.",
+          });
+        }
+      }
+      await db.$transaction(async (tx) => {
+        await tx.commission_contract.update({
+          where: { id: input.id },
+          data: {
+            ...(input.vendorId === undefined ? {} : { vendor_id: input.vendorId }),
+            ...(input.cpSharePct === undefined
+              ? {}
+              : { cp_share_pct: input.cpSharePct }),
+            ...(input.effectiveDate === undefined
+              ? {}
+              : { effective_date: parseDate(input.effectiveDate) }),
+            ...(input.notes === undefined ? {} : { notes: orNull(input.notes) }),
+            ...(input.isDefault === undefined
+              ? {}
+              : { is_default: input.isDefault ? 1 : 0 }),
+          },
+        });
+        // Exactly one default per university when this row is being set default.
+        if (input.isDefault === true) {
+          await tx.commission_contract.updateMany({
+            where: { university_id: current.university_id, id: { not: input.id } },
+            data: { is_default: 0 },
+          });
+        }
+        // Upsert the headline (university-wide, course_id null) rate.
+        if (input.rate != null) {
+          const headline = await tx.commission_rate.findFirst({
+            where: { contract_id: input.id, course_id: null },
+            select: { id: true },
+          });
+          const rateData = {
+            level: input.level ?? null,
+            commission_type: input.commissionType ?? CommissionType.PERCENTAGE,
+            rate: input.rate,
+          };
+          if (headline) {
+            await tx.commission_rate.update({
+              where: { id: headline.id },
+              data: rateData,
+            });
+          } else {
+            await tx.commission_rate.create({
+              data: {
+                contract_id: input.id,
+                course_id: null,
+                currency: null,
+                ...rateData,
+              },
+            });
+          }
+        }
       });
       return { success: true as const };
     }),
@@ -289,6 +394,109 @@ export const commissionRatesRouter = createTRPCRouter({
         }),
       ]);
       return { success: true as const };
+    }),
+
+  // ========================================================================
+  // Bulk CSV import — upsert commission sources keyed on (university, vendor).
+  // The NEW/CHANGED/no-change diff is computed client-side; this applies the
+  // rows the user chose. Each row sets the headline (university-wide) rate.
+  // ========================================================================
+  importContracts: financeManagerProcedure
+    .input(
+      z.object({
+        rows: z
+          .array(
+            z.object({
+              universityId: z.number().int().positive(),
+              vendorId: z.number().int().positive().nullable(),
+              commissionType: commissionType,
+              rate: z.number().min(0).nullable(),
+              cpSharePct: z.number().min(0).max(100).nullable(),
+              isDefault: z.boolean(),
+              effectiveDate: z.string().nullable(),
+              notes: z.string().max(500).nullable(),
+            }),
+          )
+          .min(1)
+          .max(1000),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      let created = 0;
+      let updated = 0;
+      await db.$transaction(
+        async (tx) => {
+          for (const row of input.rows) {
+            const existing = await tx.commission_contract.findFirst({
+              where: { university_id: row.universityId, vendor_id: row.vendorId },
+              select: { id: true },
+            });
+            let contractId: number;
+            if (existing) {
+              await tx.commission_contract.update({
+                where: { id: existing.id },
+                data: {
+                  cp_share_pct: row.cpSharePct,
+                  effective_date: parseDate(row.effectiveDate),
+                  notes: orNull(row.notes),
+                },
+              });
+              contractId = existing.id;
+              updated++;
+            } else {
+              const c = await tx.commission_contract.create({
+                data: {
+                  university_id: row.universityId,
+                  vendor_id: row.vendorId,
+                  cp_share_pct: row.cpSharePct,
+                  effective_date: parseDate(row.effectiveDate),
+                  notes: orNull(row.notes),
+                  is_default: 0,
+                },
+              });
+              contractId = c.id;
+              created++;
+            }
+            // Headline (university-wide) rate.
+            if (row.rate != null) {
+              const headline = await tx.commission_rate.findFirst({
+                where: { contract_id: contractId, course_id: null },
+                select: { id: true },
+              });
+              if (headline) {
+                await tx.commission_rate.update({
+                  where: { id: headline.id },
+                  data: { commission_type: row.commissionType, rate: row.rate },
+                });
+              } else {
+                await tx.commission_rate.create({
+                  data: {
+                    contract_id: contractId,
+                    course_id: null,
+                    level: null,
+                    currency: null,
+                    commission_type: row.commissionType,
+                    rate: row.rate,
+                  },
+                });
+              }
+            }
+            // Default flag — clear the rest for this university, set this one.
+            if (row.isDefault) {
+              await tx.commission_contract.updateMany({
+                where: { university_id: row.universityId, id: { not: contractId } },
+                data: { is_default: 0 },
+              });
+              await tx.commission_contract.update({
+                where: { id: contractId },
+                data: { is_default: 1 },
+              });
+            }
+          }
+        },
+        { timeout: 30_000 },
+      );
+      return { created, updated };
     }),
 
   // ========================================================================
@@ -436,6 +644,12 @@ export const commissionRatesRouter = createTRPCRouter({
           university: { select: { id: true, name: true, country: true } },
           // The university-wide rate (course_id null) is the headline default rate.
           commission_rate: { where: { course_id: null } },
+          _count: {
+            select: {
+              commission_bonus_tier: true,
+              commission_tranche_template: true,
+            },
+          },
         },
         orderBy: { university: { name: "asc" } },
       });
@@ -455,6 +669,9 @@ export const commissionRatesRouter = createTRPCRouter({
             cpSharePct: number | null;
             defaultRate: number | null;
             commissionType: number | null;
+            effectiveDate: Date | null;
+            hasBonus: boolean;
+            hasTranches: boolean;
             notes: string | null;
           }[];
         }
@@ -481,6 +698,9 @@ export const commissionRatesRouter = createTRPCRouter({
           cpSharePct: num(c.cp_share_pct),
           defaultRate: headline ? num(headline.rate) : null,
           commissionType: headline ? headline.commission_type : null,
+          effectiveDate: c.effective_date,
+          hasBonus: c._count.commission_bonus_tier > 0,
+          hasTranches: c._count.commission_tranche_template > 0,
           notes: c.notes,
         });
       }

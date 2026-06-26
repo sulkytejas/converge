@@ -7,13 +7,16 @@ import {
   CollegepondLogoIcon,
   LogoutIcon,
 } from "./nav-icons";
-import { type NavItem, type NavSection } from "./nav-config";
+import { type AdminRole, type NavItem, type NavSection } from "./nav-config";
 
 interface SidebarProps {
   collapsed: boolean;
   sections: NavSection[];
   logoSubtitle: string;
   badges?: Record<string, number | string | undefined>;
+  /** Current admin role (string form) — gates items that declare `roles`.
+   *  Null while loading: items stay visible (fail-open) until the role resolves. */
+  role?: AdminRole | null;
   /** Optional render slot above the logout button (e.g. admin role switcher). */
   footer?: ReactNode;
   onLogout?: () => void;
@@ -24,10 +27,13 @@ export function Sidebar({
   sections,
   logoSubtitle,
   badges = {},
+  role = null,
   footer,
   onLogout,
 }: SidebarProps) {
   const pathname = usePathname();
+  const canSee = (item: NavItem): boolean =>
+    !item.hidden && (!item.roles || role == null || item.roles.includes(role));
 
   return (
     <nav
@@ -59,28 +65,32 @@ export function Sidebar({
 
       {/* Sections */}
       <div className="flex-1 overflow-y-auto px-2.5 py-3">
-        {sections.map((section, sectionIdx) => (
-          <div key={section.label}>
-            {!collapsed && (
-              <div
-                className={`px-3 pt-3 pb-1.5 text-[11px] font-semibold tracking-wider whitespace-nowrap text-[#98A2B3] uppercase ${
-                  sectionIdx === 0 ? "" : "mt-1"
-                }`}
-              >
-                {section.label}
-              </div>
-            )}
-            {section.items.filter((item) => !item.hidden).map((item) => (
-              <NavLink
-                key={item.href}
-                item={item}
-                collapsed={collapsed}
-                active={isActive(pathname, item.href)}
-                badge={item.badgeKey ? badges[item.badgeKey] : undefined}
-              />
-            ))}
-          </div>
-        ))}
+        {sections.map((section, sectionIdx) => {
+          const items = section.items.filter(canSee);
+          if (items.length === 0) return null;
+          return (
+            <div key={section.label}>
+              {!collapsed && (
+                <div
+                  className={`px-3 pt-3 pb-1.5 text-[11px] font-semibold tracking-wider whitespace-nowrap text-[#98A2B3] uppercase ${
+                    sectionIdx === 0 ? "" : "mt-1"
+                  }`}
+                >
+                  {section.label}
+                </div>
+              )}
+              {items.map((item) => (
+                <NavLink
+                  key={item.href}
+                  item={item}
+                  collapsed={collapsed}
+                  active={isActive(pathname, item.href)}
+                  badge={item.badgeKey ? badges[item.badgeKey] : undefined}
+                />
+              ))}
+            </div>
+          );
+        })}
       </div>
 
       {/* Optional footer slot (e.g. admin role switcher) */}
