@@ -6,7 +6,7 @@ import {
 } from "~/server/api/trpc";
 import { db } from "~/server/db";
 import { encryptSecret } from "~/server/crypto";
-import { PartnerInvoiceStatus } from "~/server/db/enums";
+import { PartnerInvoiceStatus, financialYearOf } from "~/server/db/enums";
 
 type Decimalish = { toNumber: () => number } | null;
 const num = (d: Decimalish): number => (d == null ? 0 : d.toNumber());
@@ -20,6 +20,8 @@ const orNull = (v: string | null | undefined): string | null => {
 // CollegePond is the invoice recipient. State code 27 = Maharashtra (Mumbai).
 const CP = {
   name: "Collegepond Counsellors Pvt Ltd",
+  address:
+    "ML Spaces Unit 204, Opp. Old Jain Mandir, DS Road, Vile Parle West, Mumbai, Maharashtra 400056",
   gstin: "27AADCK1234F1Z5",
   state: "27",
   sac: "998399", // Other Professional, Technical and Business Services
@@ -77,16 +79,27 @@ export const partnerCommissionRouter = createTRPCRouter({
           select: {
             university_app_id: true,
             student: { select: { id: true, first_name: true, last_name: true } },
-            course: { select: { name: true, university: { select: { name: true } } } },
+            course: {
+              select: {
+                name: true,
+                intake_month: true,
+                intake_year: true,
+                university: { select: { name: true, country: true } },
+              },
+            },
           },
         },
-        invoice_item: { select: { id: true, invoice: { select: { status: true } } } },
+        invoice_item: {
+          select: { id: true, invoice: { select: { invoice_number: true, status: true } } },
+        },
       },
     });
 
     return comms.map((c) => {
       const partnerSharePct = c.partner_share_pct == null ? 100 : num(c.partner_share_pct);
-      const claimable = c.claimable_inr == null ? 0 : round2(num(c.claimable_inr) * (partnerSharePct / 100));
+      const claimableGross = c.claimable_inr == null ? 0 : num(c.claimable_inr);
+      const claimable = round2(claimableGross * (partnerSharePct / 100));
+      const cpCommissionInr = round2(claimableGross - claimable);
       const received = c.collegepond_received_at != null;
       const invoiced = c.invoice_item != null;
       const paid = c.partner_paid_at != null;
@@ -97,17 +110,31 @@ export const partnerCommissionRouter = createTRPCRouter({
           : received
             ? "claimable"
             : "pending";
+      const intake =
+        [c.application.course.intake_month, c.application.course.intake_year]
+          .filter(Boolean)
+          .join(" ") || null;
       return {
         commissionId: c.id,
+        universityStudentId: c.application.university_app_id,
         studentCode: studentCode(c.application.student.id),
         studentName:
           `${c.application.student.first_name} ${c.application.student.last_name}`.trim(),
         university: c.application.course.university.name,
+        country: c.application.course.university.country,
         program: c.application.course.name,
+        intake,
         currency: c.currency,
+        tuition: num(c.tuition_fee),
+        commissionRate: num(c.commision_rate),
         commissionAmount: num(c.commision_amount),
         partnerSharePct,
         claimableInr: claimable,
+        cpCommissionInr,
+        receivedAt: c.collegepond_received_at,
+        paidAt: c.partner_paid_at,
+        invoiceNumber: c.invoice_item?.invoice?.invoice_number ?? null,
+        invoiceStatus: c.invoice_item?.invoice?.status ?? null,
         status,
         selectable: status === "claimable",
       };
@@ -287,8 +314,93 @@ export const partnerCommissionRouter = createTRPCRouter({
           return s + round2(num(c.claimable_inr) * (sharePct / 100));
         }, 0),
       );
-      return { subtotal, ...computeTax(subtotal, orNull(input.gstin)), cpName: CP.name, cpGstin: CP.gstin, sac: CP.sac };
+      return {
+        subtotal,
+        ...computeTax(subtotal, orNull(input.gstin)),
+        cpName: CP.name,
+        cpAddress: CP.address,
+        cpGstin: CP.gstin,
+        sac: CP.sac,
+      };
     }),
+
+  // Per-commission detail for the student modal: payment timeline + its invoice.
+  studentDetail: protectedPartnerProcedure
+    .input(z.object({ commissionId: z.number().int().positive() }))
+    .query(async ({ ctx, input }) => {
+      const orgId = await requireOrgId(ctx.cpPartner.id);
+      const c = await db.commission.findFirst({
+        where: { id: input.commissionId, org_id: orgId },
+        include: {
+          application: { select: { created_at: true } },
+          invoice_item: {
+            select: {
+              invoice: {
+                select: {
+                  invoice_number: true,
+                  invoice_date: true,
+                  total_amount: true,
+                  net_payable: true,
+                  status: true,
+                },
+              },
+            },
+          },
+        },
+      });
+      if (!c) throw new TRPCError({ code: "NOT_FOUND", message: "Commission not found" });
+      const inv = c.invoice_item?.invoice ?? null;
+      return {
+        appSubmittedAt: c.application.created_at,
+        commissionCreatedAt: c.created_at,
+        receivedAt: c.collegepond_received_at,
+        invoicedAt: inv?.invoice_date ?? null,
+        paidAt: c.partner_paid_at,
+        invoice: inv
+          ? {
+              number: inv.invoice_number,
+              date: inv.invoice_date,
+              amount: num(inv.total_amount),
+              netPayable: inv.net_payable == null ? num(inv.total_amount) : num(inv.net_payable),
+              status: inv.status,
+            }
+          : null,
+      };
+    }),
+
+  // Per-financial-year aggregates for the year-over-year card + the loyalty tier
+  // (tier is derived from the count of students in the current FY).
+  yearlyStats: protectedPartnerProcedure.query(async ({ ctx }) => {
+    const orgId = await requireOrgId(ctx.cpPartner.id);
+    const comms = await db.commission.findMany({
+      where: { org_id: orgId },
+      select: {
+        created_at: true,
+        partner_paid_at: true,
+        claimable_inr: true,
+        partner_share_pct: true,
+      },
+    });
+    const byFy = new Map<number, { students: number; earned: number; paid: number }>();
+    for (const c of comms) {
+      const fy = financialYearOf(c.created_at);
+      const share = c.partner_share_pct == null ? 100 : num(c.partner_share_pct);
+      const claimable = round2((num(c.claimable_inr) * share) / 100);
+      const e = byFy.get(fy) ?? { students: 0, earned: 0, paid: 0 };
+      e.students += 1;
+      e.earned += claimable;
+      if (c.partner_paid_at != null) e.paid += claimable;
+      byFy.set(fy, e);
+    }
+    return Array.from(byFy.entries())
+      .map(([fy, v]) => ({
+        fy,
+        students: v.students,
+        earned: round2(v.earned),
+        paid: round2(v.paid),
+      }))
+      .sort((a, b) => a.fy - b.fy);
+  }),
 
   invoiceHistory: protectedPartnerProcedure.query(async ({ ctx }) => {
     const orgId = await requireOrgId(ctx.cpPartner.id);
