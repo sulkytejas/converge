@@ -139,7 +139,8 @@ exports.Prisma.ApplicationScalarFieldEnum = {
   conditional_docs: 'conditional_docs',
   deposit_deadline: 'deposit_deadline',
   deposit_amount: 'deposit_amount',
-  deposit_currency: 'deposit_currency'
+  deposit_currency: 'deposit_currency',
+  commission_contract_id: 'commission_contract_id'
 };
 
 exports.Prisma.Application_portal_credentialScalarFieldEnum = {
@@ -175,15 +176,17 @@ exports.Prisma.CommissionScalarFieldEnum = {
   currency: 'currency',
   commision_rate: 'commision_rate',
   commision_amount: 'commision_amount',
-  invoice_status: 'invoice_status',
-  paid_to_collegepond: 'paid_to_collegepond',
-  paid_to_partner: 'paid_to_partner',
   partner_paid_at: 'partner_paid_at',
   created_at: 'created_at',
   updated_at: 'updated_at',
   application_id: 'application_id',
   org_id: 'org_id',
-  collegepond_received_at: 'collegepond_received_at'
+  collegepond_received_at: 'collegepond_received_at',
+  cp_share_pct: 'cp_share_pct',
+  partner_share_pct: 'partner_share_pct',
+  claimable_inr: 'claimable_inr',
+  received_fx_rate: 'received_fx_rate',
+  vendor_id: 'vendor_id'
 };
 
 exports.Prisma.CourseScalarFieldEnum = {
@@ -247,6 +250,9 @@ exports.Prisma.EventScalarFieldEnum = {
   is_virtual: 'is_virtual',
   meeting_url: 'meeting_url',
   max_attendees: 'max_attendees',
+  organizer: 'organizer',
+  agenda: 'agenda',
+  actual_attendance: 'actual_attendance',
   is_active: 'is_active',
   created_at: 'created_at',
   updated_at: 'updated_at'
@@ -280,6 +286,19 @@ exports.Prisma.InvoiceScalarFieldEnum = {
   notes: 'notes',
   signatory_name: 'signatory_name',
   signatory_designation: 'signatory_designation',
+  gstin: 'gstin',
+  pan: 'pan',
+  sac_code: 'sac_code',
+  is_interstate: 'is_interstate',
+  cgst_amount: 'cgst_amount',
+  sgst_amount: 'sgst_amount',
+  igst_amount: 'igst_amount',
+  tds_amount: 'tds_amount',
+  net_payable: 'net_payable',
+  signed_at: 'signed_at',
+  rejection_reason: 'rejection_reason',
+  bank_account_id: 'bank_account_id',
+  fy: 'fy',
   created_at: 'created_at',
   updated_at: 'updated_at',
   org_id: 'org_id'
@@ -540,6 +559,177 @@ exports.Prisma.Schema_migrationsScalarFieldEnum = {
   applied_at: 'applied_at'
 };
 
+exports.Prisma.VendorScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  type: 'type',
+  contact_name: 'contact_name',
+  contact_email: 'contact_email',
+  contact_phone: 'contact_phone',
+  address: 'address',
+  is_active: 'is_active',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.Commission_contractScalarFieldEnum = {
+  id: 'id',
+  university_id: 'university_id',
+  vendor_id: 'vendor_id',
+  cp_share_pct: 'cp_share_pct',
+  is_default: 'is_default',
+  effective_date: 'effective_date',
+  notes: 'notes',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.Commission_rateScalarFieldEnum = {
+  id: 'id',
+  contract_id: 'contract_id',
+  course_id: 'course_id',
+  level: 'level',
+  commission_type: 'commission_type',
+  rate: 'rate',
+  currency: 'currency',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.Commission_bonus_tierScalarFieldEnum = {
+  id: 'id',
+  contract_id: 'contract_id',
+  min_students: 'min_students',
+  max_students: 'max_students',
+  amount_per_student: 'amount_per_student',
+  currency: 'currency',
+  created_at: 'created_at'
+};
+
+exports.Prisma.Commission_tranche_templateScalarFieldEnum = {
+  id: 'id',
+  contract_id: 'contract_id',
+  seq: 'seq',
+  name: 'name',
+  amount: 'amount',
+  pct: 'pct',
+  timing: 'timing',
+  created_at: 'created_at'
+};
+
+exports.Prisma.Commission_trancheScalarFieldEnum = {
+  id: 'id',
+  commission_id: 'commission_id',
+  seq: 'seq',
+  name: 'name',
+  amount: 'amount',
+  amount_inr: 'amount_inr',
+  status: 'status',
+  received_at: 'received_at',
+  disbursed_at: 'disbursed_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.Vendor_invoiceScalarFieldEnum = {
+  id: 'id',
+  invoice_number: 'invoice_number',
+  vendor_id: 'vendor_id',
+  university_id: 'university_id',
+  currency: 'currency',
+  invoice_date: 'invoice_date',
+  due_date: 'due_date',
+  status: 'status',
+  total_expected_amount: 'total_expected_amount',
+  notes: 'notes',
+  fy: 'fy',
+  created_by_cp_user_id: 'created_by_cp_user_id',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.Vendor_invoice_itemScalarFieldEnum = {
+  id: 'id',
+  vendor_invoice_id: 'vendor_invoice_id',
+  commission_id: 'commission_id',
+  tuition_amount: 'tuition_amount',
+  calculated_commission: 'calculated_commission',
+  expected_amount: 'expected_amount',
+  variance: 'variance',
+  variance_reason: 'variance_reason',
+  variance_note: 'variance_note',
+  created_at: 'created_at'
+};
+
+exports.Prisma.Vendor_paymentScalarFieldEnum = {
+  id: 'id',
+  vendor_invoice_id: 'vendor_invoice_id',
+  amount_inr: 'amount_inr',
+  exchange_rate: 'exchange_rate',
+  amount_foreign: 'amount_foreign',
+  payment_date: 'payment_date',
+  payment_reference: 'payment_reference',
+  is_tranche: 'is_tranche',
+  tranche_number: 'tranche_number',
+  total_tranches: 'total_tranches',
+  is_final: 'is_final',
+  notes: 'notes',
+  fy: 'fy',
+  created_by_cp_user_id: 'created_by_cp_user_id',
+  created_at: 'created_at'
+};
+
+exports.Prisma.Partner_bank_accountScalarFieldEnum = {
+  id: 'id',
+  org_id: 'org_id',
+  account_holder: 'account_holder',
+  account_number_enc: 'account_number_enc',
+  account_number_last4: 'account_number_last4',
+  ifsc: 'ifsc',
+  swift: 'swift',
+  bank_name: 'bank_name',
+  branch: 'branch',
+  account_type: 'account_type',
+  gstin_enc: 'gstin_enc',
+  pan_enc: 'pan_enc',
+  provider_fund_account_id: 'provider_fund_account_id',
+  is_verified: 'is_verified',
+  verified_at: 'verified_at',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
+exports.Prisma.Partner_payoutScalarFieldEnum = {
+  id: 'id',
+  invoice_id: 'invoice_id',
+  bank_account_id: 'bank_account_id',
+  amount_inr: 'amount_inr',
+  status: 'status',
+  ops_approved_by_cp_user_id: 'ops_approved_by_cp_user_id',
+  ops_approved_at: 'ops_approved_at',
+  verify_bank_confirmed: 'verify_bank_confirmed',
+  verify_invoice_verified: 'verify_invoice_verified',
+  verify_commission_verified: 'verify_commission_verified',
+  verify_duplicate_check: 'verify_duplicate_check',
+  verified_by_cp_user_id: 'verified_by_cp_user_id',
+  verified_at: 'verified_at',
+  method: 'method',
+  bank_name: 'bank_name',
+  account_number_last4: 'account_number_last4',
+  ifsc: 'ifsc',
+  swift: 'swift',
+  reference_number: 'reference_number',
+  payment_date: 'payment_date',
+  notes: 'notes',
+  released_by_cp_user_id: 'released_by_cp_user_id',
+  released_at: 'released_at',
+  hold_reason: 'hold_reason',
+  sent_back_reason: 'sent_back_reason',
+  fy: 'fy',
+  created_at: 'created_at',
+  updated_at: 'updated_at'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -615,7 +805,9 @@ exports.Prisma.eventOrderByRelevanceFieldEnum = {
   description: 'description',
   timezone: 'timezone',
   location: 'location',
-  meeting_url: 'meeting_url'
+  meeting_url: 'meeting_url',
+  organizer: 'organizer',
+  agenda: 'agenda'
 };
 
 exports.Prisma.invoiceOrderByRelevanceFieldEnum = {
@@ -624,7 +816,11 @@ exports.Prisma.invoiceOrderByRelevanceFieldEnum = {
   bank_details: 'bank_details',
   notes: 'notes',
   signatory_name: 'signatory_name',
-  signatory_designation: 'signatory_designation'
+  signatory_designation: 'signatory_designation',
+  gstin: 'gstin',
+  pan: 'pan',
+  sac_code: 'sac_code',
+  rejection_reason: 'rejection_reason'
 };
 
 exports.Prisma.organizationOrderByRelevanceFieldEnum = {
@@ -758,6 +954,75 @@ exports.Prisma.schema_migrationsOrderByRelevanceFieldEnum = {
   version: 'version'
 };
 
+exports.Prisma.vendorOrderByRelevanceFieldEnum = {
+  name: 'name',
+  contact_name: 'contact_name',
+  contact_email: 'contact_email',
+  contact_phone: 'contact_phone',
+  address: 'address'
+};
+
+exports.Prisma.commission_contractOrderByRelevanceFieldEnum = {
+  notes: 'notes'
+};
+
+exports.Prisma.commission_rateOrderByRelevanceFieldEnum = {
+  currency: 'currency'
+};
+
+exports.Prisma.commission_bonus_tierOrderByRelevanceFieldEnum = {
+  currency: 'currency'
+};
+
+exports.Prisma.commission_tranche_templateOrderByRelevanceFieldEnum = {
+  name: 'name',
+  timing: 'timing'
+};
+
+exports.Prisma.commission_trancheOrderByRelevanceFieldEnum = {
+  name: 'name'
+};
+
+exports.Prisma.vendor_invoiceOrderByRelevanceFieldEnum = {
+  invoice_number: 'invoice_number',
+  currency: 'currency',
+  notes: 'notes'
+};
+
+exports.Prisma.vendor_invoice_itemOrderByRelevanceFieldEnum = {
+  variance_note: 'variance_note'
+};
+
+exports.Prisma.vendor_paymentOrderByRelevanceFieldEnum = {
+  payment_reference: 'payment_reference',
+  notes: 'notes'
+};
+
+exports.Prisma.partner_bank_accountOrderByRelevanceFieldEnum = {
+  account_holder: 'account_holder',
+  account_number_enc: 'account_number_enc',
+  account_number_last4: 'account_number_last4',
+  ifsc: 'ifsc',
+  swift: 'swift',
+  bank_name: 'bank_name',
+  branch: 'branch',
+  account_type: 'account_type',
+  gstin_enc: 'gstin_enc',
+  pan_enc: 'pan_enc',
+  provider_fund_account_id: 'provider_fund_account_id'
+};
+
+exports.Prisma.partner_payoutOrderByRelevanceFieldEnum = {
+  bank_name: 'bank_name',
+  account_number_last4: 'account_number_last4',
+  ifsc: 'ifsc',
+  swift: 'swift',
+  reference_number: 'reference_number',
+  notes: 'notes',
+  hold_reason: 'hold_reason',
+  sent_back_reason: 'sent_back_reason'
+};
+
 
 exports.Prisma.ModelName = {
   application: 'application',
@@ -787,7 +1052,18 @@ exports.Prisma.ModelName = {
   shortlist: 'shortlist',
   uni_assist_template: 'uni_assist_template',
   otp_code: 'otp_code',
-  schema_migrations: 'schema_migrations'
+  schema_migrations: 'schema_migrations',
+  vendor: 'vendor',
+  commission_contract: 'commission_contract',
+  commission_rate: 'commission_rate',
+  commission_bonus_tier: 'commission_bonus_tier',
+  commission_tranche_template: 'commission_tranche_template',
+  commission_tranche: 'commission_tranche',
+  vendor_invoice: 'vendor_invoice',
+  vendor_invoice_item: 'vendor_invoice_item',
+  vendor_payment: 'vendor_payment',
+  partner_bank_account: 'partner_bank_account',
+  partner_payout: 'partner_payout'
 };
 
 /**

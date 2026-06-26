@@ -472,3 +472,227 @@ export const EventRegistrationStatusLabel: Record<EventRegistrationStatus, strin
   [EventRegistrationStatus.DECLINED]: "Declined",
   [EventRegistrationStatus.ATTENDED]: "Attended",
 };
+
+// ---------------------------------------------------------------------------
+// Finance / Commission
+// ---------------------------------------------------------------------------
+// The finance module hangs off a single spine — the per-application `commission`
+// record — whose CommissionStatus gates every page. Inbound (university/vendor →
+// CP) advances it to RECEIVED; outbound (CP → partner) advances it to DISBURSED.
+// All codes are stored as small ints (see the matching @db.UnsignedTinyInt
+// columns in schema.prisma / prisma/sql/schema.sql).
+
+// vendor.type — a commission source is either a direct university contract or a
+// third-party aggregator (KC/Kaplan, IDP…) from which CP takes a share.
+export const VendorType = {
+  DIRECT: 0,
+  THIRD_PARTY: 1,
+} as const;
+export type VendorType = (typeof VendorType)[keyof typeof VendorType];
+
+export const VendorTypeLabel: Record<VendorType, string> = {
+  [VendorType.DIRECT]: "Direct",
+  [VendorType.THIRD_PARTY]: "Third-Party",
+};
+
+export const VENDOR_TYPE_CODES = Object.values(VendorType) as VendorType[];
+
+// commission_rate.commission_type — percentage of tuition vs a flat amount.
+export const CommissionType = {
+  PERCENTAGE: 0,
+  FLAT: 1,
+} as const;
+export type CommissionType = (typeof CommissionType)[keyof typeof CommissionType];
+
+export const CommissionTypeLabel: Record<CommissionType, string> = {
+  [CommissionType.PERCENTAGE]: "Percentage",
+  [CommissionType.FLAT]: "Flat Amount",
+};
+
+export const COMMISSION_TYPE_CODES = Object.values(
+  CommissionType,
+) as CommissionType[];
+
+// DERIVED display status for the commission spine — NOT stored as a column. A
+// commissionStatus() helper computes it from the milestone timestamps
+// (collegepond_received_at, partner_paid_at) plus the linked vendor_invoice /
+// partner invoice rows: NOT_INVOICED → INVOICED (vendor invoice raised) →
+// RECEIVED (CP got paid; unlocks the partner claim) → READY_TO_DISBURSE (partner
+// invoice approved) → DISBURSED (payout released).
+export const CommissionStatus = {
+  NOT_INVOICED: 0,
+  INVOICED: 1,
+  RECEIVED: 2,
+  READY_TO_DISBURSE: 3,
+  DISBURSED: 4,
+  CANCELLED: 9,
+} as const;
+export type CommissionStatus =
+  (typeof CommissionStatus)[keyof typeof CommissionStatus];
+
+export const CommissionStatusLabel: Record<CommissionStatus, string> = {
+  [CommissionStatus.NOT_INVOICED]: "Not Invoiced",
+  [CommissionStatus.INVOICED]: "Invoiced",
+  [CommissionStatus.RECEIVED]: "Received",
+  [CommissionStatus.READY_TO_DISBURSE]: "Ready to Disburse",
+  [CommissionStatus.DISBURSED]: "Disbursed",
+  [CommissionStatus.CANCELLED]: "Cancelled",
+};
+
+export const COMMISSION_STATUS_CODES = Object.values(
+  CommissionStatus,
+) as CommissionStatus[];
+
+// vendor_invoice.status — CP's invoice TO a vendor/university (inbound).
+// OVERDUE is derived (SENT/PARTIAL & due_date < today), never stored.
+export const VendorInvoiceStatus = {
+  DRAFT: 0,
+  SENT: 1,
+  PARTIAL_PAYMENT: 2,
+  FULLY_PAID: 3,
+} as const;
+export type VendorInvoiceStatus =
+  (typeof VendorInvoiceStatus)[keyof typeof VendorInvoiceStatus];
+
+export const VendorInvoiceStatusLabel: Record<VendorInvoiceStatus, string> = {
+  [VendorInvoiceStatus.DRAFT]: "Draft",
+  [VendorInvoiceStatus.SENT]: "Sent",
+  [VendorInvoiceStatus.PARTIAL_PAYMENT]: "Partial Payment",
+  [VendorInvoiceStatus.FULLY_PAID]: "Fully Paid",
+};
+
+export const VENDOR_INVOICE_STATUS_CODES = Object.values(
+  VendorInvoiceStatus,
+) as VendorInvoiceStatus[];
+
+// vendor_invoice_item.variance_reason — required when the entered (expected)
+// amount differs from tuition × commission %. Mandatory tuition input is what
+// makes this variance tracking possible (call decision, 25 Jun 2026).
+export const VarianceReason = {
+  NONE: 0,
+  SCHOLARSHIP: 1,
+  TUITION_INCORRECT: 2,
+  LATE_TAGGING: 3,
+  OTHER: 4,
+} as const;
+export type VarianceReason = (typeof VarianceReason)[keyof typeof VarianceReason];
+
+export const VarianceReasonLabel: Record<VarianceReason, string> = {
+  [VarianceReason.NONE]: "No variance",
+  [VarianceReason.SCHOLARSHIP]: "Scholarship",
+  [VarianceReason.TUITION_INCORRECT]: "Tuition Incorrect",
+  [VarianceReason.LATE_TAGGING]: "Late Tagging",
+  [VarianceReason.OTHER]: "Other",
+};
+
+export const VARIANCE_REASON_CODES = Object.values(
+  VarianceReason,
+) as VarianceReason[];
+
+// commission_tranche.status — per-tranche lifecycle for tranche-based deals
+// (e.g. 90% on enrollment, 10% on completion). "RECEIVED" = available for the
+// partner to claim; dimmed/already-paid tranches are PAID.
+export const TrancheStatus = {
+  UPCOMING: 0,
+  NOT_INVOICED: 1,
+  AWAITING_PAYMENT: 2,
+  RECEIVED: 3,
+  PAID: 4,
+} as const;
+export type TrancheStatus = (typeof TrancheStatus)[keyof typeof TrancheStatus];
+
+export const TrancheStatusLabel: Record<TrancheStatus, string> = {
+  [TrancheStatus.UPCOMING]: "Upcoming",
+  [TrancheStatus.NOT_INVOICED]: "To be Invoiced",
+  [TrancheStatus.AWAITING_PAYMENT]: "Awaiting Payment to CP",
+  [TrancheStatus.RECEIVED]: "Available to Claim",
+  [TrancheStatus.PAID]: "Paid",
+};
+
+export const TRANCHE_STATUS_CODES = Object.values(
+  TrancheStatus,
+) as TrancheStatus[];
+
+// invoice.status — the PARTNER's invoice TO CP (outbound). Ops moves it
+// SUBMITTED → UNDER_REVIEW → APPROVED|PARTIAL_APPROVED|REJECTED; PAID is set
+// once Finance releases the payout (see PayoutStatus).
+export const PartnerInvoiceStatus = {
+  SUBMITTED: 0,
+  UNDER_REVIEW: 1,
+  APPROVED: 2,
+  PARTIAL_APPROVED: 3,
+  REJECTED: 4,
+  PAID: 5,
+} as const;
+export type PartnerInvoiceStatus =
+  (typeof PartnerInvoiceStatus)[keyof typeof PartnerInvoiceStatus];
+
+export const PartnerInvoiceStatusLabel: Record<PartnerInvoiceStatus, string> = {
+  [PartnerInvoiceStatus.SUBMITTED]: "Submitted",
+  [PartnerInvoiceStatus.UNDER_REVIEW]: "Under Review",
+  [PartnerInvoiceStatus.APPROVED]: "Approved",
+  [PartnerInvoiceStatus.PARTIAL_APPROVED]: "Partial Approved",
+  [PartnerInvoiceStatus.REJECTED]: "Rejected",
+  [PartnerInvoiceStatus.PAID]: "Paid",
+};
+
+export const PARTNER_INVOICE_STATUS_CODES = Object.values(
+  PartnerInvoiceStatus,
+) as PartnerInvoiceStatus[];
+
+// partner_payout.status — the reconciliation/release record. Ops approval lands
+// it at APPROVED (pending Finance verification); Finance ticks the 4-point
+// checklist → READY_TO_PAY → RELEASED. ON_HOLD / SENT_BACK are side-branches.
+export const PayoutStatus = {
+  APPROVED: 0,
+  READY_TO_PAY: 1,
+  RELEASED: 2,
+  ON_HOLD: 3,
+  SENT_BACK: 4,
+} as const;
+export type PayoutStatus = (typeof PayoutStatus)[keyof typeof PayoutStatus];
+
+export const PayoutStatusLabel: Record<PayoutStatus, string> = {
+  [PayoutStatus.APPROVED]: "Pending Verification",
+  [PayoutStatus.READY_TO_PAY]: "Ready to Pay",
+  [PayoutStatus.RELEASED]: "Released",
+  [PayoutStatus.ON_HOLD]: "On Hold",
+  [PayoutStatus.SENT_BACK]: "Sent Back",
+};
+
+export const PAYOUT_STATUS_CODES = Object.values(PayoutStatus) as PayoutStatus[];
+
+// partner_payout.method — the rail used to release a partner payout. IFSC is
+// captured for NEFT/RTGS/IMPS/UPI; SWIFT replaces it for INTERNATIONAL_WIRE.
+export const PayoutMethod = {
+  NEFT: 0,
+  RTGS: 1,
+  INTERNATIONAL_WIRE: 2,
+  IMPS: 3,
+  UPI: 4,
+} as const;
+export type PayoutMethod = (typeof PayoutMethod)[keyof typeof PayoutMethod];
+
+export const PayoutMethodLabel: Record<PayoutMethod, string> = {
+  [PayoutMethod.NEFT]: "NEFT",
+  [PayoutMethod.RTGS]: "RTGS",
+  [PayoutMethod.INTERNATIONAL_WIRE]: "International Wire",
+  [PayoutMethod.IMPS]: "IMPS",
+  [PayoutMethod.UPI]: "UPI",
+};
+
+export const PAYOUT_METHOD_CODES = Object.values(PayoutMethod) as PayoutMethod[];
+
+// Financial year runs 1 April → 31 March. The code is the starting calendar
+// year (e.g. 2026 = "FY 2026-27"). Stats are bucketed by FY via a dropdown, not
+// reset/deleted — invoices can be paid up to ~18 months later (call decision).
+export function financialYearOf(date: Date): number {
+  // getUTCMonth() is 0-based; April = 3.
+  const month = date.getUTCMonth();
+  const year = date.getUTCFullYear();
+  return month >= 3 ? year : year - 1;
+}
+
+export function financialYearLabel(fy: number): string {
+  return `FY ${fy}-${String((fy + 1) % 100).padStart(2, "0")}`;
+}

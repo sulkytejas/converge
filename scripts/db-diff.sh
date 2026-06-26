@@ -32,17 +32,28 @@ fi
 [[ -n "${DATABASE_URL:-}" ]] || { echo "Error: DATABASE_URL empty." >&2; exit 1; }
 
 urldecode() { local s="${1//+/ }"; printf '%b' "${s//%/\\x}"; }
-DB_USER="$(urldecode "$(echo "$DATABASE_URL" | sed -E 's|^mysql://([^:]+):.*|\1|')")"
-DB_PASS="$(urldecode "$(echo "$DATABASE_URL" | sed -E 's|^mysql://[^:]+:([^@]+)@.*|\1|')")"
-DB_HOST="$(echo "$DATABASE_URL" | sed -E 's|^mysql://[^:]+:[^@]+@([^:/]+):.*|\1|')"
-DB_PORT="$(echo "$DATABASE_URL" | sed -E 's|^mysql://[^:]+:[^@]+@[^:]+:([0-9]+)/.*|\1|')"
-DB_NAME="$(echo "$DATABASE_URL" | sed -E 's|^mysql://[^:]+:[^@]+@[^:]+:[0-9]+/([^?]+).*|\1|')"
+# Parse mysql://[user[:pass]]@host[:port]/dbname[?params]. Password is OPTIONAL
+# (a bare `root@localhost` has none), port defaults to 3306, query params are
+# stripped, and we split on the LAST @ so a password containing @ still parses.
+_REST="${DATABASE_URL#mysql://}"
+_USERINFO="${_REST%@*}"
+_HOSTINFO="${_REST##*@}"
+DB_USER="$(urldecode "${_USERINFO%%:*}")"
+if [[ "$_USERINFO" == *:* ]]; then DB_PASS="$(urldecode "${_USERINFO#*:}")"; else DB_PASS=""; fi
+_HOSTPORT="${_HOSTINFO%%/*}"
+DB_HOST="${_HOSTPORT%%:*}"
+if [[ "$_HOSTPORT" == *:* ]]; then DB_PORT="${_HOSTPORT##*:}"; else DB_PORT="3306"; fi
+DB_NAME="${_HOSTINFO#*/}"; DB_NAME="${DB_NAME%%\?*}"
 [[ -n "$DB_NAME" ]] || { echo "Error: could not parse database name." >&2; exit 1; }
 
 # mysql CLI treats "localhost" as a socket; force TCP for the forwarded port.
 CLI_HOST="$DB_HOST"; [[ "$DB_HOST" == "localhost" ]] && CLI_HOST="127.0.0.1"
 SHADOW_NAME="${DB_NAME}_shadow_diff"
-SHADOW_URL="mysql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${SHADOW_NAME}"
+if [[ -n "$DB_PASS" ]]; then
+  SHADOW_URL="mysql://${DB_USER}:${DB_PASS}@${DB_HOST}:${DB_PORT}/${SHADOW_NAME}"
+else
+  SHADOW_URL="mysql://${DB_USER}@${DB_HOST}:${DB_PORT}/${SHADOW_NAME}"
+fi
 
 export MYSQL_PWD="$DB_PASS"
 MY() { mysql --protocol=TCP -h "$CLI_HOST" -P "$DB_PORT" -u "$DB_USER" "$@"; }

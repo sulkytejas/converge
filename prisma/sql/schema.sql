@@ -334,10 +334,13 @@ CREATE TABLE IF NOT EXISTS `application` (
   `deposit_deadline`   DATE NULL DEFAULT NULL,
   `deposit_amount`     DECIMAL(12,2) NULL DEFAULT NULL,
   `deposit_currency`   CHAR(3) NULL DEFAULT NULL,
+  -- Counsellor's structured vendor pick (the university × vendor deal).
+  `commission_contract_id` INT NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_application_student1_idx`      (`student_id` ASC) VISIBLE,
   INDEX `fk_application_course1_idx`       (`course_id` ASC) VISIBLE,
   INDEX `fk_application_organization1_idx` (`org_id` ASC) VISIBLE,
+  INDEX `fk_application_commission_contract_idx` (`commission_contract_id` ASC) VISIBLE,
   CONSTRAINT `fk_application_student`
     FOREIGN KEY (`student_id`) REFERENCES `student` (`id`)
     ON DELETE CASCADE ON UPDATE CASCADE,
@@ -346,7 +349,10 @@ CREATE TABLE IF NOT EXISTS `application` (
     ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_application_organization`
     FOREIGN KEY (`org_id`) REFERENCES `organization` (`id`)
-    ON DELETE RESTRICT ON UPDATE CASCADE
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_application_commission_contract`
+    FOREIGN KEY (`commission_contract_id`) REFERENCES `commission_contract` (`id`)
+    ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE = InnoDB;
 
 
@@ -359,25 +365,33 @@ CREATE TABLE IF NOT EXISTS `commission` (
   `currency`                 CHAR(3) NOT NULL,
   `commision_rate`           DECIMAL(5,2)  NOT NULL,
   `commision_amount`         DECIMAL(12,2) NOT NULL,
-  `invoice_status`           TINYINT(5) UNSIGNED NOT NULL DEFAULT 0,
-  `paid_to_collegepond`      TINYINT NOT NULL DEFAULT 0,
-  `paid_to_partner`          TINYINT NOT NULL DEFAULT 0,
   `partner_paid_at`          TIMESTAMP NULL DEFAULT NULL,
   `created_at`               TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at`               TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `application_id`           INT NOT NULL,
   `org_id`                   INT NOT NULL,
   `collegepond_received_at`  TIMESTAMP NULL DEFAULT NULL,
+  -- Spine state = the two milestone timestamps (collegepond_received_at,
+  -- partner_paid_at). The CommissionStatus badge is derived on read.
+  `cp_share_pct`             DECIMAL(5,2)  NULL DEFAULT NULL,
+  `partner_share_pct`        DECIMAL(5,2)  NULL DEFAULT NULL,
+  `claimable_inr`            DECIMAL(14,2) NULL DEFAULT NULL,
+  `received_fx_rate`         DECIMAL(12,4) NULL DEFAULT NULL,
+  `vendor_id`                INT NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_commission_application1_idx`  (`application_id` ASC) VISIBLE,
   UNIQUE INDEX `application_id_UNIQUE`    (`application_id` ASC) VISIBLE,
   INDEX `fk_commission_organization1_idx` (`org_id` ASC) VISIBLE,
+  INDEX `fk_commission_vendor_idx`        (`vendor_id` ASC) VISIBLE,
   CONSTRAINT `fk_commission_application`
     FOREIGN KEY (`application_id`) REFERENCES `application` (`id`)
     ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_commission_organization`
     FOREIGN KEY (`org_id`) REFERENCES `organization` (`id`)
-    ON DELETE RESTRICT ON UPDATE CASCADE
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_commission_vendor`
+    FOREIGN KEY (`vendor_id`) REFERENCES `vendor` (`id`)
+    ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE = InnoDB;
 
 
@@ -395,15 +409,34 @@ CREATE TABLE IF NOT EXISTS `invoice` (
   `notes`                 VARCHAR(1000) NULL DEFAULT NULL,
   `signatory_name`        VARCHAR(100)  NULL DEFAULT NULL,
   `signatory_designation` VARCHAR(100)  NULL DEFAULT NULL,
+  -- GST tax-invoice snapshot (partner is the supplier): intra-state CGST+SGST,
+  -- inter-state IGST, unregistered partner -> less TDS @2% u/s 194J.
+  `gstin`                 VARCHAR(20)  NULL DEFAULT NULL,
+  `pan`                   VARCHAR(15)  NULL DEFAULT NULL,
+  `sac_code`              VARCHAR(10)  NULL DEFAULT NULL,
+  `is_interstate`         TINYINT      NULL DEFAULT NULL,
+  `cgst_amount`           DECIMAL(12,2) NULL DEFAULT NULL,
+  `sgst_amount`           DECIMAL(12,2) NULL DEFAULT NULL,
+  `igst_amount`           DECIMAL(12,2) NULL DEFAULT NULL,
+  `tds_amount`            DECIMAL(12,2) NULL DEFAULT NULL,
+  `net_payable`           DECIMAL(14,2) NULL DEFAULT NULL,
+  `signed_at`             TIMESTAMP NULL DEFAULT NULL,
+  `rejection_reason`      VARCHAR(500) NULL DEFAULT NULL,
+  `bank_account_id`       INT NULL DEFAULT NULL,
+  `fy`                    SMALLINT NULL DEFAULT NULL,
   `created_at`            TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at`            TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `org_id`                INT NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_invoice_organization1_idx` (`org_id` ASC) VISIBLE,
   UNIQUE INDEX `invoice_number_UNIQUE` (`invoice_number` ASC) VISIBLE,
+  INDEX `fk_invoice_bank_account_idx` (`bank_account_id` ASC) VISIBLE,
   CONSTRAINT `fk_invoice_organization`
     FOREIGN KEY (`org_id`) REFERENCES `organization` (`id`)
-    ON DELETE RESTRICT ON UPDATE CASCADE
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_invoice_bank_account`
+    FOREIGN KEY (`bank_account_id`) REFERENCES `partner_bank_account` (`id`)
+    ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE = InnoDB;
 
 
@@ -757,6 +790,311 @@ CREATE TABLE IF NOT EXISTS `otp_code` (
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `uq_otp_identifier` (`identifier` ASC) VISIBLE
+) ENGINE = InnoDB;
+
+
+-- =====================================================
+-- Finance / Commission module
+-- One spine (commission) with an inbound leg (CP bills the vendor) and an
+-- outbound leg (partner bills CP). Status codes: src/server/db/enums.ts.
+-- =====================================================
+
+-- -----------------------------------------------------
+-- vendor  (direct university contract OR third-party aggregator)
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `vendor` (
+  `id`            INT NOT NULL AUTO_INCREMENT,
+  `name`          VARCHAR(150) NOT NULL,
+  `type`          TINYINT(3) UNSIGNED NOT NULL,
+  `contact_name`  VARCHAR(100) NULL DEFAULT NULL,
+  `contact_email` VARCHAR(255) NULL DEFAULT NULL,
+  `contact_phone` VARCHAR(45)  NULL DEFAULT NULL,
+  `address`       VARCHAR(255) NULL DEFAULT NULL,
+  `is_active`     TINYINT NOT NULL DEFAULT 1,
+  `created_at`    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at`    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- commission_contract  (FK -> university, vendor)
+-- vendor_id NULL = direct university contract. One is_default per university.
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `commission_contract` (
+  `id`             INT NOT NULL AUTO_INCREMENT,
+  `university_id`  INT NOT NULL,
+  `vendor_id`      INT NULL DEFAULT NULL,
+  `cp_share_pct`   DECIMAL(5,2) NULL DEFAULT NULL,
+  `is_default`     TINYINT NOT NULL DEFAULT 0,
+  `effective_date` DATE NULL DEFAULT NULL,
+  `notes`          VARCHAR(500) NULL DEFAULT NULL,
+  `created_at`     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at`     TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `uq_contract_university_vendor` (`university_id` ASC, `vendor_id` ASC) VISIBLE,
+  INDEX `fk_commission_contract_university_idx` (`university_id` ASC) VISIBLE,
+  INDEX `fk_commission_contract_vendor_idx`     (`vendor_id` ASC) VISIBLE,
+  CONSTRAINT `fk_commission_contract_university`
+    FOREIGN KEY (`university_id`) REFERENCES `university` (`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_commission_contract_vendor`
+    FOREIGN KEY (`vendor_id`) REFERENCES `vendor` (`id`)
+    ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- commission_rate  (FK -> commission_contract, course)
+-- course_id NULL = university-wide rate for the contract.
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `commission_rate` (
+  `id`              INT NOT NULL AUTO_INCREMENT,
+  `contract_id`     INT NOT NULL,
+  `course_id`       INT NULL DEFAULT NULL,
+  `level`           TINYINT(3) UNSIGNED NULL DEFAULT NULL,
+  `commission_type` TINYINT(3) UNSIGNED NOT NULL DEFAULT 0,
+  `rate`            DECIMAL(12,2) NOT NULL,
+  `currency`        CHAR(3) NULL DEFAULT NULL,
+  `created_at`      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at`      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `uq_rate_contract_course` (`contract_id` ASC, `course_id` ASC) VISIBLE,
+  INDEX `fk_commission_rate_contract_idx` (`contract_id` ASC) VISIBLE,
+  INDEX `fk_commission_rate_course_idx`   (`course_id` ASC) VISIBLE,
+  CONSTRAINT `fk_commission_rate_contract`
+    FOREIGN KEY (`contract_id`) REFERENCES `commission_contract` (`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_commission_rate_course`
+    FOREIGN KEY (`course_id`) REFERENCES `course` (`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- commission_bonus_tier  (FK -> commission_contract; direct deals)
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `commission_bonus_tier` (
+  `id`                 INT NOT NULL AUTO_INCREMENT,
+  `contract_id`        INT NOT NULL,
+  `min_students`       SMALLINT UNSIGNED NOT NULL,
+  `max_students`       SMALLINT UNSIGNED NULL DEFAULT NULL,
+  `amount_per_student` DECIMAL(12,2) NOT NULL,
+  `currency`           CHAR(3) NULL DEFAULT NULL,
+  `created_at`         TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `fk_bonus_tier_contract_idx` (`contract_id` ASC) VISIBLE,
+  CONSTRAINT `fk_bonus_tier_contract`
+    FOREIGN KEY (`contract_id`) REFERENCES `commission_contract` (`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- commission_tranche_template  (FK -> commission_contract; max 4)
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `commission_tranche_template` (
+  `id`          INT NOT NULL AUTO_INCREMENT,
+  `contract_id` INT NOT NULL,
+  `seq`         TINYINT(3) UNSIGNED NOT NULL,
+  `name`        VARCHAR(100) NOT NULL,
+  `amount`      DECIMAL(12,2) NULL DEFAULT NULL,
+  `pct`         DECIMAL(5,2)  NULL DEFAULT NULL,
+  `timing`      VARCHAR(150) NULL DEFAULT NULL,
+  `created_at`  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `uq_tranche_template_contract_seq` (`contract_id` ASC, `seq` ASC) VISIBLE,
+  INDEX `fk_tranche_template_contract_idx` (`contract_id` ASC) VISIBLE,
+  CONSTRAINT `fk_tranche_template_contract`
+    FOREIGN KEY (`contract_id`) REFERENCES `commission_contract` (`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- commission_tranche  (FK -> commission; per-application instances)
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `commission_tranche` (
+  `id`            INT NOT NULL AUTO_INCREMENT,
+  `commission_id` INT NOT NULL,
+  `seq`           TINYINT(3) UNSIGNED NOT NULL,
+  `name`          VARCHAR(100) NULL DEFAULT NULL,
+  `amount`        DECIMAL(12,2) NULL DEFAULT NULL,
+  `amount_inr`    DECIMAL(14,2) NULL DEFAULT NULL,
+  `status`        TINYINT(3) UNSIGNED NOT NULL DEFAULT 0,
+  `received_at`   TIMESTAMP NULL DEFAULT NULL,
+  `disbursed_at`  TIMESTAMP NULL DEFAULT NULL,
+  `created_at`    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at`    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `uq_commission_tranche_seq` (`commission_id` ASC, `seq` ASC) VISIBLE,
+  INDEX `fk_commission_tranche_commission_idx` (`commission_id` ASC) VISIBLE,
+  CONSTRAINT `fk_commission_tranche_commission`
+    FOREIGN KEY (`commission_id`) REFERENCES `commission` (`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- vendor_invoice  (INBOUND: CP bills vendor; FK -> vendor, university)
+-- created_by_cp_user_id is a loose audit ref (no FK).
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `vendor_invoice` (
+  `id`                    INT NOT NULL AUTO_INCREMENT,
+  `invoice_number`        VARCHAR(40) NOT NULL,
+  `vendor_id`             INT NOT NULL,
+  `university_id`         INT NULL DEFAULT NULL,
+  `currency`              CHAR(3) NOT NULL,
+  `invoice_date`          DATE NOT NULL,
+  `due_date`              DATE NULL DEFAULT NULL,
+  `status`                TINYINT(3) UNSIGNED NOT NULL DEFAULT 0,
+  `total_expected_amount` DECIMAL(14,2) NOT NULL,
+  `notes`                 VARCHAR(1000) NULL DEFAULT NULL,
+  `fy`                    SMALLINT NULL DEFAULT NULL,
+  `created_by_cp_user_id` INT NULL DEFAULT NULL,
+  `created_at`            TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at`            TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `uq_vendor_invoice_number` (`invoice_number` ASC) VISIBLE,
+  INDEX `fk_vendor_invoice_vendor_idx`     (`vendor_id` ASC) VISIBLE,
+  INDEX `fk_vendor_invoice_university_idx` (`university_id` ASC) VISIBLE,
+  INDEX `idx_vendor_invoice_status`        (`status` ASC) VISIBLE,
+  CONSTRAINT `fk_vendor_invoice_vendor`
+    FOREIGN KEY (`vendor_id`) REFERENCES `vendor` (`id`)
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_vendor_invoice_university`
+    FOREIGN KEY (`university_id`) REFERENCES `university` (`id`)
+    ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- vendor_invoice_item  (FK -> vendor_invoice, commission)
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `vendor_invoice_item` (
+  `id`                    INT NOT NULL AUTO_INCREMENT,
+  `vendor_invoice_id`     INT NOT NULL,
+  `commission_id`         INT NOT NULL,
+  `tuition_amount`        DECIMAL(12,2) NOT NULL,
+  `calculated_commission` DECIMAL(12,2) NOT NULL,
+  `expected_amount`       DECIMAL(12,2) NOT NULL,
+  `variance`              DECIMAL(12,2) NOT NULL DEFAULT 0,
+  `variance_reason`       TINYINT(3) UNSIGNED NOT NULL DEFAULT 0,
+  `variance_note`         VARCHAR(255) NULL DEFAULT NULL,
+  `created_at`            TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `uq_vendor_invoice_item_commission` (`commission_id` ASC) VISIBLE,
+  INDEX `fk_vendor_invoice_item_invoice_idx` (`vendor_invoice_id` ASC) VISIBLE,
+  CONSTRAINT `fk_vendor_invoice_item_invoice`
+    FOREIGN KEY (`vendor_invoice_id`) REFERENCES `vendor_invoice` (`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_vendor_invoice_item_commission`
+    FOREIGN KEY (`commission_id`) REFERENCES `commission` (`id`)
+    ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- vendor_payment  (FX receipt; FK -> vendor_invoice)
+-- amount_inr is the source of truth (actual rupees deposited).
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `vendor_payment` (
+  `id`                    INT NOT NULL AUTO_INCREMENT,
+  `vendor_invoice_id`     INT NOT NULL,
+  `amount_inr`            DECIMAL(14,2) NOT NULL,
+  `exchange_rate`         DECIMAL(12,4) NOT NULL,
+  `amount_foreign`        DECIMAL(14,2) NOT NULL,
+  `payment_date`          DATE NOT NULL,
+  `payment_reference`     VARCHAR(100) NULL DEFAULT NULL,
+  `is_tranche`            TINYINT NOT NULL DEFAULT 0,
+  `tranche_number`        TINYINT(3) UNSIGNED NULL DEFAULT NULL,
+  `total_tranches`        TINYINT(3) UNSIGNED NULL DEFAULT NULL,
+  `is_final`              TINYINT NOT NULL DEFAULT 0,
+  `notes`                 VARCHAR(255) NULL DEFAULT NULL,
+  `fy`                    SMALLINT NULL DEFAULT NULL,
+  `created_by_cp_user_id` INT NULL DEFAULT NULL,
+  `created_at`            TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `fk_vendor_payment_invoice_idx` (`vendor_invoice_id` ASC) VISIBLE,
+  CONSTRAINT `fk_vendor_payment_invoice`
+    FOREIGN KEY (`vendor_invoice_id`) REFERENCES `vendor_invoice` (`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- partner_bank_account  (OUTBOUND vault; FK -> organization)
+-- Raw a/c ideally at the payouts provider; gstin_enc/pan_enc are AES-256-GCM.
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `partner_bank_account` (
+  `id`                       INT NOT NULL AUTO_INCREMENT,
+  `org_id`                   INT NOT NULL,
+  `account_holder`           VARCHAR(150) NOT NULL,
+  `account_number_enc`       VARCHAR(1024) NULL DEFAULT NULL,
+  `account_number_last4`     CHAR(4) NULL DEFAULT NULL,
+  `ifsc`                     VARCHAR(15) NULL DEFAULT NULL,
+  `swift`                    VARCHAR(15) NULL DEFAULT NULL,
+  `bank_name`                VARCHAR(150) NULL DEFAULT NULL,
+  `branch`                   VARCHAR(150) NULL DEFAULT NULL,
+  `account_type`             VARCHAR(30) NULL DEFAULT NULL,
+  `gstin_enc`                VARCHAR(512) NULL DEFAULT NULL,
+  `pan_enc`                  VARCHAR(512) NULL DEFAULT NULL,
+  `provider_fund_account_id` VARCHAR(100) NULL DEFAULT NULL,
+  `is_verified`              TINYINT NOT NULL DEFAULT 0,
+  `verified_at`              TIMESTAMP NULL DEFAULT NULL,
+  `created_at`               TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at`               TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `fk_partner_bank_account_org_idx` (`org_id` ASC) VISIBLE,
+  CONSTRAINT `fk_partner_bank_account_org`
+    FOREIGN KEY (`org_id`) REFERENCES `organization` (`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- partner_payout  (reconciliation/release; FK -> invoice, partner_bank_account)
+-- *_by_cp_user_id are loose audit refs (no FK).
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `partner_payout` (
+  `id`                         INT NOT NULL AUTO_INCREMENT,
+  `invoice_id`                 INT NOT NULL,
+  `bank_account_id`            INT NULL DEFAULT NULL,
+  `amount_inr`                 DECIMAL(14,2) NOT NULL,
+  `status`                     TINYINT(3) UNSIGNED NOT NULL DEFAULT 0,
+  `ops_approved_by_cp_user_id` INT NULL DEFAULT NULL,
+  `ops_approved_at`            TIMESTAMP NULL DEFAULT NULL,
+  `verify_bank_confirmed`      TINYINT NOT NULL DEFAULT 0,
+  `verify_invoice_verified`    TINYINT NOT NULL DEFAULT 0,
+  `verify_commission_verified` TINYINT NOT NULL DEFAULT 0,
+  `verify_duplicate_check`     TINYINT NOT NULL DEFAULT 0,
+  `verified_by_cp_user_id`     INT NULL DEFAULT NULL,
+  `verified_at`                TIMESTAMP NULL DEFAULT NULL,
+  `method`                     TINYINT(3) UNSIGNED NULL DEFAULT NULL,
+  `bank_name`                  VARCHAR(150) NULL DEFAULT NULL,
+  `account_number_last4`       CHAR(4) NULL DEFAULT NULL,
+  `ifsc`                       VARCHAR(15) NULL DEFAULT NULL,
+  `swift`                      VARCHAR(15) NULL DEFAULT NULL,
+  `reference_number`           VARCHAR(100) NULL DEFAULT NULL,
+  `payment_date`               DATE NULL DEFAULT NULL,
+  `notes`                      VARCHAR(500) NULL DEFAULT NULL,
+  `released_by_cp_user_id`     INT NULL DEFAULT NULL,
+  `released_at`                TIMESTAMP NULL DEFAULT NULL,
+  `hold_reason`                VARCHAR(500) NULL DEFAULT NULL,
+  `sent_back_reason`           VARCHAR(500) NULL DEFAULT NULL,
+  `fy`                         SMALLINT NULL DEFAULT NULL,
+  `created_at`                 TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at`                 TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `uq_partner_payout_invoice` (`invoice_id` ASC) VISIBLE,
+  INDEX `fk_partner_payout_bank_account_idx` (`bank_account_id` ASC) VISIBLE,
+  INDEX `idx_partner_payout_status` (`status` ASC) VISIBLE,
+  CONSTRAINT `fk_partner_payout_invoice`
+    FOREIGN KEY (`invoice_id`) REFERENCES `invoice` (`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_partner_payout_bank_account`
+    FOREIGN KEY (`bank_account_id`) REFERENCES `partner_bank_account` (`id`)
+    ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE = InnoDB;
 
 
