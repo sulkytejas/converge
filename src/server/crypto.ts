@@ -4,6 +4,16 @@ import { env } from "~/env";
 // AES-256-GCM for secrets that must be recoverable (e.g. university-portal
 // passwords). Stored shape: "iv:tag:ciphertext", each part base64.
 
+// At-rest secrets (bank account / PAN / GSTIN / portal passwords) should be
+// encrypted with a DEDICATED key, not the auth signing secret. Warn (once, in
+// prod) if CREDENTIAL_ENCRYPTION_KEY is unset and we're silently falling back to
+// AUTH_SECRET — the fallback is kept only so existing ciphertext stays decryptable.
+if (env.NODE_ENV === "production" && !env.CREDENTIAL_ENCRYPTION_KEY) {
+  console.warn(
+    "[crypto] CREDENTIAL_ENCRYPTION_KEY is not set — at-rest encryption is falling back to AUTH_SECRET. Set a dedicated key.",
+  );
+}
+
 function key(): Buffer {
   // Hash whatever-length secret down to the 32 bytes GCM needs.
   const secret = env.CREDENTIAL_ENCRYPTION_KEY ?? env.AUTH_SECRET;
