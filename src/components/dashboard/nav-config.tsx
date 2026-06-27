@@ -101,6 +101,7 @@ export const NAV_SECTIONS: NavSection[] = [
       { label: "Dashboard", href: "/admin/dashboard", icon: <DashboardIcon /> },
       { label: "Partners", href: "/admin/partners", icon: <PartnersIcon /> },
       { label: "Students", href: "/admin/students", icon: <StudentsIcon /> },
+      { label: "Applications", href: "/admin/applications", icon: <InvoiceIcon /> },
       {
         label: "Student Placements",
         href: "/admin/student-placements",
@@ -121,6 +122,7 @@ export const NAV_SECTIONS: NavSection[] = [
         icon: <ClockIcon />,
         hidden: true,
       },
+      { label: "Notes & Reminders", href: "/admin/notes-reminders", icon: <ClockIcon /> },
       { label: "Uni Assist", href: "/admin/uni-assist", icon: <SearchIcon /> },
     ],
   },
