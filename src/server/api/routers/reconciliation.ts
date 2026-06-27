@@ -294,21 +294,32 @@ export const reconciliationRouter = createTRPCRouter({
   // account (storing their ids) and runs a ₹1 validation; sets is_verified on success.
   verifyBankAccount: financeProcedure
     .input(z.object({ bankAccountId: z.number().int().positive() }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       if (!razorpayConfigured()) {
         throw new TRPCError({ code: "PRECONDITION_FAILED", message: "RazorpayX is not configured — verify the bank manually." });
       }
       const bank = await db.partner_bank_account.findUnique({ where: { id: input.bankAccountId } });
       if (!bank) throw new TRPCError({ code: "NOT_FOUND", message: "Bank account not found" });
-      if (!bank.account_number_enc || !bank.ifsc) {
-        throw new TRPCError({ code: "BAD_REQUEST", message: "Bank account is missing its account number or IFSC." });
-      }
-      const accountNumber = decryptSecret(bank.account_number_enc);
+      if (!bank.ifsc) throw new TRPCError({ code: "BAD_REQUEST", message: "Bank account is missing its IFSC." });
       try {
         let contactId = bank.provider_contact_id;
-        contactId ??= (await createContact({ name: bank.account_holder, referenceId: `bank_${bank.id}` })).id;
         let fundAccountId = bank.provider_fund_account_id;
-        fundAccountId ??= (await createBankFundAccount({ contactId, name: bank.account_holder, ifsc: bank.ifsc, accountNumber })).id;
+        // First time: create the RazorpayX contact + fund account from the raw
+        // (decrypted) number, then TOKENIZE — null our stored copy so RazorpayX
+        // becomes the vault (payouts go to the fund-account token, not the number).
+        if (!fundAccountId) {
+          if (!bank.account_number_enc) {
+            throw new TRPCError({ code: "BAD_REQUEST", message: "Account number is missing — re-enter the bank details." });
+          }
+          const accountNumber = decryptSecret(bank.account_number_enc);
+          contactId ??= (await createContact({ name: bank.account_holder, referenceId: `bank_${bank.id}` })).id;
+          fundAccountId = (await createBankFundAccount({ contactId, name: bank.account_holder, ifsc: bank.ifsc, accountNumber })).id;
+          await db.partner_bank_account.update({
+            where: { id: bank.id },
+            data: { provider_contact_id: contactId, provider_fund_account_id: fundAccountId, account_number_enc: null },
+          });
+        }
+        // Penny-drop validation on the (tokenized) fund account.
         let validation = await createValidation(fundAccountId);
         for (let i = 0; i < 4 && validation.status !== "completed"; i++) {
           await new Promise((r) => setTimeout(r, 2000));
@@ -317,11 +328,20 @@ export const reconciliationRouter = createTRPCRouter({
         const active = validation.results?.account_status === "active";
         await db.partner_bank_account.update({
           where: { id: bank.id },
+          data: { is_verified: active ? 1 : 0, verified_at: active ? new Date() : null },
+        });
+        await db.audit_log.create({
           data: {
-            provider_contact_id: contactId,
-            provider_fund_account_id: fundAccountId,
-            is_verified: active ? 1 : 0,
-            verified_at: active ? new Date() : null,
+            action: "partner.bank_verified",
+            entity_type: "user",
+            entity_id: bank.org_id,
+            metadata: {
+              byCpUserId: ctx.cpUser.id,
+              bankAccountId: bank.id,
+              verified: active,
+              fundAccountId,
+              registeredName: validation.results?.registered_name ?? null,
+            },
           },
         });
         return {
@@ -331,6 +351,7 @@ export const reconciliationRouter = createTRPCRouter({
           registeredName: validation.results?.registered_name ?? null,
         };
       } catch (e) {
+        if (e instanceof TRPCError) throw e;
         throw new TRPCError({ code: "BAD_GATEWAY", message: e instanceof Error ? e.message : "Bank verification failed" });
       }
     }),
