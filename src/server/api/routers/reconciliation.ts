@@ -205,6 +205,10 @@ export const reconciliationRouter = createTRPCRouter({
         paymentDate: z.string(),
         amountInr: z.number().positive().optional(),
         notes: z.string().max(500).optional(),
+        // Required only when releasing MANUALLY to a domestic bank that isn't
+        // RazorpayX-verified — a written justification of how the account was
+        // confirmed (since the penny-drop account check is being bypassed).
+        manualVerifyReason: z.string().trim().max(500).optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -224,25 +228,44 @@ export const reconciliationRouter = createTRPCRouter({
       // verified + the method maps to a RazorpayX mode. Otherwise fall back to manual
       // recording (the operator enters the bank's reference/UTR).
       const bankAccountId = payout.bank_account_id ?? payout.invoice.bank_account_id;
-      const mode = RZP_MODE[input.method];
+      const mode = RZP_MODE[input.method]; // undefined for International Wire (no RazorpayX mode)
       const amountInr = input.amountInr ?? num(payout.amount_inr);
+      const bank = bankAccountId
+        ? await db.partner_bank_account.findUnique({ where: { id: bankAccountId } })
+        : null;
+      const bankVerified = bank?.is_verified === 1 && Boolean(bank.provider_fund_account_id);
       let provider: { id: string; status: string; utr?: string | null } | null = null;
 
-      if (razorpayConfigured() && mode && bankAccountId) {
-        const bank = await db.partner_bank_account.findUnique({ where: { id: bankAccountId } });
-        if (bank?.is_verified === 1 && bank.provider_fund_account_id) {
-          try {
-            provider = await createPayout({
-              fundAccountId: bank.provider_fund_account_id,
-              amountInr,
-              mode,
-              referenceId: `payout_${payout.id}`,
-              narration: `CP payout ${payout.id}`,
-            });
-          } catch (e) {
-            throw new TRPCError({ code: "BAD_GATEWAY", message: e instanceof Error ? `RazorpayX payout failed: ${e.message}` : "RazorpayX payout failed" });
-          }
+      if (razorpayConfigured() && mode && bankAccountId && bankVerified && bank?.provider_fund_account_id) {
+        try {
+          provider = await createPayout({
+            fundAccountId: bank.provider_fund_account_id,
+            amountInr,
+            mode,
+            referenceId: `payout_${payout.id}`,
+            narration: `CP payout ${payout.id}`,
+          });
+        } catch (e) {
+          throw new TRPCError({ code: "BAD_GATEWAY", message: e instanceof Error ? `RazorpayX payout failed: ${e.message}` : "RazorpayX payout failed" });
         }
+      }
+
+      // Gate: a MANUAL release (no RazorpayX payout fired) to a bank that isn't
+      // RazorpayX-verified, on a domestic method that *could* have gone through
+      // RazorpayX, bypasses the penny-drop account check. Require a written
+      // justification so it's a deliberate, audited decision — not a silent
+      // unverified payout. Deliberately skipped when RazorpayX is unconfigured
+      // (whole flow is manual) or for International Wire (mode == null), which
+      // RazorpayX can neither verify nor process.
+      const manualToUnverifiedDomestic =
+        provider === null && razorpayConfigured() && mode != null && !bankVerified;
+      const manualReason = orNull(input.manualVerifyReason);
+      if (manualToUnverifiedDomestic && !manualReason) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message:
+            "This bank account isn't RazorpayX-verified. Add a note on how you confirmed the account before releasing manually.",
+        });
       }
 
       const reference = provider ? (provider.utr ?? provider.id) : input.referenceNumber?.trim();
@@ -251,6 +274,12 @@ export const reconciliationRouter = createTRPCRouter({
       }
 
       const now = new Date();
+      // Record the manual-verification justification on the payout itself so it
+      // travels with the record (capped to the column width).
+      const releaseNotes = manualToUnverifiedDomestic
+        ? `[Manual release — bank not RazorpayX-verified. Confirmed via: ${manualReason}]${input.notes ? ` ${input.notes}` : ""}`.slice(0, 500)
+        : orNull(input.notes);
+
       await db.$transaction([
         db.partner_payout.update({
           where: { id: payout.id },
@@ -268,7 +297,7 @@ export const reconciliationRouter = createTRPCRouter({
             utr: provider?.utr ?? null,
             provider_status: provider?.status ?? null,
             payment_date: new Date(input.paymentDate),
-            notes: orNull(input.notes),
+            notes: releaseNotes,
             released_by_cp_user_id: ctx.cpUser.id,
             released_at: now,
             fy: financialYearOf(new Date(input.paymentDate)),
@@ -283,6 +312,25 @@ export const reconciliationRouter = createTRPCRouter({
           where: { id: { in: payout.invoice.invoice_item.map((it) => it.commission_id) } },
           data: { partner_paid_at: now },
         }),
+        // Audit trail for the deliberate bypass of RazorpayX verification.
+        ...(manualToUnverifiedDomestic
+          ? [
+              db.audit_log.create({
+                data: {
+                  action: "payout.manual_release_unverified",
+                  entity_type: "user",
+                  entity_id: bankAccountId ?? 0,
+                  metadata: {
+                    byCpUserId: ctx.cpUser.id,
+                    payoutId: payout.id,
+                    bankAccountId,
+                    amountInr,
+                    reason: manualReason,
+                  },
+                },
+              }),
+            ]
+          : []),
       ]);
       return { success: true as const, provider: provider ? { id: provider.id, status: provider.status } : null };
     }),

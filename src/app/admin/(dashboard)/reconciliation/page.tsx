@@ -414,7 +414,7 @@ function ReconPanel({
   releasing: boolean;
   verifyingBank: boolean;
   onVerify: (checks: { bankConfirmed: boolean; invoiceVerified: boolean; commissionVerified: boolean; duplicateCheck: boolean }) => void;
-  onRelease: (payment: { method: number; bankName?: string; accountNumber?: string; ifsc?: string; swift?: string; referenceNumber?: string; paymentDate: string; amountInr?: number; notes?: string }) => void;
+  onRelease: (payment: { method: number; bankName?: string; accountNumber?: string; ifsc?: string; swift?: string; referenceNumber?: string; paymentDate: string; amountInr?: number; notes?: string; manualVerifyReason?: string }) => void;
   onVerifyBank?: () => void;
   onHold: () => void;
   onSendBack: () => void;
@@ -432,6 +432,7 @@ function ReconPanel({
   const [date, setDate] = useState(todayInput());
   const [amount, setAmount] = useState(String(payout.amountInr));
   const [notes, setNotes] = useState("");
+  const [manualReason, setManualReason] = useState("");
   const [err, setErr] = useState("");
 
   const readyToPay = payout.status === PayoutStatus.READY_TO_PAY;
@@ -449,8 +450,14 @@ function ReconPanel({
   // Pay via RazorpayX when it's configured, the bank account is verified, and the
   // method maps to a RazorpayX mode (international wire stays manual).
   const payVia = payments.configured && (payout.bank?.verified ?? false) && !isWire;
+  // Manual release to an unverified DOMESTIC bank — RazorpayX is configured but the
+  // account isn't penny-drop-verified, and it's not an international wire. This skips
+  // the account-validity check, so require a written justification.
+  const needsManualReason =
+    payments.configured && !(payout.bank?.verified ?? false) && !isWire;
   const doRelease = () => {
     if (!payVia && !reference.trim()) return setErr("Enter a Payment Reference # (or verify the bank to pay via RazorpayX).");
+    if (needsManualReason && !manualReason.trim()) return setErr("This bank isn't RazorpayX-verified — note how you confirmed the account before releasing.");
     onRelease({
       method,
       bankName: bankName || undefined,
@@ -461,6 +468,7 @@ function ReconPanel({
       paymentDate: date,
       amountInr: amount.trim() === "" ? undefined : Number(amount),
       notes: notes || undefined,
+      manualVerifyReason: needsManualReason ? manualReason.trim() : undefined,
     });
   };
 
@@ -571,6 +579,13 @@ function ReconPanel({
             </div>
             <FormTextarea label="Notes" value={notes} onChange={(e) => setNotes(e.target.value)} />
           </div>
+          {readyToPay && canRelease && needsManualReason && (
+            <div className="mt-3 rounded-lg border border-[#FEC84B] bg-[#FFFAEB] p-3">
+              <p className="text-xs font-semibold text-[#B54708]">⚠ Bank not RazorpayX-verified</p>
+              <p className="mt-1 mb-2 text-[11px] text-[#B54708]">Releasing manually skips the penny-drop account check. Note how you confirmed this account belongs to the partner — this note is logged with the payout.</p>
+              <FormTextarea label="How was the account verified? *" value={manualReason} onChange={(e) => setManualReason(e.target.value)} placeholder="e.g. Matched bank statement + cancelled cheque on file; confirmed over call." />
+            </div>
+          )}
           {!readyToPay && (
             <div className="mt-3">
               <button disabled className="h-9 w-full cursor-not-allowed rounded-lg bg-[#EAECF0] text-[13px] font-semibold text-[#98A2B3]">Release Payment</button>
