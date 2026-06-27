@@ -114,6 +114,12 @@ export default function ReconciliationPage() {
     onSuccess: () => { refetch(); showToast("Sent back"); setReasonFor(null); },
     onError: (e) => showToast(e.message),
   });
+  const paymentsQ = api.reconciliation.paymentsConfig.useQuery(undefined, { enabled: canVerify });
+  const payments = paymentsQ.data ?? { configured: false, mode: null };
+  const verifyBank = api.reconciliation.verifyBankAccount.useMutation({
+    onSuccess: (r) => { refetch(); showToast(r.verified ? `Bank verified${r.registeredName ? ` — ${r.registeredName}` : ""}` : `Verification ${r.status}: ${r.accountStatus ?? "pending"}`); },
+    onError: (e) => showToast(e.message),
+  });
 
   const allPending = useMemo(() => pendingQ.data ?? [], [pendingQ.data]);
   const allCompleted = useMemo(() => completedQ.data ?? [], [completedQ.data]);
@@ -279,10 +285,13 @@ export default function ReconciliationPage() {
                             payout={p}
                             canVerify={canVerify}
                             canRelease={canRelease}
+                            payments={payments}
                             verifying={verify.isPending}
                             releasing={release.isPending}
+                            verifyingBank={verifyBank.isPending}
                             onVerify={(checks) => verify.mutate({ payoutId: p.id, ...checks })}
                             onRelease={(payment) => release.mutate({ payoutId: p.id, ...payment })}
+                            onVerifyBank={p.bankAccountId != null ? () => verifyBank.mutate({ bankAccountId: p.bankAccountId! }) : undefined}
                             onHold={() => setReasonFor({ payout: p, kind: "hold" })}
                             onSendBack={() => setReasonFor({ payout: p, kind: "sendBack" })}
                           />
@@ -387,20 +396,26 @@ function ReconPanel({
   payout,
   canVerify,
   canRelease,
+  payments,
   verifying,
   releasing,
+  verifyingBank,
   onVerify,
   onRelease,
+  onVerifyBank,
   onHold,
   onSendBack,
 }: {
   payout: Payout;
   canVerify: boolean;
   canRelease: boolean;
+  payments: { configured: boolean; mode: string | null };
   verifying: boolean;
   releasing: boolean;
+  verifyingBank: boolean;
   onVerify: (checks: { bankConfirmed: boolean; invoiceVerified: boolean; commissionVerified: boolean; duplicateCheck: boolean }) => void;
-  onRelease: (payment: { method: number; bankName?: string; accountNumber?: string; ifsc?: string; swift?: string; referenceNumber: string; paymentDate: string; amountInr?: number; notes?: string }) => void;
+  onRelease: (payment: { method: number; bankName?: string; accountNumber?: string; ifsc?: string; swift?: string; referenceNumber?: string; paymentDate: string; amountInr?: number; notes?: string }) => void;
+  onVerifyBank?: () => void;
   onHold: () => void;
   onSendBack: () => void;
 }) {
@@ -431,15 +446,18 @@ function ReconPanel({
     { key: "dup", label: "No duplicate payment check passed", v: duplicateCheck, set: setDuplicateCheck },
   ];
 
+  // Pay via RazorpayX when it's configured, the bank account is verified, and the
+  // method maps to a RazorpayX mode (international wire stays manual).
+  const payVia = payments.configured && (payout.bank?.verified ?? false) && !isWire;
   const doRelease = () => {
-    if (!reference.trim()) return setErr("Payment Reference # and Payment Date are required before releasing.");
+    if (!payVia && !reference.trim()) return setErr("Enter a Payment Reference # (or verify the bank to pay via RazorpayX).");
     onRelease({
       method,
       bankName: bankName || undefined,
       accountNumber: accountNumber || undefined,
       ifsc: isWire ? undefined : ifscSwift || undefined,
       swift: isWire ? ifscSwift || undefined : undefined,
-      referenceNumber: reference.trim(),
+      referenceNumber: reference.trim() || undefined,
       paymentDate: date,
       amountInr: amount.trim() === "" ? undefined : Number(amount),
       notes: notes || undefined,
@@ -479,6 +497,26 @@ function ReconPanel({
               <div className="pt-0.5">GST: <span className="font-medium text-[#344054]">{payout.gstin ?? "—"}</span> · PAN: <span className="font-medium text-[#344054]">{payout.pan ?? "—"}</span></div>
             </div>
           </div>
+          {payout.bank && (
+            <div className="mt-3 border-t border-[#F2F4F7] pt-3">
+              <div className="mb-1.5 flex items-center gap-2 text-xs font-semibold tracking-wide text-[#98A2B3] uppercase">
+                Bank Account
+                {payout.bank.verified ? (
+                  <span className="rounded-full bg-[#ECFDF3] px-2 py-0.5 text-[10px] font-bold text-[#067647] normal-case">✓ Verified</span>
+                ) : (
+                  <span className="rounded-full bg-[#FFF6ED] px-2 py-0.5 text-[10px] font-bold text-[#B54708] normal-case">Unverified</span>
+                )}
+              </div>
+              <div className="text-xs text-[#667085]">{payout.bank.accountHolder} · {payout.bank.bankName ?? "—"} · ****{payout.bank.last4 ?? "—"} · {payout.bank.ifsc ?? "—"}</div>
+              {!payout.bank.verified && canVerify && onVerifyBank && (
+                payments.configured ? (
+                  <Button variant="secondary" className="!mt-2 !h-8 !text-[12px]" loading={verifyingBank} onClick={onVerifyBank}>Verify bank via RazorpayX (penny-drop)</Button>
+                ) : (
+                  <p className="mt-2 text-[11px] text-[#98A2B3]">RazorpayX not configured — confirm the bank manually via the checklist.</p>
+                )
+              )}
+            </div>
+          )}
           {!readyToPay && canVerify && (
             <>
               <Button className="!mt-3 !h-9 w-full !text-[13px]" disabled={!allChecked} loading={verifying} onClick={() => onVerify({ bankConfirmed, invoiceVerified, commissionVerified, duplicateCheck })}>
@@ -492,7 +530,14 @@ function ReconPanel({
 
         {/* Payment instructions */}
         <div className="rounded-lg border border-[#E4E7EC] bg-white p-4">
-          <div className="mb-3 text-xs font-semibold tracking-wide text-[#667085] uppercase">Payment Instructions</div>
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <span className="text-xs font-semibold tracking-wide text-[#667085] uppercase">Payment Instructions</span>
+            {payments.configured ? (
+              <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${payments.mode === "live" ? "bg-[#FEF3F2] text-[#B42318]" : "bg-[#EFF8FF] text-[#1570EF]"}`}>RazorpayX · {payments.mode}</span>
+            ) : (
+              <span className="rounded-full bg-[#F2F4F7] px-2 py-0.5 text-[10px] font-semibold text-[#667085]">manual</span>
+            )}
+          </div>
           <div className="space-y-3">
             <div>
               <label className="mb-1.5 block text-sm font-medium text-[#344054]">Payment Method</label>
@@ -518,7 +563,7 @@ function ReconPanel({
             </div>
             <div className="flex gap-3">
               <FormInput label={isWire ? "SWIFT Code" : "IFSC Code"} value={ifscSwift} onChange={(e) => setIfscSwift(e.target.value)} />
-              <FormInput label="Payment Reference #" value={reference} onChange={(e) => setReference(e.target.value)} placeholder="Enter after payment" />
+              <FormInput label="Payment Reference #" value={reference} onChange={(e) => setReference(e.target.value)} placeholder={payVia ? "Auto-filled by RazorpayX" : "Enter after payment"} />
             </div>
             <div className="flex gap-3">
               <FormInput label="Payment Date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
@@ -533,7 +578,7 @@ function ReconPanel({
             </div>
           )}
           {readyToPay && canRelease && (
-            <Button className="!mt-3 !h-9 w-full !text-[13px]" loading={releasing} onClick={doRelease}>Release Payment</Button>
+            <Button className="!mt-3 !h-9 w-full !text-[13px]" loading={releasing} onClick={doRelease}>{payVia ? `Pay via RazorpayX${payments.mode === "test" ? " (test)" : ""}` : "Release Payment"}</Button>
           )}
           {readyToPay && !canRelease && (
             <p className="mt-3 rounded-md bg-[#F9FAFB] px-3 py-2 text-center text-xs font-medium text-[#667085]">Awaiting Finance Manager to release payment</p>

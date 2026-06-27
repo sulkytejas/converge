@@ -41,6 +41,13 @@ export const env = createEnv({
     // boot since App Platform's filesystem is ephemeral). Unset → local/dev, or
     // encrypted-but-unverified for a remote host.
     DATABASE_CA_CERT: z.string().optional(),
+    // RazorpayX — partner payouts + bank-account verification. Optional: when
+    // unset, payout release falls back to manual recording and bank-verify is
+    // disabled. Use rzp_test_* keys for sandbox, rzp_live_* for production.
+    // RAZORPAYX_ACCOUNT_NUMBER is the source virtual account (e.g. 2323230000000000).
+    RAZORPAY_KEY_ID: z.string().optional(),
+    RAZORPAY_KEY_SECRET: z.string().optional(),
+    RAZORPAYX_ACCOUNT_NUMBER: z.string().optional(),
   },
 
   /**
@@ -76,6 +83,9 @@ export const env = createEnv({
     SPACES_ENDPOINT: process.env.SPACES_ENDPOINT,
     SPACES_CDN_URL: process.env.SPACES_CDN_URL,
     DATABASE_CA_CERT: process.env.DATABASE_CA_CERT,
+    RAZORPAY_KEY_ID: process.env.RAZORPAY_KEY_ID,
+    RAZORPAY_KEY_SECRET: process.env.RAZORPAY_KEY_SECRET,
+    RAZORPAYX_ACCOUNT_NUMBER: process.env.RAZORPAYX_ACCOUNT_NUMBER,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
