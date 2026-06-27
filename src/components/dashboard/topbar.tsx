@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   BellIcon,
   ChevronDownIcon,
-  HamburgerIcon,
   ProfileIcon,
   SearchIcon,
   TasksIcon,
@@ -20,8 +19,6 @@ export interface NotificationItem {
 }
 
 interface TopbarProps {
-  collapsed: boolean;
-  onToggleSidebar: () => void;
   userName: string;
   userInitials: string;
   roleLabel: string;
@@ -48,8 +45,6 @@ const DOT_TONES: Record<NotificationItem["tone"], string> = {
 };
 
 export function Topbar({
-  collapsed,
-  onToggleSidebar,
   userName,
   userInitials,
   roleLabel,
@@ -86,20 +81,8 @@ export function Topbar({
 
   return (
     <header
-      className={`fixed top-0 right-0 z-40 flex h-[60px] items-center gap-3 border-b border-[#E4E7EC] bg-white px-6 transition-[left] duration-250 ${
-        collapsed ? "left-16" : "left-60"
-      }`}
+      className="fixed top-0 right-0 left-16 z-40 flex h-[60px] items-center gap-3 border-b border-[#E4E7EC] bg-white px-6"
     >
-      {/* Hamburger */}
-      <button
-        type="button"
-        aria-label="Toggle sidebar"
-        onClick={onToggleSidebar}
-        className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-[#E4E7EC] bg-white transition-colors hover:bg-[#F9FAFB]"
-      >
-        <HamburgerIcon className="h-[18px] w-[18px] stroke-[#667085]" />
-      </button>
-
       <div className="flex-1" />
 
       {/* Search */}

@@ -3,14 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { type ReactNode } from "react";
-import {
-  CollegepondLogoIcon,
-  LogoutIcon,
-} from "./nav-icons";
+import { CollegepondLogoIcon, LogoutIcon } from "./nav-icons";
 import { type AdminRole, type NavItem, type NavSection } from "./nav-config";
 
 interface SidebarProps {
-  collapsed: boolean;
   sections: NavSection[];
   logoSubtitle: string;
   badges?: Record<string, number | string | undefined>;
@@ -22,15 +18,12 @@ interface SidebarProps {
   onLogout?: () => void;
 }
 
-export function Sidebar({
-  collapsed,
-  sections,
-  logoSubtitle,
-  badges = {},
-  role = null,
-  footer,
-  onLogout,
-}: SidebarProps) {
+// The rail sits at 64px and expands to 240px on hover / keyboard focus, overlaying the
+// content (which keeps a fixed 64px margin, so nothing reflows). Labels fade in; icons
+// live in a fixed 64px column so they never shift during the elastic width animation.
+const REVEAL = "opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100";
+
+export function Sidebar({ sections, logoSubtitle, badges = {}, role = null, footer, onLogout }: SidebarProps) {
   const pathname = usePathname();
   const canSee = (item: NavItem): boolean =>
     !item.hidden && (!item.roles || role == null || item.roles.includes(role));
@@ -38,104 +31,72 @@ export function Sidebar({
   return (
     <nav
       aria-label="Primary"
-      className={`fixed top-0 bottom-0 left-0 z-50 flex flex-col border-r border-[#E4E7EC] bg-white transition-[width] duration-250 ${
-        collapsed ? "w-16 overflow-visible" : "w-60 overflow-hidden"
-      }`}
+      className="group fixed top-0 bottom-0 left-0 z-50 flex w-16 flex-col overflow-hidden border-r border-[#E4E7EC] bg-white transition-[width,box-shadow] duration-300 ease-[cubic-bezier(0.34,1.15,0.64,1)] hover:w-60 hover:shadow-[0_16px_48px_rgba(16,24,40,0.16)] focus-within:w-60 focus-within:shadow-[0_16px_48px_rgba(16,24,40,0.16)]"
     >
-      {/* Logo */}
-      <div
-        className={`flex items-center gap-2.5 border-b border-[#E4E7EC] ${
-          collapsed ? "justify-center px-2.5 py-4" : "px-5 pt-5 pb-4"
-        }`}
-      >
-        <div className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-lg bg-[#1570EF]">
-          <CollegepondLogoIcon className="h-5 w-5" />
-        </div>
-        {!collapsed && (
-          <div>
-            <div className="text-[17px] font-bold whitespace-nowrap text-[#101828]">
-              Collegepond
-            </div>
-            <div className="text-[10px] font-semibold tracking-wider text-[#1570EF] uppercase">
-              {logoSubtitle}
-            </div>
+      <div className="flex h-full w-60 flex-col">
+        {/* Logo */}
+        <div className="flex items-center border-b border-[#E4E7EC] py-4">
+          <span className="flex w-16 shrink-0 justify-center">
+            <span className="flex h-[34px] w-[34px] items-center justify-center rounded-lg bg-[#1570EF]">
+              <CollegepondLogoIcon className="h-5 w-5" />
+            </span>
+          </span>
+          <div className={REVEAL}>
+            <div className="text-[17px] leading-tight font-bold whitespace-nowrap text-[#101828]">Collegepond</div>
+            <div className="text-[10px] font-semibold tracking-wider text-[#1570EF] uppercase">{logoSubtitle}</div>
           </div>
-        )}
-      </div>
+        </div>
 
-      {/* Sections */}
-      <div className="flex-1 overflow-y-auto px-2.5 py-3">
-        {sections.map((section, sectionIdx) => {
-          const items = section.items.filter(canSee);
-          if (items.length === 0) return null;
-          return (
-            <div key={section.label}>
-              {!collapsed && (
-                <div
-                  className={`px-3 pt-3 pb-1.5 text-[11px] font-semibold tracking-wider whitespace-nowrap text-[#98A2B3] uppercase ${
-                    sectionIdx === 0 ? "" : "mt-1"
-                  }`}
-                >
+        {/* Sections */}
+        <div className="flex-1 overflow-x-hidden overflow-y-auto py-3">
+          {sections.map((section) => {
+            const items = section.items.filter(canSee);
+            if (items.length === 0) return null;
+            return (
+              <div key={section.label} className="mb-1">
+                <div className={`px-5 pt-3 pb-1.5 text-[11px] font-semibold tracking-wider whitespace-nowrap text-[#98A2B3] uppercase ${REVEAL}`}>
                   {section.label}
                 </div>
-              )}
-              {items.map((item) => (
-                <NavLink
-                  key={item.href}
-                  item={item}
-                  collapsed={collapsed}
-                  active={isActive(pathname, item.href)}
-                  badge={item.badgeKey ? badges[item.badgeKey] : undefined}
-                />
-              ))}
-            </div>
-          );
-        })}
-      </div>
+                {items.map((item) => (
+                  <NavLink
+                    key={item.href}
+                    item={item}
+                    active={isActive(pathname, item.href)}
+                    badge={item.badgeKey ? badges[item.badgeKey] : undefined}
+                  />
+                ))}
+              </div>
+            );
+          })}
+        </div>
 
-      {/* Optional footer slot (e.g. admin role switcher) */}
-      {!collapsed && footer && (
-        <div className="border-t border-[#E4E7EC] px-3 py-2">{footer}</div>
-      )}
+        {/* Optional footer slot (e.g. admin role switcher) */}
+        {footer && <div className={`border-t border-[#E4E7EC] px-3 py-2 ${REVEAL}`}>{footer}</div>}
 
-      {/* Footer / Logout */}
-      <div className="border-t border-[#E4E7EC] px-2.5 py-3">
-        <button
-          type="button"
-          onClick={onLogout}
-          className={`flex w-full cursor-pointer items-center gap-2.5 rounded-lg border-none bg-transparent text-sm font-medium whitespace-nowrap text-[#F04438] transition-colors hover:bg-[#FEF3F2] ${
-            collapsed ? "justify-center p-2.5" : "px-3 py-2.5"
-          }`}
-        >
-          <LogoutIcon className="h-5 w-5 shrink-0 stroke-[#F04438]" />
-          {!collapsed && <span>Logout</span>}
-        </button>
+        {/* Logout */}
+        <div className="border-t border-[#E4E7EC] py-2">
+          <button
+            type="button"
+            onClick={onLogout}
+            className="flex w-full items-center text-sm font-medium whitespace-nowrap text-[#F04438] transition-colors hover:bg-[#FEF3F2]"
+          >
+            <span className="flex w-16 shrink-0 justify-center py-2.5">
+              <LogoutIcon className="h-5 w-5 stroke-[#F04438]" />
+            </span>
+            <span className={REVEAL}>Logout</span>
+          </button>
+        </div>
       </div>
     </nav>
   );
 }
 
-function NavLink({
-  item,
-  collapsed,
-  active,
-  badge,
-}: {
-  item: NavItem;
-  collapsed: boolean;
-  active: boolean;
-  badge?: number | string;
-}) {
-  const baseClasses =
-    "group/nav relative mb-0.5 flex items-center gap-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors";
-  const sizing = collapsed ? "justify-center p-2.5" : "px-3 py-2.5";
-
+function NavLink({ item, active, badge }: { item: NavItem; active: boolean; badge?: number | string }) {
   const stateClasses = item.disabled
-    ? "cursor-not-allowed text-[#D0D5DD] opacity-60"
+    ? "cursor-not-allowed text-[#D0D5DD]"
     : active
       ? "bg-[#1570EF] text-white"
       : "text-[#344054] hover:bg-[#F0F7FF] hover:text-[#1570EF]";
-
   const iconStateClasses = item.disabled
     ? "stroke-[#D0D5DD]"
     : active
@@ -144,56 +105,32 @@ function NavLink({
 
   const content = (
     <>
-      <span
-        aria-hidden="true"
-        className={`inline-flex h-5 w-5 shrink-0 items-center justify-center [&_svg]:h-5 [&_svg]:w-5 [&_svg]:fill-none ${iconStateClasses}`}
-      >
-        {item.icon}
+      <span className="relative flex w-16 shrink-0 justify-center">
+        <span className={`inline-flex h-5 w-5 items-center justify-center [&_svg]:h-5 [&_svg]:w-5 [&_svg]:fill-none ${iconStateClasses}`}>
+          {item.icon}
+        </span>
+        {/* Collapsed-rail badge dot (the full count appears on expand). */}
+        {badge !== undefined && !active && (
+          <span className="absolute top-0 right-3.5 h-2 w-2 rounded-full bg-[#F04438] transition-opacity group-hover:opacity-0 group-focus-within:opacity-0" />
+        )}
       </span>
-      {!collapsed && <span className="flex-1">{item.label}</span>}
-      {!collapsed && badge !== undefined && (
-        <span
-          className={`ml-auto min-w-[20px] rounded-[10px] px-1.5 py-px text-center text-[11px] font-semibold ${
-            active ? "bg-white/25 text-white" : "bg-[#F04438] text-white"
-          }`}
-        >
+      <span className={`flex-1 ${REVEAL}`}>{item.label}</span>
+      {badge !== undefined && (
+        <span className={`mr-4 min-w-[20px] rounded-[10px] px-1.5 py-px text-center text-[11px] font-semibold ${active ? "bg-white/25 text-white" : "bg-[#F04438] text-white"} ${REVEAL}`}>
           {badge}
         </span>
       )}
-      {collapsed && <Tooltip label={item.label} />}
     </>
   );
 
+  const base = "group/nav relative mb-0.5 flex items-center py-2.5 text-sm font-medium whitespace-nowrap transition-colors";
   if (item.disabled) {
-    return (
-      <span
-        aria-disabled="true"
-        className={`${baseClasses} ${sizing} ${stateClasses}`}
-      >
-        {content}
-      </span>
-    );
+    return <span aria-disabled="true" className={`${base} ${stateClasses}`}>{content}</span>;
   }
-
   return (
-    <Link
-      href={item.href}
-      aria-current={active ? "page" : undefined}
-      className={`${baseClasses} ${sizing} ${stateClasses}`}
-    >
+    <Link href={item.href} aria-current={active ? "page" : undefined} className={`${base} ${stateClasses}`}>
       {content}
     </Link>
-  );
-}
-
-function Tooltip({ label }: { label: string }): ReactNode {
-  return (
-    <span
-      role="tooltip"
-      className="pointer-events-none absolute top-1/2 left-[calc(100%+12px)] z-[9999] hidden -translate-y-1/2 rounded-md bg-[#1D2939] px-3 py-1.5 text-xs font-medium whitespace-nowrap text-white shadow-[0_4px_12px_rgba(0,0,0,0.15)] group-hover/nav:block"
-    >
-      {label}
-    </span>
   );
 }
 

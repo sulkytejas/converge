@@ -1,34 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Sidebar } from "./sidebar";
 import { Topbar } from "./topbar";
+import { MobileGate } from "./mobile-gate";
 import { PARTNER_NAV_SECTIONS } from "./partner-nav-config";
 import { api } from "~/trpc/react";
-
-const STORAGE_KEY = "cp-partner-sidebar-collapsed";
 
 export function PartnerDashboardShell({ children }: { children: ReactNode }) {
   const router = useRouter();
   const me = api.auth.me.useQuery(undefined, { retry: false });
   const utils = api.useUtils();
   const logout = api.auth.logout.useMutation();
-
-  const [collapsed, setCollapsed] = useState(false);
-
-  useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (stored === "1") setCollapsed(true);
-  }, []);
-
-  const toggleSidebar = useCallback(() => {
-    setCollapsed((prev) => {
-      const next = !prev;
-      window.localStorage.setItem(STORAGE_KEY, next ? "1" : "0");
-      return next;
-    });
-  }, []);
 
   const userName =
     `${me.data?.firstName ?? ""} ${me.data?.lastName ?? ""}`.trim() ||
@@ -55,16 +39,14 @@ export function PartnerDashboardShell({ children }: { children: ReactNode }) {
   }
 
   return (
+    <MobileGate>
     <div className="min-h-screen bg-[#F5F6FA] text-[#1D2939]">
       <Sidebar
-        collapsed={collapsed}
         sections={PARTNER_NAV_SECTIONS}
         logoSubtitle="Partner Portal"
         onLogout={handleLogout}
       />
       <Topbar
-        collapsed={collapsed}
-        onToggleSidebar={toggleSidebar}
         userName={userName}
         userInitials={initials}
         roleLabel="Partner"
@@ -72,13 +54,10 @@ export function PartnerDashboardShell({ children }: { children: ReactNode }) {
         accountHref="/partner/account"
         onLogout={handleLogout}
       />
-      <main
-        className={`min-h-screen pt-[60px] transition-[margin] duration-250 ${
-          collapsed ? "ml-16" : "ml-60"
-        }`}
-      >
+      <main className="ml-16 min-h-screen pt-[60px]">
         <div className="p-6">{children}</div>
       </main>
     </div>
+    </MobileGate>
   );
 }

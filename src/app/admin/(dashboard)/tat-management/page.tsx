@@ -4,7 +4,19 @@ import { useEffect, useMemo, useState } from "react";
 import { api } from "~/trpc/react";
 import { Toast } from "~/components/ui/toast";
 import { StatCard } from "~/components/dashboard/widgets";
+import { PagePlaceholder } from "~/components/dashboard/page-placeholder";
 import { AdminRole } from "~/server/db/enums";
+import { SHOW_DEMO_DATA } from "~/lib/demo";
+
+// TAT Management is a deferred feature — its data is entirely illustrative seed.
+// In production we render a placeholder so no synthetic records ever ship; the full
+// dashboard (below) is dev-only until a real TAT backend exists.
+export default function TATManagementPage() {
+  if (!SHOW_DEMO_DATA) {
+    return <PagePlaceholder title="TAT Management" description="Turnaround-time tracking is coming soon." />;
+  }
+  return <TatDashboard />;
+}
 
 const TH = "border-b border-[#E4E7EC] bg-[#F9FAFB] px-3.5 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#667085]";
 const TD = "px-3.5 py-3 text-[13px] text-[#344054]";
@@ -106,7 +118,7 @@ function StatusBadge({ status }: { status: Status }) {
 }
 const TABS = ["TAT Configuration", "Aging Analysis", "My TAT Status", "Report Configuration"] as const;
 
-export default function TATManagementPage() {
+function TatDashboard() {
   const meQ = api.authSession.me.useQuery();
   const role = meQ.data?.role;
   const [mounted, setMounted] = useState(false);

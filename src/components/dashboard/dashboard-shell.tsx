@@ -1,14 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Sidebar } from "./sidebar";
 import { Topbar, type NotificationItem } from "./topbar";
+import { MobileGate } from "./mobile-gate";
 import { NAV_SECTIONS, navRoleFromCode } from "./nav-config";
 import { AdminRoleLabel, isAdminRole } from "~/server/db/enums";
 import { api } from "~/trpc/react";
-
-const STORAGE_KEY = "cp-sidebar-collapsed";
 
 const DEFAULT_NOTIFICATIONS: NotificationItem[] = [
   {
@@ -65,14 +64,6 @@ export function DashboardShell({
   // Real signed-in admin (collegepond_user) — drives the profile name/role.
   const me = api.authSession.me.useQuery().data;
 
-  const [collapsed, setCollapsed] = useState(false);
-
-  // Hydrate collapsed state from localStorage on mount
-  useEffect(() => {
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (stored === "1") setCollapsed(true);
-  }, []);
-
   async function handleLogout() {
     try {
       await logout.mutateAsync();
@@ -82,14 +73,6 @@ export function DashboardShell({
     await utils.invalidate();
     router.replace("/admin/login");
   }
-
-  const toggleSidebar = useCallback(() => {
-    setCollapsed((prev) => {
-      const next = !prev;
-      window.localStorage.setItem(STORAGE_KEY, next ? "1" : "0");
-      return next;
-    });
-  }, []);
 
   const userName = me ? `${me.firstName} ${me.lastName}`.trim() : "";
   const roleLabel = me && isAdminRole(me.role) ? AdminRoleLabel[me.role] : "";
@@ -102,17 +85,15 @@ export function DashboardShell({
     .toUpperCase();
 
   return (
+    <MobileGate>
     <div className="min-h-screen bg-[#F5F6FA] text-[#1D2939]">
       <Sidebar
-        collapsed={collapsed}
         sections={NAV_SECTIONS}
         logoSubtitle="Admin Portal"
         badges={badges}
         role={me && isAdminRole(me.role) ? navRoleFromCode(me.role) : null}
       />
       <Topbar
-        collapsed={collapsed}
-        onToggleSidebar={toggleSidebar}
         userName={userName}
         userInitials={initials}
         roleLabel={roleLabel}
@@ -120,13 +101,10 @@ export function DashboardShell({
         taskCount={taskCount}
         onLogout={handleLogout}
       />
-      <main
-        className={`min-h-screen pt-[60px] transition-[margin] duration-250 ${
-          collapsed ? "ml-16" : "ml-60"
-        }`}
-      >
+      <main className="ml-16 min-h-screen pt-[60px]">
         <div className="p-6">{children}</div>
       </main>
     </div>
+    </MobileGate>
   );
 }
