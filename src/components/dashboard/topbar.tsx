@@ -16,6 +16,8 @@ export interface NotificationItem {
   time: string;
   tone: "blue" | "green" | "orange" | "red" | "gray";
   unread?: boolean;
+  /** When set, the notification row links to the relevant page on click. */
+  href?: string;
 }
 
 interface TopbarProps {
@@ -149,15 +151,13 @@ export function Topbar({
                   No notifications
                 </div>
               ) : (
-                notifications.map((n) => (
-                  <div
-                    key={n.id}
-                    className={`cursor-pointer border-b border-[#F2F4F7] px-4 py-3 transition-colors last:border-b-0 ${
-                      n.unread
-                        ? "bg-[#F0F7FF] hover:bg-[#E0EFFF]"
-                        : "hover:bg-[#FAFBFC]"
-                    }`}
-                  >
+                notifications.map((n) => {
+                  const rowClass = `block cursor-pointer border-b border-[#F2F4F7] px-4 py-3 transition-colors last:border-b-0 ${
+                    n.unread
+                      ? "bg-[#F0F7FF] hover:bg-[#E0EFFF]"
+                      : "hover:bg-[#FAFBFC]"
+                  }`;
+                  const body = (
                     <div className="flex items-start gap-2.5">
                       <span
                         className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${DOT_TONES[n.tone]}`}
@@ -171,8 +171,22 @@ export function Topbar({
                         </div>
                       </div>
                     </div>
-                  </div>
-                ))
+                  );
+                  return n.href ? (
+                    <Link
+                      key={n.id}
+                      href={n.href}
+                      className={rowClass}
+                      onClick={() => setNotifOpen(false)}
+                    >
+                      {body}
+                    </Link>
+                  ) : (
+                    <div key={n.id} className={rowClass}>
+                      {body}
+                    </div>
+                  );
+                })
               )}
             </div>
             <div className="shrink-0 border-t border-[#E4E7EC] px-4 py-2.5 text-center">

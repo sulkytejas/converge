@@ -1,14 +1,18 @@
 "use client";
 
-import { type ReactNode } from "react";
+import { type ReactNode, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Sidebar } from "./sidebar";
 import { Topbar, type NotificationItem } from "./topbar";
 import { MobileGate } from "./mobile-gate";
 import { NAV_SECTIONS, navRoleFromCode } from "./nav-config";
 import { AdminRoleLabel, isAdminRole } from "~/server/db/enums";
+import { SHOW_DEMO_DATA } from "~/lib/demo";
 import { api } from "~/trpc/react";
 
+// Dev-only illustrative bell content. In production the bell is driven entirely
+// by api.notifications.list (real, current actionable state); these never render
+// in a prod build (SHOW_DEMO_DATA is false). See ~/lib/demo.
 const DEFAULT_NOTIFICATIONS: NotificationItem[] = [
   {
     id: "1",
@@ -54,8 +58,8 @@ export interface DashboardShellProps {
 
 export function DashboardShell({
   children,
-  badges = { approvals: 7 },
-  notifications = DEFAULT_NOTIFICATIONS,
+  badges,
+  notifications,
   taskCount = 0,
 }: DashboardShellProps) {
   const router = useRouter();
@@ -63,6 +67,23 @@ export function DashboardShell({
   const logout = api.authSession.logout.useMutation();
   // Real signed-in admin (collegepond_user) — drives the profile name/role.
   const me = api.authSession.me.useQuery().data;
+
+  // Live admin signals (pending approvals, payouts ready, invoices awaiting
+  // review, new students). Drives both the bell and the sidebar approvals badge.
+  const signals = api.notifications.list.useQuery().data;
+  const [allRead, setAllRead] = useState(false);
+
+  // Resolution order: explicit prop override → real live data → dev-only demo
+  // (empty in prod, never synthetic).
+  const effectiveBadges =
+    badges ?? signals?.badges ?? (SHOW_DEMO_DATA ? { approvals: 7 } : {});
+  const liveNotifications =
+    notifications ??
+    signals?.notifications ??
+    (SHOW_DEMO_DATA ? DEFAULT_NOTIFICATIONS : []);
+  const shownNotifications = allRead
+    ? liveNotifications.map((n) => ({ ...n, unread: false }))
+    : liveNotifications;
 
   async function handleLogout() {
     try {
@@ -90,15 +111,16 @@ export function DashboardShell({
       <Sidebar
         sections={NAV_SECTIONS}
         logoSubtitle="Admin Portal"
-        badges={badges}
+        badges={effectiveBadges}
         role={me && isAdminRole(me.role) ? navRoleFromCode(me.role) : null}
       />
       <Topbar
         userName={userName}
         userInitials={initials}
         roleLabel={roleLabel}
-        notifications={notifications}
+        notifications={shownNotifications}
         taskCount={taskCount}
+        onMarkAllRead={() => setAllRead(true)}
         onLogout={handleLogout}
       />
       <main className="ml-16 min-h-screen pt-[60px]">
