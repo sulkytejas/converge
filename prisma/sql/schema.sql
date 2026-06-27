@@ -1108,6 +1108,22 @@ CREATE TABLE IF NOT EXISTS `schema_migrations` (
   PRIMARY KEY (`version`)
 ) ENGINE = InnoDB;
 
+-- -----------------------------------------------------
+-- fx_rate  (live, editable exchange rates for INR estimate conversion)
+-- mid_rate = mid-market (INR per 1 unit), refreshed from a feed; effective rate
+-- (computed in app) = manual_rate ?? mid_rate * (1 - margin_pct/100). INR is the base.
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `fx_rate` (
+  `currency`    VARCHAR(3)    NOT NULL,
+  `mid_rate`    DECIMAL(12,4) NOT NULL,
+  `margin_pct`  DECIMAL(6,3)  NOT NULL DEFAULT 0,
+  `manual_rate` DECIMAL(12,4) NULL,
+  `source`      VARCHAR(50)   NULL,
+  `fetched_at`  TIMESTAMP     NULL,
+  `updated_at`  TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`currency`)
+) ENGINE = InnoDB;
+
 
 SET SQL_MODE            = @OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS  = @OLD_FOREIGN_KEY_CHECKS;

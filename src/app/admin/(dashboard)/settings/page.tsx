@@ -8,7 +8,7 @@ import { FormInput } from "~/components/ui/form-input";
 import { FormSelect } from "~/components/ui/form-select";
 import { Toast } from "~/components/ui/toast";
 import { Icon } from "~/components/dashboard/widgets";
-import { AdminRole, INDICATIVE_FX_RATES } from "~/server/db/enums";
+import { AdminRole } from "~/server/db/enums";
 
 const SECTIONS = [
   { id: "general", icon: "bolt", label: "General Settings" },
@@ -48,7 +48,6 @@ const NOTIF_DEFS = [
   { key: "system", label: "System Updates", desc: "Notifications about system maintenance, new features, and updates" },
 ] as const;
 
-const FX_CURRENCIES = ["USD", "GBP", "AUD", "EUR", "CAD", "NZD", "SGD"].filter((c) => c in INDICATIVE_FX_RATES);
 
 function Toggle({ on, onChange, disabled }: { on: boolean; onChange: () => void; disabled?: boolean }) {
   return (
@@ -86,6 +85,7 @@ export default function SettingsPage() {
 
   const [mounted, setMounted] = useState(false);
   const canEdit = !mounted || role === AdminRole.SUPER_ADMIN;
+  const canEditFx = !mounted || role === AdminRole.SUPER_ADMIN || role === AdminRole.FINANCE_MANAGER;
 
   const [section, setSection] = useState<SectionId>("general");
   const [toastMsg, setToastMsg] = useState("");
@@ -102,10 +102,21 @@ export default function SettingsPage() {
   const [notifs, setNotifs] = useState<Record<string, boolean>>({
     email: true, appStatus: true, invoice: true, payment: true, events: true, system: false,
   });
-  const [fxOverride, setFxOverride] = useState<Record<string, number>>({});
   const [sysInfo, setSysInfo] = useState<Record<string, string>>({});
   const [editFx, setEditFx] = useState<string | null>(null);
   const [clearOpen, setClearOpen] = useState(false);
+
+  // Live exchange rates — real fx_rate table + mid-market feed.
+  const utils = api.useUtils();
+  const fxQ = api.fx.list.useQuery();
+  const fxRefresh = api.fx.refresh.useMutation({
+    onSuccess: async (r) => { await utils.fx.list.invalidate(); toast(`Refreshed ${r.updated} rates from ${r.source}`); },
+    onError: (e) => toast(e.message),
+  });
+  const fxUpdate = api.fx.update.useMutation({
+    onSuccess: async () => { await utils.fx.list.invalidate(); setEditFx(null); toast("Rate updated"); },
+    onError: (e) => toast(e.message),
+  });
 
   useEffect(() => {
     setMounted(true);
@@ -114,8 +125,6 @@ export default function SettingsPage() {
       if (g) setGeneral((p) => ({ ...p, ...JSON.parse(g) as object }));
       const n = localStorage.getItem("cp_notification_prefs");
       if (n) setNotifs((p) => ({ ...p, ...JSON.parse(n) as object }));
-      const f = localStorage.getItem("cp_exchange_rates");
-      if (f) setFxOverride(JSON.parse(f) as Record<string, number>);
     } catch { /* ignore malformed storage */ }
     // System info (browser-derived)
     const ua = navigator.userAgent;
@@ -135,18 +144,11 @@ export default function SettingsPage() {
     });
   }, []);
 
-  const fxRate = (c: string) => fxOverride[c] ?? INDICATIVE_FX_RATES[c] ?? 0;
-
   const saveGeneral = () => { localStorage.setItem("cp_settings", JSON.stringify(general)); flashSaved("general"); toast("Settings saved"); };
   const saveNotifs = () => { localStorage.setItem("cp_notification_prefs", JSON.stringify(notifs)); flashSaved("notifications"); toast("Preferences saved"); };
-  const saveFx = (c: string, v: number) => {
-    const next = { ...fxOverride, [c]: v };
-    setFxOverride(next); localStorage.setItem("cp_exchange_rates", JSON.stringify(next)); setEditFx(null); toast(`${c} → INR rate updated`);
-  };
-  const resetFx = () => { setFxOverride({}); localStorage.removeItem("cp_exchange_rates"); toast("Exchange rates reset to defaults"); };
 
   const exportJson = () => {
-    const blob = new Blob([JSON.stringify({ general, notifs, fxOverride }, null, 2)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify({ general, notifs }, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a"); a.href = url; a.download = `collegepond-settings-${new Date().toISOString().slice(0, 10)}.json`; a.click();
     URL.revokeObjectURL(url); toast("Settings exported");
@@ -158,10 +160,9 @@ export default function SettingsPage() {
     r.onload = () => {
       try {
         const raw = typeof r.result === "string" ? r.result : "";
-        const d = JSON.parse(raw) as { general?: object; notifs?: object; fxOverride?: Record<string, number> };
+        const d = JSON.parse(raw) as { general?: object; notifs?: object };
         if (d.general) setGeneral((p) => ({ ...p, ...d.general }));
         if (d.notifs) setNotifs((p) => ({ ...p, ...d.notifs }));
-        if (d.fxOverride) setFxOverride(d.fxOverride);
         toast("Settings imported");
       } catch { toast("Invalid settings file"); }
     };
@@ -301,44 +302,52 @@ export default function SettingsPage() {
           {section === "fx" && (
             <div className="space-y-6">
               <div className={CARD}>
-                <SectionHeader title="Exchange Rates" desc="Manage currency exchange rates used for INR conversion in University Billing" />
+                <SectionHeader title="Exchange Rates" desc="Live mid-market rates with an editable bank margin, used for INR estimates" />
               </div>
               <div className={CARD}>
                 <div className="flex items-center justify-between gap-3 border-b border-[#F2F4F7] px-5 py-3.5">
                   <div className="flex items-center gap-2">
                     <h3 className="text-[15px] font-semibold text-[#101828]">Currency Exchange Rates</h3>
-                    <span className="rounded-full bg-[#EFF8FF] px-2 py-0.5 text-xs font-semibold text-[#1570EF]">{FX_CURRENCIES.length}</span>
+                    <span className="rounded-full bg-[#EFF8FF] px-2 py-0.5 text-xs font-semibold text-[#1570EF]">{fxQ.data?.length ?? 0}</span>
                   </div>
-                  {canEdit && <Button variant="secondary" className="!h-9 !text-[13px]" onClick={resetFx}>Reset to Defaults</Button>}
+                  {canEditFx && <Button variant="secondary" className="!h-9 !text-[13px]" loading={fxRefresh.isPending} onClick={() => fxRefresh.mutate()}>Refresh from feed</Button>}
                 </div>
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr>
-                      <th className={TH}>Currency Pair</th>
-                      <th className={TH}>Rate (1 unit = X INR)</th>
-                      <th className={TH}>Last Updated</th>
-                      <th className={`${TH} text-right`}>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {FX_CURRENCIES.map((c) => (
-                      <tr key={c} className="border-b border-[#F2F4F7] last:border-0">
-                        <td className={`${TD} font-semibold text-[#101828]`}>{c} → INR</td>
-                        <td className={TD}>{fxRate(c).toFixed(2)}</td>
-                        <td className={TD}>{sysInfo.sync ?? "—"}</td>
-                        <td className={`${TD} text-right`}>
-                          {canEdit ? (
-                            <Button variant="secondary" className="!h-8 !px-3 !text-[12px]" onClick={() => setEditFx(c)}>Edit</Button>
-                          ) : (
-                            <span className="text-xs text-[#98A2B3]">View only</span>
-                          )}
-                        </td>
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr>
+                        <th className={TH}>Currency</th>
+                        <th className={TH}>Live Mid (INR)</th>
+                        <th className={TH}>Margin</th>
+                        <th className={TH}>Effective (INR)</th>
+                        <th className={TH}>Updated</th>
+                        <th className={`${TH} text-right`}>Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {!mounted || fxQ.isLoading ? (
+                        <tr><td colSpan={6} className="px-5 py-8 text-center text-sm text-[#98A2B3]">Loading rates…</td></tr>
+                      ) : (fxQ.data ?? []).map((r) => (
+                        <tr key={r.currency} className="border-b border-[#F2F4F7] last:border-0">
+                          <td className={`${TD} font-semibold text-[#101828]`}>{r.currency} → INR</td>
+                          <td className={TD}>{r.midRate.toFixed(2)}</td>
+                          <td className={TD}>{r.manualRate != null ? <span className="text-[#98A2B3]">override</span> : `${r.marginPct}%`}</td>
+                          <td className={`${TD} font-semibold text-[#101828]`}>₹{r.effectiveRate.toFixed(2)}</td>
+                          <td className={`${TD} text-xs text-[#98A2B3]`}>{r.fetchedAt ? new Date(r.fetchedAt).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" }) : "—"}</td>
+                          <td className={`${TD} text-right`}>
+                            {canEditFx ? (
+                              <Button variant="secondary" className="!h-8 !px-3 !text-[12px]" onClick={() => setEditFx(r.currency)}>Edit</Button>
+                            ) : (
+                              <span className="text-xs text-[#98A2B3]">View only</span>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-              <p className="text-xs text-[#98A2B3]">Edits are saved locally for display. Wiring these into University Billing’s server-side conversion needs a settings table (follow-up).</p>
+              <p className="text-xs text-[#98A2B3]">Live mid-market from open.er-api.com; effective rate = mid − your bank margin (or a manual override). Booked amounts should use the realized FIRC rate (separate, with the finance module).</p>
             </div>
           )}
 
@@ -367,7 +376,10 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {editFx && <EditFxModal currency={editFx} current={fxRate(editFx)} onClose={() => setEditFx(null)} onSave={(v) => saveFx(editFx, v)} />}
+      {editFx && (() => {
+        const row = fxQ.data?.find((r) => r.currency === editFx);
+        return row ? <EditFxModal row={row} saving={fxUpdate.isPending} onClose={() => setEditFx(null)} onSave={(marginPct, manualRate) => fxUpdate.mutate({ currency: editFx, marginPct, manualRate })} /> : null;
+      })()}
       {clearOpen && (
         <Modal open title="Confirm Clear Cache" onClose={() => setClearOpen(false)}
           footer={<><Button variant="secondary" onClick={() => setClearOpen(false)}>Cancel</Button><button onClick={clearCache} className="h-10 rounded-lg bg-[#D92D20] px-4 text-[13px] font-semibold text-white hover:bg-[#B42318]">Clear Cache</button></>}
@@ -381,15 +393,21 @@ export default function SettingsPage() {
   );
 }
 
-function EditFxModal({ currency, current, onClose, onSave }: { currency: string; current: number; onClose: () => void; onSave: (v: number) => void }) {
-  const [val, setVal] = useState(String(current));
-  const [err, setErr] = useState("");
+function EditFxModal({ row, saving, onClose, onSave }: { row: { currency: string; midRate: number; marginPct: number; manualRate: number | null }; saving: boolean; onClose: () => void; onSave: (marginPct: number, manualRate: number | null) => void }) {
+  const [margin, setMargin] = useState(String(row.marginPct));
+  const [manual, setManual] = useState(row.manualRate != null ? String(row.manualRate) : "");
+  const m = Number(margin) || 0;
+  const computed = Math.round(row.midRate * (1 - m / 100) * 100) / 100;
+  const hasManual = manual.trim() !== "";
+  const preview = hasManual ? Number(manual) : computed;
   return (
-    <Modal open title={`Edit ${currency} → INR Rate`} onClose={onClose}
-      footer={<><Button variant="secondary" onClick={onClose}>Cancel</Button><Button onClick={() => { const n = Number(val); if (!n || n <= 0) return setErr("Enter a valid rate"); onSave(n); }}>Save Rate</Button></>}
+    <Modal open title={`Edit ${row.currency} → INR`} onClose={onClose}
+      footer={<><Button variant="secondary" onClick={onClose}>Cancel</Button><Button loading={saving} onClick={() => onSave(m, hasManual ? Number(manual) : null)}>Save</Button></>}
     >
-      <FormInput label="Currency Pair" value={`${currency} → INR`} disabled />
-      <FormInput label="Exchange Rate (INR)" type="number" step="0.01" value={val} onChange={(e) => setVal(e.target.value)} error={!!err} errorMessage={err} />
+      <FormInput label="Live mid-market (INR)" value={row.midRate.toFixed(2)} disabled />
+      <FormInput label="Bank margin (%)" type="number" step="0.05" value={margin} onChange={(e) => setMargin(e.target.value)} />
+      <FormInput label="Manual override (INR) — optional" type="number" step="0.01" placeholder={`Auto: ${computed.toFixed(2)}`} value={manual} onChange={(e) => setManual(e.target.value)} />
+      <p className="mt-1 text-xs text-[#667085]">Effective rate: <span className="font-semibold text-[#101828]">₹{(Number.isFinite(preview) ? preview : computed).toFixed(2)}</span> {hasManual ? "(manual override)" : `(mid − ${m}% margin)`}</p>
     </Modal>
   );
 }

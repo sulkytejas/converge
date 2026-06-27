@@ -19,6 +19,7 @@ import { reconciliationRouter } from "~/server/api/routers/reconciliation";
 import { settingsRouter } from "~/server/api/routers/settings";
 import { auditRouter } from "~/server/api/routers/audit";
 import { bdmRouter } from "~/server/api/routers/bdm";
+import { fxRouter } from "~/server/api/routers/fx";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 
 export const appRouter = createTRPCRouter({
@@ -42,6 +43,7 @@ export const appRouter = createTRPCRouter({
   settings: settingsRouter,
   audit: auditRouter,
   bdm: bdmRouter,
+  fx: fxRouter,
   dashboard: dashboardRouter,
 });
 
