@@ -21,6 +21,7 @@ import { auditRouter } from "~/server/api/routers/audit";
 import { bdmRouter } from "~/server/api/routers/bdm";
 import { fxRouter } from "~/server/api/routers/fx";
 import { applicationsRouter } from "~/server/api/routers/applications";
+import { notesRouter } from "~/server/api/routers/notes";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 
 export const appRouter = createTRPCRouter({
@@ -46,6 +47,7 @@ export const appRouter = createTRPCRouter({
   bdm: bdmRouter,
   fx: fxRouter,
   applications: applicationsRouter,
+  notes: notesRouter,
   dashboard: dashboardRouter,
 });
 

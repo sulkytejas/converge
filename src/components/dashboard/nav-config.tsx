@@ -122,6 +122,7 @@ export const NAV_SECTIONS: NavSection[] = [
         icon: <ClockIcon />,
         hidden: true,
       },
+      { label: "Notes & Reminders", href: "/admin/notes-reminders", icon: <ClockIcon /> },
       { label: "Uni Assist", href: "/admin/uni-assist", icon: <SearchIcon /> },
     ],
   },
