@@ -103,6 +103,11 @@ function NavLink({ item, active, badge }: { item: NavItem; active: boolean; badg
       ? "stroke-white"
       : "stroke-[#667085] group-hover/nav:stroke-[#1570EF]";
 
+  // Only render a badge for a meaningful value — hide undefined / empty / zero
+  // so a real count of 0 (e.g. no pending approvals) shows nothing, not a "0" pip.
+  const showBadge =
+    badge !== undefined && badge !== "" && badge !== 0 && badge !== "0";
+
   const content = (
     <>
       <span className="relative flex w-16 shrink-0 justify-center">
@@ -110,12 +115,12 @@ function NavLink({ item, active, badge }: { item: NavItem; active: boolean; badg
           {item.icon}
         </span>
         {/* Collapsed-rail badge dot (the full count appears on expand). */}
-        {badge !== undefined && !active && (
+        {showBadge && !active && (
           <span className="absolute top-0 right-3.5 h-2 w-2 rounded-full bg-[#F04438] transition-opacity group-hover:opacity-0 group-focus-within:opacity-0" />
         )}
       </span>
       <span className={`flex-1 ${REVEAL}`}>{item.label}</span>
-      {badge !== undefined && (
+      {showBadge && (
         <span className={`mr-4 min-w-[20px] rounded-[10px] px-1.5 py-px text-center text-[11px] font-semibold ${active ? "bg-white/25 text-white" : "bg-[#F04438] text-white"} ${REVEAL}`}>
           {badge}
         </span>
