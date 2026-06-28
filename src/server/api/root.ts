@@ -13,6 +13,7 @@ import { counsellorsRouter } from "~/server/api/routers/counsellors";
 import { eventsRouter } from "~/server/api/routers/events";
 import { commissionRatesRouter } from "~/server/api/routers/commission-rates";
 import { universityBillingRouter } from "~/server/api/routers/university-billing";
+import { commissionsRouter } from "~/server/api/routers/commissions";
 import { partnerCommissionRouter } from "~/server/api/routers/partner-commission";
 import { partnerPayoutsRouter } from "~/server/api/routers/partner-payouts";
 import { reconciliationRouter } from "~/server/api/routers/reconciliation";
@@ -40,6 +41,7 @@ export const appRouter = createTRPCRouter({
   events: eventsRouter,
   commissionRates: commissionRatesRouter,
   universityBilling: universityBillingRouter,
+  commissions: commissionsRouter,
   partnerCommission: partnerCommissionRouter,
   partnerPayouts: partnerPayoutsRouter,
   reconciliation: reconciliationRouter,

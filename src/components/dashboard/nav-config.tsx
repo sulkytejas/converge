@@ -152,6 +152,12 @@ export const NAV_SECTIONS: NavSection[] = [
         roles: FINANCE_NAV_ROLES,
       },
       {
+        label: "Commission Ledger",
+        href: "/admin/commissions",
+        icon: <AuditLogIcon />,
+        roles: FINANCE_NAV_ROLES,
+      },
+      {
         label: "Invoices & Payouts",
         href: "/admin/invoices",
         icon: <InvoiceIcon />,
