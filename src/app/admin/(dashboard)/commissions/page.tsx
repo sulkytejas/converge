@@ -60,12 +60,35 @@ function StatusPill({ status }: { status: number }) {
   );
 }
 
-// Next-step hint: a link into the relevant screen (CP's move), muted text for a
-// partner's move (awaiting claim), or "Done".
+// Feather-style stroke icons matching the app's icon language.
+const ICON = "h-3.5 w-3.5 shrink-0";
+const CheckIcon = () => (
+  <svg viewBox="0 0 24 24" className={ICON} fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+);
+const ClockIcon = () => (
+  <svg viewBox="0 0 24 24" className={ICON} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
+);
+
+// Next-step hint: a link into the relevant screen (CP's move), muted text with a
+// clock for a partner's move (awaiting claim), or a green check for "Done".
 function NextStep({ next }: { next: Row["next"] }) {
-  if (!next) return <span className="text-xs text-[#12B76A]">✓ Done</span>;
-  if (next.href) return <Link href={next.href} className="text-[13px] font-semibold text-[#1570EF] hover:underline">{next.label} →</Link>;
-  return <span className="text-xs text-[#B54708]">⏳ {next.label}</span>;
+  if (!next)
+    return (
+      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#12B76A]">
+        <CheckIcon /> Done
+      </span>
+    );
+  if (next.href)
+    return (
+      <Link href={next.href} className="text-[13px] font-semibold text-[#1570EF] hover:underline">
+        {next.label} →
+      </Link>
+    );
+  return (
+    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-[#B54708]">
+      <ClockIcon /> {next.label}
+    </span>
+  );
 }
 
 // Compact tranche pip bar — paid (blue) / collected-unpaid (green) / pending (grey).
