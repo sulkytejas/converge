@@ -78,6 +78,27 @@ function InvoiceStatusPill({ status }: { status: number }) {
   );
 }
 
+// Per-commission tranche collection progress (pay-as-collected). Each collected
+// tranche unlocks the partner's claim for that slice immediately.
+function TrancheCollection({ tranches }: { tranches: { total: number; collected: number } }) {
+  const done = tranches.collected >= tranches.total;
+  return (
+    <div className="mt-1.5">
+      <div className="flex items-center gap-0.5">
+        {Array.from({ length: tranches.total }, (_, i) => (
+          <span
+            key={i}
+            className={`h-1.5 w-4 rounded-full ${i < tranches.collected ? "bg-[#12B76A]" : "bg-[#EAECF0]"}`}
+          />
+        ))}
+      </div>
+      <div className={`mt-1 text-[10px] ${done ? "text-[#067647]" : "text-[#98A2B3]"}`}>
+        {tranches.collected}/{tranches.total} tranches collected
+      </div>
+    </div>
+  );
+}
+
 function CountChip({ children }: { children: React.ReactNode }) {
   return (
     <span className="rounded-full bg-[#EFF8FF] px-2 py-0.5 text-xs font-semibold text-[#1570EF]">
@@ -693,6 +714,7 @@ function BillingStudentsView({
                             ) : (
                               <span className="rounded-[10px] bg-[#FEF3F2] px-2 py-0.5 text-[11px] font-semibold text-[#B42318]">Not Invoiced</span>
                             )}
+                            {st.tranches.total > 1 && <TrancheCollection tranches={st.tranches} />}
                           </td>
                         </tr>
                       );

@@ -105,7 +105,8 @@ export const partnerCommissionRouter = createTRPCRouter({
             seq: true,
             name: true,
             status: true,
-            amount_inr: true,
+            amount: true, // planned (commission-currency) slice — used before collection
+            amount_inr: true, // realised INR — set once collected from the vendor
             invoice_item: {
               select: { invoice: { select: { invoice_number: true, status: true } } },
             },
@@ -177,13 +178,16 @@ export const partnerCommissionRouter = createTRPCRouter({
         cpCommissionInr: round2(claimableGross - claimable),
         receivedAt: c.collegepond_received_at,
         paidAt: c.partner_paid_at,
-        // Per-tranche breakdown for the UI (empty for legacy commissions). amountInr
-        // is the partner's share of that tranche.
+        // Per-tranche breakdown for the UI (empty for legacy commissions). Both
+        // amounts are the partner's share: amountInr is the realised INR (known
+        // only once collected); plannedForeign is the commission-currency slice
+        // shown for not-yet-collected tranches (INR isn't locked until the FX hits).
         tranches: tranches.map((t) => ({
           seq: t.seq,
           name: t.name,
           status: t.status,
           amountInr: share(num(t.amount_inr)),
+          plannedForeign: share(num(t.amount)),
           claimed: t.invoice_item != null,
         })),
         invoiceNumber: invoice?.invoice_number ?? null,

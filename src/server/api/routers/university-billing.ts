@@ -255,6 +255,7 @@ export const universityBillingRouter = createTRPCRouter({
             },
           },
         },
+        commission_tranche: { select: { status: true } },
       },
     });
 
@@ -278,6 +279,13 @@ export const universityBillingRouter = createTRPCRouter({
       const inv = c.vendor_invoice_item?.vendor_invoice ?? null;
       const uniId = c.application.course.university.id;
       const courseId = c.application.course.id;
+      // Tranche collection progress: how many of this commission's tranches CP has
+      // already received from the vendor (RECEIVED or PAID), out of the total.
+      const trancheTotal = c.commission_tranche.length;
+      const trancheCollected = c.commission_tranche.filter(
+        (t) =>
+          t.status === TrancheStatus.RECEIVED || t.status === TrancheStatus.PAID,
+      ).length;
       return {
         commissionId: c.id,
         vendorId: c.vendor_id,
@@ -301,6 +309,7 @@ export const universityBillingRouter = createTRPCRouter({
         invoice: inv
           ? { id: inv.id, number: inv.invoice_number, status: inv.status }
           : null,
+        tranches: { total: trancheTotal, collected: trancheCollected },
       };
     });
   }),

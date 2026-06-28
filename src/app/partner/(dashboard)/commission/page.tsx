@@ -19,11 +19,14 @@ import { formatINR, formatDate, countryFlag } from "~/components/dashboard/forma
 import {
   PartnerInvoiceStatus,
   PartnerInvoiceStatusLabel,
+  TrancheStatus,
+  TrancheStatusLabel,
   financialYearLabel,
 } from "~/server/db/enums";
 
 type RO = inferRouterOutputs<AppRouter>;
 type Claim = RO["partnerCommission"]["listClaimable"][number];
+type TrancheRow = Claim["tranches"][number];
 
 const TH = "border-b border-[#E4E7EC] bg-[#F9FAFB] px-3.5 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider whitespace-nowrap text-[#667085]";
 const TD = "px-3.5 py-3 text-sm whitespace-nowrap text-[#344054]";
@@ -65,6 +68,108 @@ function ClaimStatusPill({ status }: { status: Claim["status"] }) {
   };
   const { c, t } = map[status];
   return <span className={`rounded-[10px] px-2.5 py-0.5 text-[11px] font-semibold ${c}`}>{t}</span>;
+}
+
+// ---- per-tranche display (pay-as-collected) ---------------------------------
+// A tranche's display state layers the claim lifecycle on top of the raw status:
+// a RECEIVED tranche is "Available to Claim" until it lands on an invoice
+// ("Invoiced"), then "Paid" once the payout is released.
+function trancheDisplay(t: TrancheRow): { label: string; pill: string; dot: string } {
+  if (t.status === TrancheStatus.PAID)
+    return { label: "Paid", pill: "bg-[#EFF8FF] text-[#1570EF]", dot: "bg-[#1570EF]" };
+  if (t.status === TrancheStatus.RECEIVED)
+    return t.claimed
+      ? { label: "Invoiced", pill: "bg-[#FFF6ED] text-[#B54708]", dot: "bg-[#F79009]" }
+      : { label: "Available to Claim", pill: "bg-[#ECFDF3] text-[#067647]", dot: "bg-[#12B76A]" };
+  return {
+    label: TrancheStatusLabel[t.status as TrancheStatus],
+    pill: "bg-[#F2F4F7] text-[#667085]",
+    dot: "bg-[#D0D5DD]",
+  };
+}
+const isCollected = (t: TrancheRow) =>
+  t.status === TrancheStatus.RECEIVED || t.status === TrancheStatus.PAID;
+
+// Compact segmented bar for the table — one pip per tranche, coloured by state.
+function TrancheProgress({ tranches }: { tranches: TrancheRow[] }) {
+  const collected = tranches.filter(isCollected).length;
+  return (
+    <div className="mt-1.5">
+      <div className="flex items-center gap-0.5">
+        {tranches.map((t) => {
+          const d = trancheDisplay(t);
+          return (
+            <span
+              key={t.seq}
+              className={`h-1.5 w-4 rounded-full ${d.dot}`}
+              title={`${t.name}: ${d.label}`}
+            />
+          );
+        })}
+      </div>
+      <div className="mt-1 text-[10px] text-[#98A2B3]">
+        {collected}/{tranches.length} tranches collected
+      </div>
+    </div>
+  );
+}
+
+// Full per-tranche list for the student-detail modal.
+function TrancheBreakdown({ currency, tranches }: { currency: string; tranches: TrancheRow[] }) {
+  const available = tranches
+    .filter((t) => t.status === TrancheStatus.RECEIVED && !t.claimed)
+    .reduce((s, t) => s + t.amountInr, 0);
+  const paid = tranches
+    .filter((t) => t.status === TrancheStatus.PAID)
+    .reduce((s, t) => s + t.amountInr, 0);
+  return (
+    <div className="rounded-lg border border-[#E4E7EC] p-4">
+      <div className="mb-3 text-xs font-semibold tracking-wide text-[#667085] uppercase">
+        Tranche Breakdown
+      </div>
+      <ol className="space-y-3">
+        {tranches.map((t) => {
+          const d = trancheDisplay(t);
+          const collected = isCollected(t);
+          return (
+            <li key={t.seq} className="flex items-start justify-between gap-3">
+              <div className="flex min-w-0 items-start gap-2.5">
+                <span className={`mt-1 h-2.5 w-2.5 shrink-0 rounded-full ${d.dot}`} />
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-semibold text-[#101828]">{t.name}</div>
+                  <span className={`mt-1 inline-block rounded-[10px] px-2 py-0.5 text-[10px] font-semibold ${d.pill}`}>
+                    {d.label}
+                  </span>
+                </div>
+              </div>
+              <div className="shrink-0 text-right">
+                {collected ? (
+                  <div className="text-sm font-semibold text-[#101828]">{inr(t.amountInr)}</div>
+                ) : (
+                  <>
+                    <div className="text-sm font-medium text-[#98A2B3]">
+                      {currency} {t.plannedForeign.toLocaleString()}
+                    </div>
+                    <div className="text-[10px] text-[#98A2B3]">planned</div>
+                  </>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+      <div className="mt-3 space-y-1 border-t border-[#E4E7EC] pt-3 text-xs">
+        <div className="flex justify-between">
+          <span className="text-[#667085]">Available to claim now</span>
+          <span className="font-semibold text-[#067647]">{inr(available)}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-[#667085]">Already paid to you</span>
+          <span className="font-semibold text-[#1570EF]">{inr(paid)}</span>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function InvoiceStatusPill({ status }: { status: number }) {
@@ -275,7 +380,10 @@ export default function PartnerCommissionPage() {
                     <td className={`${TD} font-medium`}>{c.currency} {c.commissionAmount.toLocaleString()}</td>
                     <td className={TD}>{c.partnerSharePct}%</td>
                     <td className={`${TD} font-semibold text-[#067647]`}>{inr(c.claimableInr)}</td>
-                    <td className={TD}><ClaimStatusPill status={c.status} /></td>
+                    <td className={TD}>
+                      <ClaimStatusPill status={c.status} />
+                      {c.tranches.length > 1 && <TrancheProgress tranches={c.tranches} />}
+                    </td>
                     <td className={`${TD} text-center`}>{c.receivedAt ? <span className="text-[#067647]">✓</span> : "—"}</td>
                     <td className={`${TD} text-center`}>{c.paidAt ? <span className="text-[#067647]">✓</span> : "—"}</td>
                     <td className={TD}>{c.paidAt ? formatDate(c.paidAt) : "—"}</td>
@@ -438,18 +546,22 @@ function StudentDetailModal({ claim, onClose }: { claim: Claim; onClose: () => v
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
-        <div className="rounded-lg border border-[#E4E7EC] p-4">
-          <div className="mb-3 text-xs font-semibold tracking-wide text-[#667085] uppercase">Payment Timeline</div>
-          <ol className="relative space-y-3.5 border-l border-[#E4E7EC] pl-4">
-            {timeline.map((e, i) => (
-              <li key={i} className="relative">
-                <span className={`absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full ring-2 ring-white ${e.done ? "bg-[#12B76A]" : "bg-[#D0D5DD]"}`} />
-                <div className={`text-sm font-semibold ${e.done ? "text-[#101828]" : "text-[#98A2B3]"}`}>{e.title}</div>
-                <div className="text-xs text-[#667085]">{e.at ? formatDate(e.at) : "—"}</div>
-              </li>
-            ))}
-          </ol>
-        </div>
+        {claim.tranches.length > 1 ? (
+          <TrancheBreakdown currency={claim.currency} tranches={claim.tranches} />
+        ) : (
+          <div className="rounded-lg border border-[#E4E7EC] p-4">
+            <div className="mb-3 text-xs font-semibold tracking-wide text-[#667085] uppercase">Payment Timeline</div>
+            <ol className="relative space-y-3.5 border-l border-[#E4E7EC] pl-4">
+              {timeline.map((e, i) => (
+                <li key={i} className="relative">
+                  <span className={`absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full ring-2 ring-white ${e.done ? "bg-[#12B76A]" : "bg-[#D0D5DD]"}`} />
+                  <div className={`text-sm font-semibold ${e.done ? "text-[#101828]" : "text-[#98A2B3]"}`}>{e.title}</div>
+                  <div className="text-xs text-[#667085]">{e.at ? formatDate(e.at) : "—"}</div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        )}
         <div className="rounded-lg border border-[#E4E7EC] p-4">
           <div className="mb-3 text-xs font-semibold tracking-wide text-[#667085] uppercase">Invoice History</div>
           {detailQ.isLoading ? (
