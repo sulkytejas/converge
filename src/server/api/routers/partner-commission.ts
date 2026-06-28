@@ -6,7 +6,11 @@ import {
 } from "~/server/api/trpc";
 import { db } from "~/server/db";
 import { encryptSecret } from "~/server/crypto";
-import { PartnerInvoiceStatus, financialYearOf } from "~/server/db/enums";
+import {
+  PartnerInvoiceStatus,
+  TrancheStatus,
+  financialYearOf,
+} from "~/server/db/enums";
 
 type Decimalish = { toNumber: () => number } | null;
 const num = (d: Decimalish): number => (d == null ? 0 : d.toNumber());
@@ -89,27 +93,67 @@ export const partnerCommissionRouter = createTRPCRouter({
             },
           },
         },
+        // Legacy single-invoice rows (no tranche) — kept for pre-tranche commissions.
         invoice_item: {
-          select: { id: true, invoice: { select: { invoice_number: true, status: true } } },
+          where: { commission_tranche_id: null },
+          select: { invoice: { select: { invoice_number: true, status: true } } },
+        },
+        // Pay-as-collected: claimability is per tranche.
+        commission_tranche: {
+          orderBy: { seq: "asc" },
+          select: {
+            seq: true,
+            name: true,
+            status: true,
+            amount_inr: true,
+            invoice_item: {
+              select: { invoice: { select: { invoice_number: true, status: true } } },
+            },
+          },
         },
       },
     });
 
     return comms.map((c) => {
       const partnerSharePct = c.partner_share_pct == null ? 100 : num(c.partner_share_pct);
-      const claimableGross = c.claimable_inr == null ? 0 : num(c.claimable_inr);
-      const claimable = round2(claimableGross * (partnerSharePct / 100));
-      const cpCommissionInr = round2(claimableGross - claimable);
-      const received = c.collegepond_received_at != null;
-      const invoiced = c.invoice_item != null;
-      const paid = c.partner_paid_at != null;
-      const status: "pending" | "claimable" | "invoiced" | "paid" = paid
-        ? "paid"
-        : invoiced
-          ? "invoiced"
-          : received
+      const share = (gross: number) => round2(gross * (partnerSharePct / 100));
+      const tranches = c.commission_tranche;
+
+      let claimableGross: number;
+      let status: "pending" | "claimable" | "invoiced" | "paid";
+      let invoice: { invoice_number: string; status: number } | null;
+
+      if (tranches.length > 0) {
+        // RECEIVED ("available to claim") tranches not yet on an invoice.
+        const claimable = tranches.filter(
+          (t) => t.status === TrancheStatus.RECEIVED && t.invoice_item == null,
+        );
+        const claimed = tranches.filter((t) => t.invoice_item != null);
+        claimableGross = claimable.reduce((s, t) => s + num(t.amount_inr), 0);
+        status =
+          claimable.length > 0
             ? "claimable"
-            : "pending";
+            : tranches.every((t) => t.status === TrancheStatus.PAID)
+              ? "paid"
+              : claimed.length > 0
+                ? "invoiced"
+                : "pending";
+        invoice = claimed[claimed.length - 1]?.invoice_item?.invoice ?? null;
+      } else {
+        // Legacy (pre-tranche) commission — commission-level claimability.
+        claimableGross = num(c.claimable_inr);
+        status =
+          c.partner_paid_at != null
+            ? "paid"
+            : c.invoice_item.length > 0
+              ? "invoiced"
+              : c.collegepond_received_at != null
+                ? "claimable"
+                : "pending";
+        invoice = c.invoice_item[0]?.invoice ?? null;
+      }
+
+      const claimable = share(claimableGross);
       const intake =
         [c.application.course.intake_month, c.application.course.intake_year]
           .filter(Boolean)
@@ -130,11 +174,20 @@ export const partnerCommissionRouter = createTRPCRouter({
         commissionAmount: num(c.commision_amount),
         partnerSharePct,
         claimableInr: claimable,
-        cpCommissionInr,
+        cpCommissionInr: round2(claimableGross - claimable),
         receivedAt: c.collegepond_received_at,
         paidAt: c.partner_paid_at,
-        invoiceNumber: c.invoice_item?.invoice?.invoice_number ?? null,
-        invoiceStatus: c.invoice_item?.invoice?.status ?? null,
+        // Per-tranche breakdown for the UI (empty for legacy commissions). amountInr
+        // is the partner's share of that tranche.
+        tranches: tranches.map((t) => ({
+          seq: t.seq,
+          name: t.name,
+          status: t.status,
+          amountInr: share(num(t.amount_inr)),
+          claimed: t.invoice_item != null,
+        })),
+        invoiceNumber: invoice?.invoice_number ?? null,
+        invoiceStatus: invoice?.status ?? null,
         status,
         selectable: status === "claimable",
       };
@@ -233,29 +286,34 @@ export const partnerCommissionRouter = createTRPCRouter({
         where: { id: { in: input.commissionIds }, org_id: orgId },
         select: {
           id: true,
-          claimable_inr: true,
           partner_share_pct: true,
-          collegepond_received_at: true,
-          invoice_item: { select: { id: true } },
+          // Only RECEIVED ("available to claim") tranches not already on an invoice.
+          commission_tranche: {
+            where: { status: TrancheStatus.RECEIVED, invoice_item: { is: null } },
+            select: { id: true, amount_inr: true },
+          },
         },
       });
       if (comms.length !== input.commissionIds.length) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Some claims are no longer available." });
       }
-      for (const c of comms) {
-        if (c.collegepond_received_at == null) {
-          throw new TRPCError({ code: "BAD_REQUEST", message: "A selected claim hasn't been paid by CollegePond yet." });
-        }
-        if (c.invoice_item != null) {
-          throw new TRPCError({ code: "CONFLICT", message: "A selected claim is already invoiced." });
-        }
+      if (comms.some((c) => c.commission_tranche.length === 0)) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "A selected student has no collected tranche to claim yet.",
+        });
       }
 
-      const lineAmounts = comms.map((c) => {
+      // One invoice line per claimed tranche (pay-as-collected).
+      const lineItems = comms.flatMap((c) => {
         const sharePct = c.partner_share_pct == null ? 100 : num(c.partner_share_pct);
-        return { commissionId: c.id, amount: round2(num(c.claimable_inr) * (sharePct / 100)) };
+        return c.commission_tranche.map((t) => ({
+          commissionId: c.id,
+          trancheId: t.id,
+          amount: round2(num(t.amount_inr) * (sharePct / 100)),
+        }));
       });
-      const subtotal = round2(lineAmounts.reduce((s, l) => s + l.amount, 0));
+      const subtotal = round2(lineItems.reduce((s, l) => s + l.amount, 0));
       const partnerGstin = orNull(input.gstin);
       const tax = computeTax(subtotal, partnerGstin);
 
@@ -288,9 +346,10 @@ export const partnerCommissionRouter = createTRPCRouter({
           },
         });
         await tx.invoice_item.createMany({
-          data: lineAmounts.map((l) => ({
+          data: lineItems.map((l) => ({
             invoice_id: inv.id,
             commission_id: l.commissionId,
+            commission_tranche_id: l.trancheId,
             amount: l.amount,
           })),
         });
@@ -306,12 +365,19 @@ export const partnerCommissionRouter = createTRPCRouter({
       const orgId = await requireOrgId(ctx.cpPartner.id);
       const comms = await db.commission.findMany({
         where: { id: { in: input.commissionIds }, org_id: orgId },
-        select: { claimable_inr: true, partner_share_pct: true },
+        select: {
+          partner_share_pct: true,
+          commission_tranche: {
+            where: { status: TrancheStatus.RECEIVED, invoice_item: { is: null } },
+            select: { amount_inr: true },
+          },
+        },
       });
       const subtotal = round2(
         comms.reduce((s, c) => {
           const sharePct = c.partner_share_pct == null ? 100 : num(c.partner_share_pct);
-          return s + round2(num(c.claimable_inr) * (sharePct / 100));
+          const gross = c.commission_tranche.reduce((a, t) => a + num(t.amount_inr), 0);
+          return s + round2(gross * (sharePct / 100));
         }, 0),
       );
       return {
@@ -349,7 +415,9 @@ export const partnerCommissionRouter = createTRPCRouter({
         },
       });
       if (!c) throw new TRPCError({ code: "NOT_FOUND", message: "Commission not found" });
-      const inv = c.invoice_item?.invoice ?? null;
+      // A commission can now span several invoices (one per claimed tranche) —
+      // show the most recent for the detail view.
+      const inv = c.invoice_item.at(-1)?.invoice ?? null;
       return {
         appSubmittedAt: c.application.created_at,
         commissionCreatedAt: c.created_at,

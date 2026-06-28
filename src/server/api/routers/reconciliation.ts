@@ -9,6 +9,7 @@ import { db } from "~/server/db";
 import {
   PartnerInvoiceStatus,
   PayoutStatus,
+  TrancheStatus,
   PAYOUT_METHOD_CODES,
   financialYearOf,
 } from "~/server/db/enums";
@@ -214,7 +215,7 @@ export const reconciliationRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const payout = await db.partner_payout.findUnique({
         where: { id: input.payoutId },
-        include: { invoice: { include: { invoice_item: { select: { commission_id: true } } } } },
+        include: { invoice: { include: { invoice_item: { select: { commission_id: true, commission_tranche_id: true } } } } },
       });
       if (!payout) throw new TRPCError({ code: "NOT_FOUND", message: "Payout not found" });
       if (payout.status !== PayoutStatus.READY_TO_PAY) {
@@ -308,8 +309,26 @@ export const reconciliationRouter = createTRPCRouter({
           where: { id: payout.invoice_id },
           data: { status: PartnerInvoiceStatus.PAID },
         }),
+        // Pay-as-collected: mark the claimed tranches PAID + disbursed.
+        db.commission_tranche.updateMany({
+          where: {
+            id: {
+              in: payout.invoice.invoice_item
+                .map((it) => it.commission_tranche_id)
+                .filter((x): x is number => x != null),
+            },
+          },
+          data: { status: TrancheStatus.PAID, disbursed_at: now },
+        }),
+        // Legacy (pre-tranche) lines mark the commission paid directly.
         db.commission.updateMany({
-          where: { id: { in: payout.invoice.invoice_item.map((it) => it.commission_id) } },
+          where: {
+            id: {
+              in: payout.invoice.invoice_item
+                .filter((it) => it.commission_tranche_id == null)
+                .map((it) => it.commission_id),
+            },
+          },
           data: { partner_paid_at: now },
         }),
         // Audit trail for the deliberate bypass of RazorpayX verification.
@@ -332,6 +351,23 @@ export const reconciliationRouter = createTRPCRouter({
             ]
           : []),
       ]);
+      // A commission is fully disbursed once ALL its tranches are PAID — stamp
+      // partner_paid_at then so downstream "disbursed" derivations stay correct.
+      const trancheCommissionIds = [
+        ...new Set(
+          payout.invoice.invoice_item
+            .filter((it) => it.commission_tranche_id != null)
+            .map((it) => it.commission_id),
+        ),
+      ];
+      for (const cid of trancheCommissionIds) {
+        const pending = await db.commission_tranche.count({
+          where: { commission_id: cid, status: { not: TrancheStatus.PAID } },
+        });
+        if (pending === 0) {
+          await db.commission.update({ where: { id: cid }, data: { partner_paid_at: now } });
+        }
+      }
       return { success: true as const, provider: provider ? { id: provider.id, status: provider.status } : null };
     }),
 

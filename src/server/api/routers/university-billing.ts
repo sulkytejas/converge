@@ -10,6 +10,7 @@ import {
   UniApplicationStatus,
   VendorInvoiceStatus,
   CommissionType,
+  TrancheStatus,
   VARIANCE_REASON_CODES,
   financialYearOf,
   toINR,
@@ -190,6 +191,37 @@ export const universityBillingRouter = createTRPCRouter({
           vendor_id: resolved.vendorId,
         },
       });
+      // Materialize tranche instances from the contract's tranche schedule so the
+      // partner can claim each tranche as CP collects it (pay-as-collected). A
+      // single-payment contract gets one 100% tranche so claimability is uniform.
+      const templates = await db.commission_tranche_template.findMany({
+        where: { contract_id: resolved.contractId },
+        orderBy: { seq: "asc" },
+      });
+      const trancheRows =
+        templates.length > 0
+          ? templates.map((t) => ({
+              commission_id: created.id,
+              seq: t.seq,
+              name: t.name,
+              amount:
+                t.pct != null
+                  ? Math.round(amount * (num(t.pct) / 100) * 100) / 100
+                  : t.amount != null
+                    ? num(t.amount)
+                    : amount,
+              status: TrancheStatus.UPCOMING,
+            }))
+          : [
+              {
+                commission_id: created.id,
+                seq: 1,
+                name: "Full commission",
+                amount,
+                status: TrancheStatus.UPCOMING,
+              },
+            ];
+      await db.commission_tranche.createMany({ data: trancheRows });
       return { commissionId: created.id };
     }),
 
@@ -459,7 +491,15 @@ export const universityBillingRouter = createTRPCRouter({
     .mutation(async ({ input, ctx }) => {
       const inv = await db.vendor_invoice.findUnique({
         where: { id: input.vendorInvoiceId },
-        include: { vendor_invoice_item: { select: { commission_id: true, expected_amount: true } } },
+        include: {
+          vendor_invoice_item: {
+            select: {
+              commission_id: true,
+              expected_amount: true,
+              commission: { select: { commision_amount: true } },
+            },
+          },
+        },
       });
       if (!inv) throw new TRPCError({ code: "NOT_FOUND", message: "Invoice not found" });
       if (inv.status === VendorInvoiceStatus.FULLY_PAID) {
@@ -495,15 +535,36 @@ export const universityBillingRouter = createTRPCRouter({
               : VendorInvoiceStatus.PARTIAL_PAYMENT,
           },
         });
-        // The final payment flips every student on the invoice to RECEIVED —
-        // CP has the money, so the partner can now claim. claimable_inr is the
-        // gross commission in INR; the partner/CP split is applied in P4.
+        // Mark THIS payment's tranche RECEIVED ("Available to Claim") on every
+        // commission on the invoice — the pay-as-collected spine: a partner can
+        // claim a tranche the moment CP collects it. amount_inr is the tranche's
+        // slice of the line's expected amount at the realised rate. (Single-payment
+        // commissions carry one seq=1 tranche.)
+        const now = new Date();
+        const trancheSeq = input.isTranche ? (input.trancheNumber ?? 1) : 1;
+        for (const item of inv.vendor_invoice_item) {
+          const tranche = await tx.commission_tranche.findFirst({
+            where: { commission_id: item.commission_id, seq: trancheSeq },
+            select: { id: true, amount: true },
+          });
+          if (!tranche) continue;
+          const gross = num(item.commission.commision_amount);
+          const fraction = gross > 0 ? num(tranche.amount) / gross : 1;
+          await tx.commission_tranche.update({
+            where: { id: tranche.id },
+            data: {
+              status: TrancheStatus.RECEIVED,
+              received_at: now,
+              amount_inr:
+                Math.round(num(item.expected_amount) * fraction * input.exchangeRate * 100) / 100,
+            },
+          });
+        }
+        // The final payment also stamps the commission-level "fully collected"
+        // marker + full claimable_inr — kept for reporting and the legacy claim
+        // path until Phase 2 wires claiming to tranches.
         if (input.isFinal) {
-          const now = new Date();
           for (const item of inv.vendor_invoice_item) {
-            // Claimable tracks what CP actually expects to collect for that student
-            // (the line's expected amount, net of variance) — not the gross
-            // commission. The partner/CP split is applied later in the payout phase.
             await tx.commission.update({
               where: { id: item.commission_id },
               data: {

@@ -470,21 +470,28 @@ CREATE TABLE IF NOT EXISTS `event` (
 -- invoice_item  (FK -> invoice, commission)
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `invoice_item` (
-  `id`            INT NOT NULL AUTO_INCREMENT,
-  `invoice_id`    INT NOT NULL,
-  `commission_id` INT NOT NULL,
-  `amount`        DECIMAL(12,2) NOT NULL,
-  `created_at`    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `id`                    INT NOT NULL AUTO_INCREMENT,
+  `invoice_id`            INT NOT NULL,
+  `commission_id`         INT NOT NULL,
+  `commission_tranche_id` INT NULL,
+  `amount`                DECIMAL(12,2) NOT NULL,
+  `created_at`            TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   INDEX `fk_invoice_item_invoice1_idx`    (`invoice_id` ASC) VISIBLE,
   INDEX `fk_invoice_item_commission1_idx` (`commission_id` ASC) VISIBLE,
-  UNIQUE INDEX `commission_id_UNIQUE`     (`commission_id` ASC) VISIBLE,
+  INDEX `fk_invoice_item_tranche_idx`     (`commission_tranche_id` ASC) VISIBLE,
+  -- One invoice line per tranche (pay-as-collected); a commission can be invoiced
+  -- once per tranche. NULL tranche = legacy single-invoice rows.
+  UNIQUE INDEX `uq_invoice_item_tranche`  (`commission_tranche_id` ASC) VISIBLE,
   CONSTRAINT `fk_invoice_item_invoice`
     FOREIGN KEY (`invoice_id`) REFERENCES `invoice` (`id`)
     ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `fk_invoice_item_commission`
     FOREIGN KEY (`commission_id`) REFERENCES `commission` (`id`)
-    ON DELETE RESTRICT ON UPDATE CASCADE
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_invoice_item_tranche`
+    FOREIGN KEY (`commission_tranche_id`) REFERENCES `commission_tranche` (`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB;
 
 

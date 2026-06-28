@@ -9,6 +9,7 @@ import { db } from "~/server/db";
 import {
   PartnerInvoiceStatus,
   PayoutStatus,
+  TrancheStatus,
   VendorInvoiceStatus,
   toINR,
 } from "~/server/db/enums";
@@ -146,7 +147,12 @@ export const partnerPayoutsRouter = createTRPCRouter({
         where: { id: input.invoiceId },
         include: {
           partner_payout: { select: { id: true } },
-          invoice_item: { include: { commission: { select: { collegepond_received_at: true } } } },
+          invoice_item: {
+            include: {
+              commission: { select: { collegepond_received_at: true } },
+              commission_tranche: { select: { status: true } },
+            },
+          },
         },
       });
       if (!inv) throw new TRPCError({ code: "NOT_FOUND", message: "Invoice not found" });
@@ -156,13 +162,20 @@ export const partnerPayoutsRouter = createTRPCRouter({
       if (inv.status === PartnerInvoiceStatus.REJECTED || inv.status === PartnerInvoiceStatus.PAID) {
         throw new TRPCError({ code: "BAD_REQUEST", message: "This invoice can't be approved." });
       }
+      // Every claimed line must be collected from the vendor: tranche-based lines
+      // need their tranche RECEIVED; legacy (pre-tranche) lines need the commission's
+      // collegepond_received_at stamp.
       const allVerified =
         inv.invoice_item.length > 0 &&
-        inv.invoice_item.every((it) => it.commission.collegepond_received_at != null);
+        inv.invoice_item.every((it) =>
+          it.commission_tranche != null
+            ? it.commission_tranche.status === TrancheStatus.RECEIVED
+            : it.commission.collegepond_received_at != null,
+        );
       if (!allVerified) {
         throw new TRPCError({
           code: "BAD_REQUEST",
-          message: "Every student must be collected from the vendor before approving.",
+          message: "Every claimed tranche must be collected from the vendor before approving.",
         });
       }
       await db.$transaction([
