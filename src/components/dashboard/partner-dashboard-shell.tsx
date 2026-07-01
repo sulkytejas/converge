@@ -14,6 +14,14 @@ export function PartnerDashboardShell({ children }: { children: ReactNode }) {
   const utils = api.useUtils();
   const logout = api.auth.logout.useMutation();
 
+  // Persistent partner notification feed (counsellor decisions, etc.).
+  const feed = api.partnerNotifications.list.useQuery(undefined, {
+    refetchOnWindowFocus: true,
+  });
+  const markAllRead = api.partnerNotifications.markAllRead.useMutation({
+    onSuccess: () => void utils.partnerNotifications.list.invalidate(),
+  });
+
   const userName =
     `${me.data?.firstName ?? ""} ${me.data?.lastName ?? ""}`.trim() ||
     (me.data?.email ?? "Partner");
@@ -52,6 +60,10 @@ export function PartnerDashboardShell({ children }: { children: ReactNode }) {
         roleLabel="Partner"
         searchPlaceholder="Search students, applications…"
         accountHref="/partner/account"
+        notifications={feed.data?.notifications ?? []}
+        onMarkAllRead={() => {
+          if ((feed.data?.unread ?? 0) > 0) markAllRead.mutate();
+        }}
         onLogout={handleLogout}
       />
       <main className="ml-16 min-h-screen pt-[60px]">

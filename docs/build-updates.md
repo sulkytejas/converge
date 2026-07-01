@@ -5,6 +5,22 @@
 
 ---
 
+## 2026-06-30 — Partners get notified when CP decides on their counsellor (SHIPPED)
+
+**What changed (in plain terms):** When CollegePond **approves or rejects a counsellor** a partner submitted, the partner now gets an **in-app notification** in their portal — a bell alert like *"Nisha Iyer was approved as a counsellor"* (or, if declined, with the reason). No more wondering whether their counsellor got the go-ahead.
+
+**Why it matters:** Closes the loop on counsellor approvals — the partner finds out the moment CP decides, right inside the portal. Per your guidance, this is **in-app only** (email is reserved for genuinely important events).
+
+**Details:**
+- Built a proper **notification system** for partners (a real, stored feed — not a guess), so notifications persist and can be marked read. This is the reusable foundation for future in-app alerts (invoices, payouts, etc.).
+- The partner's **bell icon** now shows unread alerts with a red dot; opening it lists them (green dot = good news, red = declined), and **"Mark all as read"** clears them.
+- Wired into the existing **Counselor Approvals** screen — approving/rejecting a counsellor automatically notifies the partner's owner.
+- Verified in-browser end-to-end: approved a counsellor as admin → the partner's bell showed the alert as unread → "Mark all as read" cleared it.
+
+**Status:** Built and tested in-browser. Includes a small database addition (a notifications table) that will apply automatically on the next production deploy. Not yet deployed.
+
+---
+
 ## 2026-06-30 — Change an application's stage from the Applications list (SHIPPED)
 
 **What changed (in plain terms):** On the admin **Applications** page, you can now **change a student's application stage right from the list** — pick the new stage from a dropdown on the row. Previously the list was read-only and you had to open each student's profile to move their stage.

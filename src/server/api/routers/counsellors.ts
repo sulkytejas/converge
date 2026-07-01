@@ -7,6 +7,7 @@ import {
 } from "~/server/api/trpc";
 import { db } from "~/server/db";
 import { UserStatus, UserType } from "~/server/db/enums";
+import { createNotifications } from "~/server/notify";
 
 // ---------------------------------------------------------------------------
 // Counsellor approvals — agency counsellors (user.type = AGENCY_COUNSELLOR)
@@ -97,7 +98,7 @@ export const counsellorsRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const user = await db.user.findUnique({
         where: { id: input.userId },
-        select: { id: true, type: true },
+        select: { id: true, type: true, org_id: true, first_name: true, last_name: true },
       });
       if (user?.type !== UserType.AGENCY_COUNSELLOR) {
         throw new TRPCError({
@@ -121,6 +122,33 @@ export const counsellorsRouter = createTRPCRouter({
           metadata: { byCpUserId: ctx.cpUser.id, reason: input.reason ?? null },
         },
       });
+
+      // Notify the partner (org owner[s]) of the decision — in-app, not email.
+      if (user.org_id != null) {
+        const owners = await db.user.findMany({
+          where: { org_id: user.org_id, is_owner: 1 },
+          select: { id: true },
+        });
+        const name = `${user.first_name} ${user.last_name}`.trim();
+        const reason = input.reason?.trim();
+        await createNotifications(
+          owners.map((o) => o.id),
+          approved
+            ? {
+                type: "counsellor.approved",
+                title: `${name} was approved as a counsellor`,
+                link: "/partner/counsellors",
+                tone: "green",
+              }
+            : {
+                type: "counsellor.rejected",
+                title: `${name}'s counsellor request was declined`,
+                body: reason ? `Reason: ${reason}` : null,
+                link: "/partner/counsellors",
+                tone: "red",
+              },
+        );
+      }
       return { success: true as const };
     }),
 

@@ -16,6 +16,8 @@ export interface NotificationItem {
   time: string;
   tone: "blue" | "green" | "orange" | "red" | "gray";
   unread?: boolean;
+  /** Optional secondary line under the title (e.g. a rejection reason). */
+  body?: string;
   /** When set, the notification row links to the relevant page on click. */
   href?: string;
 }
@@ -166,6 +168,11 @@ export function Topbar({
                         <div className="text-[13px] leading-snug font-semibold text-[#101828]">
                           {n.title}
                         </div>
+                        {n.body && (
+                          <div className="mt-0.5 text-[12px] leading-snug text-[#475467]">
+                            {n.body}
+                          </div>
+                        )}
                         <div className="mt-1 text-[11px] text-[#98A2B3]">
                           {n.time}
                         </div>
