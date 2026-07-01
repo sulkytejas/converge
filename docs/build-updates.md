@@ -146,3 +146,37 @@
 - *Disbursed* → "✓ Done".
 
 **Status:** Built and tested in-browser (the seeded GEC partner shows Priya = Disbursed, Rahul = Received with the live tranche progress + "Awaiting partner claim"). Not yet deployed to production.
+
+---
+
+## 2026-07-02 — Admin polish batch: bugs, partner/user/student tools, FX reset
+
+A batch of fixes and design-backed features across the admin portal.
+
+**Bug fixes**
+- **Universities:** programs are now **editable in place** (an Edit action re-opens the same form) instead of delete-and-recreate. Added the missing admission fields — **PTE / GRE / GMAT** minimum scores and an **application deadline** — and the expanded university view now shows each program's full requirements, application fee and deadline at a glance.
+- **Uni-Assist:** the per-program **Shortlist** button is now greyed out with a tooltip until a student is selected, so it's clear up front that you must pick a student first (previously it looked active and only nagged after a click).
+
+**Partners** — the Partner Management page now matches the design:
+- **Tier** column + badge (Silver → Diamond) with an inline tier picker.
+- **BDM reassignment** and **PAN** capture (for GST invoices) in a new **detail slide-over** ("View") that shows the partner's full contact/company/relationship info and documents.
+- **Rejection / deactivation reasons are now saved** (previously chosen and thrown away) and shown in a Reason column + the slide-over; deactivation now asks for a reason.
+- Account-lifecycle emails (approve / reject / deactivate / reactivate) are wired to the email provider (dormant until the templates are configured).
+
+**Users**
+- A **Department** field (Management / Finance / Operations / Business Development / Content) and column.
+- **Delete** a staff account — blocked when they're still assigned to partners or students (reassign or deactivate first); you can't delete yourself.
+
+**Students**
+- **Bulk CSV import**: download a template, upload a CSV, see a per-row valid/invalid preview (with clear reasons), and import — duplicates (by email/phone) are skipped and reported.
+
+**Counsellor Approvals**
+- **Approve several pending counsellors at once** via row checkboxes + a select-all and an "Approve N Selected" bar.
+
+**Settings → Exchange Rates**
+- **Reset** a currency's manual override back to the live mid-market rate in one click (shown only when an override is set).
+
+**Navigation**
+- Removed the deprecated **Notes & Reminders** tab from the sidebar.
+
+**Status:** Built and verified in-browser. Committed to the working branch; not yet pushed or deployed.
