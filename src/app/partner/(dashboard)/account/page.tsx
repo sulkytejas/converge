@@ -4,15 +4,29 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { api } from "~/trpc/react";
+import { Button } from "~/components/ui/button";
 
-type TabKey = "profile" | "business" | "documents" | "notifications";
+type TabKey = "profile" | "business" | "bank" | "documents" | "loyalty" | "notifications";
 
 const TAB_LABELS: Record<TabKey, string> = {
   profile: "Profile Information",
   business: "Business Information",
+  bank: "Bank Details",
   documents: "Documents",
+  loyalty: "Loyalty",
   notifications: "Notification Preferences",
 };
+
+// Loyalty tiers — mirrors the Commission page banner/modal (display-only; the
+// actual commission share is the per-commission partner_share_pct in the DB).
+const LOYALTY_TIERS = [
+  { name: "Silver", icon: "🥈", max: 10, share: 70, perks: ["70% Commission Rate", "Standard Application Processing", "Email Support"] },
+  { name: "Gold", icon: "🥇", max: 30, share: 75, perks: ["75% Commission Rate", "Priority Application Processing", "Dedicated Support", "Quarterly Webinars"] },
+  { name: "Platinum", icon: "🏆", max: 50, share: 80, perks: ["80% Commission Rate", "Priority Processing", "Relationship Manager", "Training & Webinars", "Early University Access"] },
+  { name: "Titanium", icon: "⚡", max: 75, share: 85, perks: ["85% Commission Rate", "Priority Processing", "Dedicated Relationship Manager", "Exclusive Training", "Early Access", "Sponsored Events"] },
+  { name: "Diamond", icon: "💎", max: Infinity, share: 90, perks: ["90% Commission Rate", "Priority Application Processing", "Dedicated Relationship Manager", "Exclusive Training & Webinars", "Early Access to New Universities", "Sponsored Events & Fam Trips"] },
+] as const;
+const loyaltyTierFor = (count: number) => LOYALTY_TIERS.find((t) => count <= t.max) ?? LOYALTY_TIERS[LOYALTY_TIERS.length - 1]!;
 
 type DocStatus = "pending" | "approved" | "rejected";
 const DOC_BADGE: Record<DocStatus, { label: string; cls: string }> = {
@@ -145,8 +159,8 @@ export default function PartnerAccountPage() {
   const data = account.data;
   const tabs: TabKey[] =
     data.partnerType === "agency"
-      ? ["profile", "business", "documents", "notifications"]
-      : ["profile", "documents", "notifications"];
+      ? ["profile", "business", "bank", "documents", "loyalty", "notifications"]
+      : ["profile", "bank", "documents", "loyalty", "notifications"];
 
   const handlePhotoSelect = async (file: File) => {
     if (!["image/jpeg", "image/png"].includes(file.type)) {
@@ -412,6 +426,10 @@ export default function PartnerAccountPage() {
         </div>
       )}
 
+      {tab === "bank" && <BankDetailsTab onToast={showToast} />}
+
+      {tab === "loyalty" && <LoyaltyTab />}
+
       {tab === "documents" && (
         <div className="rounded-2xl border border-[#E4E7EC] bg-white p-7">
           <div className="mb-4">
@@ -601,6 +619,215 @@ export default function PartnerAccountPage() {
         </div>
       )}
     </>
+  );
+}
+
+// Bank Details tab — the partner's payout account, sourced from our own
+// partner_bank_account store (entered in the invoice wizard, encrypted at rest).
+// This is NOT RazorpayX data; RazorpayX consumes this account for payouts.
+const BANK_INPUT =
+  "rounded-lg border border-[#D0D5DD] px-3.5 py-2.5 text-sm text-[#101828] outline-none transition-all focus:border-[#1570EF] focus:shadow-[0_0_0_3px_rgba(21,112,239,0.1)]";
+
+function BankDetailsTab({ onToast }: { onToast: (m: string) => void }) {
+  const utils = api.useUtils();
+  const bankQ = api.partnerCommission.bankAccount.useQuery();
+  const bank = bankQ.data;
+  const [editing, setEditing] = useState(false);
+  const [form, setForm] = useState({
+    accountHolder: "", accountNumber: "", ifsc: "", swift: "",
+    bankName: "", branch: "", accountType: "Current Account",
+  });
+  const [err, setErr] = useState("");
+  const save = api.partnerCommission.saveBankAccount.useMutation({
+    onSuccess: async () => {
+      await utils.partnerCommission.bankAccount.invalidate();
+      setEditing(false);
+      setForm((f) => ({ ...f, accountNumber: "" }));
+      onToast("Bank details saved");
+    },
+    onError: (e) => setErr(e.message),
+  });
+
+  const startEdit = () => {
+    setErr("");
+    setForm({
+      accountHolder: bank?.accountHolder ?? "",
+      accountNumber: "",
+      ifsc: bank?.ifsc ?? "",
+      swift: bank?.swift ?? "",
+      bankName: bank?.bankName ?? "",
+      branch: bank?.branch ?? "",
+      accountType: bank?.accountType ?? "Current Account",
+    });
+    setEditing(true);
+  };
+  const set = (k: keyof typeof form, v: string) => setForm((f) => ({ ...f, [k]: v }));
+  const submit = () => {
+    setErr("");
+    if (!form.accountHolder.trim()) return setErr("Account holder name is required");
+    if (!form.accountNumber.trim()) return setErr("Enter the account number to save");
+    save.mutate({
+      accountHolder: form.accountHolder.trim(),
+      accountNumber: form.accountNumber.trim(),
+      ifsc: form.ifsc || undefined,
+      swift: form.swift || undefined,
+      bankName: form.bankName || undefined,
+      branch: form.branch || undefined,
+      accountType: form.accountType || undefined,
+    });
+  };
+
+  if (bankQ.isLoading) {
+    return <div className="rounded-2xl border border-[#E4E7EC] bg-white p-7 text-sm text-[#667085]">Loading bank details…</div>;
+  }
+
+  const Row = ({ label, value }: { label: string; value: string }) => (
+    <div>
+      <div className="text-xs font-medium tracking-wide text-[#98A2B3] uppercase">{label}</div>
+      <div className="mt-0.5 text-sm font-medium text-[#101828]">{value || "—"}</div>
+    </div>
+  );
+
+  return (
+    <div className="rounded-2xl border border-[#E4E7EC] bg-white p-7">
+      <div className="mb-5 flex items-start justify-between gap-3">
+        <div>
+          <h3 className="text-base font-semibold text-[#101828]">Bank Details</h3>
+          <p className="mt-1 text-xs text-[#667085]">
+            The account CollegePond pays your commission into. 🔒 Stored encrypted — only the last 4 digits are shown back.
+          </p>
+        </div>
+        {!editing && (
+          <button
+            type="button"
+            onClick={startEdit}
+            className="shrink-0 rounded-lg border border-[#D0D5DD] bg-white px-3.5 py-2 text-xs font-semibold text-[#344054] transition-colors hover:bg-[#F9FAFB]"
+          >
+            {bank?.hasAccount ? "Update" : "Add bank account"}
+          </button>
+        )}
+      </div>
+
+      {!editing ? (
+        bank?.hasAccount ? (
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+            <Row label="Account Holder" value={bank.accountHolder ?? ""} />
+            <Row label="Account Number" value={bank.accountNumberLast4 ? `•••• ${bank.accountNumberLast4}` : ""} />
+            <Row label="Bank Name" value={bank.bankName ?? ""} />
+            <Row label="Branch" value={bank.branch ?? ""} />
+            <Row label="IFSC" value={bank.ifsc ?? ""} />
+            <Row label="SWIFT" value={bank.swift ?? ""} />
+            <Row label="Account Type" value={bank.accountType ?? ""} />
+          </div>
+        ) : (
+          <div className="rounded-lg border border-dashed border-[#D0D5DD] py-10 text-center text-sm text-[#98A2B3]">
+            No bank account on file yet. Add one so CollegePond can pay your commission.
+          </div>
+        )
+      ) : (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field label="Account Holder" required>
+              <input className={BANK_INPUT} value={form.accountHolder} onChange={(e) => set("accountHolder", e.target.value)} />
+            </Field>
+            <Field label={bank?.hasAccount ? "Account Number (re-enter to update)" : "Account Number"} required>
+              <input className={BANK_INPUT} value={form.accountNumber} onChange={(e) => set("accountNumber", e.target.value)} placeholder={bank?.accountNumberLast4 ? `•••• ${bank.accountNumberLast4}` : ""} />
+            </Field>
+            <Field label="Bank Name">
+              <input className={BANK_INPUT} value={form.bankName} onChange={(e) => set("bankName", e.target.value)} />
+            </Field>
+            <Field label="Branch">
+              <input className={BANK_INPUT} value={form.branch} onChange={(e) => set("branch", e.target.value)} />
+            </Field>
+            <Field label="IFSC">
+              <input className={BANK_INPUT} value={form.ifsc} onChange={(e) => set("ifsc", e.target.value)} />
+            </Field>
+            <Field label="SWIFT (international)">
+              <input className={BANK_INPUT} value={form.swift} onChange={(e) => set("swift", e.target.value)} />
+            </Field>
+            <Field label="Account Type">
+              <select className={BANK_INPUT} value={form.accountType} onChange={(e) => set("accountType", e.target.value)}>
+                <option value="Current Account">Current Account</option>
+                <option value="Savings Account">Savings Account</option>
+              </select>
+            </Field>
+          </div>
+          {err && <p className="text-xs font-medium text-[#F04438]">{err}</p>}
+          <div className="flex items-center gap-3">
+            <Button onClick={submit} loading={save.isPending}>Save Bank Details</Button>
+            <button
+              type="button"
+              onClick={() => { setEditing(false); setErr(""); }}
+              className="rounded-lg border border-[#D0D5DD] bg-white px-4 py-2 text-sm font-semibold text-[#344054] transition-colors hover:bg-[#F9FAFB]"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Loyalty tab — current tier (from this FY's enrolled-student count) + the full
+// tier ladder with benefits. Same data as the Commission page banner/modal.
+function LoyaltyTab() {
+  const yearlyQ = api.partnerCommission.yearlyStats.useQuery();
+  const [show, setShow] = useState<string | null>(null);
+
+  const yearly = yearlyQ.data ?? [];
+  const thisYearCount = yearly.length > 0 ? yearly[yearly.length - 1]!.students : 0;
+  const tier = loyaltyTierFor(thisYearCount);
+  const tierIdx = LOYALTY_TIERS.indexOf(tier);
+  const nextTier = LOYALTY_TIERS[tierIdx + 1] ?? null;
+  const shown = LOYALTY_TIERS.find((t) => t.name === (show ?? tier.name)) ?? tier;
+
+  return (
+    <div className="rounded-2xl border border-[#E4E7EC] bg-white p-7">
+      {/* Current tier banner */}
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#E9D7FE] bg-gradient-to-r from-[#F4F3FF] to-[#FFFFFF] px-5 py-4">
+        <div className="flex items-center gap-3">
+          <span className="text-3xl">{tier.icon}</span>
+          <div>
+            <div className="text-sm font-bold text-[#101828]">Your Current Tier — {tier.name} · {tier.share}% Commission</div>
+            <div className="text-xs text-[#667085]">
+              {thisYearCount} student{thisYearCount === 1 ? "" : "s"} this year
+              {nextTier ? ` · ${Math.max(0, nextTier.max - thisYearCount + 1)} more to reach ${nextTier.name}` : " · You've reached the top tier!"}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Tier ladder */}
+      <div className="mt-5 grid grid-cols-5 gap-2">
+        {LOYALTY_TIERS.map((t) => {
+          const active = shown.name === t.name;
+          return (
+            <button
+              key={t.name}
+              onClick={() => setShow(t.name)}
+              className={`rounded-lg border p-2 text-center transition ${active ? "border-[#1570EF] bg-[#EFF8FF]" : "border-[#E4E7EC] hover:bg-[#F9FAFB]"}`}
+            >
+              <div className="text-xl">{t.icon}</div>
+              <div className="text-xs font-bold text-[#101828]">{t.name}</div>
+              <div className="text-[10px] text-[#667085]">{t.share}%</div>
+              {t.name === tier.name && <div className="mt-0.5 text-[9px] font-semibold text-[#1570EF]">CURRENT</div>}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Benefits of the selected tier */}
+      <div className="mt-4 rounded-lg border border-[#E4E7EC] p-4">
+        <div className="mb-2 text-sm font-bold text-[#101828]">{shown.icon} {shown.name} Tier Benefits</div>
+        <ul className="space-y-1.5">
+          {shown.perks.map((p) => (
+            <li key={p} className="flex items-center gap-2 text-sm text-[#344054]"><span className="text-[#12B76A]">✓</span> {p}</li>
+          ))}
+        </ul>
+        <p className="mt-3 text-[11px] text-[#98A2B3]">Tiers are based on students enrolled per financial year; targets reset on April 1, with a one-tier grace buffer.</p>
+      </div>
+    </div>
   );
 }
 

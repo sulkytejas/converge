@@ -5,6 +5,23 @@
 
 ---
 
+## 2026-06-30 — Partner portal: Bank Details + Loyalty tabs in My Account (SHIPPED)
+
+**What changed (in plain terms):** Two new tabs in the partner's **My Account**:
+- **Bank Details** — the partner can now view and update the account CollegePond pays their commission into, right from their account page (previously only reachable buried inside the invoice wizard). The account number is masked (only the last 4 digits show) and stored encrypted.
+- **Loyalty** — the partner's current tier, progress to the next tier, and the full tier ladder with benefits, all in one place (previously only a small banner on the Commission page).
+
+**Why it matters:** Rounds out the partner's self-service portal — they can manage their payout account and see their loyalty standing without hunting for it.
+
+**Also decided this round (not built, on purpose):**
+- **MOU signature saving — dropped.** A drawn/typed signature stored in our database is **not legally binding** under Indian law; a valid e-signature needs a licensed provider (Leegality / Digio / eMudhra Aadhaar eSign) with identity verification and a tamper-evident audit trail. Real e-signature is a separate integration (later phase), so we did not build a "signature" that only *looks* official.
+- **WhatsApp profile field — skipped** for now.
+- **Pipeline "kanban" board — prototype first.** A kanban isn't literally in the original mockups, so we'll review a prototype before building it.
+
+**Status:** Bank Details + Loyalty built and tested in-browser. Not yet deployed.
+
+---
+
 ## 2026-06-30 — Admin settings now actually save (to the database) (SHIPPED)
 
 **What changed (in plain terms):** The admin **Settings** page (company name, default currency, academic-year start month, date format, time zone, and the notification toggles) previously saved only inside that one browser — so the settings didn't really persist and weren't shared across devices or users. They now **save to the database**, properly and for everyone.
