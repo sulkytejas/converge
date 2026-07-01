@@ -148,12 +148,16 @@ model course {
   ielts                        Decimal?          @db.Decimal(3, 1)
   // DB column renamed to `duolingo`; Prisma field kept as `det` via @map.
   det                          Int?              @map("duolingo") @db.UnsignedSmallInt
+  pte                          Decimal?          @db.Decimal(4, 1)
+  gre                          Int?              @db.SmallInt
+  gmat                         Int?              @db.SmallInt
   is_stem                      Int?              @db.TinyInt
   intake_month                 String?           @db.VarChar(50)
   intake_year                  Int?              @db.UnsignedSmallInt
   is_coop_available            Int?              @db.TinyInt
   has_app_fee_waiver           Int?              @db.TinyInt
   app_fee                      Decimal?          @db.Decimal(7, 2)
+  application_deadline         DateTime?         @db.Date
   has_tuition_deposit          Int               @default(0) @db.TinyInt
   has_scholarship              Int               @default(0) @db.TinyInt
   scholarship_amount           Decimal?          @db.Decimal(12, 2)

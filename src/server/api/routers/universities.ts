@@ -55,12 +55,16 @@ const courseInput = z.object({
   toefl: z.number().nonnegative().nullable().optional(),
   ielts: z.number().nonnegative().nullable().optional(),
   det: z.number().int().nonnegative().nullable().optional(),
+  pte: z.number().nonnegative().nullable().optional(),
+  gre: z.number().int().nonnegative().nullable().optional(),
+  gmat: z.number().int().nonnegative().nullable().optional(),
   isStem: z.boolean().default(false),
   intakeMonth: z.string().trim().max(50).nullable().optional(),
   intakeYear: z.number().int().min(2000).max(2099).nullable().optional(),
   isCoopAvailable: z.boolean().default(false),
   hasAppFeeWaiver: z.boolean().default(false),
   appFee: z.number().nonnegative().nullable().optional(),
+  applicationDeadline: z.string().trim().nullable().optional(),
   hasTuitionDeposit: z.boolean().default(false),
   hasScholarship: z.boolean().default(false),
   scholarshipAmount: z.number().nonnegative().nullable().optional(),
@@ -141,12 +145,16 @@ function toCourseApi(c: {
   toefl: { toNumber: () => number } | null;
   ielts: { toNumber: () => number } | null;
   det: number | null;
+  pte: { toNumber: () => number } | null;
+  gre: number | null;
+  gmat: number | null;
   is_stem: number | null;
   intake_month: string | null;
   intake_year: number | null;
   is_coop_available: number | null;
   has_app_fee_waiver: number | null;
   app_fee: { toNumber: () => number } | null;
+  application_deadline: Date | null;
   has_tuition_deposit: number;
   has_scholarship: number;
   scholarship_amount: { toNumber: () => number } | null;
@@ -175,12 +183,18 @@ function toCourseApi(c: {
     toefl: c.toefl?.toNumber() ?? null,
     ielts: c.ielts?.toNumber() ?? null,
     det: c.det,
+    pte: c.pte?.toNumber() ?? null,
+    gre: c.gre,
+    gmat: c.gmat,
     isStem: c.is_stem === 1,
     intakeMonth: c.intake_month,
     intakeYear: c.intake_year,
     isCoopAvailable: c.is_coop_available === 1,
     hasAppFeeWaiver: c.has_app_fee_waiver === 1,
     appFee: c.app_fee?.toNumber() ?? null,
+    applicationDeadline: c.application_deadline
+      ? c.application_deadline.toISOString().slice(0, 10)
+      : null,
     hasTuitionDeposit: c.has_tuition_deposit === 1,
     hasScholarship: c.has_scholarship === 1,
     scholarshipAmount: c.scholarship_amount?.toNumber() ?? null,
@@ -345,12 +359,16 @@ export const universitiesRouter = createTRPCRouter({
           toefl: input.toefl ?? null,
           ielts: input.ielts ?? null,
           det: input.det ?? null,
+          pte: input.pte ?? null,
+          gre: input.gre ?? null,
+          gmat: input.gmat ?? null,
           is_stem: bool(input.isStem),
           intake_month: input.intakeMonth ?? null,
           intake_year: input.intakeYear ?? null,
           is_coop_available: bool(input.isCoopAvailable),
           has_app_fee_waiver: bool(input.hasAppFeeWaiver),
           app_fee: input.appFee ?? null,
+          application_deadline: input.applicationDeadline ? new Date(input.applicationDeadline) : null,
           has_tuition_deposit: bool(input.hasTuitionDeposit),
           has_scholarship: bool(input.hasScholarship),
           scholarship_amount: input.scholarshipAmount ?? null,
@@ -371,6 +389,57 @@ export const universitiesRouter = createTRPCRouter({
         },
       });
       return toCourseApi(created);
+    }),
+
+  // Edit an existing program. Same fields as create (university is fixed).
+  updateCourse: protectedAdminProcedure
+    .input(courseInput.extend({ id: z.number().int().positive() }))
+    .mutation(async ({ ctx, input }) => {
+      const existing = await ctx.db.course.findUnique({
+        where: { id: input.id },
+        select: { id: true },
+      });
+      if (!existing) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Program not found" });
+      }
+      const updated = await ctx.db.course.update({
+        where: { id: input.id },
+        data: {
+          name: input.name,
+          code: input.code,
+          degree_level: input.degreeLevel,
+          duration_months: input.durationMonths,
+          tuition_fee: input.tuitionFee,
+          currency: input.currency,
+          is_open: bool(input.isOpen),
+          url: input.url,
+          toefl: input.toefl ?? null,
+          ielts: input.ielts ?? null,
+          det: input.det ?? null,
+          pte: input.pte ?? null,
+          gre: input.gre ?? null,
+          gmat: input.gmat ?? null,
+          is_stem: bool(input.isStem),
+          intake_month: input.intakeMonth ?? null,
+          intake_year: input.intakeYear ?? null,
+          is_coop_available: bool(input.isCoopAvailable),
+          has_app_fee_waiver: bool(input.hasAppFeeWaiver),
+          app_fee: input.appFee ?? null,
+          application_deadline: input.applicationDeadline ? new Date(input.applicationDeadline) : null,
+          has_tuition_deposit: bool(input.hasTuitionDeposit),
+          has_scholarship: bool(input.hasScholarship),
+          scholarship_amount: input.scholarshipAmount ?? null,
+          min_entry_requirements: input.minEntryRequirements ?? null,
+          min_entry_requirements_scale: input.minEntryRequirementsScale ?? null,
+          has_faster_tat: bool(input.hasFasterTat),
+        },
+        include: {
+          university: {
+            select: { id: true, name: true, country: true, city: true, logo_url: true },
+          },
+        },
+      });
+      return toCourseApi(updated);
     }),
 
   // -------------------------------------------------------------------------

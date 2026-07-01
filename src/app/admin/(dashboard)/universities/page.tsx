@@ -146,12 +146,16 @@ interface CourseFormState {
   toefl: string;
   ielts: string;
   det: string;
+  pte: string;
+  gre: string;
+  gmat: string;
   isStem: boolean;
   intakeMonth: string;
   intakeYear: string;
   isCoopAvailable: boolean;
   hasAppFeeWaiver: boolean;
   appFee: string;
+  applicationDeadline: string;
   hasTuitionDeposit: boolean;
   hasScholarship: boolean;
   scholarshipAmount: string;
@@ -173,12 +177,16 @@ const emptyCourseForm = (): CourseFormState => ({
   toefl: "",
   ielts: "",
   det: "",
+  pte: "",
+  gre: "",
+  gmat: "",
   isStem: false,
   intakeMonth: "",
   intakeYear: "",
   isCoopAvailable: false,
   hasAppFeeWaiver: false,
   appFee: "",
+  applicationDeadline: "",
   hasTuitionDeposit: false,
   hasScholarship: false,
   scholarshipAmount: "",
@@ -226,6 +234,7 @@ export default function AdminUniversitiesPage() {
     editing: null,
   });
   const [courseModalOpen, setCourseModalOpen] = useState(false);
+  const [editingCourseId, setEditingCourseId] = useState<number | null>(null);
   const [uniForm, setUniForm] = useState<UniFormState>(emptyUniForm());
   const [courseForm, setCourseForm] = useState<CourseFormState>(emptyCourseForm());
   const [uniErrors, setUniErrors] = useState<Record<string, string>>({});
@@ -282,6 +291,17 @@ export default function AdminUniversitiesPage() {
       setCourseModalOpen(false);
       setCourseForm(emptyCourseForm());
       showToast("Program created");
+    },
+    onError: (err) => setCourseErrors({ form: err.message }),
+  });
+
+  const updateCourse = api.universities.updateCourse.useMutation({
+    onSuccess: () => {
+      void utils.universities.listCourses.invalidate();
+      setCourseModalOpen(false);
+      setEditingCourseId(null);
+      setCourseForm(emptyCourseForm());
+      showToast("Program updated");
     },
     onError: (err) => setCourseErrors({ form: err.message }),
   });
@@ -400,6 +420,7 @@ export default function AdminUniversitiesPage() {
   }
 
   function openAddCourse() {
+    setEditingCourseId(null);
     setCourseForm(emptyCourseForm());
     setCourseErrors({});
     setCourseModalOpen(true);
@@ -457,7 +478,7 @@ export default function AdminUniversitiesPage() {
     if (!url) errs.url = "Program URL is required";
     setCourseErrors(errs);
     if (Object.keys(errs).length) return;
-    createCourse.mutate({
+    const payload = {
       universityId: Number(courseForm.universityId),
       name: courseForm.name.trim(),
       code: courseForm.code.trim() || null,
@@ -470,12 +491,16 @@ export default function AdminUniversitiesPage() {
       toefl: numOrNull(courseForm.toefl),
       ielts: numOrNull(courseForm.ielts),
       det: intOrNull(courseForm.det),
+      pte: numOrNull(courseForm.pte),
+      gre: intOrNull(courseForm.gre),
+      gmat: intOrNull(courseForm.gmat),
       isStem: courseForm.isStem,
       intakeMonth: courseForm.intakeMonth.trim() || null,
       intakeYear: intOrNull(courseForm.intakeYear),
       isCoopAvailable: courseForm.isCoopAvailable,
       hasAppFeeWaiver: courseForm.hasAppFeeWaiver,
       appFee: numOrNull(courseForm.appFee),
+      applicationDeadline: courseForm.applicationDeadline.trim() || null,
       hasTuitionDeposit: courseForm.hasTuitionDeposit,
       hasScholarship: courseForm.hasScholarship,
       scholarshipAmount: numOrNull(courseForm.scholarshipAmount),
@@ -483,7 +508,49 @@ export default function AdminUniversitiesPage() {
       minEntryRequirementsScale:
         courseForm.minEntryRequirementsScale.trim() || null,
       hasFasterTat: courseForm.hasFasterTat,
+    };
+    if (editingCourseId != null) {
+      updateCourse.mutate({ ...payload, id: editingCourseId });
+    } else {
+      createCourse.mutate(payload);
+    }
+  }
+
+  // Open the course modal pre-filled for editing an existing program.
+  function openEditCourse(c: CourseRow) {
+    setEditingCourseId(c.id);
+    setCourseErrors({});
+    setCourseForm({
+      universityId: String(c.universityId),
+      name: c.name ?? "",
+      code: c.code ?? "",
+      degreeLevel: c.degreeLevel == null ? "" : String(c.degreeLevel),
+      durationMonths: c.durationMonths == null ? "" : String(c.durationMonths),
+      tuitionFee: c.tuitionFee == null ? "" : String(c.tuitionFee),
+      currency: c.currency ?? "USD",
+      isOpen: c.isOpen,
+      url: c.url ?? "",
+      toefl: c.toefl == null ? "" : String(c.toefl),
+      ielts: c.ielts == null ? "" : String(c.ielts),
+      det: c.det == null ? "" : String(c.det),
+      pte: c.pte == null ? "" : String(c.pte),
+      gre: c.gre == null ? "" : String(c.gre),
+      gmat: c.gmat == null ? "" : String(c.gmat),
+      isStem: c.isStem,
+      intakeMonth: c.intakeMonth ?? "",
+      intakeYear: c.intakeYear == null ? "" : String(c.intakeYear),
+      isCoopAvailable: c.isCoopAvailable,
+      hasAppFeeWaiver: c.hasAppFeeWaiver,
+      appFee: c.appFee == null ? "" : String(c.appFee),
+      applicationDeadline: c.applicationDeadline ?? "",
+      hasTuitionDeposit: c.hasTuitionDeposit,
+      hasScholarship: c.hasScholarship,
+      scholarshipAmount: c.scholarshipAmount == null ? "" : String(c.scholarshipAmount),
+      minEntryRequirements: c.minEntryRequirements ?? "",
+      minEntryRequirementsScale: c.minEntryRequirementsScale ?? "",
+      hasFasterTat: c.hasFasterTat,
     });
+    setCourseModalOpen(true);
   }
 
   function toggleExpand(id: number) {
@@ -721,6 +788,7 @@ export default function AdminUniversitiesPage() {
           rows={filteredCourses}
           totalRows={allCourses.length}
           error={courses.error?.message}
+          onEdit={openEditCourse}
           onDelete={(id) => {
             if (!confirm("Delete this program? This cannot be undone.")) return;
             deleteCourse.mutate({ id });
@@ -862,10 +930,10 @@ export default function AdminUniversitiesPage() {
         {uniErrors.form && <ErrorBanner message={uniErrors.form} />}
       </Modal>
 
-      {/* Add Program modal */}
+      {/* Add / Edit Program modal */}
       <Modal
         open={courseModalOpen}
-        title="Add Program"
+        title={editingCourseId != null ? "Edit Program" : "Add Program"}
         onClose={() => setCourseModalOpen(false)}
         width="w-[640px]"
         footer={
@@ -879,10 +947,10 @@ export default function AdminUniversitiesPage() {
             </Button>
             <Button
               onClick={handleSubmitCourse}
-              loading={createCourse.isPending}
+              loading={createCourse.isPending || updateCourse.isPending}
               className="!h-[38px] !px-4"
             >
-              Save Program
+              {editingCourseId != null ? "Update Program" : "Save Program"}
             </Button>
           </>
         }
@@ -973,6 +1041,14 @@ export default function AdminUniversitiesPage() {
             value={courseForm.appFee}
             onChange={(e) => setCourseForm({ ...courseForm, appFee: e.target.value })}
           />
+          <FormInput
+            label="Application Deadline"
+            type="date"
+            value={courseForm.applicationDeadline}
+            onChange={(e) =>
+              setCourseForm({ ...courseForm, applicationDeadline: e.target.value })
+            }
+          />
         </div>
 
         <SectionDivider label="Intake" />
@@ -1018,6 +1094,27 @@ export default function AdminUniversitiesPage() {
             placeholder="10–160"
             value={courseForm.det}
             onChange={(e) => setCourseForm({ ...courseForm, det: e.target.value })}
+          />
+          <FormInput
+            label="PTE"
+            type="number"
+            placeholder="10–90"
+            value={courseForm.pte}
+            onChange={(e) => setCourseForm({ ...courseForm, pte: e.target.value })}
+          />
+          <FormInput
+            label="GRE"
+            type="number"
+            placeholder="260–340"
+            value={courseForm.gre}
+            onChange={(e) => setCourseForm({ ...courseForm, gre: e.target.value })}
+          />
+          <FormInput
+            label="GMAT"
+            type="number"
+            placeholder="200–800"
+            value={courseForm.gmat}
+            onChange={(e) => setCourseForm({ ...courseForm, gmat: e.target.value })}
           />
         </div>
         <div className="grid grid-cols-2 gap-3">
@@ -1310,16 +1407,24 @@ function UniversitiesCard({
                           <table className="w-full">
                             <thead>
                               <tr>
-                                {["Program", "Code", "Level", "Duration", "Tuition", "Intake"].map(
-                                  (h) => (
-                                    <th
-                                      key={h}
-                                      className="border-b border-[#E4E7EC] bg-white px-2.5 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-[#667085]"
-                                    >
-                                      {h}
-                                    </th>
-                                  ),
-                                )}
+                                {[
+                                  "Program",
+                                  "Code",
+                                  "Level",
+                                  "Duration",
+                                  "Tuition",
+                                  "Intake",
+                                  "Requirements",
+                                  "App Fee",
+                                  "Deadline",
+                                ].map((h) => (
+                                  <th
+                                    key={h}
+                                    className="border-b border-[#E4E7EC] bg-white px-2.5 py-2 text-left text-[11px] font-semibold uppercase tracking-wider text-[#667085]"
+                                  >
+                                    {h}
+                                  </th>
+                                ))}
                               </tr>
                             </thead>
                             <tbody>
@@ -1346,6 +1451,17 @@ function UniversitiesCard({
                                     {[p.intakeMonth, p.intakeYear].filter(Boolean).join(" ") ||
                                       "—"}
                                   </td>
+                                  <td className="px-2.5 py-2">
+                                    <ProgramRequirements c={p} />
+                                  </td>
+                                  <td className="px-2.5 py-2 text-xs text-[#475467]">
+                                    {p.appFee !== null
+                                      ? `${p.currency ?? ""} ${p.appFee.toLocaleString()}`
+                                      : "—"}
+                                  </td>
+                                  <td className="px-2.5 py-2 text-xs text-[#475467]">
+                                    {formatDeadline(p.applicationDeadline)}
+                                  </td>
                                 </tr>
                               ))}
                             </tbody>
@@ -1371,6 +1487,45 @@ function FragmentRow({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+// Compact admission-requirement pills (IELTS/TOEFL/PTE/DET/GRE/GMAT). Only
+// tests with a stored minimum score are shown; "—" when none are set.
+function ProgramRequirements({ c }: { c: CourseRow }) {
+  const reqs: string[] = [];
+  if (c.ielts !== null) reqs.push(`IELTS ${c.ielts}`);
+  if (c.toefl !== null) reqs.push(`TOEFL ${c.toefl}`);
+  if (c.pte !== null) reqs.push(`PTE ${c.pte}`);
+  if (c.det !== null) reqs.push(`DET ${c.det}`);
+  if (c.gre !== null) reqs.push(`GRE ${c.gre}`);
+  if (c.gmat !== null) reqs.push(`GMAT ${c.gmat}`);
+  if (reqs.length === 0) {
+    return <span className="text-xs text-[#98A2B3]">—</span>;
+  }
+  return (
+    <div className="flex flex-wrap gap-1">
+      {reqs.map((r) => (
+        <span
+          key={r}
+          className="inline-flex items-center rounded-md bg-[#EFF8FF] px-1.5 py-0.5 text-[10px] font-semibold text-[#175CD3]"
+        >
+          {r}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+// ISO date (yyyy-mm-dd) → "12 Jan 2026"; "—" when unset.
+function formatDeadline(iso: string | null): string {
+  if (!iso) return "—";
+  const d = new Date(`${iso}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
+
 // ----- Programs table card ------------------------------------------------
 
 function ProgramsCard({
@@ -1378,12 +1533,14 @@ function ProgramsCard({
   rows,
   totalRows,
   error,
+  onEdit,
   onDelete,
 }: {
   isLoading: boolean;
   rows: CourseRow[];
   totalRows: number;
   error?: string;
+  onEdit: (c: CourseRow) => void;
   onDelete: (id: number) => void;
 }) {
   return (
@@ -1449,13 +1606,22 @@ function ProgramsCard({
                   />
                 </Td>
                 <Td right>
-                  <button
-                    type="button"
-                    onClick={() => onDelete(c.id)}
-                    className="cursor-pointer rounded px-2 py-1 text-xs font-semibold text-[#F04438] hover:bg-[#FEF3F2]"
-                  >
-                    Delete
-                  </button>
+                  <div className="flex items-center justify-end gap-1">
+                    <button
+                      type="button"
+                      onClick={() => onEdit(c)}
+                      className="cursor-pointer rounded px-2 py-1 text-xs font-semibold text-[#475467] hover:bg-[#F2F4F7]"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onDelete(c.id)}
+                      className="cursor-pointer rounded px-2 py-1 text-xs font-semibold text-[#F04438] hover:bg-[#FEF3F2]"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </Td>
               </tr>
             ))}
