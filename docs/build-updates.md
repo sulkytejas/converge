@@ -5,6 +5,25 @@
 
 ---
 
+## 2026-06-30 — WhatsApp chat with students, inside the student profile (BUILT)
+
+**What changed (in plain terms):** Every student profile now has a **Chat tab** that's a real **WhatsApp conversation** with that student — powered by **Periskope**. Counsellors type a message in the app and it goes out on WhatsApp; the student's replies come back and appear in the same thread, WhatsApp-style (their messages on the left, ours on the right, with timestamps and a "delivered" status).
+
+**Why it matters:** Counsellors talk to students where students actually are — WhatsApp — without leaving the CRM, and the whole conversation is on record against the student.
+
+**How it works under the hood:**
+- Outgoing messages are sent through Periskope's API and saved to the conversation instantly.
+- Incoming replies arrive via a secure webhook (`/api/v1/webhooks/whatsapp`) — every request is signature-verified before we trust it — and are matched to the right student by phone number.
+- The thread auto-refreshes so replies show up without a reload.
+
+**To go live (your side):**
+- Add `PERISKOPE_PHONE=919867318381` to `.env` (the connected sender number "Suraj").
+- The webhook is already at the URL you registered in Periskope. Once deployed, send a test message from a student profile and reply from the phone to confirm the round-trip.
+
+**Status:** Fully built; the chat UI is verified in-browser with sample messages. The live send/receive round-trip needs your real keys on a deployed URL (webhooks can't reach localhost). Not yet deployed.
+
+---
+
 ## 2026-06-30 — Applications list: "Quick look" drawer + clickable names (SHIPPED)
 
 **What changed (in plain terms):** On the admin **Applications** page:

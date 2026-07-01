@@ -16,6 +16,7 @@ import {
   studentName,
 } from "../lib";
 import { ApplicationTab } from "./application-tab";
+import { ChatTab } from "./chat-tab";
 import { DocumentsTab } from "./documents-tab";
 import { ProfileTab } from "./profile-tab";
 import { SummaryTab } from "./summary-tab";
@@ -171,10 +172,7 @@ export default function StudentProfilePage() {
                 <DocumentsTab student={student} onToast={showToast} />
               )}
               {tab === "chat" && (
-                <PlaceholderTab
-                  title="Chat is coming soon"
-                  description="Conversations between Collegepond counselors and this student will appear here."
-                />
+                <ChatTab studentId={Number(student.id)} onToast={showToast} />
               )}
               {tab === "summary" && <SummaryTab student={student} />}
               </motion.div>
@@ -208,21 +206,6 @@ function HeroMeta({
       {icon}
       <span className="truncate">{children}</span>
     </span>
-  );
-}
-
-function PlaceholderTab({
-  title,
-  description,
-}: {
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="rounded-[14px] border border-dashed border-[#D0D5DD] bg-white px-6 py-14 text-center">
-      <div className="text-sm font-semibold text-[#667085]">{title}</div>
-      <div className="mt-1 text-xs text-[#98A2B3]">{description}</div>
-    </div>
   );
 }
 

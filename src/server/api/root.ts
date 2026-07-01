@@ -23,6 +23,7 @@ import { bdmRouter } from "~/server/api/routers/bdm";
 import { fxRouter } from "~/server/api/routers/fx";
 import { notificationsRouter } from "~/server/api/routers/notifications";
 import { partnerNotificationsRouter } from "~/server/api/routers/partner-notifications";
+import { chatRouter } from "~/server/api/routers/chat";
 import { applicationsRouter } from "~/server/api/routers/applications";
 import { notesRouter } from "~/server/api/routers/notes";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
@@ -52,6 +53,7 @@ export const appRouter = createTRPCRouter({
   fx: fxRouter,
   notifications: notificationsRouter,
   partnerNotifications: partnerNotificationsRouter,
+  chat: chatRouter,
   applications: applicationsRouter,
   notes: notesRouter,
   dashboard: dashboardRouter,

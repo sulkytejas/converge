@@ -325,6 +325,27 @@ model notification {
   @@index([user_id, read_at], map: "idx_notification_user_read")
 }
 
+// WhatsApp messages (Periskope) — one row per message in a student ↔ counsellor
+// thread. from_me = 1 sent by CP / 0 received. Outgoing rows store the provider
+// message id on send; the webhook dedups incoming events on it.
+model whatsapp_message {
+  id                  Int       @id @default(autoincrement())
+  student_id          Int?
+  chat_id             String    @db.VarChar(64)
+  provider_message_id String?   @unique(map: "uq_whatsapp_message_provider") @db.VarChar(100)
+  from_me             Int       @default(0) @db.TinyInt
+  body                String?   @db.Text
+  message_type        String?   @db.VarChar(30)
+  sent_by_cp_user_id  Int?
+  status              String?   @db.VarChar(30)
+  provider_ts         DateTime? @db.Timestamp(0)
+  created_at          DateTime  @default(now()) @db.Timestamp(0)
+  student             student?  @relation(fields: [student_id], references: [id], onDelete: Cascade, map: "fk_whatsapp_message_student")
+
+  @@index([student_id, created_at], map: "idx_whatsapp_message_student")
+  @@index([chat_id], map: "idx_whatsapp_message_chat")
+}
+
 model notification_preference {
   id                Int  @id @default(autoincrement())
   user_id           Int
@@ -444,6 +465,7 @@ model student {
   test_score                student_test_score[]
   note                      student_note[]
   document                  document[]
+  whatsapp_message          whatsapp_message[]
   organization              organization?               @relation(fields: [org_id], references: [id], map: "fk_student_organization")
   user                      user?                       @relation("student_counsellor", fields: [counsellor_id], references: [id], onUpdate: NoAction, map: "fk_student_user")
   cp_counsellor             collegepond_user?           @relation(fields: [cp_counsellor_id], references: [id], onDelete: SetNull, map: "fk_student_cp_counsellor")

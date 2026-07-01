@@ -1169,6 +1169,31 @@ CREATE TABLE IF NOT EXISTS `notification` (
 ) ENGINE = InnoDB;
 
 
+-- WhatsApp messages (Periskope). One row per message in a student ↔ counsellor
+-- thread. from_me = 1 (sent by CP) / 0 (received from student). Outgoing rows
+-- store the provider's message id on send; the webhook dedups on it.
+CREATE TABLE IF NOT EXISTS `whatsapp_message` (
+  `id`                  INT           NOT NULL AUTO_INCREMENT,
+  `student_id`          INT           NULL DEFAULT NULL,
+  `chat_id`             VARCHAR(64)   NOT NULL,
+  `provider_message_id` VARCHAR(100)  NULL DEFAULT NULL,
+  `from_me`             TINYINT       NOT NULL DEFAULT 0,
+  `body`                TEXT          NULL DEFAULT NULL,
+  `message_type`        VARCHAR(30)   NULL DEFAULT NULL,
+  `sent_by_cp_user_id`  INT           NULL DEFAULT NULL,
+  `status`              VARCHAR(30)   NULL DEFAULT NULL,
+  `provider_ts`         TIMESTAMP     NULL DEFAULT NULL,
+  `created_at`          TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `uq_whatsapp_message_provider` (`provider_message_id` ASC) VISIBLE,
+  INDEX `idx_whatsapp_message_student` (`student_id` ASC, `created_at` ASC) VISIBLE,
+  INDEX `idx_whatsapp_message_chat` (`chat_id` ASC) VISIBLE,
+  CONSTRAINT `fk_whatsapp_message_student`
+    FOREIGN KEY (`student_id`) REFERENCES `student` (`id`)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB;
+
+
 SET SQL_MODE            = @OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS  = @OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS       = @OLD_UNIQUE_CHECKS;
