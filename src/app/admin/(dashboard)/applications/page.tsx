@@ -6,8 +6,11 @@ import { keepPreviousData } from "@tanstack/react-query";
 import { api } from "~/trpc/react";
 import { Button } from "~/components/ui/button";
 import { FormSelect } from "~/components/ui/form-select";
+import { Toast } from "~/components/ui/toast";
 import { StatCard, SkeletonTable } from "~/components/dashboard/widgets";
 import { countryFlag } from "~/components/dashboard/format";
+
+type StatusOption = { code: number; label: string };
 
 const TH = "border-b border-[#E4E7EC] bg-[#F9FAFB] px-3 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-[#667085]";
 const TD = "px-3 py-3 text-[13px] whitespace-nowrap text-[#344054]";
@@ -38,7 +41,12 @@ export default function ApplicationsPage() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
+  const [toastMsg, setToastMsg] = useState("");
+  const [toastOpen, setToastOpen] = useState(false);
+  const showToast = (m: string) => { setToastMsg(m); setToastOpen(true); };
+
   const filtersQ = api.applications.filters.useQuery();
+  const statusOptions = filtersQ.data?.statuses ?? [];
   const queryInput = useMemo(
     () => ({ page, scope, status: status ? Number(status) : undefined, orgId: orgId ? Number(orgId) : undefined, search: search || undefined }),
     [page, scope, status, orgId, search],
@@ -113,7 +121,13 @@ export default function ApplicationsPage() {
                     <td className={TD}>{r.partner}</td>
                     <td className={TD}>{r.university}</td>
                     <td className="max-w-[220px] truncate px-3 py-3 text-[13px] text-[#344054]">{r.program}</td>
-                    <td className={TD}><span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${stageTone(r.status)}`}>{r.stage}</span></td>
+                    <td className={TD}>
+                      {statusOptions.length > 0 ? (
+                        <StageSelect applicationId={r.id} current={r.status} statuses={statusOptions} onDone={showToast} />
+                      ) : (
+                        <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${stageTone(r.status)}`}>{r.stage}</span>
+                      )}
+                    </td>
                     <td className={TD}>{r.intake}</td>
                     <td className={TD}>{r.country ? `${countryFlag(r.country)} ${r.country}` : "—"}</td>
                     <td className={TD}>{r.processor ?? <span className="text-[#98A2B3]">Unassigned</span>}</td>
@@ -136,6 +150,66 @@ export default function ApplicationsPage() {
           </div>
         )}
       </div>
+
+      <Toast message={toastMsg} open={toastOpen} onClose={() => setToastOpen(false)} />
     </div>
+  );
+}
+
+// Inline stage picker for a row. A styled native <select> — its option list is
+// drawn by the OS, so it's never clipped by the table's horizontal scroll, and
+// <optgroup> gives the happy-path / terminal-outcome split. Reuses the shared
+// students.setApplicationStatus mutation (stage history, dates, student-status
+// sync, audit log all handled server-side).
+function StageSelect({
+  applicationId,
+  current,
+  statuses,
+  onDone,
+}: {
+  applicationId: number;
+  current: number;
+  statuses: StatusOption[];
+  onDone: (msg: string) => void;
+}) {
+  const utils = api.useUtils();
+  const label = (code: number) => statuses.find((s) => s.code === code)?.label ?? `Stage ${code}`;
+  const mut = api.students.setApplicationStatus.useMutation({
+    onSuccess: (_res, vars) => {
+      void utils.applications.invalidate();
+      onDone(`Stage updated to ${label(vars.status)}`);
+    },
+    onError: (e) => onDone(e.message),
+  });
+  const happy = statuses.filter((s) => s.code < 20);
+  const terminal = statuses.filter((s) => s.code >= 20);
+
+  return (
+    <span className="relative inline-flex items-center">
+      <select
+        aria-label="Change application stage"
+        value={current}
+        disabled={mut.isPending}
+        onChange={(e) => {
+          const code = Number(e.target.value);
+          if (code !== current) mut.mutate({ applicationId, status: code });
+        }}
+        className={`cursor-pointer appearance-none rounded-full py-0.5 pr-6 pl-2.5 text-[11px] font-semibold outline-none focus:ring-2 focus:ring-[#B2DDFF] ${stageTone(current)} ${mut.isPending ? "opacity-60" : ""}`}
+      >
+        <optgroup label="Move to stage">
+          {happy.map((s) => (
+            <option key={s.code} value={s.code}>{s.label}</option>
+          ))}
+        </optgroup>
+        <optgroup label="Mark as outcome">
+          {terminal.map((s) => (
+            <option key={s.code} value={s.code}>{s.label}</option>
+          ))}
+        </optgroup>
+      </select>
+      <svg viewBox="0 0 24 24" className="pointer-events-none absolute right-1.5 h-3 w-3 opacity-60" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round">
+        <path d="m6 9 6 6 6-6" />
+      </svg>
+    </span>
   );
 }

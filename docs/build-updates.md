@@ -5,6 +5,21 @@
 
 ---
 
+## 2026-06-30 — Change an application's stage from the Applications list (SHIPPED)
+
+**What changed (in plain terms):** On the admin **Applications** page, you can now **change a student's application stage right from the list** — pick the new stage from a dropdown on the row. Previously the list was read-only and you had to open each student's profile to move their stage.
+
+**Why it matters:** Ops can move applications forward (or mark an outcome) in a couple of clicks across the whole pipeline, without hopping into individual profiles. The stat cards at the top (Active / In Progress / Offers / Deposits / Enrolled) update live as stages change.
+
+**Details:**
+- Each row's **Stage** is now a dropdown, split into **"Move to stage"** (the happy-path steps: Begin Application → … → Enrolled) and **"Mark as outcome"** (the closing states: Rejected, Withdrawn, Declined, Visa Rejected, Deferred, Course Closed).
+- Changing a stage uses the **same engine as the student profile**, so it keeps the full stage history, the submitted/decision dates, the student's overall status, and the audit trail — nothing is a shortcut.
+- Verified in-browser: advancing a student updated the row + the summary counts instantly, and reverting put everything back.
+
+**Status:** Built and tested in-browser. Not yet deployed to production.
+
+---
+
 ## 2026-06-28 — Commission tranches: "pay-as-collected" (SHIPPED)
 
 **What changed (in plain terms):** Previously a partner had to wait until a student's *entire* commission was collected from the university before they could claim any of it. Now, **as each instalment (tranche) is collected, the partner can claim their share of that instalment right away** — they don't wait for the whole thing.
