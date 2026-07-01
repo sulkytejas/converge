@@ -34,7 +34,45 @@ type Partner = {
   submittedAt: string;
   updatedAt: string;
   documents: PartnerDocument[];
+  tier: number;
+  bdmId: number | null;
+  bdmName: string | null;
+  pan: string | null;
+  gstNumber: string | null;
+  statusReason: string | null;
+  website: string | null;
+  state: string | null;
+  country: string | null;
+  address: string | null;
+  numCounsellors: number | null;
+  annualStudentVolume: number | null;
+  mouSignedAt: string | null;
+  lastLoginAt: string | null;
 };
+
+// tier 0..4 → label + badge palette (mirrors the mock's tier-badge classes).
+const TIER_LABELS = ["Silver", "Gold", "Platinum", "Titanium", "Diamond"] as const;
+const TIER_STYLES: Record<number, { bg: string; fg: string }> = {
+  0: { bg: "bg-[#F2F4F7]", fg: "text-[#344054]" },
+  1: { bg: "bg-[#ECFDF3]", fg: "text-[#027A48]" },
+  2: { bg: "bg-[#FFFAEB]", fg: "text-[#B54708]" },
+  3: { bg: "bg-[#F9F5FF]", fg: "text-[#6941C6]" },
+  4: { bg: "bg-[#EFF8FF]", fg: "text-[#1570EF]" },
+};
+function tierLabel(tier: number): string {
+  return TIER_LABELS[tier] ?? TIER_LABELS[0];
+}
+
+function TierBadge({ tier }: { tier: number }) {
+  const s = TIER_STYLES[tier] ?? TIER_STYLES[0]!;
+  return (
+    <span
+      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${s.bg} ${s.fg}`}
+    >
+      {tierLabel(tier)}
+    </span>
+  );
+}
 
 const REJECT_REASONS = [
   { value: "incomplete_docs", label: "Incomplete Documents" },
@@ -163,6 +201,14 @@ export default function PartnersPage() {
     name: string;
   } | null>(null);
 
+  // Detail slide-over is keyed by email so it re-reads the freshest partner row
+  // after any mutation invalidates the list.
+  const [detailEmail, setDetailEmail] = useState<string | null>(null);
+  // Deactivation reason capture (separate from the reject-reason dropdown).
+  const [deactivateFor, setDeactivateFor] = useState<Partner | null>(null);
+
+  const bdmsQuery = api.bdm.bdms.useQuery();
+
   const setStatus = api.partners.setStatus.useMutation({
     onSuccess: (data, vars) => {
       void utils.partners.list.invalidate();
@@ -174,8 +220,12 @@ export default function PartnersPage() {
             : vars.status === "inactive"
               ? "deactivated"
               : "updated";
-      showToast(`${displayName(data)} ${action}`);
-      if (vars.status === "approved") {
+      showToast(
+        vars.isReactivation ? `${displayName(data)} reactivated` : `${displayName(data)} ${action}`,
+      );
+      // Prompt for counsellor assignment only on a genuine first approval —
+      // a reactivated partner keeps its existing counsellors.
+      if (vars.status === "approved" && !vars.isReactivation) {
         setAssignModal({ email: data.email, name: displayName(data) });
       }
     },
@@ -205,6 +255,30 @@ export default function PartnersPage() {
     onError: (err) => showToast(err.message),
   });
 
+  const setTierMut = api.partners.setTier.useMutation({
+    onSuccess: () => {
+      void utils.partners.list.invalidate();
+      showToast("Tier updated");
+    },
+    onError: (err) => showToast(err.message),
+  });
+
+  const setBdmMut = api.partners.setBdm.useMutation({
+    onSuccess: () => {
+      void utils.partners.list.invalidate();
+      showToast("BDM reassigned");
+    },
+    onError: (err) => showToast(err.message),
+  });
+
+  const setPanMut = api.partners.setPan.useMutation({
+    onSuccess: () => {
+      void utils.partners.list.invalidate();
+      showToast("PAN saved");
+    },
+    onError: (err) => showToast(err.message),
+  });
+
   const requestMoreInfoMut = api.partners.requestMoreInfo.useMutation({
     onSuccess: () => {
       const partner = infoModal.partner;
@@ -216,7 +290,13 @@ export default function PartnersPage() {
     onError: (err) => showToast(err.message),
   });
 
-  const partners = (partnersQuery.data ?? []) as Partner[];
+  const partners = useMemo(
+    () => (partnersQuery.data ?? []) as Partner[],
+    [partnersQuery.data],
+  );
+  const detailPartner = detailEmail
+    ? (partners.find((p) => p.email === detailEmail) ?? null)
+    : null;
 
   const counts = useMemo(() => {
     let all = 0,
@@ -386,11 +466,18 @@ export default function PartnersPage() {
                 setStatus.mutate({ email: p.email, status: "approved" })
               }
               onReject={() => {
-                if (!rejectReasonByEmail[p.email]) {
+                const code = rejectReasonByEmail[p.email];
+                if (!code) {
                   showToast("Please select a rejection reason");
                   return;
                 }
-                setStatus.mutate({ email: p.email, status: "rejected" });
+                const label =
+                  REJECT_REASONS.find((r) => r.value === code)?.label ?? code;
+                setStatus.mutate({
+                  email: p.email,
+                  status: "rejected",
+                  reason: label,
+                });
               }}
               onRequestMoreInfo={() => openInfoModal(p)}
               onSetDocStatus={(documentId, status) =>
@@ -409,33 +496,49 @@ export default function PartnersPage() {
           partners={filtered}
           actionsHeader="Actions"
           renderActions={(p) => (
-            <button
-              onClick={() => setStatus.mutate({ email: p.email, status: "approved" })}
-              disabled={setStatus.isPending}
-              className="cursor-pointer rounded-md bg-[#ECFDF3] px-2.5 py-1 text-xs font-semibold text-[#067647] hover:bg-[#D1FADF] disabled:opacity-50"
-            >
-              Reactivate
-            </button>
+            <div className="flex items-center gap-1">
+              <ViewButton onClick={() => setDetailEmail(p.email)} />
+              <button
+                onClick={() =>
+                  setStatus.mutate({
+                    email: p.email,
+                    status: "approved",
+                    isReactivation: true,
+                  })
+                }
+                disabled={setStatus.isPending}
+                className="cursor-pointer rounded-md bg-[#ECFDF3] px-2.5 py-1 text-xs font-semibold text-[#067647] hover:bg-[#D1FADF] disabled:opacity-50"
+              >
+                Reactivate
+              </button>
+            </div>
           )}
           showDeactivationDate
+          showReason
         />
       ) : (
         <PartnerTable
           partners={filtered}
           actionsHeader="Actions"
-          renderActions={(p) =>
-            p.status === "approved" ? (
-              <button
-                onClick={() => setStatus.mutate({ email: p.email, status: "inactive" })}
-                disabled={setStatus.isPending}
-                className="cursor-pointer rounded-md px-2.5 py-1 text-xs font-semibold text-[#F04438] hover:bg-[#FEF3F2] disabled:opacity-50"
-              >
-                Deactivate
-              </button>
-            ) : (
-              <span className="text-xs text-[#98A2B3]">—</span>
-            )
-          }
+          renderActions={(p) => (
+            <div className="flex items-center gap-1">
+              <ViewButton onClick={() => setDetailEmail(p.email)} />
+              {p.status === "approved" ? (
+                <button
+                  onClick={() => setDeactivateFor(p)}
+                  disabled={setStatus.isPending}
+                  className="cursor-pointer rounded-md px-2.5 py-1 text-xs font-semibold text-[#F04438] hover:bg-[#FEF3F2] disabled:opacity-50"
+                >
+                  Deactivate
+                </button>
+              ) : p.status === "rejected" ? (
+                <span className="text-xs text-[#98A2B3]">Rejected</span>
+              ) : (
+                <span className="text-xs text-[#98A2B3]">—</span>
+              )}
+            </div>
+          )}
+          showReason
         />
       )}
 
@@ -476,6 +579,51 @@ export default function PartnersPage() {
             })
           }
           saving={assignCounsellorsMut.isPending}
+        />
+      )}
+
+      {detailPartner && (
+        <PartnerDetailSlideOver
+          partner={detailPartner}
+          bdms={bdmsQuery.data?.bdms ?? []}
+          onClose={() => setDetailEmail(null)}
+          onChangeTier={(tier) =>
+            setTierMut.mutate({ email: detailPartner.email, tier })
+          }
+          onChangeBdm={(bdmId) =>
+            setBdmMut.mutate({ email: detailPartner.email, bdmId })
+          }
+          onSavePan={(pan) =>
+            setPanMut.mutate({ email: detailPartner.email, pan })
+          }
+          onDeactivate={() => {
+            setDetailEmail(null);
+            setDeactivateFor(detailPartner);
+          }}
+          onReactivate={() =>
+            setStatus.mutate({
+              email: detailPartner.email,
+              status: "approved",
+              isReactivation: true,
+            })
+          }
+          savingTier={setTierMut.isPending}
+          savingBdm={setBdmMut.isPending}
+          savingPan={setPanMut.isPending}
+        />
+      )}
+
+      {deactivateFor && (
+        <DeactivateModal
+          partnerName={displayName(deactivateFor)}
+          saving={setStatus.isPending}
+          onClose={() => setDeactivateFor(null)}
+          onConfirm={(reason) => {
+            setStatus.mutate(
+              { email: deactivateFor.email, status: "inactive", reason },
+              { onSuccess: () => setDeactivateFor(null) },
+            );
+          }}
         />
       )}
 
@@ -969,19 +1117,22 @@ function PartnerTable({
   renderActions,
   actionsHeader,
   showDeactivationDate,
+  showReason,
 }: {
   partners: Partner[];
   renderActions: (p: Partner) => ReactNode;
   actionsHeader: string;
   showDeactivationDate?: boolean;
+  showReason?: boolean;
 }) {
   const headers = [
     "Partner",
     "Role",
-    "Email",
+    "Tier",
     "City",
     showDeactivationDate ? "Deactivation Date" : "Signup Date",
     "Status",
+    ...(showReason ? ["Reason"] : []),
     actionsHeader,
   ];
   return (
@@ -1015,7 +1166,9 @@ function PartnerTable({
                 <td className="px-3.5 py-3 text-sm text-[#344054]">
                   {p.role === "agency" ? "Agency" : "Independent"}
                 </td>
-                <td className="px-3.5 py-3 text-sm text-[#344054]">{p.email}</td>
+                <td className="px-3.5 py-3">
+                  <TierBadge tier={p.tier} />
+                </td>
                 <td className="px-3.5 py-3 text-sm text-[#344054]">{p.city ?? "—"}</td>
                 <td className="px-3.5 py-3 text-sm text-[#344054]">
                   {formatDate(showDeactivationDate ? p.updatedAt : p.submittedAt)}
@@ -1023,11 +1176,330 @@ function PartnerTable({
                 <td className="px-3.5 py-3">
                   <StatusBadge status={p.status} />
                 </td>
+                {showReason && (
+                  <td className="px-3.5 py-3 text-sm text-[#667085]">
+                    {p.statusReason ? (
+                      <span className="line-clamp-2 max-w-[220px]" title={p.statusReason}>
+                        {p.statusReason}
+                      </span>
+                    ) : (
+                      "—"
+                    )}
+                  </td>
+                )}
                 <td className="px-3.5 py-3 text-sm">{renderActions(p)}</td>
               </tr>
             ))}
           </tbody>
         </table>
+      </div>
+    </div>
+  );
+}
+
+function ViewButton({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="cursor-pointer rounded-md px-2.5 py-1 text-xs font-semibold text-[#1570EF] hover:bg-[#EFF8FF]"
+    >
+      View
+    </button>
+  );
+}
+
+type BdmOption = { id: number; name: string; partnerCount: number };
+
+function PartnerDetailSlideOver({
+  partner: p,
+  bdms,
+  onClose,
+  onChangeTier,
+  onChangeBdm,
+  onSavePan,
+  onDeactivate,
+  onReactivate,
+  savingTier,
+  savingBdm,
+  savingPan,
+}: {
+  partner: Partner;
+  bdms: BdmOption[];
+  onClose: () => void;
+  onChangeTier: (tier: number) => void;
+  onChangeBdm: (bdmId: number | null) => void;
+  onSavePan: (pan: string | null) => void;
+  onDeactivate: () => void;
+  onReactivate: () => void;
+  savingTier: boolean;
+  savingBdm: boolean;
+  savingPan: boolean;
+}) {
+  const [panDraft, setPanDraft] = useState(p.pan ?? "");
+  const isAgency = p.role === "agency";
+  const panDirty = (panDraft.trim() || null) !== (p.pan ?? null);
+
+  return (
+    <div className="fixed inset-0 z-[200]">
+      <div
+        className="absolute inset-0 bg-[#101828]/45"
+        onClick={onClose}
+        aria-hidden
+      />
+      <div className="absolute top-0 right-0 flex h-full w-full max-w-[520px] animate-[slideIn_0.22s_ease-out] flex-col bg-white shadow-2xl">
+        <style>{`@keyframes slideIn{from{transform:translateX(100%)}to{transform:translateX(0)}}`}</style>
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-[#E4E7EC] px-6 py-4">
+          <div className="flex items-center gap-3">
+            <Avatar partner={p} />
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-bold text-[#101828]">{displayName(p)}</h2>
+                <StatusBadge status={p.status} />
+              </div>
+              <div className="text-xs text-[#98A2B3]">
+                {p.applicationId || "—"} · {p.role === "agency" ? "Agency" : "Independent"}
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg border border-[#E4E7EC] text-[#667085] hover:border-[#F04438] hover:text-[#F04438]"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="flex-1 space-y-6 overflow-y-auto px-6 py-5">
+          {/* Contact */}
+          <Section title="Contact">
+            <div className="grid grid-cols-2 gap-4">
+              <DetailItem label="Email" value={p.email} />
+              <DetailItem
+                label="Phone"
+                value={`${p.countryCode ?? ""} ${p.phone}`.trim() || "—"}
+              />
+              <DetailItem label="City" value={p.city ?? "—"} />
+              <DetailItem
+                label="State / Country"
+                value={[p.state, p.country].filter(Boolean).join(", ") || "—"}
+              />
+              {p.address && (
+                <div className="col-span-2">
+                  <DetailItem label="Address" value={p.address} />
+                </div>
+              )}
+            </div>
+          </Section>
+
+          {/* Company (agency only) */}
+          {isAgency && (
+            <Section title="Company">
+              <div className="grid grid-cols-2 gap-4">
+                <DetailItem label="Company" value={p.companyName ?? "—"} />
+                <DetailItem label="Website" value={p.website ?? "—"} />
+                <DetailItem
+                  label="Counsellors"
+                  value={p.numCounsellors != null ? String(p.numCounsellors) : "—"}
+                />
+                <DetailItem
+                  label="Annual Volume"
+                  value={
+                    p.annualStudentVolume != null
+                      ? String(p.annualStudentVolume)
+                      : "—"
+                  }
+                />
+                <DetailItem label="GSTIN" value={p.gstNumber ?? "—"} />
+                {/* PAN — editable */}
+                <div>
+                  <div className="text-[11px] font-semibold uppercase tracking-wider text-[#98A2B3]">
+                    PAN
+                  </div>
+                  <div className="mt-1 flex items-center gap-1.5">
+                    <input
+                      value={panDraft}
+                      onChange={(e) => setPanDraft(e.target.value.toUpperCase())}
+                      placeholder="ABCDE1234F"
+                      maxLength={15}
+                      className="h-[34px] w-full rounded-lg border border-[#D0D5DD] px-2.5 text-sm text-[#344054] uppercase outline-none focus:border-[#1570EF]"
+                    />
+                    <button
+                      onClick={() => onSavePan(panDraft.trim() || null)}
+                      disabled={!panDirty || savingPan}
+                      className="h-[34px] shrink-0 cursor-pointer rounded-lg bg-[#1570EF] px-3 text-xs font-semibold text-white hover:bg-[#0B4EA2] disabled:opacity-40"
+                    >
+                      Save
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </Section>
+          )}
+
+          {/* Relationship — tier + BDM (editable) */}
+          <Section title="Relationship">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <FormSelect
+                  label="Tier"
+                  value={String(p.tier)}
+                  disabled={savingTier}
+                  onChange={(e) => onChangeTier(Number(e.target.value))}
+                  options={TIER_LABELS.map((label, i) => ({
+                    value: String(i),
+                    label,
+                  }))}
+                />
+              </div>
+              <div>
+                <FormSelect
+                  label="BDM"
+                  value={p.bdmId != null ? String(p.bdmId) : ""}
+                  disabled={savingBdm}
+                  onChange={(e) =>
+                    onChangeBdm(e.target.value ? Number(e.target.value) : null)
+                  }
+                  placeholder="Unassigned"
+                  options={bdms.map((b) => ({
+                    value: String(b.id),
+                    label: `${b.name} (${b.partnerCount})`,
+                  }))}
+                />
+              </div>
+              <DetailItem
+                label="MOU Signed"
+                value={p.mouSignedAt ? formatDate(p.mouSignedAt) : "Not signed"}
+              />
+              <DetailItem
+                label="Last Login"
+                value={p.lastLoginAt ? formatDate(p.lastLoginAt) : "Never"}
+              />
+              <DetailItem label="Signup Date" value={formatDate(p.submittedAt)} />
+            </div>
+          </Section>
+
+          {/* Status reason */}
+          {(p.status === "rejected" || p.status === "inactive") && p.statusReason && (
+            <Section title={p.status === "rejected" ? "Rejection Reason" : "Deactivation Reason"}>
+              <div className="rounded-lg bg-[#FEF3F2] px-3.5 py-3 text-sm text-[#B42318]">
+                {p.statusReason}
+              </div>
+            </Section>
+          )}
+
+          {/* Documents */}
+          <Section title={`Documents (${p.documents.length})`}>
+            {p.documents.length === 0 ? (
+              <div className="text-sm text-[#98A2B3]">No documents uploaded.</div>
+            ) : (
+              <div className="space-y-2">
+                {p.documents.map((d) => (
+                  <div
+                    key={d.id}
+                    className="flex items-center justify-between rounded-lg border border-[#E4E7EC] px-3 py-2"
+                  >
+                    <a
+                      href={d.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="truncate text-sm font-medium text-[#1570EF] hover:underline"
+                    >
+                      {d.fileName}
+                    </a>
+                    <DocStatusBadge status={d.status} />
+                  </div>
+                ))}
+              </div>
+            )}
+          </Section>
+        </div>
+
+        {/* Footer */}
+        <div className="flex items-center justify-end gap-2 border-t border-[#E4E7EC] px-6 py-4">
+          {p.status === "approved" ? (
+            <button
+              onClick={onDeactivate}
+              className="cursor-pointer rounded-lg border border-[#FDA29B] px-4 py-2 text-sm font-semibold text-[#B42318] hover:bg-[#FEF3F2]"
+            >
+              Deactivate
+            </button>
+          ) : p.status === "inactive" ? (
+            <button
+              onClick={onReactivate}
+              className="cursor-pointer rounded-lg bg-[#12B76A] px-4 py-2 text-sm font-semibold text-white hover:bg-[#039855]"
+            >
+              Reactivate
+            </button>
+          ) : null}
+          <button
+            onClick={onClose}
+            className="cursor-pointer rounded-lg border border-[#D0D5DD] px-4 py-2 text-sm font-semibold text-[#344054] hover:bg-[#F9FAFB]"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Section({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div>
+      <h3 className="mb-3 text-sm font-bold text-[#101828]">{title}</h3>
+      {children}
+    </div>
+  );
+}
+
+function DeactivateModal({
+  partnerName,
+  saving,
+  onClose,
+  onConfirm,
+}: {
+  partnerName: string;
+  saving: boolean;
+  onClose: () => void;
+  onConfirm: (reason: string) => void;
+}) {
+  const [reason, setReason] = useState("");
+  return (
+    <div className="fixed inset-0 z-[210] flex items-center justify-center">
+      <div className="absolute inset-0 bg-[#101828]/45" onClick={onClose} aria-hidden />
+      <div className="relative w-[440px] rounded-2xl bg-white p-6 shadow-2xl">
+        <h3 className="text-lg font-bold text-[#101828]">Deactivate partner</h3>
+        <p className="mt-1 text-sm text-[#667085]">
+          {partnerName} will lose portal access. Add a reason for the record —
+          it&apos;s shown on the deactivated list and included in the notification.
+        </p>
+        <textarea
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          placeholder="Reason for deactivation…"
+          maxLength={500}
+          className="mt-4 h-24 w-full resize-none rounded-lg border border-[#D0D5DD] px-3 py-2 text-sm text-[#344054] outline-none focus:border-[#1570EF]"
+        />
+        <div className="mt-5 flex justify-end gap-2">
+          <button
+            onClick={onClose}
+            className="cursor-pointer rounded-lg border border-[#D0D5DD] px-4 py-2 text-sm font-semibold text-[#344054] hover:bg-[#F9FAFB]"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() => {
+              if (!reason.trim()) return;
+              onConfirm(reason.trim());
+            }}
+            disabled={!reason.trim() || saving}
+            className="cursor-pointer rounded-lg bg-[#F04438] px-4 py-2 text-sm font-semibold text-white hover:bg-[#D92D20] disabled:opacity-40"
+          >
+            {saving ? "Deactivating…" : "Deactivate"}
+          </button>
+        </div>
       </div>
     </div>
   );

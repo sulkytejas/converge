@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS `organization` (
   `url_identifier`        VARCHAR(100) NOT NULL,
   `logo_url`              VARCHAR(255) NULL DEFAULT NULL,
   `gst_number`            VARCHAR(20)  NULL DEFAULT NULL,
+  `pan`                   VARCHAR(15)  NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `url_identifier_UNIQUE` (`url_identifier` ASC) VISIBLE
 ) ENGINE = InnoDB;
@@ -89,6 +90,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `counsellor_id`                   INT NULL DEFAULT NULL,
   `bdm_id`                          INT NULL DEFAULT NULL,
   `notes`                           VARCHAR(255) NULL DEFAULT NULL,
+  `status_reason`                   VARCHAR(500) NULL DEFAULT NULL,
   `tier`                            TINYINT(3) UNSIGNED NOT NULL DEFAULT 0,
   `mou_signed_at`                   TIMESTAMP NULL DEFAULT NULL,
   `last_login_at`                   TIMESTAMP NULL DEFAULT NULL,

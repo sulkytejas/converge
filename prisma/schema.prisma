@@ -378,6 +378,7 @@ model organization {
   url_identifier        String                 @unique(map: "url_identifier_UNIQUE") @db.VarChar(100)
   logo_url              String?                @db.VarChar(255)
   gst_number            String?                @db.VarChar(20)
+  pan                   String?                @db.VarChar(15)
   application           application[]
   audit_log             audit_log[]
   commission            commission[]
@@ -527,6 +528,7 @@ model user {
   counsellor_id                                                           Int?
   bdm_id                                                                  Int?
   notes                                                                   String?                   @db.VarChar(255)
+  status_reason                                                           String?                   @db.VarChar(500)
   tier                                                                    Int                       @default(0) @db.UnsignedTinyInt
   mou_signed_at                                                           DateTime?                 @db.Timestamp(0)
   last_login_at                                                           DateTime?                 @db.Timestamp(0)

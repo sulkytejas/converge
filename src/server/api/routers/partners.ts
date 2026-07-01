@@ -8,6 +8,10 @@ import {
   listApplications,
   setApplicationStatus,
   setDocumentStatus,
+  setPartnerBdm,
+  setPartnerPan,
+  setPartnerTier,
+  type Application,
 } from "~/server/applications/store";
 
 const partnerStatus = z.enum([
@@ -19,6 +23,53 @@ const partnerStatus = z.enum([
 
 const docStatus = z.enum(["pending", "approved", "rejected"]);
 
+// Account-lifecycle email per target status. Optional templates — when the id
+// isn't configured we log a minimal event and never block the status change.
+function statusEmailTemplateId(status: string): string | undefined {
+  switch (status) {
+    case "approved":
+      return env.MSG91_PARTNER_APPROVED_TEMPLATE_ID;
+    case "rejected":
+      return env.MSG91_PARTNER_REJECTED_TEMPLATE_ID;
+    case "inactive":
+      return env.MSG91_PARTNER_DEACTIVATED_TEMPLATE_ID;
+    default:
+      return undefined;
+  }
+}
+
+// Notify the partner of an account-status change. Best-effort: a mail failure
+// must not roll back the (already-committed) status change, so we swallow it.
+async function sendStatusEmail(
+  app: Application,
+  status: string,
+  reason: string | null,
+  isReactivation: boolean,
+): Promise<void> {
+  const templateId = isReactivation
+    ? env.MSG91_PARTNER_REACTIVATED_TEMPLATE_ID
+    : statusEmailTemplateId(status);
+  if (!templateId || !emailConfigured()) {
+    console.log(
+      `[Partners] Status "${isReactivation ? "reactivated" : status}" email skipped (no template / email off).`,
+    );
+    return;
+  }
+  try {
+    await sendTemplatedEmail({
+      to: app.email,
+      templateId,
+      variables: {
+        name: `${app.firstName} ${app.lastName}`.trim(),
+        company: app.companyName ?? "",
+        reason: reason ?? "",
+      },
+    });
+  } catch (e) {
+    console.error("[Partners] Status email failed:", e);
+  }
+}
+
 export const partnersRouter = createTRPCRouter({
   list: protectedAdminProcedure.query(async () => {
     return listApplications();
@@ -29,17 +80,73 @@ export const partnersRouter = createTRPCRouter({
       z.object({
         email: z.string().email(),
         status: partnerStatus,
+        // Reason is kept for rejected/inactive; a "reactivate" is an approve of
+        // a previously-deactivated partner and gets the reactivation email.
+        reason: z.string().trim().max(500).optional(),
+        isReactivation: z.boolean().optional(),
       }),
     )
     .mutation(async ({ input }) => {
-      const app = await setApplicationStatus(input.email, input.status);
+      const app = await setApplicationStatus(
+        input.email,
+        input.status,
+        input.reason ?? null,
+      );
       if (!app) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Partner application not found",
         });
       }
+      await sendStatusEmail(
+        app,
+        input.status,
+        input.reason ?? null,
+        input.isReactivation ?? false,
+      );
       return app;
+    }),
+
+  setTier: protectedAdminProcedure
+    .input(
+      z.object({
+        email: z.string().email(),
+        tier: z.number().int().min(0).max(4),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      await setPartnerTier(input.email, input.tier);
+      return { success: true as const };
+    }),
+
+  setBdm: protectedAdminProcedure
+    .input(
+      z.object({
+        email: z.string().email(),
+        bdmId: z.number().int().positive().nullable(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      await setPartnerBdm(input.email, input.bdmId);
+      return { success: true as const };
+    }),
+
+  setPan: protectedAdminProcedure
+    .input(
+      z.object({
+        email: z.string().email(),
+        pan: z.string().trim().max(15).nullable(),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      const ok = await setPartnerPan(input.email, input.pan);
+      if (!ok) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "This partner has no linked organization to store a PAN on.",
+        });
+      }
+      return { success: true as const };
     }),
 
   // After approval, assign a lead counsellor + counsellor (both rows from

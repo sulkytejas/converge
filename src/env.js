@@ -20,6 +20,12 @@ export const env = createEnv({
     // sender degrades to a minimal log until the template exists.
     MSG91_ADMIN_NOTIFY_TEMPLATE_ID: z.string().optional(),
     MSG91_MOREINFO_TEMPLATE_ID: z.string().optional(),
+    // Partner account-lifecycle emails (approve / reject / deactivate /
+    // reactivate). Optional — each degrades to a minimal log until set.
+    MSG91_PARTNER_APPROVED_TEMPLATE_ID: z.string().optional(),
+    MSG91_PARTNER_REJECTED_TEMPLATE_ID: z.string().optional(),
+    MSG91_PARTNER_DEACTIVATED_TEMPLATE_ID: z.string().optional(),
+    MSG91_PARTNER_REACTIVATED_TEMPLATE_ID: z.string().optional(),
     ADMIN_EMAIL: z.string().email().optional(),
     AUTH_SECRET: z.string().min(32),
     // Encrypts portal credentials at rest; falls back to AUTH_SECRET when
@@ -75,6 +81,14 @@ export const env = createEnv({
     MSG91_EMAIL_DOMAIN: process.env.MSG91_EMAIL_DOMAIN,
     MSG91_ADMIN_NOTIFY_TEMPLATE_ID: process.env.MSG91_ADMIN_NOTIFY_TEMPLATE_ID,
     MSG91_MOREINFO_TEMPLATE_ID: process.env.MSG91_MOREINFO_TEMPLATE_ID,
+    MSG91_PARTNER_APPROVED_TEMPLATE_ID:
+      process.env.MSG91_PARTNER_APPROVED_TEMPLATE_ID,
+    MSG91_PARTNER_REJECTED_TEMPLATE_ID:
+      process.env.MSG91_PARTNER_REJECTED_TEMPLATE_ID,
+    MSG91_PARTNER_DEACTIVATED_TEMPLATE_ID:
+      process.env.MSG91_PARTNER_DEACTIVATED_TEMPLATE_ID,
+    MSG91_PARTNER_REACTIVATED_TEMPLATE_ID:
+      process.env.MSG91_PARTNER_REACTIVATED_TEMPLATE_ID,
     ADMIN_EMAIL: process.env.ADMIN_EMAIL,
     AUTH_SECRET: process.env.AUTH_SECRET,
     CREDENTIAL_ENCRYPTION_KEY: process.env.CREDENTIAL_ENCRYPTION_KEY,

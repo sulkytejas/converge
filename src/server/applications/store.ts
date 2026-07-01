@@ -65,6 +65,24 @@ function randomSuffix(len = 6): string {
   return Math.random().toString(36).slice(2, 2 + len);
 }
 
+// Trim → treat blank as null (columns like state/address are NOT NULL and can
+// hold "", which we surface as null). `??`-friendly for the lint rule.
+function blankToNull(value: string | null | undefined): string | null {
+  const t = value?.trim();
+  return t && t.length > 0 ? t : null;
+}
+
+// First non-blank of the candidates, else null.
+function firstNonBlank(
+  ...values: (string | null | undefined)[]
+): string | null {
+  for (const v of values) {
+    const t = blankToNull(v);
+    if (t) return t;
+  }
+  return null;
+}
+
 // A slot name from signup ("companyPan", "aadhaar", etc.) → whether the doc
 // belongs to the organization (true) or the user (false). Personal identity
 // docs stay on the user even when uploaded during an agency signup.
@@ -307,6 +325,21 @@ export interface PartnerListing {
   submittedAt: string;
   updatedAt: string;
   documents: PartnerDocument[];
+  // Partner-management extras surfaced in the table + detail slide-over.
+  tier: number;
+  bdmId: number | null;
+  bdmName: string | null;
+  pan: string | null;
+  gstNumber: string | null;
+  statusReason: string | null;
+  website: string | null;
+  state: string | null;
+  country: string | null;
+  address: string | null;
+  numCounsellors: number | null;
+  annualStudentVolume: number | null;
+  mouSignedAt: string | null;
+  lastLoginAt: string | null;
 }
 
 function mapDocStatus(code: number): PartnerDocStatus {
@@ -323,7 +356,13 @@ export async function listApplications(): Promise<PartnerListing[]> {
     where: { type: { not: UserType.ADMIN } },
     orderBy: { created_at: "desc" },
     take: 500, // M6: defensive cap until cursor pagination lands
-    include: { organization: true, document: true },
+    include: {
+      organization: true,
+      document: true,
+      collegepond_user_user_bdm_idTocollegepond_user: {
+        select: { first_name: true, last_name: true },
+      },
+    },
   });
 
   const orgIds = users
@@ -372,6 +411,8 @@ export async function listApplications(): Promise<PartnerListing[]> {
       : "";
     const phone = user.phone.replace(countryCode, "");
 
+    const bdm = user.collegepond_user_user_bdm_idTocollegepond_user;
+
     return {
       applicationId: user.tracking_id ?? "",
       email: user.email,
@@ -386,6 +427,20 @@ export async function listApplications(): Promise<PartnerListing[]> {
       submittedAt: user.created_at.toISOString(),
       updatedAt: user.updated_at.toISOString(),
       documents,
+      tier: user.tier,
+      bdmId: user.bdm_id,
+      bdmName: bdm ? `${bdm.first_name} ${bdm.last_name}`.trim() : null,
+      pan: user.organization?.pan ?? null,
+      gstNumber: user.organization?.gst_number ?? null,
+      statusReason: user.status_reason,
+      website: user.organization?.website ?? null,
+      state: firstNonBlank(user.state, user.organization?.state),
+      country: firstNonBlank(user.country, user.organization?.country),
+      address: firstNonBlank(user.address, user.organization?.address),
+      numCounsellors: user.organization?.num_counsellors ?? null,
+      annualStudentVolume: user.organization?.annual_student_volume ?? null,
+      mouSignedAt: user.mou_signed_at?.toISOString() ?? null,
+      lastLoginAt: user.last_login_at?.toISOString() ?? null,
     };
   });
 }
@@ -409,6 +464,7 @@ export async function setDocumentStatus(
 export async function setApplicationStatus(
   email: string,
   status: ApplicationStatus,
+  reason?: string | null,
 ): Promise<Application | null> {
   const user = await db.user.findUnique({
     where: { email: email.toLowerCase() },
@@ -416,12 +472,57 @@ export async function setApplicationStatus(
   });
   if (!user) return null;
 
+  // Only rejected/inactive carry a reason; clear it on approve/reactivate so a
+  // stale reason never lingers on a now-active partner.
+  const keepsReason = status === "rejected" || status === "inactive";
   await db.user.update({
     where: { id: user.id },
-    data: { status: statusCodeFromLabel(status) },
+    data: {
+      status: statusCodeFromLabel(status),
+      status_reason: keepsReason ? blankToNull(reason) : null,
+    },
   });
 
   return getApplicationByEmail(email);
+}
+
+// Set a partner's tier (0=Silver … 4=Diamond — see TIER_LABELS in the UI).
+export async function setPartnerTier(
+  email: string,
+  tier: number,
+): Promise<void> {
+  await db.user.update({
+    where: { email: email.toLowerCase() },
+    data: { tier },
+  });
+}
+
+// Reassign (or clear) the BDM (a cp_user) who owns this partner relationship.
+export async function setPartnerBdm(
+  email: string,
+  bdmId: number | null,
+): Promise<void> {
+  await db.user.update({
+    where: { email: email.toLowerCase() },
+    data: { bdm_id: bdmId },
+  });
+}
+
+// Update the agency's PAN on the linked organization (independents have no org).
+export async function setPartnerPan(
+  email: string,
+  pan: string | null,
+): Promise<boolean> {
+  const user = await db.user.findUnique({
+    where: { email: email.toLowerCase() },
+    select: { org_id: true },
+  });
+  if (!user?.org_id) return false;
+  await db.organization.update({
+    where: { id: user.org_id },
+    data: { pan: blankToNull(pan) },
+  });
+  return true;
 }
 
 function toApplication(
