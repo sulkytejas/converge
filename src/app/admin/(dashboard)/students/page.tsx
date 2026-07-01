@@ -32,6 +32,7 @@ import {
 import {
   AddStudentModal,
   BulkAssignModal,
+  BulkImportStudentsModal,
   BulkStatusModal,
   StatusGroupedSelect,
 } from "./modals";
@@ -201,6 +202,7 @@ export default function StudentsPage() {
   };
 
   const [addOpen, setAddOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [assignModalOpen, setAssignModalOpen] = useState(false);
 
@@ -448,6 +450,13 @@ export default function StudentsPage() {
             Export CSV
           </Button>
           <Button
+            variant="secondary"
+            onClick={() => setImportOpen(true)}
+            className="!h-[40px] !px-4 !text-[13px]"
+          >
+            Bulk Import
+          </Button>
+          <Button
             onClick={() => setAddOpen(true)}
             className="!h-[40px] !px-4 !text-[13px]"
           >
@@ -683,6 +692,13 @@ export default function StudentsPage() {
       <AddStudentModal
         open={addOpen}
         onClose={() => setAddOpen(false)}
+        orgs={orgsQuery.data ?? []}
+        counsellors={counsellors}
+        onToast={showToast}
+      />
+      <BulkImportStudentsModal
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
         orgs={orgsQuery.data ?? []}
         counsellors={counsellors}
         onToast={showToast}

@@ -672,3 +672,430 @@ function DupRow({
     </div>
   );
 }
+
+// ---- Bulk CSV import ------------------------------------------------------
+
+// Columns the importer understands (order defines the template).
+const IMPORT_COLUMNS = [
+  "firstName",
+  "lastName",
+  "email",
+  "countryCode",
+  "phone",
+  "country",
+  "intake",
+  "dateOfBirth",
+  "courseLevel",
+  "interestedProgram",
+  "educationLoan",
+  "applyThroughCp",
+] as const;
+
+const TEMPLATE_EXAMPLE = [
+  "Rahul",
+  "Sharma",
+  "rahul.sharma@example.com",
+  "+91",
+  "9876543210",
+  "US",
+  "Fall 2026",
+  "2002-05-14",
+  "Masters",
+  "Computer Science",
+  "yes",
+  "yes",
+];
+
+// label/synonym (lowercased) → course-level code.
+const LEVEL_BY_KEY: Record<string, number> = (() => {
+  const m: Record<string, number> = {};
+  for (const o of COURSE_LEVEL_SELECT_OPTIONS) {
+    m[o.label.toLowerCase()] = Number(o.value);
+    m[o.value] = Number(o.value);
+  }
+  Object.assign(m, {
+    bachelors: 2,
+    bachelor: 2,
+    undergraduate: 2,
+    undergrad: 2,
+    masters: 3,
+    master: 3,
+    postgraduate: 3,
+    postgrad: 3,
+    doctorate: 5,
+    phd: 5,
+  });
+  return m;
+})();
+
+// country name or ISO2 (lowercased) → ISO2 code.
+const COUNTRY_BY_KEY: Record<string, string> = (() => {
+  const m: Record<string, string> = {};
+  for (const o of ADD_COUNTRY_OPTIONS) {
+    m[o.label.toLowerCase()] = o.value;
+    m[o.value.toLowerCase()] = o.value;
+  }
+  return m;
+})();
+
+// Minimal CSV parser: handles quoted cells, embedded commas and "" escapes.
+function parseCsvLine(line: string): string[] {
+  const out: string[] = [];
+  let cur = "";
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        if (line[i + 1] === '"') {
+          cur += '"';
+          i++;
+        } else {
+          inQuotes = false;
+        }
+      } else {
+        cur += ch;
+      }
+    } else if (ch === '"') {
+      inQuotes = true;
+    } else if (ch === ",") {
+      out.push(cur);
+      cur = "";
+    } else {
+      cur += ch;
+    }
+  }
+  out.push(cur);
+  return out.map((c) => c.trim());
+}
+
+function parseBool(v: string): boolean {
+  return ["yes", "y", "true", "1", "t"].includes(v.trim().toLowerCase());
+}
+
+type ImportPayload = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  countryCode: string;
+  phone: string;
+  country: string;
+  intake: string;
+  dateOfBirth: string;
+  courseLevel: number;
+  interestedProgram: string;
+  educationLoan: boolean;
+  applyThroughCp: boolean;
+};
+
+type ParsedRow =
+  | { line: number; ok: true; payload: ImportPayload }
+  | { line: number; ok: false; errors: string[]; name: string };
+
+function validateRow(rec: Record<string, string>, line: number): ParsedRow {
+  const errors: string[] = [];
+  const req = (k: string, max: number) => {
+    const v = (rec[k] ?? "").trim();
+    if (!v) errors.push(`${k} is required`);
+    else if (v.length > max) errors.push(`${k} too long`);
+    return v;
+  };
+
+  const firstName = req("firstName", 50);
+  const lastName = req("lastName", 50);
+
+  const email = (rec.email ?? "").trim();
+  if (!EMAIL_REGEX.test(email)) errors.push("invalid email");
+
+  let countryCode = (rec.countryCode ?? "").trim();
+  if (!countryCode) errors.push("countryCode is required");
+  else if (!countryCode.startsWith("+")) countryCode = `+${countryCode}`;
+  if (countryCode.length > 5) errors.push("countryCode too long");
+
+  const phoneDigits = (rec.phone ?? "").replace(/[^0-9]/g, "");
+  if (phoneDigits.length < 7 || phoneDigits.length > 15)
+    errors.push("phone must be 7–15 digits");
+
+  const countryRaw = (rec.country ?? "").trim();
+  let country = COUNTRY_BY_KEY[countryRaw.toLowerCase()];
+  if (!country && /^[A-Za-z]{2}$/.test(countryRaw)) country = countryRaw.toUpperCase();
+  if (!country) errors.push(`unknown country "${countryRaw}"`);
+
+  const intake = req("intake", 20);
+
+  const dateOfBirth = (rec.dateOfBirth ?? "").trim();
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateOfBirth))
+    errors.push("dateOfBirth must be YYYY-MM-DD");
+  else if (Number.isNaN(new Date(dateOfBirth).getTime()))
+    errors.push("invalid dateOfBirth");
+
+  const levelRaw = (rec.courseLevel ?? "").trim().toLowerCase();
+  const courseLevel = LEVEL_BY_KEY[levelRaw];
+  if (courseLevel === undefined) errors.push(`unknown courseLevel "${rec.courseLevel ?? ""}"`);
+
+  const interestedProgram = req("interestedProgram", 100);
+
+  const name = `${firstName} ${lastName}`.trim() || email || `Row ${line}`;
+  if (errors.length > 0) return { line, ok: false, errors, name };
+
+  return {
+    line,
+    ok: true,
+    payload: {
+      firstName,
+      lastName,
+      email,
+      countryCode,
+      phone: phoneDigits,
+      country: country!,
+      intake,
+      dateOfBirth,
+      courseLevel: courseLevel!,
+      interestedProgram,
+      educationLoan: parseBool(rec.educationLoan ?? ""),
+      applyThroughCp: parseBool(rec.applyThroughCp ?? ""),
+    },
+  };
+}
+
+function parseCsvText(text: string): ParsedRow[] {
+  const lines = text
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
+  if (lines.length < 2) return [];
+
+  const header = parseCsvLine(lines[0]!).map((h) => h.trim());
+  // Case-insensitive header → our canonical column name.
+  const canonical: Record<string, string> = {};
+  for (const col of IMPORT_COLUMNS) canonical[col.toLowerCase()] = col;
+  const colNames = header.map((h) => canonical[h.toLowerCase()] ?? h);
+
+  return lines.slice(1).map((line, idx) => {
+    const cells = parseCsvLine(line);
+    const rec: Record<string, string> = {};
+    colNames.forEach((name, i) => {
+      rec[name] = cells[i] ?? "";
+    });
+    return validateRow(rec, idx + 2); // +2: 1-based + header row
+  });
+}
+
+export function BulkImportStudentsModal({
+  open,
+  onClose,
+  orgs,
+  counsellors,
+  onToast,
+}: {
+  open: boolean;
+  onClose: () => void;
+  orgs: OrgOption[];
+  counsellors: CpCounsellor[];
+  onToast: (msg: string) => void;
+}) {
+  const utils = api.useUtils();
+  const [orgId, setOrgId] = useState("");
+  const [cpCounsellorId, setCpCounsellorId] = useState("");
+  const [fileName, setFileName] = useState("");
+  const [rows, setRows] = useState<ParsedRow[]>([]);
+  const [result, setResult] = useState<{
+    created: number;
+    skipped: { row: number; email: string; reason: string }[];
+  } | null>(null);
+
+  useEffect(() => {
+    if (open) {
+      setOrgId("");
+      setCpCounsellorId("");
+      setFileName("");
+      setRows([]);
+      setResult(null);
+    }
+  }, [open]);
+
+  const importMut = api.students.bulkImport.useMutation({
+    onSuccess: (res) => {
+      void utils.students.adminList.invalidate();
+      setResult(res);
+      onToast(`Imported ${res.created} student${res.created === 1 ? "" : "s"}`);
+    },
+    onError: (err) => onToast(err.message),
+  });
+
+  const valid = rows.filter((r): r is Extract<ParsedRow, { ok: true }> => r.ok);
+  const invalid = rows.filter((r): r is Extract<ParsedRow, { ok: false }> => !r.ok);
+
+  function handleFile(file: File) {
+    setResult(null);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setFileName(file.name);
+      const text = typeof reader.result === "string" ? reader.result : "";
+      setRows(parseCsvText(text));
+    };
+    reader.readAsText(file);
+  }
+
+  function downloadTemplate() {
+    const csv = `${IMPORT_COLUMNS.join(",")}\n${TEMPLATE_EXAMPLE.join(",")}\n`;
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "students-import-template.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function doImport() {
+    if (!orgId || valid.length === 0) return;
+    importMut.mutate({
+      orgId: Number(orgId),
+      cpCounsellorId: cpCounsellorId ? Number(cpCounsellorId) : null,
+      rows: valid.map((r) => r.payload),
+    });
+  }
+
+  return (
+    <Modal
+      open={open}
+      title="Bulk Import Students"
+      onClose={onClose}
+      width="w-[640px]"
+      footer={
+        <>
+          <Button variant="secondary" onClick={onClose} className="!h-[38px] !px-4">
+            {result ? "Close" : "Cancel"}
+          </Button>
+          {!result && (
+            <Button
+              onClick={doImport}
+              loading={importMut.isPending}
+              disabled={!orgId || valid.length === 0}
+              className="!h-[38px] !px-4"
+            >
+              Import {valid.length > 0 ? `${valid.length} ` : ""}Student
+              {valid.length === 1 ? "" : "s"}
+            </Button>
+          )}
+        </>
+      }
+    >
+      {result ? (
+        <div className="space-y-4">
+          <div className="rounded-xl border border-[#A6F4C5] bg-[#ECFDF3] px-4 py-3 text-sm text-[#067647]">
+            ✓ Imported <strong>{result.created}</strong> student
+            {result.created === 1 ? "" : "s"}.
+          </div>
+          {result.skipped.length > 0 && (
+            <div className="rounded-xl border border-[#FEDF89] bg-[#FFFAEB] px-4 py-3">
+              <div className="mb-1.5 text-sm font-semibold text-[#B54708]">
+                Skipped {result.skipped.length} row
+                {result.skipped.length === 1 ? "" : "s"} (already exist)
+              </div>
+              <ul className="space-y-0.5 text-xs text-[#B54708]">
+                {result.skipped.slice(0, 20).map((s) => (
+                  <li key={`${s.row}-${s.email}`}>
+                    Row {s.row}: {s.email} — {s.reason}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
+            <FormSelect
+              label="Partner"
+              required
+              placeholder="Select partner..."
+              options={orgs.map((o) => ({ value: String(o.id), label: o.name }))}
+              value={orgId}
+              onChange={(e) => setOrgId(e.target.value)}
+            />
+            <FormSelect
+              label="Assign Counselor (optional)"
+              placeholder="Unassigned"
+              options={counsellorOptions(counsellors)}
+              value={cpCounsellorId}
+              onChange={(e) => setCpCounsellorId(e.target.value)}
+            />
+          </div>
+
+          <div className="flex items-center justify-between rounded-lg bg-[#F9FAFB] px-3.5 py-2.5 text-sm">
+            <span className="text-[#667085]">
+              New to this? Start from the template.
+            </span>
+            <button
+              onClick={downloadTemplate}
+              className="cursor-pointer font-semibold text-[#1570EF] hover:underline"
+            >
+              Download CSV template
+            </button>
+          </div>
+
+          <label className="flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#D0D5DD] bg-[#FAFBFC] px-6 py-8 text-center hover:border-[#1570EF] hover:bg-[#F0F7FF]">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#1570EF"
+              strokeWidth={2}
+              className="mb-2 h-8 w-8"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="17 8 12 3 7 8" />
+              <line x1="12" y1="3" x2="12" y2="15" />
+            </svg>
+            <span className="text-sm font-semibold text-[#344054]">
+              {fileName || "Choose a CSV file"}
+            </span>
+            <span className="mt-0.5 text-xs text-[#667085]">
+              Columns: {IMPORT_COLUMNS.join(", ")}
+            </span>
+            <input
+              type="file"
+              accept=".csv,text/csv"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) handleFile(f);
+                e.target.value = "";
+              }}
+            />
+          </label>
+
+          {rows.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex gap-2 text-sm">
+                <span className="rounded-lg bg-[#ECFDF3] px-2.5 py-1 font-semibold text-[#067647]">
+                  {valid.length} valid
+                </span>
+                {invalid.length > 0 && (
+                  <span className="rounded-lg bg-[#FEF3F2] px-2.5 py-1 font-semibold text-[#B42318]">
+                    {invalid.length} invalid
+                  </span>
+                )}
+              </div>
+              {invalid.length > 0 && (
+                <div className="max-h-40 overflow-y-auto rounded-lg border border-[#FECDCA] bg-[#FFFBFA] px-3.5 py-2.5">
+                  <div className="mb-1 text-xs font-semibold text-[#B42318]">
+                    These rows will be skipped — fix and re-upload:
+                  </div>
+                  <ul className="space-y-0.5 text-xs text-[#B42318]">
+                    {invalid.slice(0, 25).map((r) => (
+                      <li key={r.line}>
+                        Row {r.line} ({r.name}): {r.errors.join("; ")}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+    </Modal>
+  );
+}

@@ -471,6 +471,88 @@ export const studentsRouter = createTRPCRouter({
       return { ok: true as const, student: toApi(created) };
     }),
 
+  // Bulk-create students from a parsed CSV. Rows are validated client-side; the
+  // server re-validates the shape, then skips any row whose email/phone already
+  // exists (or repeats earlier in the same file) and createMany's the rest.
+  bulkImport: protectedAdminProcedure
+    .input(
+      z.object({
+        orgId: z.number().int().positive(),
+        cpCounsellorId: z.number().int().positive().nullable().optional(),
+        rows: z.array(createFields).min(1).max(500),
+      }),
+    )
+    .mutation(async ({ input }) => {
+      // One pass over existing students to detect duplicates by email or by
+      // phone digits, instead of a full scan per row.
+      const existing = await db.student.findMany({
+        select: { email: true, phone: true },
+      });
+      const seenEmails = new Set<string>();
+      const seenPhones = new Set<string>();
+      for (const s of existing) {
+        if (s.email) seenEmails.add(s.email.toLowerCase());
+        const d = phoneDigits(s.phone);
+        if (d) seenPhones.add(d);
+      }
+
+      const toCreate: {
+        first_name: string;
+        last_name: string;
+        email: string;
+        phone: string;
+        country: string;
+        intake: string;
+        date_of_birth: Date;
+        status: number;
+        course_level: number;
+        interested_program: string;
+        education_loan: number;
+        apply_through_cp: number;
+        org_id: number;
+        cp_counsellor_id: number | null;
+      }[] = [];
+      const skipped: { row: number; email: string; reason: string }[] = [];
+
+      input.rows.forEach((r, i) => {
+        const email = r.email.toLowerCase();
+        const phone = normalizePhone(r.countryCode, r.phone);
+        const digits = phoneDigits(phone);
+        if (seenEmails.has(email)) {
+          skipped.push({ row: i + 1, email, reason: "Duplicate email" });
+          return;
+        }
+        if (digits && seenPhones.has(digits)) {
+          skipped.push({ row: i + 1, email, reason: "Duplicate phone" });
+          return;
+        }
+        seenEmails.add(email);
+        if (digits) seenPhones.add(digits);
+        toCreate.push({
+          first_name: r.firstName,
+          last_name: r.lastName,
+          email,
+          phone,
+          country: r.country,
+          intake: r.intake,
+          date_of_birth: new Date(r.dateOfBirth),
+          status: 0,
+          course_level: r.courseLevel,
+          interested_program: r.interestedProgram,
+          education_loan: r.educationLoan ? 1 : 0,
+          apply_through_cp: r.applyThroughCp ? 1 : 0,
+          org_id: input.orgId,
+          cp_counsellor_id: input.cpCounsellorId ?? null,
+        });
+      });
+
+      if (toCreate.length > 0) {
+        await db.student.createMany({ data: toCreate });
+      }
+
+      return { created: toCreate.length, skipped };
+    }),
+
   // Full profile for /admin/students/[id]: the list DTO plus rich application
   // and shortlist cards (course + university meta).
   adminGet: protectedAdminProcedure
