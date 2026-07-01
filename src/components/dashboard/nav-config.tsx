@@ -122,7 +122,14 @@ export const NAV_SECTIONS: NavSection[] = [
         icon: <ClockIcon />,
         hidden: true,
       },
-      { label: "Notes & Reminders", href: "/admin/notes-reminders", icon: <ClockIcon /> },
+      // Deprecated in favour of TAT Management (itself deferred to phase 2).
+      // Hidden from the nav; set `hidden: false` to restore.
+      {
+        label: "Notes & Reminders",
+        href: "/admin/notes-reminders",
+        icon: <ClockIcon />,
+        hidden: true,
+      },
       { label: "Uni Assist", href: "/admin/uni-assist", icon: <SearchIcon /> },
     ],
   },
