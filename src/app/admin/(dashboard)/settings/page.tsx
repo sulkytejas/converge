@@ -128,6 +128,10 @@ export default function SettingsPage() {
     onSuccess: async () => { await utils.fx.list.invalidate(); setEditFx(null); toast("Rate updated"); },
     onError: (e) => toast(e.message),
   });
+  const fxReset = api.fx.reset.useMutation({
+    onSuccess: async () => { await utils.fx.list.invalidate(); toast("Reset to live rate"); },
+    onError: (e) => toast(e.message),
+  });
 
   // Hydrate the editable state from the DB once the config query resolves.
   useEffect(() => {
@@ -353,7 +357,20 @@ export default function SettingsPage() {
                           <td className={`${TD} text-xs text-[#98A2B3]`}>{r.fetchedAt ? new Date(r.fetchedAt).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" }) : "—"}</td>
                           <td className={`${TD} text-right`}>
                             {canEditFx ? (
-                              <Button variant="secondary" className="!h-8 !px-3 !text-[12px]" onClick={() => setEditFx(r.currency)}>Edit</Button>
+                              <div className="flex items-center justify-end gap-1.5">
+                                {r.manualRate != null && (
+                                  <Button
+                                    variant="secondary"
+                                    className="!h-8 !px-3 !text-[12px]"
+                                    loading={fxReset.isPending && fxReset.variables?.currency === r.currency}
+                                    onClick={() => fxReset.mutate({ currency: r.currency })}
+                                    title="Clear the manual override and follow the live feed"
+                                  >
+                                    Reset
+                                  </Button>
+                                )}
+                                <Button variant="secondary" className="!h-8 !px-3 !text-[12px]" onClick={() => setEditFx(r.currency)}>Edit</Button>
+                              </div>
                             ) : (
                               <span className="text-xs text-[#98A2B3]">View only</span>
                             )}

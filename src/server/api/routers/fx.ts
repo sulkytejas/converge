@@ -95,4 +95,16 @@ export const fxRouter = createTRPCRouter({
       await db.fx_rate.update({ where: { currency: input.currency }, data });
       return { ok: true as const };
     }),
+
+  // Clear a currency's manual override so its effective rate tracks the live
+  // mid-market feed again (mid − margin). The bank margin is left untouched.
+  reset: financeManagerProcedure
+    .input(z.object({ currency: z.string().length(3) }))
+    .mutation(async ({ input }) => {
+      await db.fx_rate.update({
+        where: { currency: input.currency },
+        data: { manual_rate: null },
+      });
+      return { ok: true as const };
+    }),
 });
