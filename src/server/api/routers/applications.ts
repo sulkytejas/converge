@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { createTRPCRouter, protectedAdminProcedure } from "~/server/api/trpc";
 import { db } from "~/server/db";
 import { UniApplicationStatusLabel } from "~/server/db/enums";
@@ -105,6 +106,73 @@ export const applicationsRouter = createTRPCRouter({
           days: Math.floor((Date.now() - r.created_at.getTime()) / MS_DAY),
           appRef: r.university_app_id,
         })),
+      };
+    }),
+
+  // Quick-look drawer payload for one application (peek without leaving the
+  // filtered list; the "Open full profile" link goes to the full page).
+  detail: protectedAdminProcedure
+    .input(z.object({ applicationId: z.number().int().positive() }))
+    .query(async ({ input }) => {
+      const a = await db.application.findUnique({
+        where: { id: input.applicationId },
+        select: {
+          id: true,
+          status: true,
+          university_app_id: true,
+          created_at: true,
+          student: {
+            select: {
+              id: true, first_name: true, last_name: true,
+              email: true, phone: true, country: true, cp_counsellor_id: true,
+            },
+          },
+          course: {
+            select: {
+              name: true, intake_month: true, intake_year: true,
+              university: { select: { name: true, country: true } },
+            },
+          },
+          stage_history: { select: { stage: true, occurred_at: true } },
+        },
+      });
+      if (!a) throw new TRPCError({ code: "NOT_FOUND", message: "Application not found" });
+
+      const [docs, cp] = await Promise.all([
+        db.document.findMany({
+          where: { student_id: a.student.id },
+          select: { id: true, doc_type: true, file_name: true, status: true },
+          orderBy: { id: "asc" },
+        }),
+        a.student.cp_counsellor_id != null
+          ? db.collegepond_user.findUnique({
+              where: { id: a.student.cp_counsellor_id },
+              select: { first_name: true, last_name: true },
+            })
+          : Promise.resolve(null),
+      ]);
+
+      return {
+        applicationId: a.id,
+        studentId: a.student.id,
+        studentName: `${a.student.first_name} ${a.student.last_name}`.trim(),
+        email: a.student.email,
+        phone: a.student.phone,
+        country: a.student.country ?? a.course.university.country ?? null,
+        university: a.course.university.name,
+        program: a.course.name,
+        intake: [a.course.intake_month, a.course.intake_year].filter(Boolean).join(" ") || "—",
+        status: a.status,
+        universityAppId: a.university_app_id,
+        processor: cp ? `${cp.first_name} ${cp.last_name}`.trim() : null,
+        timeline: [...a.stage_history]
+          .sort((x, y) => x.stage - y.stage)
+          .map((h) => ({
+            stage: h.stage,
+            label: UniApplicationStatusLabel[h.stage as keyof typeof UniApplicationStatusLabel] ?? `Stage ${h.stage}`,
+            at: h.occurred_at,
+          })),
+        documents: docs.map((d) => ({ id: d.id, name: d.file_name, type: d.doc_type, status: d.status })),
       };
     }),
 });

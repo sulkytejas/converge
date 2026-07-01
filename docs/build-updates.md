@@ -5,6 +5,22 @@
 
 ---
 
+## 2026-06-30 — Applications list: "Quick look" drawer + clickable names (SHIPPED)
+
+**What changed (in plain terms):** On the admin **Applications** page:
+- Clicking a **student's name** now opens their **full profile** (as before).
+- The old "View" button is now a **"Quick look"** that slides open a **side drawer** — a fast peek at one application *without leaving your filtered list*.
+
+**Why it matters:** Ops can skim through a filtered list and glance at each student in place — contact details, university/programme, current stage, documents, and the stage timeline — then jump into the full profile only when needed. No more losing your place by navigating away.
+
+**The drawer shows:** student contact + intake + assigned counsellor · university & programme · current stage (changeable right there) · uploaded documents with their review status · the application's stage-by-stage timeline · an "Open full profile →" button.
+
+(We deliberately left out the mockup's "partner chat" section in that drawer — there's no messaging module in the app yet; that's a separate future build.)
+
+**Status:** Built and tested in-browser. Not yet deployed.
+
+---
+
 ## 2026-06-30 — Partner portal: Bank Details + Loyalty tabs in My Account (SHIPPED)
 
 **What changed (in plain terms):** Two new tabs in the partner's **My Account**:
