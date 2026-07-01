@@ -26,6 +26,7 @@ const cpUserSelect = {
   email: true,
   phone: true,
   role: true,
+  department: true,
   status: true,
   last_login_at: true,
   created_at: true,
@@ -38,6 +39,7 @@ interface DbCpUser {
   email: string;
   phone: string;
   role: number;
+  department: string | null;
   status: number;
   last_login_at: Date | null;
   created_at: Date;
@@ -53,10 +55,16 @@ function toApi(u: DbCpUser) {
     phone,
     countryCode,
     role: u.role as AdminRole,
+    department: u.department,
     status: u.status === 1 ? ("active" as const) : ("inactive" as const),
     lastLogin: u.last_login_at?.toISOString() ?? null,
     createdAt: u.created_at.toISOString(),
   };
+}
+
+function normDepartment(value: string | undefined): string | null {
+  const t = value?.trim();
+  return t && t.length > 0 ? t : null;
 }
 
 const personFields = z.object({
@@ -69,6 +77,7 @@ const personFields = z.object({
     .number()
     .int()
     .refine((v) => ADMIN_ROLE_CODES.includes(v as AdminRole), { message: "Invalid role" }),
+  department: z.string().trim().max(100).optional(),
 });
 
 export const usersRouter = createTRPCRouter({
@@ -114,6 +123,7 @@ export const usersRouter = createTRPCRouter({
         email,
         phone: phoneStored,
         role: input.role,
+        department: normDepartment(input.department),
         status: 1,
       },
       select: cpUserSelect,
@@ -145,11 +155,62 @@ export const usersRouter = createTRPCRouter({
           email,
           phone: phoneStored,
           role: input.role,
+          department: normDepartment(input.department),
         },
         select: cpUserSelect,
       });
 
       return toApi(user);
+    }),
+
+  // Hard-delete a staff account. Blocked when the user still owns partner or
+  // student relationships (those FKs would silently null out) — the admin must
+  // reassign or deactivate first. Deleting yourself is disallowed.
+  remove: superAdminProcedure
+    .input(z.object({ id: z.number().int().positive() }))
+    .mutation(async ({ ctx, input }) => {
+      if (input.id === ctx.cpUser.id) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "You can't delete your own account.",
+        });
+      }
+
+      const existing = await db.collegepond_user.findUnique({
+        where: { id: input.id },
+        select: { id: true },
+      });
+      if (!existing) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "User not found." });
+      }
+
+      const [partnerCount, studentCount] = await Promise.all([
+        db.user.count({
+          where: {
+            OR: [
+              { bdm_id: input.id },
+              { counsellor_id: input.id },
+              { lead_counsellor_id: input.id },
+            ],
+          },
+        }),
+        db.student.count({ where: { cp_counsellor_id: input.id } }),
+      ]);
+
+      if (partnerCount > 0 || studentCount > 0) {
+        const parts: string[] = [];
+        if (partnerCount > 0)
+          parts.push(`${partnerCount} partner${partnerCount === 1 ? "" : "s"}`);
+        if (studentCount > 0)
+          parts.push(`${studentCount} student${studentCount === 1 ? "" : "s"}`);
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `This user is still assigned to ${parts.join(" and ")}. Reassign them (or deactivate this user) before deleting.`,
+        });
+      }
+
+      await db.collegepond_user.delete({ where: { id: input.id } });
+      return { success: true as const };
     }),
 
   setStatus: superAdminProcedure

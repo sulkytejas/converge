@@ -25,6 +25,7 @@ type AdminUser = {
   phone: string;
   countryCode: string;
   role: number;
+  department: string | null;
   status: "active" | "inactive";
   lastLogin: string | null;
   createdAt: string;
@@ -47,6 +48,14 @@ const ROLE_OPTIONS = (Object.values(AdminRole) as number[]).map((code) => ({
   value: String(code),
   label: AdminRoleLabel[code as AdminRole],
 }));
+
+const DEPARTMENT_OPTIONS = [
+  "Management",
+  "Finance",
+  "Operations",
+  "Business Development",
+  "Content",
+].map((d) => ({ value: d, label: d }));
 
 function formatLastLogin(iso: string | null): string {
   if (!iso) return "Never";
@@ -71,6 +80,7 @@ const emptyForm = {
   phone: "",
   countryCode: "+91",
   role: String(AdminRole.COUNSELLOR),
+  department: "",
   status: "active" as "active" | "inactive",
 };
 
@@ -126,7 +136,15 @@ export default function UsersPage() {
     },
   });
 
-  const users = usersQuery.data ?? [];
+  const removeMut = api.users.remove.useMutation({
+    onSuccess: () => {
+      void utils.users.list.invalidate();
+      showToast("User deleted");
+    },
+    onError: (err) => showToast(err.message),
+  });
+
+  const users = useMemo(() => usersQuery.data ?? [], [usersQuery.data]);
   const total = users.length;
   const activeCount = users.filter((u) => u.status === "active").length;
   const inactiveCount = total - activeCount;
@@ -157,6 +175,7 @@ export default function UsersPage() {
       phone: u.phone,
       countryCode: u.countryCode || "+91",
       role: String(u.role),
+      department: u.department ?? "",
       status: u.status,
     });
     setErrors({});
@@ -189,6 +208,7 @@ export default function UsersPage() {
     if (!validate()) return;
 
     const role = Number(form.role);
+    const department = form.department.trim() ? form.department.trim() : undefined;
 
     if (modal.editing) {
       const editing = modal.editing;
@@ -200,6 +220,7 @@ export default function UsersPage() {
         phone: form.phone.replace(/\s/g, ""),
         countryCode: form.countryCode,
         role,
+        department,
       });
 
       // Status changes apply via a separate mutation.
@@ -214,8 +235,20 @@ export default function UsersPage() {
         phone: form.phone.replace(/\s/g, ""),
         countryCode: form.countryCode,
         role,
+        department,
       });
     }
+  }
+
+  function handleDelete(u: AdminUser) {
+    if (
+      !confirm(
+        `Delete ${u.firstName} ${u.lastName}? This permanently removes the account and cannot be undone.`,
+      )
+    ) {
+      return;
+    }
+    removeMut.mutate({ id: u.id });
   }
 
   const isSaving = createMut.isPending || updateMut.isPending;
@@ -322,7 +355,7 @@ export default function UsersPage() {
           <table className="w-full border-collapse">
             <thead>
               <tr>
-                {["Name", "Email", "Phone", "Last Login", "Status", "Actions"].map((h) => (
+                {["Name", "Email", "Department", "Phone", "Last Login", "Status", "Actions"].map((h) => (
                   <th
                     key={h}
                     className="border-b border-[#E4E7EC] bg-[#F9FAFB] px-3.5 py-2.5 text-left text-xs font-semibold uppercase tracking-wider text-[#667085]"
@@ -336,7 +369,7 @@ export default function UsersPage() {
               {usersQuery.isLoading ? (
                 Array.from({ length: 6 }).map((_, i) => (
                   <tr key={i} className="border-b border-[#F2F4F7] last:border-b-0">
-                    {Array.from({ length: 6 }).map((_, c) => (
+                    {Array.from({ length: 7 }).map((_, c) => (
                       <td key={c} className="px-3.5 py-3.5">
                         <Skeleton className="h-4 w-full" />
                       </td>
@@ -345,7 +378,7 @@ export default function UsersPage() {
                 ))
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-3.5 py-8 text-center text-sm text-[#98A2B3]">
+                  <td colSpan={7} className="px-3.5 py-8 text-center text-sm text-[#98A2B3]">
                     No users found
                   </td>
                 </tr>
@@ -361,6 +394,9 @@ export default function UsersPage() {
                       {u.firstName} {u.lastName}
                     </td>
                     <td className="px-3.5 py-3 text-sm text-[#344054]">{u.email}</td>
+                    <td className="px-3.5 py-3 text-sm text-[#344054]">
+                      {u.department ?? "—"}
+                    </td>
                     <td className="px-3.5 py-3 text-sm text-[#344054]">
                       {u.countryCode} {u.phone}
                     </td>
@@ -394,6 +430,15 @@ export default function UsersPage() {
                               className="ml-1 cursor-pointer rounded px-2 py-1 text-xs font-semibold text-[#F79009] hover:bg-[#FFFAEB] disabled:opacity-50"
                             >
                               Activate
+                            </button>
+                          )}
+                          {u.id !== meQuery.data?.id && (
+                            <button
+                              onClick={() => handleDelete(u)}
+                              disabled={removeMut.isPending}
+                              className="ml-1 cursor-pointer rounded px-2 py-1 text-xs font-semibold text-[#B42318] hover:bg-[#FEF3F2] disabled:opacity-50"
+                            >
+                              Delete
                             </button>
                           )}
                         </>
@@ -462,12 +507,21 @@ export default function UsersPage() {
           error={!!errors.phone}
           errorMessage={errors.phone}
         />
-        <FormSelect
-          label="Role"
-          options={ROLE_OPTIONS}
-          value={form.role}
-          onChange={(e) => setForm({ ...form, role: e.target.value })}
-        />
+        <div className="grid grid-cols-2 gap-3">
+          <FormSelect
+            label="Role"
+            options={ROLE_OPTIONS}
+            value={form.role}
+            onChange={(e) => setForm({ ...form, role: e.target.value })}
+          />
+          <FormSelect
+            label="Department"
+            options={DEPARTMENT_OPTIONS}
+            placeholder="— Select —"
+            value={form.department}
+            onChange={(e) => setForm({ ...form, department: e.target.value })}
+          />
+        </div>
 
         {modal.editing && (
           <FormSelect

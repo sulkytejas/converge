@@ -54,6 +54,7 @@ CREATE TABLE IF NOT EXISTS `cp_user` (
   `email`         VARCHAR(125) NOT NULL,
   `phone`         VARCHAR(45)  NOT NULL,
   `role`          TINYINT(8) UNSIGNED NOT NULL,
+  `department`    VARCHAR(100) NULL DEFAULT NULL,
   `status`        TINYINT(1) UNSIGNED NOT NULL DEFAULT 1,
   `last_login_at` TIMESTAMP NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
