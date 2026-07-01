@@ -126,10 +126,25 @@ export async function POST(req: Request) {
     );
   }
 
-  const stored = await saveUpload(file, {
-    folder,
-    public: PUBLIC_FOLDERS.has(folder),
-  });
+  // Storage failures (e.g. Spaces creds missing/wrong in the deployed env) would
+  // otherwise bubble up as an unhandled 500 → HTML body → the client falls back
+  // to a useless "Upload failed". Return a clean, specific JSON error instead and
+  // log the real cause server-side for diagnosis.
+  let stored: Awaited<ReturnType<typeof saveUpload>>;
+  try {
+    stored = await saveUpload(file, { folder, public: PUBLIC_FOLDERS.has(folder) });
+  } catch (e) {
+    console.error("[upload] storage error:", e);
+    const notConfigured = e instanceof Error && /spaces is not configured/i.test(e.message);
+    return NextResponse.json(
+      {
+        error: notConfigured
+          ? "File storage isn't set up on the server yet — please contact support."
+          : "Couldn't save the file. Please try again, or contact support if it persists.",
+      },
+      { status: 500 },
+    );
+  }
 
   return NextResponse.json({ url: stored.url });
 }
