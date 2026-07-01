@@ -298,6 +298,14 @@ model invoice_item {
   @@index([invoice_id], map: "fk_invoice_item_invoice1_idx")
 }
 
+// System-wide settings (general + notification toggles) as key → JSON value.
+// Super-admin edits via the Settings page; replaces localStorage persistence.
+model system_config {
+  config_key String   @id @db.VarChar(64)
+  value      String   @db.Text
+  updated_at DateTime @default(now()) @updatedAt @db.Timestamp(0)
+}
+
 // Persistent in-app notification feed (partner-facing). Written on discrete
 // events (e.g. a counsellor approval decision); read via the partner bell.
 // unread = read_at IS NULL; tone mirrors the bell dot colours.

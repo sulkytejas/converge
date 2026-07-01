@@ -106,6 +106,17 @@ export default function SettingsPage() {
   const [editFx, setEditFx] = useState<string | null>(null);
   const [clearOpen, setClearOpen] = useState(false);
 
+  // System settings — now DB-backed (system_config), was localStorage.
+  const configQ = api.settings.getConfig.useQuery();
+  const saveGeneralMut = api.settings.saveGeneral.useMutation({
+    onSuccess: () => { flashSaved("general"); toast("Settings saved"); },
+    onError: (e) => toast(e.message),
+  });
+  const saveNotifsMut = api.settings.saveNotifications.useMutation({
+    onSuccess: () => { flashSaved("notifications"); toast("Preferences saved"); },
+    onError: (e) => toast(e.message),
+  });
+
   // Live exchange rates — real fx_rate table + mid-market feed.
   const utils = api.useUtils();
   const fxQ = api.fx.list.useQuery();
@@ -118,14 +129,16 @@ export default function SettingsPage() {
     onError: (e) => toast(e.message),
   });
 
+  // Hydrate the editable state from the DB once the config query resolves.
+  useEffect(() => {
+    if (configQ.data) {
+      setGeneral(configQ.data.general);
+      setNotifs(configQ.data.notifications);
+    }
+  }, [configQ.data]);
+
   useEffect(() => {
     setMounted(true);
-    try {
-      const g = localStorage.getItem("cp_settings");
-      if (g) setGeneral((p) => ({ ...p, ...JSON.parse(g) as object }));
-      const n = localStorage.getItem("cp_notification_prefs");
-      if (n) setNotifs((p) => ({ ...p, ...JSON.parse(n) as object }));
-    } catch { /* ignore malformed storage */ }
     // System info (browser-derived)
     const ua = navigator.userAgent;
     const browser = ua.includes("Edg") ? "Edge" : ua.includes("Chrome") ? "Chrome" : ua.includes("Firefox") ? "Firefox" : ua.includes("Safari") ? "Safari" : "Unknown";
@@ -144,8 +157,12 @@ export default function SettingsPage() {
     });
   }, []);
 
-  const saveGeneral = () => { localStorage.setItem("cp_settings", JSON.stringify(general)); flashSaved("general"); toast("Settings saved"); };
-  const saveNotifs = () => { localStorage.setItem("cp_notification_prefs", JSON.stringify(notifs)); flashSaved("notifications"); toast("Preferences saved"); };
+  const saveGeneral = () => saveGeneralMut.mutate(general);
+  const saveNotifs = () =>
+    saveNotifsMut.mutate({
+      email: !!notifs.email, appStatus: !!notifs.appStatus, invoice: !!notifs.invoice,
+      payment: !!notifs.payment, events: !!notifs.events, system: !!notifs.system,
+    });
 
   const exportJson = () => {
     const blob = new Blob([JSON.stringify({ general, notifs }, null, 2)], { type: "application/json" });
@@ -228,7 +245,7 @@ export default function SettingsPage() {
                   <FormSelect label="Time Zone" options={TZ_OPTS} value={general.timeZone} disabled={!canEdit} onChange={(e) => setGeneral({ ...general, timeZone: e.target.value })} />
                 </div>
                 <div className="flex items-center gap-3">
-                  <Button onClick={saveGeneral} disabled={!canEdit}>Save Changes</Button>
+                  <Button onClick={saveGeneral} disabled={!canEdit} loading={saveGeneralMut.isPending}>Save Changes</Button>
                   {savedFlash === "general" && <span className="text-sm font-semibold text-[#067647]">Saved successfully</span>}
                 </div>
               </div>
@@ -252,7 +269,7 @@ export default function SettingsPage() {
                   ))}
                 </div>
                 <div className="mt-4 flex items-center gap-3">
-                  <Button onClick={saveNotifs} disabled={!canEdit}>Save Preferences</Button>
+                  <Button onClick={saveNotifs} disabled={!canEdit} loading={saveNotifsMut.isPending}>Save Preferences</Button>
                   {savedFlash === "notifications" && <span className="text-sm font-semibold text-[#067647]">Saved successfully</span>}
                 </div>
               </div>

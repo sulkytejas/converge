@@ -1136,6 +1136,17 @@ CREATE TABLE IF NOT EXISTS `fx_rate` (
 ) ENGINE = InnoDB;
 
 
+-- System-wide settings (company/general + notification toggles), key → JSON
+-- value. Super-admin edits via the Settings page; replaces the old
+-- localStorage-only persistence.
+CREATE TABLE IF NOT EXISTS `system_config` (
+  `config_key` VARCHAR(64) NOT NULL,
+  `value`      TEXT        NOT NULL,
+  `updated_at` TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`config_key`)
+) ENGINE = InnoDB;
+
+
 -- Persistent in-app notification feed (partner-facing). Written on discrete
 -- events (e.g. a counsellor approval decision); read via the partner bell.
 -- unread = read_at IS NULL. `tone` mirrors the bell dot colours.

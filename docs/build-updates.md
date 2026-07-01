@@ -5,6 +5,21 @@
 
 ---
 
+## 2026-06-30 — Admin settings now actually save (to the database) (SHIPPED)
+
+**What changed (in plain terms):** The admin **Settings** page (company name, default currency, academic-year start month, date format, time zone, and the notification toggles) previously saved only inside that one browser — so the settings didn't really persist and weren't shared across devices or users. They now **save to the database**, properly and for everyone.
+
+**Why it matters:** Settings are now real, durable configuration instead of a per-browser draft. Change them once and they stick — on any device, for the whole team. Every change is also written to the **audit log**.
+
+**Details:**
+- New database-backed store for system settings; the Settings page loads from and saves to it.
+- Editing stays restricted to **Super Admins**; each save is audit-logged.
+- Verified in-browser: changed the company name → saved → reloaded → the change was still there (loaded from the database, not the browser). Same for the notification toggles.
+
+**Status:** Built and tested in-browser. Includes a small database addition (a settings table) that applies automatically on the next production deploy. Not yet deployed.
+
+---
+
 ## 2026-06-30 — Partners get notified when CP decides on their counsellor (SHIPPED)
 
 **What changed (in plain terms):** When CollegePond **approves or rejects a counsellor** a partner submitted, the partner now gets an **in-app notification** in their portal — a bell alert like *"Nisha Iyer was approved as a counsellor"* (or, if declined, with the reason). No more wondering whether their counsellor got the go-ahead.
