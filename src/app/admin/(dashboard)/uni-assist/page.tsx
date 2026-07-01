@@ -769,6 +769,7 @@ export default function AdminUniAssistPage() {
               key={p.id}
               program={p}
               shortlisted={shortlisted.has(p.id)}
+              canShortlist={selectedStudents.length > 0}
               onToggleShortlist={() => toggleShortlist(p)}
             />
           ))}
@@ -1398,10 +1399,12 @@ function AdvField({ label, children }: { label: string; children: ReactNode }) {
 function ProgramCard({
   program,
   shortlisted,
+  canShortlist,
   onToggleShortlist,
 }: {
   program: Program;
   shortlisted: boolean;
+  canShortlist: boolean;
   onToggleShortlist: () => void;
 }) {
   const uni = program.university;
@@ -1482,15 +1485,23 @@ function ProgramCard({
         <button
           type="button"
           onClick={onToggleShortlist}
-          className={`flex cursor-pointer items-center gap-1.5 rounded-lg border px-4 py-2 text-[13px] font-semibold transition-colors ${
-            shortlisted
-              ? "border-[#A6F4C5] bg-[#ECFDF3] text-[#067647]"
-              : "border-[#D0D5DD] bg-white text-[#344054] hover:border-[#1570EF] hover:text-[#1570EF]"
+          title={
+            canShortlist
+              ? undefined
+              : "Select a student first to shortlist this program"
+          }
+          aria-disabled={!canShortlist}
+          className={`flex items-center gap-1.5 rounded-lg border px-4 py-2 text-[13px] font-semibold transition-colors ${
+            !canShortlist
+              ? "cursor-not-allowed border-[#EAECF0] bg-[#F9FAFB] text-[#98A2B3]"
+              : shortlisted
+                ? "cursor-pointer border-[#A6F4C5] bg-[#ECFDF3] text-[#067647]"
+                : "cursor-pointer border-[#D0D5DD] bg-white text-[#344054] hover:border-[#1570EF] hover:text-[#1570EF]"
           }`}
         >
           <svg
             viewBox="0 0 24 24"
-            fill={shortlisted ? "currentColor" : "none"}
+            fill={shortlisted && canShortlist ? "currentColor" : "none"}
             stroke="currentColor"
             strokeWidth={2}
             className="h-3.5 w-3.5"
