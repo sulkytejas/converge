@@ -27,6 +27,66 @@ const CAP_UPPER: Record<number, number | null> = {
   5: null,
 };
 
+// Approve/reject one agency counsellor: flip status, stamp the approver,
+// write an audit-log entry, and notify the org owner(s) in-app. Returns false
+// if the id isn't an agency counsellor (so batch callers can skip it).
+async function decideCounsellor(
+  cpUserId: number,
+  userId: number,
+  approved: boolean,
+  reason: string | undefined,
+): Promise<boolean> {
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    select: { id: true, type: true, org_id: true, first_name: true, last_name: true },
+  });
+  if (user?.type !== UserType.AGENCY_COUNSELLOR) return false;
+
+  await db.user.update({
+    where: { id: user.id },
+    data: {
+      status: approved ? UserStatus.APPROVED : UserStatus.REJECTED,
+      approved_by_collegepond_user_id: approved ? cpUserId : null,
+    },
+  });
+  await db.audit_log.create({
+    data: {
+      action: approved ? "counsellor.approved" : "counsellor.rejected",
+      entity_type: "user",
+      entity_id: user.id,
+      metadata: { byCpUserId: cpUserId, reason: reason ?? null },
+    },
+  });
+
+  // Notify the partner (org owner[s]) of the decision — in-app, not email.
+  if (user.org_id != null) {
+    const owners = await db.user.findMany({
+      where: { org_id: user.org_id, is_owner: 1 },
+      select: { id: true },
+    });
+    const name = `${user.first_name} ${user.last_name}`.trim();
+    const trimmed = reason?.trim();
+    await createNotifications(
+      owners.map((o) => o.id),
+      approved
+        ? {
+            type: "counsellor.approved",
+            title: `${name} was approved as a counsellor`,
+            link: "/partner/counsellors",
+            tone: "green",
+          }
+        : {
+            type: "counsellor.rejected",
+            title: `${name}'s counsellor request was declined`,
+            body: trimmed ? `Reason: ${trimmed}` : null,
+            link: "/partner/counsellors",
+            tone: "red",
+          },
+    );
+  }
+  return true;
+}
+
 export const counsellorsRouter = createTRPCRouter({
   list: protectedAdminProcedure.query(async () => {
     const rows = await db.user.findMany({
@@ -96,60 +156,39 @@ export const counsellorsRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const user = await db.user.findUnique({
-        where: { id: input.userId },
-        select: { id: true, type: true, org_id: true, first_name: true, last_name: true },
-      });
-      if (user?.type !== UserType.AGENCY_COUNSELLOR) {
+      const ok = await decideCounsellor(
+        ctx.cpUser.id,
+        input.userId,
+        input.status === "approved",
+        input.reason,
+      );
+      if (!ok) {
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Counsellor not found",
         });
       }
-      const approved = input.status === "approved";
-      await db.user.update({
-        where: { id: user.id },
-        data: {
-          status: approved ? UserStatus.APPROVED : UserStatus.REJECTED,
-          approved_by_collegepond_user_id: approved ? ctx.cpUser.id : null,
-        },
-      });
-      await db.audit_log.create({
-        data: {
-          action: approved ? "counsellor.approved" : "counsellor.rejected",
-          entity_type: "user",
-          entity_id: user.id,
-          metadata: { byCpUserId: ctx.cpUser.id, reason: input.reason ?? null },
-        },
-      });
-
-      // Notify the partner (org owner[s]) of the decision — in-app, not email.
-      if (user.org_id != null) {
-        const owners = await db.user.findMany({
-          where: { org_id: user.org_id, is_owner: 1 },
-          select: { id: true },
-        });
-        const name = `${user.first_name} ${user.last_name}`.trim();
-        const reason = input.reason?.trim();
-        await createNotifications(
-          owners.map((o) => o.id),
-          approved
-            ? {
-                type: "counsellor.approved",
-                title: `${name} was approved as a counsellor`,
-                link: "/partner/counsellors",
-                tone: "green",
-              }
-            : {
-                type: "counsellor.rejected",
-                title: `${name}'s counsellor request was declined`,
-                body: reason ? `Reason: ${reason}` : null,
-                link: "/partner/counsellors",
-                tone: "red",
-              },
-        );
-      }
       return { success: true as const };
+    }),
+
+  // Approve several pending counsellors at once (the list's "Approve Selected"
+  // action). Non-counsellor ids are silently skipped; returns the count applied.
+  batchApprove: protectedAdminProcedure
+    .input(
+      z.object({
+        userIds: z.array(z.number().int().positive()).min(1).max(100),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      // Dedupe to avoid double-processing if the client sends repeats.
+      const ids = [...new Set(input.userIds)];
+      let approved = 0;
+      for (const id of ids) {
+        if (await decideCounsellor(ctx.cpUser.id, id, true, undefined)) {
+          approved += 1;
+        }
+      }
+      return { approved };
     }),
 
   // ===== Partner side: agency owner adds + lists their own counsellors =====

@@ -73,11 +73,15 @@ function PendingRow({
   c,
   i,
   countByOrg,
+  checked,
+  onToggle,
   onChanged,
 }: {
   c: Counsellor;
   i: number;
   countByOrg: Map<number, number>;
+  checked: boolean;
+  onToggle: (checked: boolean) => void;
   onChanged: () => void;
 }) {
   const [reason, setReason] = useState("");
@@ -85,6 +89,15 @@ function PendingRow({
   const busy = setStatus.isPending;
   return (
     <tr className="border-b border-[#F2F4F7] text-[13px] last:border-0 hover:bg-[#FAFBFC]">
+      <td className="px-4 py-3">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={(e) => onToggle(e.target.checked)}
+          className="h-4 w-4 cursor-pointer accent-[#1570EF]"
+          aria-label={`Select ${c.name}`}
+        />
+      </td>
       <td className="px-4 py-3">
         <div className="flex items-center gap-2.5">
           <Avatar name={c.name} i={i} />
@@ -147,9 +160,23 @@ export default function CounselorApprovalsPage() {
   const utils = api.useUtils();
   const refresh = () => void utils.counsellors.list.invalidate();
 
-  const [tab, setTab] = useState<Tab>("pending");
+  const [tab, setTabState] = useState<Tab>("pending");
   const [search, setSearch] = useState("");
   const [partner, setPartner] = useState("");
+  const [selected, setSelected] = useState<Set<number>>(new Set());
+
+  // Selection only applies to the pending tab; clear it whenever the tab flips.
+  const setTab = (t: Tab) => {
+    setTabState(t);
+    setSelected(new Set());
+  };
+
+  const batchApproveMut = api.counsellors.batchApprove.useMutation({
+    onSuccess: () => {
+      setSelected(new Set());
+      void utils.counsellors.list.invalidate();
+    },
+  });
 
   const rows = data ?? [];
   const countByOrg = new Map<number, number>();
@@ -181,6 +208,30 @@ export default function CounselorApprovalsPage() {
     { key: "approved", label: "Approved", count: approved.length },
     { key: "rejected", label: "Rejected", count: rejected.length },
   ];
+
+  // Batch-approve selection (pending tab only).
+  const pendingVisibleIds = tab === "pending" ? filtered.map((c) => c.id) : [];
+  const allSelected =
+    pendingVisibleIds.length > 0 &&
+    pendingVisibleIds.every((id) => selected.has(id));
+  const selectedCount = pendingVisibleIds.filter((id) => selected.has(id)).length;
+
+  const toggleOne = (id: number, checked: boolean) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (checked) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  const toggleAll = (checked: boolean) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      for (const id of pendingVisibleIds) {
+        if (checked) next.add(id);
+        else next.delete(id);
+      }
+      return next;
+    });
 
   return (
     <>
@@ -266,6 +317,36 @@ export default function CounselorApprovalsPage() {
         )}
       </div>
 
+      {/* Batch action bar (pending tab) */}
+      {tab === "pending" && selectedCount > 0 && (
+        <div className="mb-3 flex items-center justify-between rounded-xl border border-[#B2DDFF] bg-[#EFF8FF] px-4 py-2.5">
+          <span className="text-[13px] font-semibold text-[#1570EF]">
+            {selectedCount} counsellor{selectedCount === 1 ? "" : "s"} selected
+          </span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setSelected(new Set())}
+              className="rounded-md px-2.5 py-1.5 text-[12px] font-semibold text-[#667085] hover:bg-white"
+            >
+              Clear
+            </button>
+            <button
+              type="button"
+              disabled={batchApproveMut.isPending}
+              onClick={() =>
+                batchApproveMut.mutate({ userIds: [...selected] })
+              }
+              className="rounded-md bg-[#12B76A] px-3 py-1.5 text-[12px] font-semibold text-white hover:bg-[#039855] disabled:opacity-40"
+            >
+              {batchApproveMut.isPending
+                ? "Approving…"
+                : `Approve ${selectedCount} Selected`}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Table */}
       <div className="overflow-hidden rounded-xl border border-[#E4E7EC] bg-white">
         {isLoading ? (
@@ -285,6 +366,17 @@ export default function CounselorApprovalsPage() {
             <table className="w-full border-collapse">
               <thead>
                 <tr className="border-b border-[#E4E7EC] bg-[#F9FAFB]">
+                  {tab === "pending" && (
+                    <th className={`${TH} w-10`}>
+                      <input
+                        type="checkbox"
+                        checked={allSelected}
+                        onChange={(e) => toggleAll(e.target.checked)}
+                        className="h-4 w-4 cursor-pointer accent-[#1570EF]"
+                        aria-label="Select all"
+                      />
+                    </th>
+                  )}
                   <th className={TH}>Counsellor</th>
                   <th className={TH}>Partner</th>
                   <th className={TH}>Email</th>
@@ -303,6 +395,8 @@ export default function CounselorApprovalsPage() {
                         c={c}
                         i={i}
                         countByOrg={countByOrg}
+                        checked={selected.has(c.id)}
+                        onToggle={(v) => toggleOne(c.id, v)}
                         onChanged={refresh}
                       />
                     ))
