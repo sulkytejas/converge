@@ -43,9 +43,14 @@ export function ChatTab({
   const syncChat = api.chat.sync.useMutation({
     onSuccess: () => void utils.chat.thread.invalidate({ studentId }),
   });
+  // Reconcile only while actually viewing this chat: ChatTab is mounted only when
+  // the Chat tab is selected (nav away → unmount → interval cleared), and each
+  // tick is skipped when the browser tab is hidden.
   useEffect(() => {
     syncChat.mutate({ studentId });
-    const t = setInterval(() => syncChat.mutate({ studentId }), 20000);
+    const t = setInterval(() => {
+      if (!document.hidden) syncChat.mutate({ studentId });
+    }, 20000);
     return () => clearInterval(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [studentId]);
