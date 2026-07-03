@@ -22,17 +22,21 @@ export const chatRouter = createTRPCRouter({
     .query(async ({ input }) => {
       const rows = await db.whatsapp_message.findMany({
         where: { student_id: input.studentId },
-        orderBy: { created_at: "asc" },
+        orderBy: { created_at: "desc" },
         take: 200,
       });
-      return rows.map((r) => ({
-        id: r.id,
-        fromMe: r.from_me === 1,
-        body: r.body ?? "",
-        type: r.message_type ?? "text",
-        status: r.status,
-        at: (r.provider_ts ?? r.created_at).toISOString(),
-      }));
+      return rows
+        .map((r) => ({
+          id: r.id,
+          fromMe: r.from_me === 1,
+          body: r.body ?? "",
+          type: r.message_type ?? "text",
+          status: r.status,
+          at: (r.provider_ts ?? r.created_at).toISOString(),
+        }))
+        // Order by the real message time, not insert order — a sync inserts many
+        // rows at once, so created_at doesn't reflect the conversation order.
+        .sort((a, b) => a.at.localeCompare(b.at));
     }),
 
   // Reconcile the DB with Periskope's copy of the conversation (source-of-truth
