@@ -36,6 +36,19 @@ export function ChatTab({
     { studentId },
     { refetchInterval: 15000, refetchOnWindowFocus: true },
   );
+  // Reconcile the DB against Periskope on open + on an interval, so the thread
+  // reflects the real conversation even if a webhook event was missed. NON-
+  // blocking: the DB thread renders immediately; a successful sync just
+  // invalidates it to pull in anything new.
+  const syncChat = api.chat.sync.useMutation({
+    onSuccess: () => void utils.chat.thread.invalidate({ studentId }),
+  });
+  useEffect(() => {
+    syncChat.mutate({ studentId });
+    const t = setInterval(() => syncChat.mutate({ studentId }), 20000);
+    return () => clearInterval(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [studentId]);
   const [draft, setDraft] = useState("");
   const listRef = useRef<HTMLDivElement>(null);
 

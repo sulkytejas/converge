@@ -73,6 +73,78 @@ export async function sendWhatsappMessage(chatId: string, message: string): Prom
 
 // Verify the inbound webhook's x-periskope-signature header:
 // HMAC-SHA256(rawBody, PERISKOPE_WEBHOOK_KEY) as hex, timing-safe compared.
+export interface PeriskopeMessage {
+  messageId: string | null;
+  uniqueId: string | null;
+  body: string | null;
+  messageType: string | null;
+  fromMe: boolean;
+  senderPhone: string | null;
+  timestamp: string | null;
+  ack: number | null;
+}
+
+// Pull a chat's messages straight from Periskope — their store is the source of
+// truth, so the thread stays in sync with WhatsApp regardless of whether the
+// webhook delivered every event. GET /chats/{chat_id}/messages (Bearer auth,
+// optional x-phone scope). Returns null if unconfigured / the call fails, so the
+// caller can fall back to locally-stored rows.
+export async function fetchChatMessages(
+  chatId: string,
+  limit = 200,
+): Promise<PeriskopeMessage[] | null> {
+  const apiKey = process.env.PERISKOPE_API_KEY;
+  if (!apiKey) return null;
+  const headers: Record<string, string> = { Authorization: `Bearer ${apiKey}` };
+  if (process.env.PERISKOPE_PHONE) headers["x-phone"] = process.env.PERISKOPE_PHONE;
+  try {
+    const res = await fetch(
+      `${BASE_URL}/chats/${chatId}/messages?limit=${limit}&offset=0`,
+      { method: "GET", headers },
+    );
+    const text = await res.text();
+    if (!res.ok) return null;
+    const json = asRecord(text);
+    const arr = json?.messages;
+    if (!Array.isArray(arr)) return null;
+    const num = (v: unknown): number | null => (typeof v === "number" ? v : null);
+    return arr.map((raw) => {
+      const r = (raw ?? {}) as Record<string, unknown>;
+      return {
+        messageId: str(r.message_id),
+        uniqueId: str(r.unique_id),
+        body: str(r.body),
+        messageType: str(r.message_type),
+        fromMe: r.from_me === true,
+        senderPhone: str(r.sender_phone),
+        timestamp: str(r.timestamp),
+        ack: num(r.ack),
+      };
+    });
+  } catch {
+    return null;
+  }
+}
+
+// WhatsApp delivery ack (0–4) → our status label; -1 = failed.
+export function ackToStatus(ack: number | null): string {
+  switch (ack) {
+    case -1:
+      return "failed";
+    case 0:
+      return "queued";
+    case 1:
+      return "sent";
+    case 2:
+      return "delivered";
+    case 3:
+    case 4:
+      return "read";
+    default:
+      return "sent";
+  }
+}
+
 export function verifyWebhookSignature(rawBody: string, signature: string | null): boolean {
   const key = process.env.PERISKOPE_WEBHOOK_KEY;
   if (!key || !signature) return false;
