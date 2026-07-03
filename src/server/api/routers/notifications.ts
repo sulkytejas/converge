@@ -32,11 +32,27 @@ export const notificationsRouter = createTRPCRouter({
   list: protectedAdminProcedure.query(async () => {
     const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-    const [pendingApprovals, payoutsReady, invoicesPending, newStudents] =
-      await Promise.all([
+    const [
+      pendingApprovals,
+      pendingPartners,
+      payoutsReady,
+      invoicesPending,
+      newStudents,
+    ] = await Promise.all([
         db.user.count({
           where: {
             type: UserType.AGENCY_COUNSELLOR,
+            status: UserStatus.UNDER_REVIEW,
+          },
+        }),
+        // Partner self-signups are agency owners / independent counsellors under
+        // review — a DIFFERENT queue than counsellor approvals, surfaced on the
+        // Partners page. Kept as its own signal so its notification links there.
+        db.user.count({
+          where: {
+            type: {
+              in: [UserType.AGENCY_OWNER, UserType.INDEPENDENT_COUNSELLOR],
+            },
             status: UserStatus.UNDER_REVIEW,
           },
         }),
@@ -66,6 +82,16 @@ export const notificationsRouter = createTRPCRouter({
         tone: "orange",
         unread: true,
         href: "/admin/counselor-approvals",
+      });
+    }
+    if (pendingPartners > 0) {
+      notifications.push({
+        id: "partner-approvals",
+        title: `${plural(pendingPartners, "partner application")} awaiting review`,
+        time: "Needs review",
+        tone: "orange",
+        unread: true,
+        href: "/admin/partners",
       });
     }
     if (payoutsReady > 0) {
@@ -101,7 +127,7 @@ export const notificationsRouter = createTRPCRouter({
 
     return {
       notifications,
-      badges: { approvals: pendingApprovals },
+      badges: { approvals: pendingApprovals, partners: pendingPartners },
     };
   }),
 });

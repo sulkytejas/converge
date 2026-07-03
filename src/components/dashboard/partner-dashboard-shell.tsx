@@ -1,7 +1,6 @@
 "use client";
 
 import { type ReactNode } from "react";
-import { useRouter } from "next/navigation";
 import { Sidebar } from "./sidebar";
 import { Topbar } from "./topbar";
 import { MobileGate } from "./mobile-gate";
@@ -9,7 +8,6 @@ import { PARTNER_NAV_SECTIONS } from "./partner-nav-config";
 import { api } from "~/trpc/react";
 
 export function PartnerDashboardShell({ children }: { children: ReactNode }) {
-  const router = useRouter();
   const me = api.auth.me.useQuery(undefined, { retry: false });
   const utils = api.useUtils();
   const logout = api.auth.logout.useMutation();
@@ -38,12 +36,12 @@ export function PartnerDashboardShell({ children }: { children: ReactNode }) {
     try {
       await logout.mutateAsync();
     } catch {
-      // Even if the server call fails (e.g. cookie already gone), continue
-      // with the bounce — clearing the client cache + navigating to /login is
-      // the user-visible part.
+      // Even if the server call fails (e.g. cookie already gone), continue with
+      // the bounce. Hard navigation so the browser drops the cleared cookie and
+      // middleware re-checks auth on a fresh request (a soft replace would stay
+      // in the still-authenticated SPA); the reload also discards the cache.
     }
-    await utils.invalidate();
-    router.replace("/login");
+    window.location.href = "/login";
   }
 
   return (

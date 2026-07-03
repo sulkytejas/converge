@@ -1,7 +1,6 @@
 "use client";
 
 import { type ReactNode, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Sidebar } from "./sidebar";
 import { Topbar, type NotificationItem } from "./topbar";
 import { MobileGate } from "./mobile-gate";
@@ -62,8 +61,6 @@ export function DashboardShell({
   notifications,
   taskCount = 0,
 }: DashboardShellProps) {
-  const router = useRouter();
-  const utils = api.useUtils();
   const logout = api.authSession.logout.useMutation();
   // Real signed-in admin (collegepond_user) — drives the profile name/role.
   const me = api.authSession.me.useQuery().data;
@@ -91,8 +88,10 @@ export function DashboardShell({
     } catch {
       // Cookie may already be gone — keep going.
     }
-    await utils.invalidate();
-    router.replace("/admin/login");
+    // Hard navigation so the browser drops the cleared cookie and middleware
+    // re-checks auth on a fresh request; a soft router.replace would stay inside
+    // the still-authenticated SPA. The full reload also discards the tRPC cache.
+    window.location.href = "/admin/login";
   }
 
   const userName = me ? `${me.firstName} ${me.lastName}`.trim() : "";

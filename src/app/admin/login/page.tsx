@@ -194,17 +194,11 @@ export default function AdminLoginPage() {
         onSuccess: (data) => {
           setUserName(data.name);
           setScreen("success");
+          // Admin/staff (collegepond_user) have no pending-approval state — an
+          // active login always lands on the dashboard. (The partner "pending"
+          // review flow lives on /login → /pending-verification, not here.)
           setTimeout(() => {
-            if (data.status === "approved") {
-              router.push("/admin/dashboard");
-            } else {
-              const qs = new URLSearchParams({
-                email: creds.email,
-                name: data.name,
-                applicationId: data.applicationId,
-              });
-              router.push(`/pending-verification?${qs.toString()}`);
-            }
+            router.push("/admin/dashboard");
           }, 2200);
         },
         onError: () => {

@@ -17,7 +17,6 @@ import {
   markMouSigned,
   recordPartnerLogin,
 } from "~/server/applications/store";
-import { cookies } from "next/headers";
 import {
   PARTNER_SESSION_COOKIE_NAME,
   signPartnerSessionJwt,
@@ -32,6 +31,21 @@ function buildPartnerSessionCookie(token: string): string {
     "HttpOnly",
     "Path=/",
     `Max-Age=${SESSION_MAX_AGE_SECONDS}`,
+    "SameSite=Lax",
+  ];
+  if (process.env.NODE_ENV === "production") attrs.push("Secure");
+  return attrs.join("; ");
+}
+
+// Expire the partner session cookie (same name + Path as the login cookie).
+// Emitted via ctx.resHeaders — next/headers cookies().delete() is dropped by the
+// tRPC fetch handler and never reaches the browser, so the session would survive.
+function clearPartnerSessionCookie(): string {
+  const attrs = [
+    `${PARTNER_SESSION_COOKIE_NAME}=`,
+    "HttpOnly",
+    "Path=/",
+    "Max-Age=0",
     "SameSite=Lax",
   ];
   if (process.env.NODE_ENV === "production") attrs.push("Secure");
@@ -207,10 +221,10 @@ export const authRouter = createTRPCRouter({
   }),
 
   // Clears the partner session cookie. Public on purpose so a stale/missing
-  // cookie doesn't 401 the logout itself.
-  logout: publicProcedure.mutation(async () => {
-    const jar = await cookies();
-    jar.delete(PARTNER_SESSION_COOKIE_NAME);
+  // cookie doesn't 401 the logout itself. Uses ctx.resHeaders so the Set-Cookie
+  // actually reaches the browser.
+  logout: publicProcedure.mutation(({ ctx }) => {
+    ctx.resHeaders.append("Set-Cookie", clearPartnerSessionCookie());
     return { success: true as const };
   }),
 });

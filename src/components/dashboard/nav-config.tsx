@@ -99,7 +99,12 @@ export const NAV_SECTIONS: NavSection[] = [
     label: "Operations",
     items: [
       { label: "Dashboard", href: "/admin/dashboard", icon: <DashboardIcon /> },
-      { label: "Partners", href: "/admin/partners", icon: <PartnersIcon /> },
+      {
+        label: "Partners",
+        href: "/admin/partners",
+        icon: <PartnersIcon />,
+        badgeKey: "partners",
+      },
       { label: "Students", href: "/admin/students", icon: <StudentsIcon /> },
       { label: "Applications", href: "/admin/applications", icon: <InvoiceIcon /> },
       {
