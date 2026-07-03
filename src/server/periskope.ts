@@ -79,5 +79,17 @@ export function verifyWebhookSignature(rawBody: string, signature: string | null
   const digest = createHmac("sha256", key).update(rawBody, "utf8").digest("hex");
   const a = Buffer.from(digest);
   const b = Buffer.from(signature);
-  return a.length === b.length && timingSafeEqual(a, b);
+  const ok = a.length === b.length && timingSafeEqual(a, b);
+  // TEMP diagnostic (remove once inbound works): on mismatch, show FORMAT only.
+  // The received signature and our computed digest are HMACs, not secrets; the
+  // key itself is never logged. Reveals prefix ("sha256="), base64-vs-hex, length.
+  if (!ok) {
+    console.warn("[wa-webhook] signature mismatch", {
+      receivedPreview: signature.slice(0, 24),
+      computedPreview: digest.slice(0, 24),
+      receivedLen: signature.length,
+      computedLen: digest.length,
+    });
+  }
+  return ok;
 }

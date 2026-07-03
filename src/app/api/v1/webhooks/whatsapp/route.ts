@@ -42,6 +42,13 @@ async function resolveStudentId(digits: string): Promise<number | null> {
 export async function POST(req: Request) {
   const raw = await req.text();
   const signature = req.headers.get("x-periskope-signature");
+  // TEMP diagnostic (remove once inbound is confirmed): proves Periskope reaches
+  // us and surfaces header-name / signature-format mismatches. No body/PII/secrets.
+  console.log("[wa-webhook] hit", {
+    headerKeys: [...req.headers.keys()],
+    hasSig: !!signature,
+    bodyLen: raw.length,
+  });
   if (!verifyWebhookSignature(raw, signature)) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
