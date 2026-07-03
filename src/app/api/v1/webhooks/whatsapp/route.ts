@@ -60,6 +60,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Bad JSON" }, { status: 400 });
   }
 
+  // TEMP diagnostic: surface the ACTUAL event name + payload field names so we
+  // can see if they differ from what we parse (no message body / PII).
+  console.log("[wa-webhook] event", {
+    event: body.event ?? null,
+    hasData: !!body.data,
+    fromMe: body.data?.from_me ?? null,
+    dataKeys: body.data ? Object.keys(body.data) : [],
+  });
+
   // Ack anything that isn't a message so Periskope stops retrying.
   if (body.event !== "message.created" || !body.data) {
     return NextResponse.json({ ok: true, ignored: body.event ?? "unknown" });
@@ -78,11 +87,19 @@ export async function POST(req: Request) {
   const fromMe = m.from_me ? 1 : 0;
   const providerTs = m.timestamp ? new Date(m.timestamp) : null;
 
-  // Dedup: our own sent messages already have a row keyed by this provider id —
-  // update its status instead of inserting a duplicate.
-  if (providerId) {
-    const existing = await db.whatsapp_message.findUnique({
-      where: { provider_message_id: providerId },
+  // Dedup our own outbound messages. Periskope's send API returns a SHORT
+  // `unique_id` (what chat.send stored as provider_message_id), but the webhook's
+  // `message_id` is a composite `<dir>_<chatId>_<uniqueId>_<peer>` that only
+  // CONTAINS it. So correlate on the embedded unique id (not an exact match) and
+  // bump the status instead of inserting a duplicate. Per Periskope docs:
+  // https://docs.periskope.app/api-reference/webhooks/message.created
+  const correlationId = providerId ? (providerId.split("_")[2] ?? null) : null;
+  const dedupKeys = [providerId, correlationId].filter(
+    (x): x is string => !!x,
+  );
+  if (dedupKeys.length > 0) {
+    const existing = await db.whatsapp_message.findFirst({
+      where: { provider_message_id: { in: dedupKeys } },
       select: { id: true },
     });
     if (existing) {
