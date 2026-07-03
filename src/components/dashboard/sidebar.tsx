@@ -3,12 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { type ReactNode } from "react";
-import { CollegepondLogoIcon, LogoutIcon } from "./nav-icons";
+import { LogoutIcon } from "./nav-icons";
 import { type AdminRole, type NavItem, type NavSection } from "./nav-config";
 
 interface SidebarProps {
   sections: NavSection[];
   logoSubtitle: string;
+  /** Configured logo image URL; falls back to the Collegepond mark when empty. */
+  logoUrl?: string;
   badges?: Record<string, number | string | undefined>;
   /** Current admin role (string form) — gates items that declare `roles`.
    *  Null while loading: items stay visible (fail-open) until the role resolves. */
@@ -23,7 +25,11 @@ interface SidebarProps {
 // live in a fixed 64px column so they never shift during the elastic width animation.
 const REVEAL = "opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100";
 
-export function Sidebar({ sections, logoSubtitle, badges = {}, role = null, footer, onLogout }: SidebarProps) {
+// Default logo when none is configured in Settings → General.
+const FALLBACK_LOGO =
+  "https://collegepond.com/wp-content/uploads/2025/07/cropped-Cp_logo_blue_comp.webp";
+
+export function Sidebar({ sections, logoSubtitle, badges = {}, role = null, footer, onLogout, logoUrl }: SidebarProps) {
   const pathname = usePathname();
   const canSee = (item: NavItem): boolean =>
     !item.hidden && (!item.roles || role == null || item.roles.includes(role));
@@ -37,9 +43,12 @@ export function Sidebar({ sections, logoSubtitle, badges = {}, role = null, foot
         {/* Logo */}
         <div className="flex items-center border-b border-[#E4E7EC] py-4">
           <span className="flex w-16 shrink-0 justify-center">
-            <span className="flex h-[34px] w-[34px] items-center justify-center rounded-lg bg-[#1570EF]">
-              <CollegepondLogoIcon className="h-5 w-5" />
-            </span>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={logoUrl?.trim() ? logoUrl : FALLBACK_LOGO}
+              alt="Logo"
+              className="h-[34px] w-[34px] rounded-lg object-contain"
+            />
           </span>
           <div className={REVEAL}>
             <div className="text-[17px] leading-tight font-bold whitespace-nowrap text-[#101828]">Collegepond</div>

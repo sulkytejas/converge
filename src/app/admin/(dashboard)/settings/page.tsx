@@ -96,7 +96,7 @@ export default function SettingsPage() {
 
   // General settings (localStorage-persisted)
   const [general, setGeneral] = useState({
-    companyName: "Collegepond", logoUrl: "", currency: "INR",
+    companyName: "Collegepond", adminLogoUrl: "", partnerLogoUrl: "", currency: "INR",
     ayStartMonth: "April", dateFormat: "DD/MM/YYYY", timeZone: TZ_OPTS[0]!.value,
   });
   const [notifs, setNotifs] = useState<Record<string, boolean>>({
@@ -238,7 +238,10 @@ export default function SettingsPage() {
                 <AdminNotice show={!canEdit} text="Admin access required to modify settings" />
                 <div className="flex flex-col gap-4 sm:flex-row">
                   <FormInput label="Company Name" value={general.companyName} disabled={!canEdit} onChange={(e) => setGeneral({ ...general, companyName: e.target.value })} />
-                  <FormInput label="Company Logo URL" placeholder="https://example.com/logo.png" value={general.logoUrl} disabled={!canEdit} onChange={(e) => setGeneral({ ...general, logoUrl: e.target.value })} />
+                  <FormInput label="Admin Logo URL" placeholder="https://example.com/logo.png" value={general.adminLogoUrl} disabled={!canEdit} onChange={(e) => setGeneral({ ...general, adminLogoUrl: e.target.value })} />
+                </div>
+                <div className="flex flex-col gap-4 sm:flex-row">
+                  <FormInput label="Partner Logo URL" placeholder="https://example.com/logo.png" value={general.partnerLogoUrl} disabled={!canEdit} onChange={(e) => setGeneral({ ...general, partnerLogoUrl: e.target.value })} />
                 </div>
                 <div className="flex flex-col gap-4 sm:flex-row">
                   <FormSelect label="Default Currency" options={CURRENCY_OPTS} value={general.currency} disabled={!canEdit} onChange={(e) => setGeneral({ ...general, currency: e.target.value })} />

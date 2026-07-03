@@ -68,6 +68,7 @@ export function DashboardShell({
   // Live admin signals (pending approvals, payouts ready, invoices awaiting
   // review, new students). Drives both the bell and the sidebar approvals badge.
   const signals = api.notifications.list.useQuery().data;
+  const branding = api.settings.branding.useQuery().data;
   const [allRead, setAllRead] = useState(false);
 
   // Resolution order: explicit prop override → real live data → dev-only demo
@@ -112,6 +113,7 @@ export function DashboardShell({
         logoSubtitle="Admin Portal"
         badges={effectiveBadges}
         role={me && isAdminRole(me.role) ? navRoleFromCode(me.role) : null}
+        logoUrl={branding?.adminLogoUrl}
       />
       <Topbar
         userName={userName}

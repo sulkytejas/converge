@@ -2,6 +2,7 @@ import { z } from "zod";
 import {
   createTRPCRouter,
   protectedAdminProcedure,
+  publicProcedure,
   superAdminProcedure,
 } from "~/server/api/trpc";
 import { db } from "~/server/db";
@@ -10,7 +11,8 @@ import { db } from "~/server/db";
 // Settings page's initial state so a fresh install renders sensibly.
 const GENERAL_DEFAULT = {
   companyName: "Collegepond",
-  logoUrl: "",
+  adminLogoUrl: "",
+  partnerLogoUrl: "",
   currency: "INR",
   ayStartMonth: "April",
   dateFormat: "DD/MM/YYYY",
@@ -27,7 +29,8 @@ const NOTIFS_DEFAULT = {
 
 const generalInput = z.object({
   companyName: z.string().trim().min(1).max(120),
-  logoUrl: z.string().trim().max(500),
+  adminLogoUrl: z.string().trim().max(500),
+  partnerLogoUrl: z.string().trim().max(500),
   currency: z.string().trim().max(10),
   ayStartMonth: z.string().trim().max(20),
   dateFormat: z.string().trim().max(20),
@@ -81,6 +84,13 @@ export const settingsRouter = createTRPCRouter({
       readConfig("notifications", NOTIFS_DEFAULT),
     ]);
     return { general, notifications };
+  }),
+
+  // Public: just the app logo URLs, so both the admin and partner sidebars can
+  // render the configured logo without needing an admin session.
+  branding: publicProcedure.query(async () => {
+    const g = await readConfig("general", GENERAL_DEFAULT);
+    return { adminLogoUrl: g.adminLogoUrl, partnerLogoUrl: g.partnerLogoUrl };
   }),
 
   saveGeneral: superAdminProcedure

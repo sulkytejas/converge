@@ -16,6 +16,7 @@ export function PartnerDashboardShell({ children }: { children: ReactNode }) {
   const feed = api.partnerNotifications.list.useQuery(undefined, {
     refetchOnWindowFocus: true,
   });
+  const branding = api.settings.branding.useQuery().data;
   const markAllRead = api.partnerNotifications.markAllRead.useMutation({
     onSuccess: () => void utils.partnerNotifications.list.invalidate(),
   });
@@ -51,6 +52,7 @@ export function PartnerDashboardShell({ children }: { children: ReactNode }) {
         sections={PARTNER_NAV_SECTIONS}
         logoSubtitle="Partner Portal"
         onLogout={handleLogout}
+        logoUrl={branding?.partnerLogoUrl}
       />
       <Topbar
         userName={userName}
