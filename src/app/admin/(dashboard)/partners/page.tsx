@@ -223,21 +223,18 @@ export default function PartnersPage() {
       showToast(
         vars.isReactivation ? `${displayName(data)} reactivated` : `${displayName(data)} ${action}`,
       );
-      // Prompt for counsellor assignment only on a genuine first approval —
-      // a reactivated partner keeps its existing counsellors.
-      if (vars.status === "approved" && !vars.isReactivation) {
-        setAssignModal({ email: data.email, name: displayName(data) });
-      }
+      // First approval is driven FROM the assign-counsellors modal (a lead is
+      // required before the partner can be approved), so close it once the
+      // approve lands. Reactivations keep their existing lead — no modal.
+      setAssignModal(null);
     },
     onError: (err) => showToast(err.message),
   });
 
   const assignCounsellorsMut = api.partners.assignCounsellors.useMutation({
-    onSuccess: () => {
-      void utils.partners.list.invalidate();
-      setAssignModal(null);
-      showToast("Counsellors assigned");
-    },
+    // Saving the lead is the first half of approval; the chained approve
+    // mutation (see the modal's onSave) shows the toast and closes the modal.
+    onSuccess: () => void utils.partners.list.invalidate(),
     onError: (err) => showToast(err.message),
   });
 
@@ -463,7 +460,7 @@ export default function PartnersPage() {
                 setRejectReasonByEmail((prev) => ({ ...prev, [p.email]: value }))
               }
               onApprove={() =>
-                setStatus.mutate({ email: p.email, status: "approved" })
+                setAssignModal({ email: p.email, name: displayName(p) })
               }
               onReject={() => {
                 const code = rejectReasonByEmail[p.email];
@@ -571,14 +568,26 @@ export default function PartnersPage() {
         <AssignCounsellorsModal
           partnerEmail={assignModal.email}
           partnerName={assignModal.name}
+          onCancel={() => setAssignModal(null)}
           onSave={(leadCounsellorId, counsellorId) =>
-            assignCounsellorsMut.mutate({
-              email: assignModal.email,
-              leadCounsellorId,
-              counsellorId,
-            })
+            assignCounsellorsMut.mutate(
+              {
+                email: assignModal.email,
+                leadCounsellorId,
+                counsellorId,
+              },
+              {
+                // Approve only after the lead is saved — a partner can never be
+                // approved without a lead.
+                onSuccess: () =>
+                  setStatus.mutate({
+                    email: assignModal.email,
+                    status: "approved",
+                  }),
+              },
+            )
           }
-          saving={assignCounsellorsMut.isPending}
+          saving={assignCounsellorsMut.isPending || setStatus.isPending}
         />
       )}
 
@@ -635,11 +644,13 @@ export default function PartnersPage() {
 function AssignCounsellorsModal({
   partnerEmail: _partnerEmail,
   partnerName,
+  onCancel,
   onSave,
   saving,
 }: {
   partnerEmail: string;
   partnerName: string;
+  onCancel: () => void;
   onSave: (leadCounsellorId: number | null, counsellorId: number | null) => void;
   saving: boolean;
 }) {
@@ -664,13 +675,17 @@ function AssignCounsellorsModal({
     })),
   ];
 
+  const noLeads = leadsQuery.isSuccess && (leadsQuery.data?.length ?? 0) === 0;
+
   const handleSave = () => {
     if (!leadId) return;
     onSave(Number(leadId), counsellorId ? Number(counsellorId) : null);
   };
 
-  // Required step: no close X, no overlay-dismiss, no Skip button. The
-  // partner is already approved by this point and must have a lead.
+  // A lead is REQUIRED to approve: the partner is NOT approved until Save runs
+  // (assign lead → approve, chained in onSave). Cancel backs out without
+  // approving; if no Counsellor Leads exist yet, approval is blocked until one
+  // is created.
   return (
     <div className="fixed inset-0 z-[250] flex items-center justify-center bg-[rgba(16,24,40,0.55)]">
       <div className="max-h-[90vh] w-[480px] overflow-y-auto rounded-xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.2)]">
@@ -679,6 +694,12 @@ function AssignCounsellorsModal({
           <p className="mt-0.5 text-sm text-[#667085]">{partnerName}</p>
         </div>
         <div className="space-y-4 px-6 py-5">
+          {noLeads && (
+            <div className="rounded-lg border border-[#FEC84B] bg-[#FFFAEB] px-3.5 py-2.5 text-[13px] text-[#B54708]">
+              No Counsellor Leads exist yet. Add one under <strong>Users</strong>{" "}
+              (role: Counsellor Lead) before approving this partner.
+            </div>
+          )}
           <FormSelect
             label="Counsellor Lead"
             required
@@ -694,13 +715,20 @@ function AssignCounsellorsModal({
           />
         </div>
         <div className="flex justify-end gap-2 border-t border-[#E4E7EC] px-6 py-4">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="h-[38px] rounded-lg border border-[#D0D5DD] bg-white px-4 text-[13px] font-semibold text-[#344054] transition-colors hover:bg-[#F9FAFB]"
+          >
+            Cancel
+          </button>
           <Button
             onClick={handleSave}
             loading={saving}
             disabled={!leadId}
             className="!h-[38px] !px-4"
           >
-            Save
+            Save &amp; Approve
           </Button>
         </div>
       </div>
