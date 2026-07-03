@@ -32,6 +32,7 @@ const TODAY_LABEL = new Date().toLocaleDateString("en-IN", {
 export default function MouSigningPage() {
   const router = useRouter();
   const me = api.auth.me.useQuery(undefined, { retry: false });
+  const utils = api.useUtils();
 
   const [step, setStep] = useState<Step>(0);
   const [scrolledToBottom, setScrolledToBottom] = useState(false);
@@ -56,7 +57,13 @@ export default function MouSigningPage() {
   }, [me.data?.redirectUrl, router]);
 
   const signMou = api.auth.signMou.useMutation({
-    onSuccess: () => goToStep(3),
+    onSuccess: async () => {
+      // Refresh redirectUrl (now /partner/dashboard) BEFORE advancing, so the
+      // dashboard's redirect guard doesn't read the stale pre-sign value and
+      // bounce back to /mou-signing — which forced a confusing second signing.
+      await utils.auth.me.invalidate();
+      goToStep(3);
+    },
     onError: (err) => showToast(err.message),
   });
 
