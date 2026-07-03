@@ -1,34 +1,19 @@
 import { NextResponse } from "next/server";
 import { db } from "~/server/db";
 import { phoneFromChatId, verifyWebhookSignature } from "~/server/periskope";
+import { reconcileChatMessages } from "~/server/whatsapp-sync";
 
 // Inbound Periskope WhatsApp webhook (registered at
-// https://portal.convergeapp.co/api/v1/webhooks/whatsapp). Fires on
-// `message.created` for every message sent or received. We verify the HMAC
-// signature, then store the message on the matching student's thread. Our own
-// outgoing messages come back here too (from_me=true) — we dedup on the
-// provider message id so they aren't doubled.
+// https://portal.convergeapp.co/api/v1/webhooks/whatsapp). We verify the HMAC
+// signature, then use the event only as a TRIGGER: find which chat it concerns
+// and re-pull that whole conversation from Periskope (the source of truth) via
+// reconcileChatMessages — rather than parsing the event's own message fields.
+// This is resilient to payload-shape quirks and naturally covers status updates.
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-interface InboundMessage {
-  message_id?: string;
-  chat_id?: string;
-  from?: string;
-  sender_phone?: string;
-  body?: string;
-  from_me?: boolean;
-  message_type?: string;
-  timestamp?: string;
-}
-interface WebhookBody {
-  event?: string;
-  data?: InboundMessage;
-}
-
 // Match a WhatsApp number to a student by its last 10 digits (tolerates the
-// country-code/formatting differences between how we store phones and the
-// chat id). Null if no student matches — the message is still stored, unlinked.
+// country-code / formatting differences between how we store phones and the id).
 async function resolveStudentId(digits: string): Promise<number | null> {
   const last10 = digits.slice(-10);
   if (last10.length < 10) return null;
@@ -39,94 +24,40 @@ async function resolveStudentId(digits: string): Promise<number | null> {
   return student?.id ?? null;
 }
 
+// Pull any WhatsApp chat id out of the raw payload — the structured field first,
+// then a regex over the raw body as a fallback — so envelope/field-shape quirks
+// can't stop us from finding which chat to resync.
+function extractChatId(raw: string): string | null {
+  try {
+    const body = JSON.parse(raw) as { data?: unknown };
+    const data: unknown =
+      typeof body.data === "string"
+        ? (JSON.parse(body.data) as unknown)
+        : body.data;
+    if (data && typeof data === "object") {
+      const d = data as Record<string, unknown>;
+      const cid = d.chat_id ?? d.sender_phone;
+      if (typeof cid === "string" && cid.length > 0) return cid;
+    }
+  } catch {
+    /* fall through to the regex */
+  }
+  const m = /\d{6,}@[cg]\.us/.exec(raw);
+  return m ? m[0] : null;
+}
+
 export async function POST(req: Request) {
   const raw = await req.text();
-  const signature = req.headers.get("x-periskope-signature");
-  // TEMP diagnostic (remove once inbound is confirmed): proves Periskope reaches
-  // us and surfaces header-name / signature-format mismatches. No body/PII/secrets.
-  console.log("[wa-webhook] hit", {
-    headerKeys: [...req.headers.keys()],
-    hasSig: !!signature,
-    bodyLen: raw.length,
-  });
-  if (!verifyWebhookSignature(raw, signature)) {
+  if (!verifyWebhookSignature(raw, req.headers.get("x-periskope-signature"))) {
     return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
   }
 
-  let body: WebhookBody;
-  try {
-    body = JSON.parse(raw) as WebhookBody;
-  } catch {
-    return NextResponse.json({ error: "Bad JSON" }, { status: 400 });
-  }
+  const chatId = extractChatId(raw);
+  if (!chatId) return NextResponse.json({ ok: true, ignored: "no chat id" });
 
-  // TEMP diagnostic: surface the ACTUAL event name + payload field names so we
-  // can see if they differ from what we parse (no message body / PII).
-  console.log("[wa-webhook] event", {
-    event: body.event ?? null,
-    hasData: !!body.data,
-    fromMe: body.data?.from_me ?? null,
-    dataKeys: body.data ? Object.keys(body.data) : [],
-  });
+  const studentId = await resolveStudentId(phoneFromChatId(chatId));
+  if (!studentId) return NextResponse.json({ ok: true, matched: false });
 
-  // Ack anything that isn't a message so Periskope stops retrying.
-  if (body.event !== "message.created" || !body.data) {
-    return NextResponse.json({ ok: true, ignored: body.event ?? "unknown" });
-  }
-
-  const m = body.data;
-  const chatId = m.chat_id ?? "";
-  // First non-empty of the chat id / sender fields (empty strings fall through).
-  const source = [chatId, m.sender_phone, m.from].find((v) => v != null && v.length > 0) ?? "";
-  const phone = phoneFromChatId(source);
-  if (!chatId && !phone) {
-    return NextResponse.json({ ok: true, ignored: "no chat id" });
-  }
-
-  const providerId = m.message_id ?? null;
-  const fromMe = m.from_me ? 1 : 0;
-  const providerTs = m.timestamp ? new Date(m.timestamp) : null;
-
-  // Dedup our own outbound messages. Periskope's send API returns a SHORT
-  // `unique_id` (what chat.send stored as provider_message_id), but the webhook's
-  // `message_id` is a composite `<dir>_<chatId>_<uniqueId>_<peer>` that only
-  // CONTAINS it. So correlate on the embedded unique id (not an exact match) and
-  // bump the status instead of inserting a duplicate. Per Periskope docs:
-  // https://docs.periskope.app/api-reference/webhooks/message.created
-  const correlationId = providerId ? (providerId.split("_")[2] ?? null) : null;
-  const dedupKeys = [providerId, correlationId].filter(
-    (x): x is string => !!x,
-  );
-  if (dedupKeys.length > 0) {
-    const existing = await db.whatsapp_message.findFirst({
-      where: { provider_message_id: { in: dedupKeys } },
-      select: { id: true },
-    });
-    if (existing) {
-      await db.whatsapp_message.update({
-        where: { id: existing.id },
-        data: { status: "delivered", ...(providerTs ? { provider_ts: providerTs } : {}) },
-      });
-      return NextResponse.json({ ok: true, deduped: true });
-    }
-  }
-
-  const studentId = phone ? await resolveStudentId(phone) : null;
-  await db.whatsapp_message.create({
-    data: {
-      student_id: studentId,
-      chat_id: chatId || `${phone}@c.us`,
-      provider_message_id: providerId,
-      from_me: fromMe,
-      body: m.body ?? null,
-      message_type: m.message_type ?? "text",
-      status: "received",
-      provider_ts: providerTs,
-    },
-  });
-
-  if (!studentId) {
-    console.warn(`[whatsapp-webhook] message from ${phone} matched no student`);
-  }
-  return NextResponse.json({ ok: true, matched: studentId != null });
+  const synced = await reconcileChatMessages(studentId, chatId);
+  return NextResponse.json({ ok: true, resynced: synced });
 }
