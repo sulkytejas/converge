@@ -8,8 +8,6 @@ import {
 import {
   devPeekEmailOtp,
   sendEmailOtp,
-  sendPhoneOtp,
-  toE164,
   verifyEmailOtp,
 } from "~/server/otp";
 import {
@@ -86,21 +84,19 @@ export const authRouter = createTRPCRouter({
         return { success: true as const, devOtp: null };
       }
 
-      const phoneE164 = toE164(input.phone, input.countryCode);
-      const results = await Promise.allSettled([
-        sendEmailOtp(input.email),
-        sendPhoneOtp(phoneE164),
-      ]);
-      const failed = results.filter((r) => r.status === "rejected");
-      if (failed.length === results.length) {
+      // Login OTP is email-only — verification checks the email code. Phone/SMS
+      // OTP is a signup-time concern (phone verification); firing a second SMS
+      // code at login just produced a non-verifiable code that read as "invalid".
+      try {
+        await sendEmailOtp(input.email);
+      } catch {
         throw new TRPCError({
           code: "INTERNAL_SERVER_ERROR",
           message: "Failed to send OTP",
         });
       }
 
-      // Verification checks the email code, so that's the one autopilot needs.
-      // Always null outside dev/sandbox.
+      // devOtp is always null outside dev/sandbox.
       return { success: true as const, devOtp: devPeekEmailOtp(input.email) };
     }),
 

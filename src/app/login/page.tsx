@@ -8,7 +8,7 @@ import { FormInput } from "~/components/ui/form-input";
 import { PhoneInput } from "~/components/ui/phone-input";
 import { OtpInput } from "~/components/ui/otp-input";
 import { isValidEmail, isValidPhone, getExpectedPhoneDigits } from "~/lib/utils/validation";
-import { maskEmail, maskPhone } from "~/lib/utils/masking";
+import { maskEmail } from "~/lib/utils/masking";
 import { api } from "~/trpc/react";
 import {
   DevAutopilotBadge,
@@ -442,10 +442,6 @@ export default function LoginPage() {
               Code sent to{" "}
               <span className="font-semibold text-[#344054]">
                 {maskEmail(email)}
-              </span>{" "}
-              and{" "}
-              <span className="font-semibold text-[#344054]">
-                {maskPhone(phone, countryCode)}
               </span>
             </div>
 
