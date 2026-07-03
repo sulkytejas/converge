@@ -130,7 +130,15 @@ export const bdmRouter = createTRPCRouter({
         .filter((l) => l.partners > 0)
         .sort((a, b) => b.revenue - a.revenue);
 
-      if (bdmId != null) partners = partners.filter((p) => p.bdmId === bdmId);
+      // "BDM Performance" counts only BDM-MANAGED partners: a specific BDM's
+      // partners when one is selected, else every partner that has ANY BDM
+      // assigned. Unassigned orgs would otherwise inflate the KPIs/portfolio and
+      // contradict the BDM-scoped leaderboard. (Assign a BDM from the Partners
+      // page to bring an org in here.)
+      partners =
+        bdmId != null
+          ? partners.filter((p) => p.bdmId === bdmId)
+          : partners.filter((p) => p.bdmId != null);
       partners.sort((a, b) => b.revenue - a.revenue);
 
       return {
