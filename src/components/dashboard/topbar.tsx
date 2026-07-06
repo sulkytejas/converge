@@ -196,14 +196,6 @@ export function Topbar({
                 })
               )}
             </div>
-            <div className="shrink-0 border-t border-[#E4E7EC] px-4 py-2.5 text-center">
-              <a
-                href="#"
-                className="text-[13px] font-semibold text-[#1570EF] no-underline hover:underline"
-              >
-                View All Notifications
-              </a>
-            </div>
           </div>
         )}
       </div>
