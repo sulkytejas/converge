@@ -78,10 +78,13 @@ export const authRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       const app = await getApplicationByEmail(input.email);
       if (!app) {
-        // Don't reveal whether an account exists (no enumeration oracle):
-        // return the same generic success without sending anything. A wrong
-        // email simply fails at the verify step.
-        return { success: true as const, devOtp: null };
+        // Product decision (account enumeration accepted for this B2B portal):
+        // tell the user the email isn't registered rather than silently
+        // advancing to an OTP screen that will never receive a code.
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "No account found with this email.",
+        });
       }
 
       // Login OTP is email-only — verification checks the email code. Phone/SMS

@@ -161,6 +161,11 @@ export default function LoginPage() {
           setScreen("otp");
           startResendTimer();
         },
+        onError: (err) => {
+          // Surface "No account found" (and any send failure) on the email step
+          // instead of silently advancing to a dead OTP screen.
+          setEmailError(err.message);
+        },
       },
     );
   };
