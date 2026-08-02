@@ -33,6 +33,15 @@ type Role = "agency" | "independent";
 const agencySteps = ["basic", "otp", "company", "documents", "review"] as const;
 const independentSteps = ["basic", "otp", "documents", "review"] as const;
 
+// Always-required agency uploads. "gst" is required on top of these only when
+// the agency answers "GST Registered? → Yes" in Company Details.
+const AGENCY_REQUIRED_DOCS = [
+  "companyPan",
+  "aadhaar",
+  "cancelledCheque",
+  "partnershipDocs",
+] as const;
+
 const agencyDisplaySteps = [
   "Basic Information",
   "Company Details",
@@ -128,6 +137,7 @@ interface FormErrors {
   companyAddress?: string;
   numCounselors?: string;
   annualVolume?: string;
+  gstRegistered?: string;
   consent?: string;
   documents?: string;
 }
@@ -177,6 +187,8 @@ export default function SignupPage() {
   const [companyAddress, setCompanyAddress] = useState("");
   const [numCounselors, setNumCounselors] = useState("");
   const [annualVolume, setAnnualVolume] = useState("");
+  // "" until answered. "yes" makes the GST certificate a required document.
+  const [gstRegistered, setGstRegistered] = useState<"" | "yes" | "no">("");
 
   // OTP state
   const [emailOtp, setEmailOtp] = useState<string[]>(["", "", "", "", ""]);
@@ -363,13 +375,16 @@ export default function SignupPage() {
     if (!companyAddress.trim()) newErrors.companyAddress = "Address is required";
     if (!numCounselors) newErrors.numCounselors = "Number of counselors is required";
     if (!annualVolume) newErrors.annualVolume = "Student volume is required";
+    if (!gstRegistered) newErrors.gstRegistered = "Please select an option";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const validateDocuments = (): boolean => {
     if (role === "agency") {
-      const required = ["companyPan", "aadhaar", "cancelledCheque", "partnershipDocs"];
+      const required: string[] = [...AGENCY_REQUIRED_DOCS];
+      // A GST-registered agency must also supply its GST certificate.
+      if (gstRegistered === "yes") required.push("gst");
       const missing = required.some((k) => !agencyDocs[k]?.name);
       if (missing) {
         setErrors({ documents: "Please upload all required documents" });
@@ -474,6 +489,7 @@ export default function SignupPage() {
         companyAddress: role === "agency" ? companyAddress : undefined,
         numCounselors: role === "agency" ? numCounselors : undefined,
         annualVolume: role === "agency" ? annualVolume : undefined,
+        gstRegistered: role === "agency" ? gstRegistered === "yes" : undefined,
         documents,
         bdmId: bdmId ? Number(bdmId) : null,
       },
@@ -535,7 +551,7 @@ export default function SignupPage() {
       { key: "cancelledCheque", name: "Cancelled Cheque", required: true },
       { key: "partnershipDocs", name: "Partnership Docs", required: true },
       { key: "logo", name: "Company Logo", required: false },
-      { key: "gst", name: "GST Certificate", required: false },
+      { key: "gst", name: "GST Certificate", required: gstRegistered === "yes" },
     ];
     return docs.map((d) => ({
       name: d.name,
@@ -963,6 +979,33 @@ export default function SignupPage() {
               />
             </div>
 
+            <div className="mb-4 flex gap-4">
+              <FormSelect
+                label="GST Registered?"
+                required
+                placeholder="Select an option"
+                options={[
+                  { value: "yes", label: "Yes" },
+                  { value: "no", label: "No" },
+                ]}
+                value={gstRegistered}
+                onChange={(e) => {
+                  setGstRegistered(e.target.value as "" | "yes" | "no");
+                  setErrors((p) => ({ ...p, gstRegistered: undefined }));
+                }}
+                error={!!errors.gstRegistered}
+                errorMessage={errors.gstRegistered}
+              />
+              {/* Keeps the select at half-width, matching the rows above. */}
+              <div className="flex-1" />
+            </div>
+
+            {gstRegistered === "yes" && (
+              <div className="mb-4 rounded-lg border border-[#B2DDFF] bg-[#EFF8FF] px-3.5 py-2.5 text-[13px] text-[#175CD3]">
+                You&apos;ll need to upload your GST certificate in the next step.
+              </div>
+            )}
+
             <div className="mt-auto flex items-center justify-between pt-6">
               <Button variant="secondary" onClick={prevStep} iconLeft>
                 Back
@@ -1026,6 +1069,20 @@ export default function SignupPage() {
                 onFileSelect={(f) => void setAgencyDoc("partnershipDocs", f)}
                 onFileRemove={() => removeAgencyDoc("partnershipDocs")}
               />
+              {/* GST certificate is mandatory only for a GST-registered agency;
+                  otherwise it sits under Optional Documents below. */}
+              {gstRegistered === "yes" && (
+                <FileUpload
+                  label="GST Certificate"
+                  required
+                  hint="PDF, JPG or PNG (max 5MB)"
+                  fileName={agencyDocs.gst?.name}
+                  uploading={agencyDocs.gst?.uploading}
+                  error={!!errors.documents && !agencyDocs.gst?.name}
+                  onFileSelect={(f) => void setAgencyDoc("gst", f)}
+                  onFileRemove={() => removeAgencyDoc("gst")}
+                />
+              )}
             </div>
 
             <div className="mb-3.5 mt-6 text-[13px] font-semibold tracking-wide text-[#344054] uppercase">
@@ -1042,14 +1099,16 @@ export default function SignupPage() {
                 onFileSelect={(f) => void setAgencyDoc("logo", f)}
                 onFileRemove={() => removeAgencyDoc("logo")}
               />
-              <FileUpload
-                label="GST Certificate"
-                hint="PDF, JPG or PNG (max 5MB)"
-                fileName={agencyDocs.gst?.name}
-                uploading={agencyDocs.gst?.uploading}
-                onFileSelect={(f) => void setAgencyDoc("gst", f)}
-                onFileRemove={() => removeAgencyDoc("gst")}
-              />
+              {gstRegistered !== "yes" && (
+                <FileUpload
+                  label="GST Certificate"
+                  hint="PDF, JPG or PNG (max 5MB)"
+                  fileName={agencyDocs.gst?.name}
+                  uploading={agencyDocs.gst?.uploading}
+                  onFileSelect={(f) => void setAgencyDoc("gst", f)}
+                  onFileRemove={() => removeAgencyDoc("gst")}
+                />
+              )}
             </div>
 
             {errors.documents && (
@@ -1195,6 +1254,7 @@ export default function SignupPage() {
                 { label: "Website", value: companyWebsite },
                 { label: "Location", value: [city, state, country].filter(Boolean).join(", ") },
                 { label: "Team Size", value: `${numCounselors} counselors` },
+                { label: "GST Registered", value: gstRegistered === "yes" ? "Yes" : "No" },
               ]}
             />
 

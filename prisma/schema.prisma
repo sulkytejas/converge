@@ -378,6 +378,7 @@ model organization {
   url_identifier        String                 @unique(map: "url_identifier_UNIQUE") @db.VarChar(100)
   logo_url              String?                @db.VarChar(255)
   gst_number            String?                @db.VarChar(20)
+  gst_registered        Int?                   @db.TinyInt
   pan                   String?                @db.VarChar(15)
   application           application[]
   audit_log             audit_log[]

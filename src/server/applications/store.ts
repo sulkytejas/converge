@@ -31,6 +31,9 @@ export interface Application {
   companyAddress?: string;
   numCounselors?: string;
   annualVolume?: string;
+  // Agency only. Undefined for organizations that predate the question being
+  // asked — that's distinct from an explicit "no".
+  gstRegistered?: boolean;
   documents?: Record<string, string>;
   status: ApplicationStatus;
   mouSignedAt?: string | null;
@@ -99,6 +102,12 @@ function isOrgDoc(role: "agency" | "independent", slot: string): boolean {
   return ORG_DOC_SLOTS.has(slot);
 }
 
+// TINYINT column, nullable: undefined means "never asked" and must not be
+// written as 0 (which would claim the agency answered "not registered").
+function boolToTinyint(value: boolean | undefined): number | null | undefined {
+  return value === undefined ? undefined : value ? 1 : 0;
+}
+
 function fileNameFromUrl(url: string): string {
   const last = url.split("/").pop() ?? url;
   return last.split("?")[0] ?? last;
@@ -125,6 +134,7 @@ export async function saveApplication(input: ApplicationInput): Promise<Applicat
             country: toISO2(input.country),
             num_counsellors: counsellorRangeToCode(input.numCounselors),
             annual_student_volume: volumeRangeToCode(input.annualVolume),
+            gst_registered: boolToTinyint(input.gstRegistered),
           },
         });
         orgId = existing.org_id;
@@ -149,6 +159,7 @@ export async function saveApplication(input: ApplicationInput): Promise<Applicat
             country: toISO2(input.country),
             num_counsellors: counsellorRangeToCode(input.numCounselors),
             annual_student_volume: volumeRangeToCode(input.annualVolume),
+            gst_registered: boolToTinyint(input.gstRegistered) ?? null,
             is_verified: 0,
           },
         });
@@ -277,6 +288,10 @@ export async function getApplicationByEmail(
     state: user.state ?? user.organization?.state ?? undefined,
     city: user.city ?? user.organization?.city ?? undefined,
     companyAddress: user.organization?.address ?? undefined,
+    gstRegistered:
+      user.organization?.gst_registered == null
+        ? undefined
+        : user.organization.gst_registered === 1,
     documents: Object.keys(docs).length ? docs : undefined,
     status: statusLabelFromCode(user.status),
     mouSignedAt: user.mou_signed_at?.toISOString() ?? null,
@@ -331,6 +346,8 @@ export interface PartnerListing {
   bdmName: string | null;
   pan: string | null;
   gstNumber: string | null;
+  // null = the agency was never asked (predates the signup question).
+  gstRegistered: boolean | null;
   statusReason: string | null;
   website: string | null;
   state: string | null;
@@ -432,6 +449,10 @@ export async function listApplications(): Promise<PartnerListing[]> {
       bdmName: bdm ? `${bdm.first_name} ${bdm.last_name}`.trim() : null,
       pan: user.organization?.pan ?? null,
       gstNumber: user.organization?.gst_number ?? null,
+      gstRegistered:
+        user.organization?.gst_registered == null
+          ? null
+          : user.organization.gst_registered === 1,
       statusReason: user.status_reason,
       website: user.organization?.website ?? null,
       state: firstNonBlank(user.state, user.organization?.state),
@@ -546,6 +567,7 @@ function toApplication(
     companyAddress: input.companyAddress,
     numCounselors: input.numCounselors,
     annualVolume: input.annualVolume,
+    gstRegistered: input.gstRegistered,
     documents: input.documents,
     status: statusLabelFromCode(user.status),
     submittedAt: user.created_at.toISOString(),

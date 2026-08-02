@@ -39,6 +39,7 @@ type Partner = {
   bdmName: string | null;
   pan: string | null;
   gstNumber: string | null;
+  gstRegistered: boolean | null;
   statusReason: string | null;
   website: string | null;
   state: string | null;
@@ -223,9 +224,9 @@ export default function PartnersPage() {
       showToast(
         vars.isReactivation ? `${displayName(data)} reactivated` : `${displayName(data)} ${action}`,
       );
-      // First approval is driven FROM the assign-counsellors modal (a lead is
-      // required before the partner can be approved), so close it once the
-      // approve lands. Reactivations keep their existing lead — no modal.
+      // First approval is driven FROM the assign-counsellors modal, so close it
+      // once the approve lands. Reactivations keep their existing lead — no
+      // modal.
       setAssignModal(null);
     },
     onError: (err) => showToast(err.message),
@@ -577,8 +578,8 @@ export default function PartnersPage() {
                 counsellorId,
               },
               {
-                // Approve only after the lead is saved — a partner can never be
-                // approved without a lead.
+                // Approve only after the assignment is persisted, so an approved
+                // partner never briefly shows the wrong (stale) counsellors.
                 onSuccess: () =>
                   setStatus.mutate({
                     email: assignModal.email,
@@ -661,7 +662,7 @@ function AssignCounsellorsModal({
   const [counsellorId, setCounsellorId] = useState<string>("");
 
   const leadOptions = [
-    { value: "", label: "— Select counsellor lead —" },
+    { value: "", label: "— Select counsellor lead (optional) —" },
     ...(leadsQuery.data ?? []).map((u) => ({
       value: String(u.id),
       label: `${u.firstName} ${u.lastName}`.trim() || u.email,
@@ -678,14 +679,15 @@ function AssignCounsellorsModal({
   const noLeads = leadsQuery.isSuccess && (leadsQuery.data?.length ?? 0) === 0;
 
   const handleSave = () => {
-    if (!leadId) return;
-    onSave(Number(leadId), counsellorId ? Number(counsellorId) : null);
+    onSave(leadId ? Number(leadId) : null, counsellorId ? Number(counsellorId) : null);
   };
 
-  // A lead is REQUIRED to approve: the partner is NOT approved until Save runs
-  // (assign lead → approve, chained in onSave). Cancel backs out without
-  // approving; if no Counsellor Leads exist yet, approval is blocked until one
-  // is created.
+  // Both assignments are OPTIONAL: approval must never be blocked on staffing.
+  // A BDM can't create Counsellor Leads (users.create is super-admin only), so
+  // requiring one here left them with no way forward on a fresh tenant. The
+  // partner is NOT approved until Save runs (assign → approve, chained in
+  // onSave); Cancel backs out without approving. Leads can be assigned later
+  // from the partner's detail slide-over.
   return (
     <div className="fixed inset-0 z-[250] flex items-center justify-center bg-[rgba(16,24,40,0.55)]">
       <div className="max-h-[90vh] w-[480px] overflow-y-auto rounded-xl bg-white shadow-[0_20px_60px_rgba(0,0,0,0.2)]">
@@ -696,13 +698,13 @@ function AssignCounsellorsModal({
         <div className="space-y-4 px-6 py-5">
           {noLeads && (
             <div className="rounded-lg border border-[#FEC84B] bg-[#FFFAEB] px-3.5 py-2.5 text-[13px] text-[#B54708]">
-              No Counsellor Leads exist yet. Add one under <strong>Users</strong>{" "}
-              (role: Counsellor Lead) before approving this partner.
+              No Counsellor Leads exist yet. You can still approve this partner —
+              add a lead under <strong>Users</strong> (role: Counsellor Lead) and
+              assign them later from the partner&apos;s profile.
             </div>
           )}
           <FormSelect
             label="Counsellor Lead"
-            required
             options={leadOptions}
             value={leadId}
             onChange={(e) => setLeadId(e.target.value)}
@@ -722,12 +724,7 @@ function AssignCounsellorsModal({
           >
             Cancel
           </button>
-          <Button
-            onClick={handleSave}
-            loading={saving}
-            disabled={!leadId}
-            className="!h-[38px] !px-4"
-          >
+          <Button onClick={handleSave} loading={saving} className="!h-[38px] !px-4">
             Save &amp; Approve
           </Button>
         </div>
@@ -1337,6 +1334,12 @@ function PartnerDetailSlideOver({
                     p.annualStudentVolume != null
                       ? String(p.annualStudentVolume)
                       : "—"
+                  }
+                />
+                <DetailItem
+                  label="GST Registered"
+                  value={
+                    p.gstRegistered == null ? "—" : p.gstRegistered ? "Yes" : "No"
                   }
                 />
                 <DetailItem label="GSTIN" value={p.gstNumber ?? "—"} />

@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS `organization` (
   `url_identifier`        VARCHAR(100) NOT NULL,
   `logo_url`              VARCHAR(255) NULL DEFAULT NULL,
   `gst_number`            VARCHAR(20)  NULL DEFAULT NULL,
+  `gst_registered`        TINYINT      NULL DEFAULT NULL,
   `pan`                   VARCHAR(15)  NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `url_identifier_UNIQUE` (`url_identifier` ASC) VISIBLE

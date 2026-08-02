@@ -48,11 +48,13 @@ export function SuccessScreen({
         {details && details.length > 0 && (
           <div className="mb-5 grid grid-cols-2 gap-3.5 rounded-[10px] bg-[#F9FAFB] p-5 px-6 text-left">
             {details.map((d) => (
-              <div key={d.label}>
+              // min-w-0 stops a long value (e.g. an email address) from forcing
+              // its grid track wider and spilling over the neighbouring column.
+              <div key={d.label} className="min-w-0">
                 <div className="text-[11px] font-medium tracking-wide text-[#98A2B3] uppercase">
                   {d.label}
                 </div>
-                <div className="mt-0.5 text-sm font-semibold text-[#101828]">
+                <div className="mt-0.5 text-sm font-semibold break-words text-[#101828]">
                   {d.value}
                 </div>
               </div>

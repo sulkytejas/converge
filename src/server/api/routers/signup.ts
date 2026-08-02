@@ -108,9 +108,16 @@ export const signupRouter = createTRPCRouter({
         companyAddress: z.string().optional(),
         numCounselors: z.string().optional(),
         annualVolume: z.string().optional(),
+        gstRegistered: z.boolean().optional(),
         // Map of document key -> stored file URL (e.g. "/uploads/...")
         documents: z.record(z.string(), z.string()).optional(),
         bdmId: z.number().int().positive().nullable().optional(),
+      })
+      // A GST-registered agency must supply its certificate. The client enforces
+      // this too, but the rule lives here as well so the API can't be bypassed.
+      .refine((v) => !(v.gstRegistered === true) || !!v.documents?.gst, {
+        message: "GST certificate is required for a GST-registered agency",
+        path: ["documents"],
       }),
     )
     .mutation(async ({ input }) => {
@@ -129,6 +136,7 @@ export const signupRouter = createTRPCRouter({
         companyAddress: input.companyAddress,
         numCounselors: input.numCounselors,
         annualVolume: input.annualVolume,
+        gstRegistered: input.gstRegistered,
         documents: input.documents,
         bdmId: input.bdmId ?? null,
       });
