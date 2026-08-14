@@ -4,6 +4,28 @@
 
 Converge is a B2B Partner Portal for the recruitment partner ecosystem of international education consulting. Recruitment agencies, freelance counselors, and education consultants register, manage student applications, track commissions, and collaborate with Collegepond's internal teams through a unified portal.
 
+> **🚀 New here? Just cloned this repo?** Open [Claude Code](https://claude.com/claude-code) in this folder and type `/autonomous-setup`. Claude installs everything (Node, Docker, database, seed data), starts the app, verifies it, and hands you a setup report with login details. No manual steps needed.
+
+### Onboarding someone non-technical (no terminal at all)
+
+They don't need to clone anything or touch a terminal. Have them:
+
+1. Install the **Claude desktop app** — normal app install, no terminal.
+2. Sign in with their Claude account.
+3. Paste this message into a new chat:
+
+> Clone the repository `https://github.com/sulkytejas/converge.git` into a
+> folder called `converge` in my home directory. Then read the file
+> `.claude/skills/autonomous-setup/SKILL.md` inside it and follow those
+> instructions exactly, start to finish. I am not technical — do everything
+> for me, explain things in plain words, and give me the final report when
+> the app is running.
+
+Their only interactions after that: clicking **Allow** when Claude asks
+permission to run things, typing their computer password once if Homebrew
+needs installing, and possibly one "Accept" click on Docker Desktop's first
+launch. The repo is public, so no GitHub account or sign-in is needed.
+
 ---
 
 ## ⚠️ DigitalOcean migration — WIP notes (read me first)
