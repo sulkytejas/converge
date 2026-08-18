@@ -29,7 +29,7 @@ region: blr # App Platform region slug for Bangalore. NOT "blr1" (that's the
 services:
   - name: web
     github:
-      repo: sulkytejas/converge
+      repo: Suraj-1210/converge
       branch: do-migration-prep
       deploy_on_push: false # MANUAL deploys only — a git push does NOT redeploy
                             # prod. Deploy on demand with:
@@ -146,3 +146,19 @@ services:
       #   value: ""
       # - key: MSG91_MOREINFO_TEMPLATE_ID      # transactional: partner more-info
       #   value: ""
+
+      # --- Periskope (WhatsApp) — application status updates + inbound webhook.
+      # Present on the LIVE app but previously undocumented here; without these
+      # a re-created app loses WhatsApp silently (src/server/periskope.ts gates
+      # on periskopeConfigured(), so the feature just goes quiet).
+      - key: PERISKOPE_API_KEY
+        scope: RUN_TIME
+        type: SECRET
+        value: REPLACE_IN_DASHBOARD
+      - key: PERISKOPE_WEBHOOK_KEY
+        scope: RUN_TIME
+        type: SECRET
+        value: REPLACE_IN_DASHBOARD
+      - key: PERISKOPE_PHONE
+        scope: RUN_TIME
+        value: REPLACE_IN_DASHBOARD
