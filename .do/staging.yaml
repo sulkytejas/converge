@@ -1,0 +1,124 @@
+# =============================================================================
+# DigitalOcean App Platform spec — Converge STAGING
+# =============================================================================
+# A rehearsal copy of production. Same code, same NODE_ENV, smaller instance.
+# Create with:  doctl apps create --spec .do/staging.yaml
+# Update with:  doctl apps update <staging-app-id> --spec .do/staging.yaml
+#
+# Fill every REPLACE_IN_DASHBOARD value in the DigitalOcean control panel —
+# never commit real secrets here.
+#
+# Deliberate differences from production (.do/app.yaml):
+#   - tracks the `staging` branch, not `main`
+#   - basic-xxs instead of basic-xs (staging is lightly used)
+#   - its own database (`staging`) on the SAME cluster, reached by a user that
+#     can only see that database — a mistyped URL cannot reach production data
+#   - its own Spaces bucket, so test uploads never mix with real documents
+#   - PERISKOPE_* intentionally ABSENT: staging must never send real WhatsApp
+#     messages to real students. periskopeConfigured() returns false and sends
+#     are skipped silently, which is the behaviour we want here.
+#   - ADMIN_EMAIL points at a person, not the services inbox, so test signups
+#     don't page the real team
+#
+# NODE_ENV is `production` on purpose. The OTP guard in src/server/otp/index.ts
+# refuses the sandbox provider when NODE_ENV=production, so staging exercises
+# the real login path — the thing most likely to break at launch. That does mean
+# MSG91_AUTH_KEY must hold a real key, and real OTPs are sent to whatever
+# address/number you type in.
+# =============================================================================
+name: converge-staging
+region: blr
+
+services:
+  - name: web
+    github:
+      repo: Suraj-1210/converge
+      branch: staging
+      deploy_on_push: false # manual deploys, same discipline as production
+    environment_slug: node-js
+    instance_size_slug: basic-xxs
+    instance_count: 1
+    http_port: 3000
+
+    build_command: DATABASE_URL='mysql://build:build@localhost:3306/build' SKIP_ENV_VALIDATION=1 npm run build
+
+    # BOOTSTRAP ORDER: leave this as plain `npm run start` until the staging
+    # database has been loaded from prisma/sql/schema.sql and baselined. On an
+    # empty database the migration runner would try to ALTER tables that do not
+    # exist yet. Once bootstrapped, change to:
+    #   node scripts/db-apply.mjs --force && npm run start
+    run_command: npm run start
+
+    health_check:
+      http_path: /api/health
+      initial_delay_seconds: 30
+      period_seconds: 30
+      timeout_seconds: 5
+      failure_threshold: 5
+
+    envs:
+      - key: NODE_ENV
+        scope: RUN_TIME
+        value: production
+
+      # mysql://staging_user:<password>@<same-host>:25060/staging
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        type: SECRET
+        value: REPLACE_IN_DASHBOARD
+      # Same CA as production — download from the converge-db cluster page.
+      - key: DATABASE_CA_CERT
+        scope: RUN_TIME
+        value: REPLACE_IN_DASHBOARD
+
+      # MUST be different from production. Sharing them would let a staging
+      # session cookie authenticate against production.
+      - key: AUTH_SECRET
+        scope: RUN_TIME
+        type: SECRET
+        value: REPLACE_IN_DASHBOARD
+      - key: CREDENTIAL_ENCRYPTION_KEY
+        scope: RUN_TIME
+        type: SECRET
+        value: REPLACE_IN_DASHBOARD
+
+      - key: ADMIN_EMAIL
+        scope: RUN_TIME
+        value: suraj@collegepond.com
+
+      # --- Spaces (staging bucket) ---
+      - key: SPACES_KEY
+        scope: RUN_TIME
+        type: SECRET
+        value: REPLACE_IN_DASHBOARD
+      - key: SPACES_SECRET
+        scope: RUN_TIME
+        type: SECRET
+        value: REPLACE_IN_DASHBOARD
+      - key: SPACES_BUCKET
+        scope: RUN_TIME
+        value: converge-assets-staging
+      - key: SPACES_REGION
+        scope: RUN_TIME
+        value: sgp1
+      - key: SPACES_ENDPOINT
+        scope: RUN_TIME
+        value: https://sgp1.digitaloceanspaces.com
+
+      # --- MSG91 — same account and templates as production ---
+      - key: MSG91_AUTH_KEY
+        scope: RUN_TIME
+        type: SECRET
+        value: REPLACE_IN_DASHBOARD
+      - key: MSG91_SMS_TEMPLATE_ID
+        scope: RUN_TIME
+        value: "69f9bff2dd5666570400c984"
+      - key: MSG91_EMAIL_TEMPLATE_ID
+        scope: RUN_TIME
+        value: scholarship_email_otp
+      - key: MSG91_EMAIL_FROM
+        scope: RUN_TIME
+        value: no-reply@mail.convergeapp.co
+      - key: MSG91_EMAIL_DOMAIN
+        scope: RUN_TIME
+        value: mail.convergeapp.co
