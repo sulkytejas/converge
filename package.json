@@ -19,6 +19,7 @@
     "db:apply:sh": "./scripts/db-apply.sh",
     "db:baseline": "node scripts/db-apply.mjs --baseline",
     "db:bootstrap": "node scripts/db-bootstrap.mjs",
+    "db:grants": "node scripts/db-grants.mjs",
     "db:studio": "prisma studio",
     "dev": "next dev --turbo",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
