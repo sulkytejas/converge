@@ -37,6 +37,9 @@ function flag(name) {
 }
 const ONLY_USER = flag("user");
 const RESTRICT_TO = flag("restrict-to");
+// Repair mode: grant on the target database WITHOUT revoking first. Use when a
+// user has been left with USAGE only and just needs its access back.
+const GRANT_ONLY = argv.includes("--grant-only");
 
 function fail(msg) {
   console.error(`Error: ${msg}`);
@@ -105,14 +108,31 @@ try {
   if (dbExists.n === 0) fail(`database '${RESTRICT_TO}' does not exist.`);
 
   console.log(`\nRestricting ${target.user}@${target.host} to '${RESTRICT_TO}'...`);
-  // Grant first, revoke second — never leave the user with nothing.
-  await conn.query(
-    `GRANT ALL PRIVILEGES ON \`${RESTRICT_TO}\`.* TO ?@?`,
-    [target.user, target.host],
-  );
+  // REVOKE FIRST, then GRANT.
+  //
+  // The obvious order — grant on the target database, then revoke the global
+  // privileges — does NOT work here: `REVOKE ALL PRIVILEGES ON *.*` on this
+  // server also clears database-level grants, so the fresh grant disappears
+  // and the user is left holding USAGE (connect, do nothing). That took
+  // staging down once. Revoking first and granting second ends in the right
+  // state; the cost is a brief window where the user has no access at all,
+  // which is why this should not be run against a live production user.
+  //
+  // `REVOKE ALL PRIVILEGES, GRANT OPTION` is deliberate: it also clears
+  // GRANT OPTION and dynamic privileges (ROLE_ADMIN and friends), which a
+  // plain `REVOKE ALL PRIVILEGES ON *.*` leaves behind.
+  if (!GRANT_ONLY) {
+    await conn.query(`REVOKE ALL PRIVILEGES, GRANT OPTION FROM ?@?`, [
+      target.user,
+      target.host,
+    ]);
+    console.log("  revoked all existing privileges");
+  }
+  await conn.query(`GRANT ALL PRIVILEGES ON \`${RESTRICT_TO}\`.* TO ?@?`, [
+    target.user,
+    target.host,
+  ]);
   console.log(`  granted on ${RESTRICT_TO}.*`);
-  await conn.query(`REVOKE ALL PRIVILEGES ON *.* FROM ?@?`, [target.user, target.host]);
-  console.log("  revoked global privileges");
   await conn.query("FLUSH PRIVILEGES");
 
   const [after] = await conn.query(`SHOW GRANTS FOR ?@?`, [target.user, target.host]);
