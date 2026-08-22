@@ -1,0 +1,56 @@
+# Runs the checks that would otherwise depend on someone remembering to.
+#
+# `build` matters more than it looks: `npm run build` currently fails on at
+# least one maintainer's Windows machine for environment reasons unrelated to
+# the code (EPERM on a profile junction), so CI is the only place a broken
+# build is reliably caught before a deploy.
+name: check
+
+on:
+  push:
+    branches: [main, staging]
+  pull_request:
+    branches: [main, staging]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20 # matches `engines` and the App Platform runtime
+          cache: npm
+
+      # `npm ci` runs postinstall -> `prisma generate`, which needs no database.
+      - run: npm ci
+
+      - name: Lint and typecheck
+        run: npm run check
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      # Same two workarounds the App Platform build command uses:
+      #   DATABASE_URL  - `next build` imports every route under
+      #                   NODE_ENV=production and constructs the Prisma client,
+      #                   which throws without a URL. It never connects.
+      #   SKIP_ENV_VALIDATION - so @t3-oss/env doesn't fail on runtime-only
+      #                   secrets that are deliberately absent here.
+      # NODE_ENV is left alone: setting it to production makes npm skip
+      # devDependencies and the build dies on a missing @tailwindcss/postcss.
+      - name: Build
+        env:
+          DATABASE_URL: mysql://build:build@localhost:3306/build
+          SKIP_ENV_VALIDATION: "1"
+        run: npm run build
