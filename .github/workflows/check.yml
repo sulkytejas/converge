@@ -26,7 +26,12 @@ jobs:
       # `npm ci` runs postinstall -> `prisma generate`, which needs no database.
       - run: npm ci
 
+      # `next lint` loads next.config.js, which imports src/env.js and validates
+      # the runtime env. CI has no .env, so skip that check here — this job is
+      # about lint and types, not configuration.
       - name: Lint and typecheck
+        env:
+          SKIP_ENV_VALIDATION: "1"
         run: npm run check
 
   build:
